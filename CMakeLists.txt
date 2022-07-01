@@ -5,6 +5,18 @@ set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard")
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "C++ standard required")
 set(CMAKE_CXX_EXTENSIONS FALSE CACHE BOOL "C++ standard extension")
 
+if(NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+  message(FATAL_ERROR "${CMAKE_SYSTEM_NAME} is not supported")
+endif()
+
+if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
+  set(I_SEED_DRONE_ONBOARD_MANIFOLD FALSE)
+elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
+  set(I_SEED_DRONE_ONBOARD_MANIFOLD TRUE)
+else()
+  message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR} is not supported")
+endif()
+
 option(I_SEED_DRONE_ONBOARD_PEDANTIC "Enable pedantic checks" OFF)
 
 # * CMAKE_INSTALL_LIBDIR
