@@ -17,6 +17,13 @@ else()
   message(FATAL_ERROR "${CMAKE_SYSTEM_PROCESSOR} is not supported")
 endif()
 
+if(I_SEED_DRONE_ONBOARD_MANIFOLD)
+  set(acm "/dev/ttyACM0")
+  if(NOT EXISTS "${acm}")
+    message(WARNING "${acm} not present, drone is not connected")
+  endif()
+endif()
+
 option(I_SEED_DRONE_ONBOARD_PEDANTIC "Enable pedantic checks" OFF)
 
 # * CMAKE_INSTALL_LIBDIR
