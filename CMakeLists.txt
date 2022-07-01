@@ -137,7 +137,7 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       dji_linux_helpers.cpp
       PROPERTIES
       COMPILE_OPTIONS
-      "-Wno-ignored-qualifiers;-Wno-pedantic"
+      "-Wno-unused-parameter;-Wno-ignored-qualifiers;-Wno-pedantic"
   )
   set_source_files_properties(
       osdkhal_linux.c
@@ -149,13 +149,16 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       common/osal/osal_socket.c
       PROPERTIES
       COMPILE_OPTIONS
-      "-Wno-extra"
+      # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
+      # osal_socket.c:118:22: error: ordered comparison of pointer with integer zero [-Werror=extra]
+      "-Wno-extra;-Wno-pedantic"
   )
   set_source_files_properties(
       manifold2/hal/hal_uart.c
       PROPERTIES
       COMPILE_OPTIONS
-      "-Wno-unused-variable"
+      # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
+      "-Wno-pedantic;-Wno-unused-variable"
   )
   set_source_files_properties(
       common/osal/osal.c
