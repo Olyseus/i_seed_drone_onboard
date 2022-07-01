@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 project(i_seed_drone_onboard)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/module")
+
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ standard")
 set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "C++ standard required")
 set(CMAKE_CXX_EXTENSIONS FALSE CACHE BOOL "C++ standard extension")
