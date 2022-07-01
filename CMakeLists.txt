@@ -12,8 +12,41 @@ option(I_SEED_DRONE_ONBOARD_PEDANTIC "Enable pedantic checks" OFF)
 # * CMAKE_INSTALL_INCLUDEDIR
 include(GNUInstallDirs)
 
+find_package(Protobuf REQUIRED) # protobuf::protoc
+
+set(input_proto "${CMAKE_CURRENT_LIST_DIR}/interconnection.proto")
+set(gen_h "${CMAKE_CURRENT_BINARY_DIR}/interconnection.pb.h")
+set(gen_cc "${CMAKE_CURRENT_BINARY_DIR}/interconnection.pb.cc")
+set(gen_java_dir "${CMAKE_CURRENT_LIST_DIR}/java")
+set(gen_java "${gen_java_dir}/interconnection/Interconnection.java")
+
+add_custom_command(
+    OUTPUT "${gen_h}" "${gen_cc}" "${gen_java}"
+    COMMAND
+        protobuf::protoc
+    ARGS
+        "--proto_path=${CMAKE_CURRENT_LIST_DIR}"
+        "--cpp_out=${CMAKE_CURRENT_BINARY_DIR}"
+        "--java_out=${gen_java_dir}"
+        "${input_proto}"
+    DEPENDS "${input_proto}" protobuf::protoc
+    COMMENT "Generate C++ and Java code from ${input_proto}"
+    VERBATIM
+)
+
+set_source_files_properties(${gen_h} ${gen_cc} PROPERTIES GENERATED TRUE)
+
+set_source_files_properties(
+    ${gen_cc}
+    PROPERTIES
+    COMPILE_OPTIONS
+    "-Wno-unused-parameter"
+)
+
 add_library(
     i_seed_drone_onboard_core
+    ${gen_cc}
+    ${gen_h}
     boost_assert.cpp
 )
 
