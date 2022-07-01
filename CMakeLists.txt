@@ -108,6 +108,26 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       osdkosal_linux.h
   )
   set_source_files_properties(
+      osdkosal_linux.c
+      PROPERTIES
+      COMPILE_OPTIONS
+      "-Wno-unused-parameter"
+  )
+  set_source_files_properties(
+      manifold2/hal/hal_usb_bulk.c
+      PROPERTIES
+      COMPILE_OPTIONS
+      # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
+      "-Wno-pedantic"
+  )
+  set_source_files_properties(
+      manifold2/hal/hal_network.c
+      PROPERTIES
+      COMPILE_OPTIONS
+      # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
+      "-Wno-pedantic;-Wno-unused-parameter"
+  )
+  set_source_files_properties(
       dji_linux_environment.cpp
       PROPERTIES
       COMPILE_OPTIONS
@@ -136,6 +156,20 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       PROPERTIES
       COMPILE_OPTIONS
       "-Wno-unused-variable"
+  )
+  set_source_files_properties(
+      common/osal/osal.c
+      PROPERTIES
+      COMPILE_OPTIONS
+      # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
+      "-Wno-pedantic;-Wno-unused-parameter"
+  )
+  set_source_files_properties(
+      common/osal/osal_fs.c
+      PROPERTIES
+      COMPILE_OPTIONS
+      # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
+      "-Wno-pedantic"
   )
 
   # https://man7.org/linux/man-pages/man3/pthread_setname_np.3.html
