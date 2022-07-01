@@ -2,7 +2,7 @@ Install service:
 
 .. code-block:: none
 
-  [i_seed_drone_onboard]> sudo ln -s i_seed_drone_onboard.service /etc/systemd/system/
+  [i_seed_drone_onboard]> sudo ln -s "`pwd`/i_seed_drone_onboard.service" /etc/systemd/system/
   [i_seed_drone_onboard]> sudo systemctl enable i_seed_drone_onboard
 
 Service
