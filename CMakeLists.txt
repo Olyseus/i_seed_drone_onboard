@@ -72,6 +72,12 @@ add_library(
     timer.h
 )
 
+target_include_directories(
+    i_seed_drone_onboard_core
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+)
+
 if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   target_sources(
       i_seed_drone_onboard_core
