@@ -70,6 +70,66 @@ add_library(
     timer.h
 )
 
+if(I_SEED_MANIFOLD)
+  target_sources(
+      i_seed_drone_onboard_core
+      PRIVATE
+      common/osal/osal.c
+      common/osal/osal.h
+      common/osal/osal_fs.c
+      common/osal/osal_fs.h
+      common/osal/osal_socket.c
+      common/osal/osal_socket.h
+      dji_linux_environment.cpp
+      dji_linux_environment.hpp
+      dji_linux_helpers.cpp
+      dji_linux_helpers.hpp
+      manifold2/hal/hal_network.c
+      manifold2/hal/hal_network.h
+      manifold2/hal/hal_uart.c
+      manifold2/hal/hal_uart.h
+      manifold2/hal/hal_usb_bulk.c
+      manifold2/hal/hal_usb_bulk.h
+      osdkhal_linux.c
+      osdkhal_linux.h
+      osdkosal_linux.c
+      osdkosal_linux.h
+  )
+  set_source_files_properties(
+      dji_linux_environment.cpp
+      PROPERTIES
+      COMPILE_OPTIONS
+      "-Wno-format"
+  )
+  set_source_files_properties(
+      dji_linux_helpers.cpp
+      PROPERTIES
+      COMPILE_OPTIONS
+      "-Wno-ignored-qualifiers;-Wno-pedantic"
+  )
+  set_source_files_properties(
+      osdkhal_linux.c
+      PROPERTIES
+      COMPILE_OPTIONS
+      "-Wno-sign-compare;-Wno-pointer-sign"
+  )
+  set_source_files_properties(
+      common/osal/osal_socket.c
+      PROPERTIES
+      COMPILE_OPTIONS
+      "-Wno-extra"
+  )
+  set_source_files_properties(
+      manifold2/hal/hal_uart.c
+      PROPERTIES
+      COMPILE_OPTIONS
+      "-Wno-unused-variable"
+  )
+
+  # https://man7.org/linux/man-pages/man3/pthread_setname_np.3.html
+  target_compile_definitions(i_seed_drone_onboard_core PUBLIC _GNU_SOURCE)
+endif()
+
 find_package(Boost REQUIRED COMPONENTS filesystem)
 target_link_libraries(i_seed_drone_onboard_core PUBLIC Boost::filesystem)
 
