@@ -70,7 +70,7 @@ add_library(
     timer.h
 )
 
-if(I_SEED_MANIFOLD)
+if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   target_sources(
       i_seed_drone_onboard_core
       PRIVATE
