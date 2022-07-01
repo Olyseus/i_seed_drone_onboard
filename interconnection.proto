@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package interconnection;
+
+message command_type {
+  enum command_t {
+    PING = 0;
+  }
+
+  command_t type = 1;
+  int32 version = 2;
+}
