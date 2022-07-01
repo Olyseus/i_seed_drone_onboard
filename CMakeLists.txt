@@ -166,16 +166,16 @@ target_link_libraries(
     GTest::gtest_main
 )
 
+target_compile_options(
+    i_seed_drone_onboard_core PUBLIC -Wall -Werror -Wpedantic -Wextra
+)
+
 if(I_SEED_DRONE_ONBOARD_PEDANTIC)
   # Disable warnings in automatically generated files
   file(
       COPY_FILE
       "${CMAKE_CURRENT_LIST_DIR}/clang-tidy-disabled"
       "${CMAKE_CURRENT_BINARY_DIR}/.clang-tidy"
-  )
-
-  target_compile_options(
-      i_seed_drone_onboard_core PUBLIC -Wall -Werror -Wpedantic -Wextra
   )
 
   set_target_properties(
