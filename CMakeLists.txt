@@ -170,6 +170,64 @@ target_compile_options(
     i_seed_drone_onboard_core PUBLIC -Wall -Werror -Wpedantic -Wextra
 )
 
+if(I_SEED_DRONE_ONBOARD_MANIFOLD)
+  set(trt_so_dir "/usr/lib/aarch64-linux-gnu/")
+  if(NOT EXISTS "${trt_so_dir}")
+    message(FATAL_ERROR "${trt_so_dir} not found")
+  endif()
+  target_link_libraries(i_seed_drone_onboard_core PUBLIC "${trt_so_dir}/libnvinfer.so")
+  target_link_libraries(i_seed_drone_onboard_core PUBLIC "${trt_so_dir}/libnvonnxparser.so")
+
+  if("${OSDK_DIR}" STREQUAL "")
+    message(FATAL_ERROR "OSDK_DIR is not set")
+  endif()
+  if(NOT EXISTS "${OSDK_DIR}")
+    message(FATAL_ERROR "Directory not found: ${OSDK_DIR}")
+  endif()
+
+  if("${PSDK_DIR}" STREQUAL "")
+    message(FATAL_ERROR "PSDK_DIR is not set")
+  endif()
+  if(NOT EXISTS "${PSDK_DIR}")
+    message(FATAL_ERROR "Directory not found: ${PSDK_DIR}")
+  endif()
+
+  target_include_directories(
+      i_seed_drone_onboard_core
+      PUBLIC
+      "${OSDK_DIR}/include"
+      "${PSDK_DIR}/include"
+      "/usr/include/libusb-1.0/"
+  )
+
+  find_package(Threads REQUIRED) # Threads::Threads
+  find_package(FFMPEG REQUIRED) # FFMPEG_LIBRARIES
+
+  target_link_libraries(
+      i_seed_drone_onboard_core
+      PUBLIC
+      "${OSDK_DIR}/lib/libdjiosdk-core.a"
+      "${OSDK_DIR}/lib/libadvanced-sensing.a"
+      "${OSDK_DIR}/lib/libdji-linker.a"
+      "${PSDK_DIR}/lib/libpayloadsdk.a"
+      "${FFMPEG_LIBRARIES}"
+      Threads::Threads
+      "-lusb-1.0"
+  )
+  target_compile_definitions(i_seed_drone_onboard_core PUBLIC ADVANCED_SENSING=1)
+else()
+  if("${TRT_LIB_DIR}" STREQUAL "")
+    message(FATAL_ERROR "TRT_LIB_DIR not set")
+  endif()
+  if(NOT EXISTS "${TRT_LIB_DIR}")
+    message(FATAL_ERROR "Directory not found: ${TRT_LIB_DIR}")
+  endif()
+
+  target_include_directories(i_seed_drone_onboard_core PUBLIC "${TRT_LIB_DIR}/include")
+  target_link_libraries(i_seed_drone_onboard_core PUBLIC "${TRT_LIB_DIR}/lib/libnvinfer.so")
+  target_link_libraries(i_seed_drone_onboard_core PUBLIC "${TRT_LIB_DIR}/lib/libnvonnxparser.so")
+endif()
+
 if(I_SEED_DRONE_ONBOARD_PEDANTIC)
   # Disable warnings in automatically generated files
   file(
