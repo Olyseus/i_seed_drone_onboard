@@ -72,6 +72,10 @@ add_library(
     timer.h
 )
 
+target_compile_options(
+    i_seed_drone_onboard_core PUBLIC -Wall -Werror -Wpedantic -Wextra
+)
+
 target_include_directories(
     i_seed_drone_onboard_core
     PUBLIC
@@ -172,10 +176,6 @@ target_link_libraries(
     PRIVATE
     i_seed_drone_onboard_core
     GTest::gtest_main
-)
-
-target_compile_options(
-    i_seed_drone_onboard_core PUBLIC -Wall -Werror -Wpedantic -Wextra
 )
 
 if(I_SEED_DRONE_ONBOARD_MANIFOLD)
