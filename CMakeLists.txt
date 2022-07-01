@@ -67,6 +67,7 @@ add_library(
     ${gen_cc}
     ${gen_h}
     boost_assert.cpp
+    timer.h
 )
 
 find_package(Boost REQUIRED COMPONENTS filesystem)
