@@ -1,0 +1,10 @@
+[Unit]
+Description=I-Seed drone onboard service
+
+[Service]
+ExecStart=/home/olyseus/opt/i_seed_drone_onboard/bin/i_seed_drone_onboard
+WorkingDirectory=/home/olyseus/.i_seed_drone_onboard/
+User=olyseus
+
+[Install]
+WantedBy=multi-user.target
