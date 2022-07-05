@@ -72,6 +72,8 @@ add_library(
     timer.h
 )
 
+target_link_libraries(i_seed_drone_onboard_core PUBLIC protobuf::libprotobuf)
+
 target_compile_options(
     i_seed_drone_onboard_core PUBLIC -Wall -Werror -Wpedantic -Wextra
 )
@@ -80,6 +82,7 @@ target_include_directories(
     i_seed_drone_onboard_core
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
 if(I_SEED_DRONE_ONBOARD_MANIFOLD)
@@ -96,6 +99,8 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       dji_linux_environment.hpp
       dji_linux_helpers.cpp
       dji_linux_helpers.hpp
+      drone.cpp
+      drone.h
       manifold2/hal/hal_network.c
       manifold2/hal/hal_network.h
       manifold2/hal/hal_uart.c
@@ -106,6 +111,13 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       osdkhal_linux.h
       osdkosal_linux.c
       osdkosal_linux.h
+  )
+  set_source_files_properties(
+      drone.cpp
+      PROPERTIES
+      COMPILE_OPTIONS
+      # libusb.h:736:4: error: ISO C++ forbids zero-size array ‘dev_capability_data’ [-Werror=pedantic]
+      "-Wno-ignored-qualifiers;-Wno-pedantic"
   )
   set_source_files_properties(
       osdkosal_linux.c

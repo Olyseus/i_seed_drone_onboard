@@ -2,11 +2,10 @@
 #include <spdlog/sinks/stdout_sinks.h>        // spdlog::sinks::stdout_sink_mt
 #include <spdlog/spdlog.h>
 
-#include <CLI/App.hpp>
-#include <CLI/Config.hpp>        // CLI::App (link)
-#include <CLI/Formatter.hpp>     // CLI::App (link)
 #include <boost/filesystem.hpp>  // boost::filesystem::path
 #include <iostream>              // std::cerr
+
+#include "drone.h"
 
 void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
@@ -35,17 +34,11 @@ void setup_logging() {
 }
 
 auto run_main(int argc, char** argv) -> int {
-  CLI::App app{"i_seed_drone_onboard"};
-
-  try {
-    app.parse(argc, argv);
-  } catch (const CLI::ParseError& e) {
-    return app.exit(e);
-  }
-
   setup_logging();
 
   try {
+    drone x{argc, argv};
+    x.start();
     return EXIT_SUCCESS;
   } catch (const std::system_error& exc) {
     spdlog::critical("System error: {} {} ({})", exc.code().category().name(),
