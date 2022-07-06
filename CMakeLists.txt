@@ -205,14 +205,16 @@ target_compile_definitions(
     i_seed_drone_onboard_core PUBLIC BOOST_ENABLE_ASSERT_HANDLER
 )
 
-add_executable(
-    i_seed_drone_onboard
-    main.cpp
-)
+if(I_SEED_DRONE_ONBOARD_MANIFOLD)
+  add_executable(
+      i_seed_drone_onboard
+      main.cpp
+  )
 
-target_link_libraries(
-    i_seed_drone_onboard PRIVATE i_seed_drone_onboard_core
-)
+  target_link_libraries(
+      i_seed_drone_onboard PRIVATE i_seed_drone_onboard_core
+  )
+endif()
 
 add_executable(
     i_seed_drone_onboard_core_ut
@@ -293,11 +295,13 @@ if(I_SEED_DRONE_ONBOARD_PEDANTIC)
       "${CMAKE_CURRENT_BINARY_DIR}/.clang-tidy"
   )
 
-  set_target_properties(
-      i_seed_drone_onboard
-      PROPERTIES
-      CXX_CLANG_TIDY clang-tidy
-  )
+  if(I_SEED_DRONE_ONBOARD_MANIFOLD)
+    set_target_properties(
+        i_seed_drone_onboard
+        PROPERTIES
+        CXX_CLANG_TIDY clang-tidy
+    )
+  endif()
 
   set_target_properties(
       i_seed_drone_onboard_core
@@ -306,20 +310,22 @@ if(I_SEED_DRONE_ONBOARD_PEDANTIC)
   )
 endif()
 
-find_package(CLI11 CONFIG REQUIRED) # CLI11::CLI11
-target_link_libraries(
-    i_seed_drone_onboard
-    PRIVATE
-    CLI11::CLI11
-)
+if(I_SEED_DRONE_ONBOARD_MANIFOLD)
+  find_package(CLI11 CONFIG REQUIRED) # CLI11::CLI11
+  target_link_libraries(
+      i_seed_drone_onboard
+      PRIVATE
+      CLI11::CLI11
+  )
 
-install(
-    TARGETS i_seed_drone_onboard
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-)
+  install(
+      TARGETS i_seed_drone_onboard
+      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+      ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+      RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+      INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+  )
+endif()
 
 enable_testing()
 add_test(
