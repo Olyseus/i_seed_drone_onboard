@@ -116,6 +116,26 @@ public final class Interconnection {
        * <code>PING = 0;</code>
        */
       PING(0),
+      /**
+       * <code>DRONE_COORDINATES = 1;</code>
+       */
+      DRONE_COORDINATES(1),
+      /**
+       * <code>MISSION_START = 2;</code>
+       */
+      MISSION_START(2),
+      /**
+       * <code>MISSION_PAUSE = 3;</code>
+       */
+      MISSION_PAUSE(3),
+      /**
+       * <code>MISSION_ABORT = 4;</code>
+       */
+      MISSION_ABORT(4),
+      /**
+       * <code>MISSION_FINISHED = 5;</code>
+       */
+      MISSION_FINISHED(5),
       UNRECOGNIZED(-1),
       ;
 
@@ -123,6 +143,26 @@ public final class Interconnection {
        * <code>PING = 0;</code>
        */
       public static final int PING_VALUE = 0;
+      /**
+       * <code>DRONE_COORDINATES = 1;</code>
+       */
+      public static final int DRONE_COORDINATES_VALUE = 1;
+      /**
+       * <code>MISSION_START = 2;</code>
+       */
+      public static final int MISSION_START_VALUE = 2;
+      /**
+       * <code>MISSION_PAUSE = 3;</code>
+       */
+      public static final int MISSION_PAUSE_VALUE = 3;
+      /**
+       * <code>MISSION_ABORT = 4;</code>
+       */
+      public static final int MISSION_ABORT_VALUE = 4;
+      /**
+       * <code>MISSION_FINISHED = 5;</code>
+       */
+      public static final int MISSION_FINISHED_VALUE = 5;
 
 
       public final int getNumber() {
@@ -144,6 +184,11 @@ public final class Interconnection {
       public static command_t forNumber(int value) {
         switch (value) {
           case 0: return PING;
+          case 1: return DRONE_COORDINATES;
+          case 2: return MISSION_START;
+          case 3: return MISSION_PAUSE;
+          case 4: return MISSION_ABORT;
+          case 5: return MISSION_FINISHED;
           default: return null;
         }
       }
@@ -624,11 +669,580 @@ public final class Interconnection {
 
   }
 
+  public interface drone_coordinatesOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:interconnection.drone_coordinates)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>optional double latitude = 1;</code>
+     */
+    double getLatitude();
+
+    /**
+     * <code>optional double longitude = 2;</code>
+     */
+    double getLongitude();
+
+    /**
+     * <code>optional float heading = 3;</code>
+     */
+    float getHeading();
+  }
+  /**
+   * Protobuf type {@code interconnection.drone_coordinates}
+   */
+  public  static final class drone_coordinates extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:interconnection.drone_coordinates)
+      drone_coordinatesOrBuilder {
+    // Use drone_coordinates.newBuilder() to construct.
+    private drone_coordinates(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private drone_coordinates() {
+      latitude_ = 0D;
+      longitude_ = 0D;
+      heading_ = 0F;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+    private drone_coordinates(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!input.skipField(tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 9: {
+
+              latitude_ = input.readDouble();
+              break;
+            }
+            case 17: {
+
+              longitude_ = input.readDouble();
+              break;
+            }
+            case 29: {
+
+              heading_ = input.readFloat();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              interconnection.Interconnection.drone_coordinates.class, interconnection.Interconnection.drone_coordinates.Builder.class);
+    }
+
+    public static final int LATITUDE_FIELD_NUMBER = 1;
+    private double latitude_;
+    /**
+     * <code>optional double latitude = 1;</code>
+     */
+    public double getLatitude() {
+      return latitude_;
+    }
+
+    public static final int LONGITUDE_FIELD_NUMBER = 2;
+    private double longitude_;
+    /**
+     * <code>optional double longitude = 2;</code>
+     */
+    public double getLongitude() {
+      return longitude_;
+    }
+
+    public static final int HEADING_FIELD_NUMBER = 3;
+    private float heading_;
+    /**
+     * <code>optional float heading = 3;</code>
+     */
+    public float getHeading() {
+      return heading_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (latitude_ != 0D) {
+        output.writeDouble(1, latitude_);
+      }
+      if (longitude_ != 0D) {
+        output.writeDouble(2, longitude_);
+      }
+      if (heading_ != 0F) {
+        output.writeFloat(3, heading_);
+      }
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (latitude_ != 0D) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeDoubleSize(1, latitude_);
+      }
+      if (longitude_ != 0D) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeDoubleSize(2, longitude_);
+      }
+      if (heading_ != 0F) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeFloatSize(3, heading_);
+      }
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof interconnection.Interconnection.drone_coordinates)) {
+        return super.equals(obj);
+      }
+      interconnection.Interconnection.drone_coordinates other = (interconnection.Interconnection.drone_coordinates) obj;
+
+      boolean result = true;
+      result = result && (
+          java.lang.Double.doubleToLongBits(getLatitude())
+          == java.lang.Double.doubleToLongBits(
+              other.getLatitude()));
+      result = result && (
+          java.lang.Double.doubleToLongBits(getLongitude())
+          == java.lang.Double.doubleToLongBits(
+              other.getLongitude()));
+      result = result && (
+          java.lang.Float.floatToIntBits(getHeading())
+          == java.lang.Float.floatToIntBits(
+              other.getHeading()));
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      hash = (37 * hash) + LATITUDE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          java.lang.Double.doubleToLongBits(getLatitude()));
+      hash = (37 * hash) + LONGITUDE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          java.lang.Double.doubleToLongBits(getLongitude()));
+      hash = (37 * hash) + HEADING_FIELD_NUMBER;
+      hash = (53 * hash) + java.lang.Float.floatToIntBits(
+          getHeading());
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static interconnection.Interconnection.drone_coordinates parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.drone_coordinates parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.drone_coordinates parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.drone_coordinates parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.drone_coordinates parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.drone_coordinates parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.drone_coordinates parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.drone_coordinates parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.drone_coordinates parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.drone_coordinates parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(interconnection.Interconnection.drone_coordinates prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code interconnection.drone_coordinates}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:interconnection.drone_coordinates)
+        interconnection.Interconnection.drone_coordinatesOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                interconnection.Interconnection.drone_coordinates.class, interconnection.Interconnection.drone_coordinates.Builder.class);
+      }
+
+      // Construct using interconnection.Interconnection.drone_coordinates.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        latitude_ = 0D;
+
+        longitude_ = 0D;
+
+        heading_ = 0F;
+
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_descriptor;
+      }
+
+      public interconnection.Interconnection.drone_coordinates getDefaultInstanceForType() {
+        return interconnection.Interconnection.drone_coordinates.getDefaultInstance();
+      }
+
+      public interconnection.Interconnection.drone_coordinates build() {
+        interconnection.Interconnection.drone_coordinates result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public interconnection.Interconnection.drone_coordinates buildPartial() {
+        interconnection.Interconnection.drone_coordinates result = new interconnection.Interconnection.drone_coordinates(this);
+        result.latitude_ = latitude_;
+        result.longitude_ = longitude_;
+        result.heading_ = heading_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof interconnection.Interconnection.drone_coordinates) {
+          return mergeFrom((interconnection.Interconnection.drone_coordinates)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(interconnection.Interconnection.drone_coordinates other) {
+        if (other == interconnection.Interconnection.drone_coordinates.getDefaultInstance()) return this;
+        if (other.getLatitude() != 0D) {
+          setLatitude(other.getLatitude());
+        }
+        if (other.getLongitude() != 0D) {
+          setLongitude(other.getLongitude());
+        }
+        if (other.getHeading() != 0F) {
+          setHeading(other.getHeading());
+        }
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        interconnection.Interconnection.drone_coordinates parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (interconnection.Interconnection.drone_coordinates) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+
+      private double latitude_ ;
+      /**
+       * <code>optional double latitude = 1;</code>
+       */
+      public double getLatitude() {
+        return latitude_;
+      }
+      /**
+       * <code>optional double latitude = 1;</code>
+       */
+      public Builder setLatitude(double value) {
+        
+        latitude_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional double latitude = 1;</code>
+       */
+      public Builder clearLatitude() {
+        
+        latitude_ = 0D;
+        onChanged();
+        return this;
+      }
+
+      private double longitude_ ;
+      /**
+       * <code>optional double longitude = 2;</code>
+       */
+      public double getLongitude() {
+        return longitude_;
+      }
+      /**
+       * <code>optional double longitude = 2;</code>
+       */
+      public Builder setLongitude(double value) {
+        
+        longitude_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional double longitude = 2;</code>
+       */
+      public Builder clearLongitude() {
+        
+        longitude_ = 0D;
+        onChanged();
+        return this;
+      }
+
+      private float heading_ ;
+      /**
+       * <code>optional float heading = 3;</code>
+       */
+      public float getHeading() {
+        return heading_;
+      }
+      /**
+       * <code>optional float heading = 3;</code>
+       */
+      public Builder setHeading(float value) {
+        
+        heading_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional float heading = 3;</code>
+       */
+      public Builder clearHeading() {
+        
+        heading_ = 0F;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return this;
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:interconnection.drone_coordinates)
+    }
+
+    // @@protoc_insertion_point(class_scope:interconnection.drone_coordinates)
+    private static final interconnection.Interconnection.drone_coordinates DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new interconnection.Interconnection.drone_coordinates();
+    }
+
+    public static interconnection.Interconnection.drone_coordinates getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<drone_coordinates>
+        PARSER = new com.google.protobuf.AbstractParser<drone_coordinates>() {
+      public drone_coordinates parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new drone_coordinates(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<drone_coordinates> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<drone_coordinates> getParserForType() {
+      return PARSER;
+    }
+
+    public interconnection.Interconnection.drone_coordinates getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_interconnection_command_type_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_interconnection_command_type_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_interconnection_drone_coordinates_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_interconnection_drone_coordinates_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -639,9 +1253,14 @@ public final class Interconnection {
   static {
     java.lang.String[] descriptorData = {
       "\n\025interconnection.proto\022\017interconnection" +
-      "\"m\n\014command_type\0225\n\004type\030\001 \001(\0162\'.interco" +
-      "nnection.command_type.command_t\022\017\n\007versi" +
-      "on\030\002 \001(\005\"\025\n\tcommand_t\022\010\n\004PING\020\000b\006proto3"
+      "\"\323\001\n\014command_type\0225\n\004type\030\001 \001(\0162\'.interc" +
+      "onnection.command_type.command_t\022\017\n\007vers" +
+      "ion\030\002 \001(\005\"{\n\tcommand_t\022\010\n\004PING\020\000\022\025\n\021DRON" +
+      "E_COORDINATES\020\001\022\021\n\rMISSION_START\020\002\022\021\n\rMI" +
+      "SSION_PAUSE\020\003\022\021\n\rMISSION_ABORT\020\004\022\024\n\020MISS" +
+      "ION_FINISHED\020\005\"I\n\021drone_coordinates\022\020\n\010l" +
+      "atitude\030\001 \001(\001\022\021\n\tlongitude\030\002 \001(\001\022\017\n\007head" +
+      "ing\030\003 \001(\002b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -661,6 +1280,12 @@ public final class Interconnection {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_command_type_descriptor,
         new java.lang.String[] { "Type", "Version", });
+    internal_static_interconnection_drone_coordinates_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_interconnection_drone_coordinates_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_interconnection_drone_coordinates_descriptor,
+        new java.lang.String[] { "Latitude", "Longitude", "Heading", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
