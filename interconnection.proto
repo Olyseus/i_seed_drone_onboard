@@ -5,8 +5,19 @@ package interconnection;
 message command_type {
   enum command_t {
     PING = 0;
+    DRONE_COORDINATES = 1;
+    MISSION_START = 2;
+    MISSION_PAUSE = 3;
+    MISSION_ABORT = 4;
+    MISSION_FINISHED = 5;
   }
 
   command_t type = 1;
   int32 version = 2;
+}
+
+message drone_coordinates {
+  double latitude = 1;
+  double longitude = 2;
+  float heading = 3;
 }
