@@ -154,8 +154,13 @@ void drone::write_job() {
 
     if (!command.has_value()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      std::lock_guard<std::mutex> lock(m_);
+      execute_commands_.push_back(interconnection::command_type::DRONE_COORDINATES);
       continue;
     }
+
+    Vehicle* vehicle{linux_setup_->getVehicle()};
+    BOOST_VERIFY(vehicle);
 
     switch (command.value()) {
       case interconnection::command_type::PING: {
@@ -163,6 +168,48 @@ void drone::write_job() {
         if (!send_command(interconnection::command_type::PING)) {
           continue;
         }
+        break;
+      }
+      case interconnection::command_type::DRONE_COORDINATES: {
+        if (!send_command(interconnection::command_type::DRONE_COORDINATES)) {
+          continue;
+        }
+
+        DJI::OSDK::Telemetry::Quaternion quaternion{vehicle->broadcast->getQuaternion()};
+        DJI::OSDK::Telemetry::GlobalPosition global{vehicle->broadcast->getGlobalPosition()};
+
+        // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
+        const double q2sqr{quaternion.q2 * quaternion.q2};
+        const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
+        const double t1{+2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
+        const double heading{atan2(t1, t0)};
+
+        interconnection::drone_coordinates dc;
+        dc.set_latitude(global.latitude);
+        dc.set_longitude(global.longitude);
+        dc.set_heading(heading);
+        std::string buffer;
+        const bool ok{dc.SerializeToString(&buffer)};
+        BOOST_VERIFY(ok);
+
+        char* char_buf{buffer.data()};
+        static_assert(sizeof(char) == sizeof(uint8_t));
+        uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buf)};
+        MopPipeline::DataPackType req_pack = {send_buf, static_cast<uint32_t>(buffer.size())};
+        uint32_t len{0};
+        MopErrCode result{MOP_TIMEOUT};
+        while (result == MOP_TIMEOUT) {
+          result = pipeline_->sendData(req_pack, &len);
+          spdlog::info("Write data code: {} (size: {})", result, len);
+          if (result == MOP_CONNECTIONCLOSE) {
+            connection_closed_ = true;
+            spdlog::info("Write connection closed (coordinates)");
+            return;
+          }
+        }
+        BOOST_VERIFY(result == MOP_PASSED);
+        BOOST_VERIFY(len == buffer.size());
+        spdlog::info("Drone coordinates sent: lat:{}, lon:{}, head:{}", global.latitude, global.longitude, heading);
         break;
       }
       default:
