@@ -125,25 +125,9 @@ void drone::write_job() {
     switch (command.value()) {
       case interconnection::command_type::PING: {
         spdlog::info("Execute PING command");
-        interconnection::command_type command;
-        command.set_type(interconnection::command_type::PING);
-        command.set_version(protocol_version);
-        std::string buffer;
-        const bool ok{command.SerializeToString(&buffer)};
-        BOOST_VERIFY(ok);
-
-        char* char_buf{buffer.data()};
-        static_assert(sizeof(char) == sizeof(uint8_t));
-        uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buf)};
-        MopPipeline::DataPackType req_pack = {send_buf, static_cast<uint32_t>(buffer.size())};
-        uint32_t len{0};
-        MopErrCode result = pipeline_->sendData(req_pack, &len);
-        if (result == MOP_CONNECTIONCLOSE) {
-          connection_closed_ = true;
-          return;
+        if (!send_command(interconnection::command_type::PING)) {
+          continue;
         }
-        BOOST_VERIFY(result == MOP_PASSED);
-        BOOST_VERIFY(len == buffer.size());
         break;
       }
       default:
@@ -155,4 +139,34 @@ void drone::write_job() {
       execute_commands_.pop_front();
     }
   }
+}
+
+bool drone::send_command(interconnection::command_type::command_t command_type) {
+  interconnection::command_type command;
+  command.set_type(command_type);
+  command.set_version(protocol_version);
+  std::string buffer;
+  const bool ok{command.SerializeToString(&buffer)};
+  BOOST_VERIFY(ok);
+  BOOST_VERIFY(buffer.size() == command_bytes_size_);
+
+  char* char_buf{buffer.data()};
+  static_assert(sizeof(char) == sizeof(uint8_t));
+  uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buf)};
+  MopPipeline::DataPackType req_pack = {send_buf, static_cast<uint32_t>(buffer.size())};
+  uint32_t len{0};
+  MopErrCode result = pipeline_->sendData(req_pack, &len);
+  spdlog::info("Write data code: {} (size: {})", result, len);
+  if (result == MOP_TIMEOUT) {
+    spdlog::info("Write connection timeout (command)");
+    return false;
+  }
+  if (result == MOP_CONNECTIONCLOSE) {
+    connection_closed_ = true;
+    spdlog::info("Write connection closed (command)");
+    return false;
+  }
+  BOOST_VERIFY(result == MOP_PASSED);
+  BOOST_VERIFY(len == buffer.size());
+  return true;
 }

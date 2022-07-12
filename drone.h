@@ -31,6 +31,7 @@ class drone {
  private:
   void read_job();
   void write_job();
+  bool send_command(interconnection::command_type::command_t);
 
   static constexpr uint16_t channel_id{9745}; // Just a random number. Keep it consistent with Mobile SDK
   static constexpr int32_t protocol_version{5}; // Keep it consistent with Mobile SDK
