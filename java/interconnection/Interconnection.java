@@ -19,23 +19,22 @@ public final class Interconnection {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional .interconnection.command_type.command_t type = 1;</code>
+     * <code>required .interconnection.command_type.command_t type = 1;</code>
      */
-    int getTypeValue();
+    boolean hasType();
     /**
-     * <code>optional .interconnection.command_type.command_t type = 1;</code>
+     * <code>required .interconnection.command_type.command_t type = 1;</code>
      */
     interconnection.Interconnection.command_type.command_t getType();
 
     /**
-     * <code>optional int32 version = 2;</code>
+     * <code>required int32 version = 2;</code>
+     */
+    boolean hasVersion();
+    /**
+     * <code>required int32 version = 2;</code>
      */
     int getVersion();
-
-    /**
-     * <code>optional uint32 data_size = 3;</code>
-     */
-    int getDataSize();
   }
   /**
    * Protobuf type {@code interconnection.command_type}
@@ -51,13 +50,12 @@ public final class Interconnection {
     private command_type() {
       type_ = 0;
       version_ = 0;
-      dataSize_ = 0;
     }
 
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
-      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+      return this.unknownFields;
     }
     private command_type(
         com.google.protobuf.CodedInputStream input,
@@ -65,6 +63,8 @@ public final class Interconnection {
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -74,25 +74,26 @@ public final class Interconnection {
               done = true;
               break;
             default: {
-              if (!input.skipField(tag)) {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
                 done = true;
               }
               break;
             }
             case 8: {
               int rawValue = input.readEnum();
-
-              type_ = rawValue;
+              interconnection.Interconnection.command_type.command_t value = interconnection.Interconnection.command_type.command_t.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(1, rawValue);
+              } else {
+                bitField0_ |= 0x00000001;
+                type_ = rawValue;
+              }
               break;
             }
             case 16: {
-
+              bitField0_ |= 0x00000002;
               version_ = input.readInt32();
-              break;
-            }
-            case 24: {
-
-              dataSize_ = input.readUInt32();
               break;
             }
           }
@@ -103,6 +104,7 @@ public final class Interconnection {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
+        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -147,7 +149,6 @@ public final class Interconnection {
        * <code>MISSION_FINISHED = 5;</code>
        */
       MISSION_FINISHED(5),
-      UNRECOGNIZED(-1),
       ;
 
       /**
@@ -177,10 +178,6 @@ public final class Interconnection {
 
 
       public final int getNumber() {
-        if (this == UNRECOGNIZED) {
-          throw new java.lang.IllegalArgumentException(
-              "Can't get the number of an unknown enum value.");
-        }
         return value;
       }
 
@@ -237,9 +234,6 @@ public final class Interconnection {
           throw new java.lang.IllegalArgumentException(
             "EnumValueDescriptor is not for this type.");
         }
-        if (desc.getIndex() == -1) {
-          return UNRECOGNIZED;
-        }
         return VALUES[desc.getIndex()];
       }
 
@@ -252,38 +246,36 @@ public final class Interconnection {
       // @@protoc_insertion_point(enum_scope:interconnection.command_type.command_t)
     }
 
+    private int bitField0_;
     public static final int TYPE_FIELD_NUMBER = 1;
     private int type_;
     /**
-     * <code>optional .interconnection.command_type.command_t type = 1;</code>
+     * <code>required .interconnection.command_type.command_t type = 1;</code>
      */
-    public int getTypeValue() {
-      return type_;
+    public boolean hasType() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional .interconnection.command_type.command_t type = 1;</code>
+     * <code>required .interconnection.command_type.command_t type = 1;</code>
      */
     public interconnection.Interconnection.command_type.command_t getType() {
       interconnection.Interconnection.command_type.command_t result = interconnection.Interconnection.command_type.command_t.valueOf(type_);
-      return result == null ? interconnection.Interconnection.command_type.command_t.UNRECOGNIZED : result;
+      return result == null ? interconnection.Interconnection.command_type.command_t.PING : result;
     }
 
     public static final int VERSION_FIELD_NUMBER = 2;
     private int version_;
     /**
-     * <code>optional int32 version = 2;</code>
+     * <code>required int32 version = 2;</code>
+     */
+    public boolean hasVersion() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required int32 version = 2;</code>
      */
     public int getVersion() {
       return version_;
-    }
-
-    public static final int DATA_SIZE_FIELD_NUMBER = 3;
-    private int dataSize_;
-    /**
-     * <code>optional uint32 data_size = 3;</code>
-     */
-    public int getDataSize() {
-      return dataSize_;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -292,21 +284,27 @@ public final class Interconnection {
       if (isInitialized == 1) return true;
       if (isInitialized == 0) return false;
 
+      if (!hasType()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasVersion()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (type_ != interconnection.Interconnection.command_type.command_t.PING.getNumber()) {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeEnum(1, type_);
       }
-      if (version_ != 0) {
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt32(2, version_);
       }
-      if (dataSize_ != 0) {
-        output.writeUInt32(3, dataSize_);
-      }
+      unknownFields.writeTo(output);
     }
 
     public int getSerializedSize() {
@@ -314,18 +312,15 @@ public final class Interconnection {
       if (size != -1) return size;
 
       size = 0;
-      if (type_ != interconnection.Interconnection.command_type.command_t.PING.getNumber()) {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(1, type_);
       }
-      if (version_ != 0) {
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, version_);
       }
-      if (dataSize_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(3, dataSize_);
-      }
+      size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -342,11 +337,16 @@ public final class Interconnection {
       interconnection.Interconnection.command_type other = (interconnection.Interconnection.command_type) obj;
 
       boolean result = true;
-      result = result && type_ == other.type_;
-      result = result && (getVersion()
-          == other.getVersion());
-      result = result && (getDataSize()
-          == other.getDataSize());
+      result = result && (hasType() == other.hasType());
+      if (hasType()) {
+        result = result && type_ == other.type_;
+      }
+      result = result && (hasVersion() == other.hasVersion());
+      if (hasVersion()) {
+        result = result && (getVersion()
+            == other.getVersion());
+      }
+      result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
 
@@ -357,12 +357,14 @@ public final class Interconnection {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptorForType().hashCode();
-      hash = (37 * hash) + TYPE_FIELD_NUMBER;
-      hash = (53 * hash) + type_;
-      hash = (37 * hash) + VERSION_FIELD_NUMBER;
-      hash = (53 * hash) + getVersion();
-      hash = (37 * hash) + DATA_SIZE_FIELD_NUMBER;
-      hash = (53 * hash) + getDataSize();
+      if (hasType()) {
+        hash = (37 * hash) + TYPE_FIELD_NUMBER;
+        hash = (53 * hash) + type_;
+      }
+      if (hasVersion()) {
+        hash = (37 * hash) + VERSION_FIELD_NUMBER;
+        hash = (53 * hash) + getVersion();
+      }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -482,11 +484,9 @@ public final class Interconnection {
       public Builder clear() {
         super.clear();
         type_ = 0;
-
+        bitField0_ = (bitField0_ & ~0x00000001);
         version_ = 0;
-
-        dataSize_ = 0;
-
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -509,9 +509,17 @@ public final class Interconnection {
 
       public interconnection.Interconnection.command_type buildPartial() {
         interconnection.Interconnection.command_type result = new interconnection.Interconnection.command_type(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
         result.type_ = type_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
         result.version_ = version_;
-        result.dataSize_ = dataSize_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -553,20 +561,24 @@ public final class Interconnection {
 
       public Builder mergeFrom(interconnection.Interconnection.command_type other) {
         if (other == interconnection.Interconnection.command_type.getDefaultInstance()) return this;
-        if (other.type_ != 0) {
-          setTypeValue(other.getTypeValue());
+        if (other.hasType()) {
+          setType(other.getType());
         }
-        if (other.getVersion() != 0) {
+        if (other.hasVersion()) {
           setVersion(other.getVersion());
         }
-        if (other.getDataSize() != 0) {
-          setDataSize(other.getDataSize());
-        }
+        this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
+        if (!hasType()) {
+          return false;
+        }
+        if (!hasVersion()) {
+          return false;
+        }
         return true;
       }
 
@@ -587,46 +599,39 @@ public final class Interconnection {
         }
         return this;
       }
+      private int bitField0_;
 
       private int type_ = 0;
       /**
-       * <code>optional .interconnection.command_type.command_t type = 1;</code>
+       * <code>required .interconnection.command_type.command_t type = 1;</code>
        */
-      public int getTypeValue() {
-        return type_;
+      public boolean hasType() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>optional .interconnection.command_type.command_t type = 1;</code>
-       */
-      public Builder setTypeValue(int value) {
-        type_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional .interconnection.command_type.command_t type = 1;</code>
+       * <code>required .interconnection.command_type.command_t type = 1;</code>
        */
       public interconnection.Interconnection.command_type.command_t getType() {
         interconnection.Interconnection.command_type.command_t result = interconnection.Interconnection.command_type.command_t.valueOf(type_);
-        return result == null ? interconnection.Interconnection.command_type.command_t.UNRECOGNIZED : result;
+        return result == null ? interconnection.Interconnection.command_type.command_t.PING : result;
       }
       /**
-       * <code>optional .interconnection.command_type.command_t type = 1;</code>
+       * <code>required .interconnection.command_type.command_t type = 1;</code>
        */
       public Builder setType(interconnection.Interconnection.command_type.command_t value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        
+        bitField0_ |= 0x00000001;
         type_ = value.getNumber();
         onChanged();
         return this;
       }
       /**
-       * <code>optional .interconnection.command_type.command_t type = 1;</code>
+       * <code>required .interconnection.command_type.command_t type = 1;</code>
        */
       public Builder clearType() {
-        
+        bitField0_ = (bitField0_ & ~0x00000001);
         type_ = 0;
         onChanged();
         return this;
@@ -634,63 +639,43 @@ public final class Interconnection {
 
       private int version_ ;
       /**
-       * <code>optional int32 version = 2;</code>
+       * <code>required int32 version = 2;</code>
+       */
+      public boolean hasVersion() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required int32 version = 2;</code>
        */
       public int getVersion() {
         return version_;
       }
       /**
-       * <code>optional int32 version = 2;</code>
+       * <code>required int32 version = 2;</code>
        */
       public Builder setVersion(int value) {
-        
+        bitField0_ |= 0x00000002;
         version_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 version = 2;</code>
+       * <code>required int32 version = 2;</code>
        */
       public Builder clearVersion() {
-        
+        bitField0_ = (bitField0_ & ~0x00000002);
         version_ = 0;
-        onChanged();
-        return this;
-      }
-
-      private int dataSize_ ;
-      /**
-       * <code>optional uint32 data_size = 3;</code>
-       */
-      public int getDataSize() {
-        return dataSize_;
-      }
-      /**
-       * <code>optional uint32 data_size = 3;</code>
-       */
-      public Builder setDataSize(int value) {
-        
-        dataSize_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional uint32 data_size = 3;</code>
-       */
-      public Builder clearDataSize() {
-        
-        dataSize_ = 0;
         onChanged();
         return this;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
+        return super.setUnknownFields(unknownFields);
       }
 
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
+        return super.mergeUnknownFields(unknownFields);
       }
 
 
@@ -707,7 +692,7 @@ public final class Interconnection {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<command_type>
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<command_type>
         PARSER = new com.google.protobuf.AbstractParser<command_type>() {
       public command_type parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
@@ -737,17 +722,29 @@ public final class Interconnection {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional double latitude = 1;</code>
+     * <code>required double latitude = 1;</code>
+     */
+    boolean hasLatitude();
+    /**
+     * <code>required double latitude = 1;</code>
      */
     double getLatitude();
 
     /**
-     * <code>optional double longitude = 2;</code>
+     * <code>required double longitude = 2;</code>
+     */
+    boolean hasLongitude();
+    /**
+     * <code>required double longitude = 2;</code>
      */
     double getLongitude();
 
     /**
-     * <code>optional float heading = 3;</code>
+     * <code>required float heading = 3;</code>
+     */
+    boolean hasHeading();
+    /**
+     * <code>required float heading = 3;</code>
      */
     float getHeading();
   }
@@ -771,7 +768,7 @@ public final class Interconnection {
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
-      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+      return this.unknownFields;
     }
     private drone_coordinates(
         com.google.protobuf.CodedInputStream input,
@@ -779,6 +776,8 @@ public final class Interconnection {
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -788,23 +787,24 @@ public final class Interconnection {
               done = true;
               break;
             default: {
-              if (!input.skipField(tag)) {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
                 done = true;
               }
               break;
             }
             case 9: {
-
+              bitField0_ |= 0x00000001;
               latitude_ = input.readDouble();
               break;
             }
             case 17: {
-
+              bitField0_ |= 0x00000002;
               longitude_ = input.readDouble();
               break;
             }
             case 29: {
-
+              bitField0_ |= 0x00000004;
               heading_ = input.readFloat();
               break;
             }
@@ -816,6 +816,7 @@ public final class Interconnection {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
+        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -831,10 +832,17 @@ public final class Interconnection {
               interconnection.Interconnection.drone_coordinates.class, interconnection.Interconnection.drone_coordinates.Builder.class);
     }
 
+    private int bitField0_;
     public static final int LATITUDE_FIELD_NUMBER = 1;
     private double latitude_;
     /**
-     * <code>optional double latitude = 1;</code>
+     * <code>required double latitude = 1;</code>
+     */
+    public boolean hasLatitude() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required double latitude = 1;</code>
      */
     public double getLatitude() {
       return latitude_;
@@ -843,7 +851,13 @@ public final class Interconnection {
     public static final int LONGITUDE_FIELD_NUMBER = 2;
     private double longitude_;
     /**
-     * <code>optional double longitude = 2;</code>
+     * <code>required double longitude = 2;</code>
+     */
+    public boolean hasLongitude() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required double longitude = 2;</code>
      */
     public double getLongitude() {
       return longitude_;
@@ -852,7 +866,13 @@ public final class Interconnection {
     public static final int HEADING_FIELD_NUMBER = 3;
     private float heading_;
     /**
-     * <code>optional float heading = 3;</code>
+     * <code>required float heading = 3;</code>
+     */
+    public boolean hasHeading() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>required float heading = 3;</code>
      */
     public float getHeading() {
       return heading_;
@@ -864,21 +884,34 @@ public final class Interconnection {
       if (isInitialized == 1) return true;
       if (isInitialized == 0) return false;
 
+      if (!hasLatitude()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasLongitude()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasHeading()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (latitude_ != 0D) {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeDouble(1, latitude_);
       }
-      if (longitude_ != 0D) {
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeDouble(2, longitude_);
       }
-      if (heading_ != 0F) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeFloat(3, heading_);
       }
+      unknownFields.writeTo(output);
     }
 
     public int getSerializedSize() {
@@ -886,18 +919,19 @@ public final class Interconnection {
       if (size != -1) return size;
 
       size = 0;
-      if (latitude_ != 0D) {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(1, latitude_);
       }
-      if (longitude_ != 0D) {
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(2, longitude_);
       }
-      if (heading_ != 0F) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeFloatSize(3, heading_);
       }
+      size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -914,18 +948,28 @@ public final class Interconnection {
       interconnection.Interconnection.drone_coordinates other = (interconnection.Interconnection.drone_coordinates) obj;
 
       boolean result = true;
-      result = result && (
-          java.lang.Double.doubleToLongBits(getLatitude())
-          == java.lang.Double.doubleToLongBits(
-              other.getLatitude()));
-      result = result && (
-          java.lang.Double.doubleToLongBits(getLongitude())
-          == java.lang.Double.doubleToLongBits(
-              other.getLongitude()));
-      result = result && (
-          java.lang.Float.floatToIntBits(getHeading())
-          == java.lang.Float.floatToIntBits(
-              other.getHeading()));
+      result = result && (hasLatitude() == other.hasLatitude());
+      if (hasLatitude()) {
+        result = result && (
+            java.lang.Double.doubleToLongBits(getLatitude())
+            == java.lang.Double.doubleToLongBits(
+                other.getLatitude()));
+      }
+      result = result && (hasLongitude() == other.hasLongitude());
+      if (hasLongitude()) {
+        result = result && (
+            java.lang.Double.doubleToLongBits(getLongitude())
+            == java.lang.Double.doubleToLongBits(
+                other.getLongitude()));
+      }
+      result = result && (hasHeading() == other.hasHeading());
+      if (hasHeading()) {
+        result = result && (
+            java.lang.Float.floatToIntBits(getHeading())
+            == java.lang.Float.floatToIntBits(
+                other.getHeading()));
+      }
+      result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
 
@@ -936,15 +980,21 @@ public final class Interconnection {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptorForType().hashCode();
-      hash = (37 * hash) + LATITUDE_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          java.lang.Double.doubleToLongBits(getLatitude()));
-      hash = (37 * hash) + LONGITUDE_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-          java.lang.Double.doubleToLongBits(getLongitude()));
-      hash = (37 * hash) + HEADING_FIELD_NUMBER;
-      hash = (53 * hash) + java.lang.Float.floatToIntBits(
-          getHeading());
+      if (hasLatitude()) {
+        hash = (37 * hash) + LATITUDE_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            java.lang.Double.doubleToLongBits(getLatitude()));
+      }
+      if (hasLongitude()) {
+        hash = (37 * hash) + LONGITUDE_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            java.lang.Double.doubleToLongBits(getLongitude()));
+      }
+      if (hasHeading()) {
+        hash = (37 * hash) + HEADING_FIELD_NUMBER;
+        hash = (53 * hash) + java.lang.Float.floatToIntBits(
+            getHeading());
+      }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -1064,11 +1114,11 @@ public final class Interconnection {
       public Builder clear() {
         super.clear();
         latitude_ = 0D;
-
+        bitField0_ = (bitField0_ & ~0x00000001);
         longitude_ = 0D;
-
+        bitField0_ = (bitField0_ & ~0x00000002);
         heading_ = 0F;
-
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -1091,9 +1141,21 @@ public final class Interconnection {
 
       public interconnection.Interconnection.drone_coordinates buildPartial() {
         interconnection.Interconnection.drone_coordinates result = new interconnection.Interconnection.drone_coordinates(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
         result.latitude_ = latitude_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
         result.longitude_ = longitude_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
         result.heading_ = heading_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -1135,20 +1197,30 @@ public final class Interconnection {
 
       public Builder mergeFrom(interconnection.Interconnection.drone_coordinates other) {
         if (other == interconnection.Interconnection.drone_coordinates.getDefaultInstance()) return this;
-        if (other.getLatitude() != 0D) {
+        if (other.hasLatitude()) {
           setLatitude(other.getLatitude());
         }
-        if (other.getLongitude() != 0D) {
+        if (other.hasLongitude()) {
           setLongitude(other.getLongitude());
         }
-        if (other.getHeading() != 0F) {
+        if (other.hasHeading()) {
           setHeading(other.getHeading());
         }
+        this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
+        if (!hasLatitude()) {
+          return false;
+        }
+        if (!hasLongitude()) {
+          return false;
+        }
+        if (!hasHeading()) {
+          return false;
+        }
         return true;
       }
 
@@ -1169,28 +1241,35 @@ public final class Interconnection {
         }
         return this;
       }
+      private int bitField0_;
 
       private double latitude_ ;
       /**
-       * <code>optional double latitude = 1;</code>
+       * <code>required double latitude = 1;</code>
+       */
+      public boolean hasLatitude() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required double latitude = 1;</code>
        */
       public double getLatitude() {
         return latitude_;
       }
       /**
-       * <code>optional double latitude = 1;</code>
+       * <code>required double latitude = 1;</code>
        */
       public Builder setLatitude(double value) {
-        
+        bitField0_ |= 0x00000001;
         latitude_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional double latitude = 1;</code>
+       * <code>required double latitude = 1;</code>
        */
       public Builder clearLatitude() {
-        
+        bitField0_ = (bitField0_ & ~0x00000001);
         latitude_ = 0D;
         onChanged();
         return this;
@@ -1198,25 +1277,31 @@ public final class Interconnection {
 
       private double longitude_ ;
       /**
-       * <code>optional double longitude = 2;</code>
+       * <code>required double longitude = 2;</code>
+       */
+      public boolean hasLongitude() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required double longitude = 2;</code>
        */
       public double getLongitude() {
         return longitude_;
       }
       /**
-       * <code>optional double longitude = 2;</code>
+       * <code>required double longitude = 2;</code>
        */
       public Builder setLongitude(double value) {
-        
+        bitField0_ |= 0x00000002;
         longitude_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional double longitude = 2;</code>
+       * <code>required double longitude = 2;</code>
        */
       public Builder clearLongitude() {
-        
+        bitField0_ = (bitField0_ & ~0x00000002);
         longitude_ = 0D;
         onChanged();
         return this;
@@ -1224,37 +1309,43 @@ public final class Interconnection {
 
       private float heading_ ;
       /**
-       * <code>optional float heading = 3;</code>
+       * <code>required float heading = 3;</code>
+       */
+      public boolean hasHeading() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>required float heading = 3;</code>
        */
       public float getHeading() {
         return heading_;
       }
       /**
-       * <code>optional float heading = 3;</code>
+       * <code>required float heading = 3;</code>
        */
       public Builder setHeading(float value) {
-        
+        bitField0_ |= 0x00000004;
         heading_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional float heading = 3;</code>
+       * <code>required float heading = 3;</code>
        */
       public Builder clearHeading() {
-        
+        bitField0_ = (bitField0_ & ~0x00000004);
         heading_ = 0F;
         onChanged();
         return this;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
+        return super.setUnknownFields(unknownFields);
       }
 
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
+        return super.mergeUnknownFields(unknownFields);
       }
 
 
@@ -1271,7 +1362,7 @@ public final class Interconnection {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<drone_coordinates>
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<drone_coordinates>
         PARSER = new com.google.protobuf.AbstractParser<drone_coordinates>() {
       public drone_coordinates parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
@@ -1316,14 +1407,14 @@ public final class Interconnection {
   static {
     java.lang.String[] descriptorData = {
       "\n\025interconnection.proto\022\017interconnection" +
-      "\"\346\001\n\014command_type\0225\n\004type\030\001 \001(\0162\'.interc" +
+      "\"\323\001\n\014command_type\0225\n\004type\030\001 \002(\0162\'.interc" +
       "onnection.command_type.command_t\022\017\n\007vers" +
-      "ion\030\002 \001(\005\022\021\n\tdata_size\030\003 \001(\r\"{\n\tcommand_" +
-      "t\022\010\n\004PING\020\000\022\025\n\021DRONE_COORDINATES\020\001\022\021\n\rMI" +
-      "SSION_START\020\002\022\021\n\rMISSION_PAUSE\020\003\022\021\n\rMISS" +
-      "ION_ABORT\020\004\022\024\n\020MISSION_FINISHED\020\005\"I\n\021dro" +
-      "ne_coordinates\022\020\n\010latitude\030\001 \001(\001\022\021\n\tlong" +
-      "itude\030\002 \001(\001\022\017\n\007heading\030\003 \001(\002b\006proto3"
+      "ion\030\002 \002(\005\"{\n\tcommand_t\022\010\n\004PING\020\000\022\025\n\021DRON" +
+      "E_COORDINATES\020\001\022\021\n\rMISSION_START\020\002\022\021\n\rMI" +
+      "SSION_PAUSE\020\003\022\021\n\rMISSION_ABORT\020\004\022\024\n\020MISS" +
+      "ION_FINISHED\020\005\"I\n\021drone_coordinates\022\020\n\010l" +
+      "atitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\022\017\n\007head" +
+      "ing\030\003 \002(\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1342,7 +1433,7 @@ public final class Interconnection {
     internal_static_interconnection_command_type_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_command_type_descriptor,
-        new java.lang.String[] { "Type", "Version", "DataSize", });
+        new java.lang.String[] { "Type", "Version", });
     internal_static_interconnection_drone_coordinates_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_interconnection_drone_coordinates_fieldAccessorTable = new
