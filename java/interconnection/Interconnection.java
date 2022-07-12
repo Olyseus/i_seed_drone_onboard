@@ -31,6 +31,11 @@ public final class Interconnection {
      * <code>optional int32 version = 2;</code>
      */
     int getVersion();
+
+    /**
+     * <code>optional uint32 data_size = 3;</code>
+     */
+    int getDataSize();
   }
   /**
    * Protobuf type {@code interconnection.command_type}
@@ -46,6 +51,7 @@ public final class Interconnection {
     private command_type() {
       type_ = 0;
       version_ = 0;
+      dataSize_ = 0;
     }
 
     @java.lang.Override
@@ -82,6 +88,11 @@ public final class Interconnection {
             case 16: {
 
               version_ = input.readInt32();
+              break;
+            }
+            case 24: {
+
+              dataSize_ = input.readUInt32();
               break;
             }
           }
@@ -266,6 +277,15 @@ public final class Interconnection {
       return version_;
     }
 
+    public static final int DATA_SIZE_FIELD_NUMBER = 3;
+    private int dataSize_;
+    /**
+     * <code>optional uint32 data_size = 3;</code>
+     */
+    public int getDataSize() {
+      return dataSize_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -284,6 +304,9 @@ public final class Interconnection {
       if (version_ != 0) {
         output.writeInt32(2, version_);
       }
+      if (dataSize_ != 0) {
+        output.writeUInt32(3, dataSize_);
+      }
     }
 
     public int getSerializedSize() {
@@ -298,6 +321,10 @@ public final class Interconnection {
       if (version_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, version_);
+      }
+      if (dataSize_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(3, dataSize_);
       }
       memoizedSize = size;
       return size;
@@ -318,6 +345,8 @@ public final class Interconnection {
       result = result && type_ == other.type_;
       result = result && (getVersion()
           == other.getVersion());
+      result = result && (getDataSize()
+          == other.getDataSize());
       return result;
     }
 
@@ -332,6 +361,8 @@ public final class Interconnection {
       hash = (53 * hash) + type_;
       hash = (37 * hash) + VERSION_FIELD_NUMBER;
       hash = (53 * hash) + getVersion();
+      hash = (37 * hash) + DATA_SIZE_FIELD_NUMBER;
+      hash = (53 * hash) + getDataSize();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -454,6 +485,8 @@ public final class Interconnection {
 
         version_ = 0;
 
+        dataSize_ = 0;
+
         return this;
       }
 
@@ -478,6 +511,7 @@ public final class Interconnection {
         interconnection.Interconnection.command_type result = new interconnection.Interconnection.command_type(this);
         result.type_ = type_;
         result.version_ = version_;
+        result.dataSize_ = dataSize_;
         onBuilt();
         return result;
       }
@@ -524,6 +558,9 @@ public final class Interconnection {
         }
         if (other.getVersion() != 0) {
           setVersion(other.getVersion());
+        }
+        if (other.getDataSize() != 0) {
+          setDataSize(other.getDataSize());
         }
         onChanged();
         return this;
@@ -617,6 +654,32 @@ public final class Interconnection {
       public Builder clearVersion() {
         
         version_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private int dataSize_ ;
+      /**
+       * <code>optional uint32 data_size = 3;</code>
+       */
+      public int getDataSize() {
+        return dataSize_;
+      }
+      /**
+       * <code>optional uint32 data_size = 3;</code>
+       */
+      public Builder setDataSize(int value) {
+        
+        dataSize_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint32 data_size = 3;</code>
+       */
+      public Builder clearDataSize() {
+        
+        dataSize_ = 0;
         onChanged();
         return this;
       }
@@ -1253,14 +1316,14 @@ public final class Interconnection {
   static {
     java.lang.String[] descriptorData = {
       "\n\025interconnection.proto\022\017interconnection" +
-      "\"\323\001\n\014command_type\0225\n\004type\030\001 \001(\0162\'.interc" +
+      "\"\346\001\n\014command_type\0225\n\004type\030\001 \001(\0162\'.interc" +
       "onnection.command_type.command_t\022\017\n\007vers" +
-      "ion\030\002 \001(\005\"{\n\tcommand_t\022\010\n\004PING\020\000\022\025\n\021DRON" +
-      "E_COORDINATES\020\001\022\021\n\rMISSION_START\020\002\022\021\n\rMI" +
-      "SSION_PAUSE\020\003\022\021\n\rMISSION_ABORT\020\004\022\024\n\020MISS" +
-      "ION_FINISHED\020\005\"I\n\021drone_coordinates\022\020\n\010l" +
-      "atitude\030\001 \001(\001\022\021\n\tlongitude\030\002 \001(\001\022\017\n\007head" +
-      "ing\030\003 \001(\002b\006proto3"
+      "ion\030\002 \001(\005\022\021\n\tdata_size\030\003 \001(\r\"{\n\tcommand_" +
+      "t\022\010\n\004PING\020\000\022\025\n\021DRONE_COORDINATES\020\001\022\021\n\rMI" +
+      "SSION_START\020\002\022\021\n\rMISSION_PAUSE\020\003\022\021\n\rMISS" +
+      "ION_ABORT\020\004\022\024\n\020MISSION_FINISHED\020\005\"I\n\021dro" +
+      "ne_coordinates\022\020\n\010latitude\030\001 \001(\001\022\021\n\tlong" +
+      "itude\030\002 \001(\001\022\017\n\007heading\030\003 \001(\002b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1279,7 +1342,7 @@ public final class Interconnection {
     internal_static_interconnection_command_type_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_command_type_descriptor,
-        new java.lang.String[] { "Type", "Version", });
+        new java.lang.String[] { "Type", "Version", "DataSize", });
     internal_static_interconnection_drone_coordinates_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_interconnection_drone_coordinates_fieldAccessorTable = new
