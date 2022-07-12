@@ -14,6 +14,7 @@ message command_type {
 
   command_t type = 1;
   int32 version = 2;
+  uint32 data_size = 3;
 }
 
 message drone_coordinates {
