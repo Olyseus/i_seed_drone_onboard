@@ -66,6 +66,11 @@ void drone::start() {
 
     spdlog::info("Creating channel {}", channel_id);
     MopErrCode error{server->accept(channel_id, MOP::PipelineType::RELIABLE, pipeline_)};
+    if (error == MOP_NOTREADY) {
+      spdlog::info("Retry");
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      continue;
+    }
     spdlog::info("Accept code: {}", error);
     BOOST_VERIFY(error == MOP_PASSED);
     BOOST_VERIFY(pipeline_ != nullptr);
@@ -98,13 +103,15 @@ void drone::read_job() {
     MopPipeline::DataPackType read_pack = {recv_buf, command_bytes_size_};
     uint32_t len{0};
     MopErrCode result{pipeline_->recvData(read_pack, &len)};
+    spdlog::info("Read data code: {} (size: {})", result, len);
     if (result == MOP_TIMEOUT) {
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
       continue;
     }
     if (result == MOP_CONNECTIONCLOSE) {
+      spdlog::info("Read connection closed");
       connection_closed_ = true;
-      return;
+      continue;
     }
     spdlog::info("Read data code: {}", result);
     BOOST_VERIFY(result == MOP_PASSED);
