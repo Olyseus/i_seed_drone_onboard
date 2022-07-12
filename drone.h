@@ -1,7 +1,7 @@
 #ifndef DRONE_H_
 #define DRONE_H_
 
-#include <cstdint> // uint16_t
+#include <cstdint>  // uint16_t
 #include <list>
 #include <mutex>
 
@@ -33,8 +33,10 @@ class drone {
   void write_job();
   bool send_command(interconnection::command_type::command_t);
 
-  static constexpr uint16_t channel_id{9745}; // Just a random number. Keep it consistent with Mobile SDK
-  static constexpr int32_t protocol_version{5}; // Keep it consistent with Mobile SDK
+  static constexpr uint16_t channel_id{
+      9745};  // Just a random number. Keep it consistent with Mobile SDK
+  static constexpr int32_t protocol_version{
+      5};  // Keep it consistent with Mobile SDK
   static constexpr int pkg_index{0};
 
   std::unique_ptr<LinuxSetup> linux_setup_;

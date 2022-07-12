@@ -1,11 +1,10 @@
 #include "drone.h"
 
-#include <future>
-
-#include <boost/assert.hpp>
 #include <spdlog/spdlog.h>
 
+#include <boost/assert.hpp>
 #include <dji_linux_helpers.hpp>  // LinuxSetup
+#include <future>
 
 drone::drone(int argc, char** argv) {
   spdlog::info("Setup for Linux");
@@ -15,8 +14,7 @@ drone::drone(int argc, char** argv) {
   constexpr int freq{5};
   DJI::OSDK::Telemetry::TopicName topic_list[] = {
       DJI::OSDK::Telemetry::TOPIC_QUATERNION,
-      DJI::OSDK::Telemetry::TOPIC_GPS_FUSED
-  };
+      DJI::OSDK::Telemetry::TOPIC_GPS_FUSED};
   constexpr std::size_t num_topic{sizeof(topic_list) / sizeof(topic_list[0])};
   constexpr bool enable_timestamp{false};
 
@@ -24,11 +22,12 @@ drone::drone(int argc, char** argv) {
   BOOST_VERIFY(vehicle);
 
   const bool pkg_status = vehicle->subscribe->initPackageFromTopicList(
-          pkg_index, num_topic, topic_list, enable_timestamp, freq);
+      pkg_index, num_topic, topic_list, enable_timestamp, freq);
   BOOST_VERIFY(pkg_status);
 
   constexpr int response_timeout{1};
-  ACK::ErrorCode subscribe_status = vehicle->subscribe->startPackage(pkg_index, response_timeout);
+  ACK::ErrorCode subscribe_status =
+      vehicle->subscribe->startPackage(pkg_index, response_timeout);
   BOOST_VERIFY(ACK::getError(subscribe_status) == ACK::SUCCESS);
 
   spdlog::info("Setup finished");
@@ -65,7 +64,8 @@ void drone::start() {
     std::unique_ptr<MopServer> server{new MopServer()};
 
     spdlog::info("Creating channel {}", channel_id);
-    MopErrCode error{server->accept(channel_id, MOP::PipelineType::RELIABLE, pipeline_)};
+    MopErrCode error{
+        server->accept(channel_id, MOP::PipelineType::RELIABLE, pipeline_)};
     if (error == MOP_NOTREADY) {
       spdlog::info("Retry");
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -75,8 +75,10 @@ void drone::start() {
     BOOST_VERIFY(error == MOP_PASSED);
     BOOST_VERIFY(pipeline_ != nullptr);
 
-    std::future<void> read_future{std::async(std::launch::async, &drone::read_job, this)};
-    std::future<void> write_future{std::async(std::launch::async, &drone::write_job, this)};
+    std::future<void> read_future{
+        std::async(std::launch::async, &drone::read_job, this)};
+    std::future<void> write_future{
+        std::async(std::launch::async, &drone::write_job, this)};
 
     read_future.get();
     write_future.get();
@@ -122,14 +124,12 @@ void drone::read_job() {
     BOOST_VERIFY(ok);
 
     switch (command.type()) {
-    case interconnection::command_type::PING:
-      {
+      case interconnection::command_type::PING: {
         std::lock_guard<std::mutex> lock(m_);
         execute_commands_.push_back(command.type());
-      }
-      break;
-    default:
-      BOOST_VERIFY(false);
+      } break;
+      default:
+        BOOST_VERIFY(false);
     }
   }
 }
@@ -155,7 +155,8 @@ void drone::write_job() {
     if (!command.has_value()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
       std::lock_guard<std::mutex> lock(m_);
-      execute_commands_.push_back(interconnection::command_type::DRONE_COORDINATES);
+      execute_commands_.push_back(
+          interconnection::command_type::DRONE_COORDINATES);
       continue;
     }
 
@@ -175,13 +176,16 @@ void drone::write_job() {
           continue;
         }
 
-        DJI::OSDK::Telemetry::Quaternion quaternion{vehicle->broadcast->getQuaternion()};
-        DJI::OSDK::Telemetry::GlobalPosition global{vehicle->broadcast->getGlobalPosition()};
+        DJI::OSDK::Telemetry::Quaternion quaternion{
+            vehicle->broadcast->getQuaternion()};
+        DJI::OSDK::Telemetry::GlobalPosition global{
+            vehicle->broadcast->getGlobalPosition()};
 
         // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
         const double q2sqr{quaternion.q2 * quaternion.q2};
         const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
-        const double t1{+2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
+        const double t1{+2.0 * (quaternion.q1 * quaternion.q2 +
+                                quaternion.q0 * quaternion.q3)};
         const double heading{atan2(t1, t0)};
 
         interconnection::drone_coordinates dc;
@@ -195,7 +199,8 @@ void drone::write_job() {
         char* char_buf{buffer.data()};
         static_assert(sizeof(char) == sizeof(uint8_t));
         uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buf)};
-        MopPipeline::DataPackType req_pack = {send_buf, static_cast<uint32_t>(buffer.size())};
+        MopPipeline::DataPackType req_pack = {
+            send_buf, static_cast<uint32_t>(buffer.size())};
         uint32_t len{0};
         MopErrCode result{MOP_TIMEOUT};
         while (result == MOP_TIMEOUT) {
@@ -209,7 +214,8 @@ void drone::write_job() {
         }
         BOOST_VERIFY(result == MOP_PASSED);
         BOOST_VERIFY(len == buffer.size());
-        spdlog::info("Drone coordinates sent: lat:{}, lon:{}, head:{}", global.latitude, global.longitude, heading);
+        spdlog::info("Drone coordinates sent: lat:{}, lon:{}, head:{}",
+                     global.latitude, global.longitude, heading);
         break;
       }
       default:
@@ -223,7 +229,8 @@ void drone::write_job() {
   }
 }
 
-bool drone::send_command(interconnection::command_type::command_t command_type) {
+bool drone::send_command(
+    interconnection::command_type::command_t command_type) {
   interconnection::command_type command;
   command.set_type(command_type);
   command.set_version(protocol_version);
@@ -235,7 +242,8 @@ bool drone::send_command(interconnection::command_type::command_t command_type) 
   char* char_buf{buffer.data()};
   static_assert(sizeof(char) == sizeof(uint8_t));
   uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buf)};
-  MopPipeline::DataPackType req_pack = {send_buf, static_cast<uint32_t>(buffer.size())};
+  MopPipeline::DataPackType req_pack = {send_buf,
+                                        static_cast<uint32_t>(buffer.size())};
   uint32_t len{0};
   MopErrCode result = pipeline_->sendData(req_pack, &len);
   spdlog::info("Write data code: {} (size: {})", result, len);
