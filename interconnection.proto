@@ -1,4 +1,4 @@
-syntax = "proto3";
+syntax = "proto2";
 
 package interconnection;
 
@@ -12,13 +12,12 @@ message command_type {
     MISSION_FINISHED = 5;
   }
 
-  command_t type = 1;
-  int32 version = 2;
-  uint32 data_size = 3;
+  required command_t type = 1;
+  required int32 version = 2;
 }
 
 message drone_coordinates {
-  double latitude = 1;
-  double longitude = 2;
-  float heading = 3;
+  required double latitude = 1;
+  required double longitude = 2;
+  required float heading = 3;
 }
