@@ -39,6 +39,7 @@ class drone {
 
   DJI::OSDK::MopPipeline* pipeline_{nullptr};
 
+  uint32_t command_bytes_size_{0};
   bool connection_closed_{false};
   std::mutex m_;
   std::list<interconnection::command_type::command_t> execute_commands_;

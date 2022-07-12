@@ -12,12 +12,25 @@ drone::drone(int argc, char** argv) {
   constexpr bool enable_advanced_sensing{true};
   linux_setup_.reset(new LinuxSetup(argc, argv, enable_advanced_sensing));
   spdlog::info("Setup finished");
+
+  interconnection::command_type command;
+  command.set_type(interconnection::command_type::PING);
+  command.set_version(protocol_version);
+  std::string buffer;
+  const bool ok{command.SerializeToString(&buffer)};
+  BOOST_VERIFY(ok);
+  command_bytes_size_ = {static_cast<uint32_t>(buffer.size())};
+  BOOST_VERIFY(command_bytes_size_ > 0);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 }
 
 drone::~drone() = default;
 
 void drone::start() {
   spdlog::info("Protocol version: {}", protocol_version);
+  spdlog::info("Command bytes size: {}", command_bytes_size_);
+
   while (true) {
     connection_closed_ = false;
 
@@ -42,24 +55,19 @@ void drone::start() {
 
 void drone::read_job() {
   spdlog::info("Read job started");
-  interconnection::command_type command;
-  command.set_type(interconnection::command_type::PING);
-  command.set_version(protocol_version);
+
   std::string buffer;
-  const bool ok{command.SerializeToString(&buffer)};
-  BOOST_VERIFY(ok);
-  const uint32_t command_bytes_size{static_cast<uint32_t>(buffer.size())};
-  BOOST_VERIFY(command_bytes_size > 0);
+  buffer.resize(command_bytes_size_);
 
   while (true) {
     if (connection_closed_) {
       return;
     }
-    BOOST_VERIFY(command_bytes_size == buffer.size());
+    BOOST_VERIFY(command_bytes_size_ == buffer.size());
     char* char_buffer{buffer.data()};
     static_assert(sizeof(char) == sizeof(uint8_t));
     uint8_t* recv_buf{reinterpret_cast<uint8_t*>(char_buffer)};
-    MopPipeline::DataPackType read_pack = {recv_buf, command_bytes_size};
+    MopPipeline::DataPackType read_pack = {recv_buf, command_bytes_size_};
     uint32_t len{0};
     MopErrCode result{pipeline_->recvData(read_pack, &len)};
     if (result == MOP_TIMEOUT) {
@@ -72,8 +80,9 @@ void drone::read_job() {
     }
     spdlog::info("Read data code: {}", result);
     BOOST_VERIFY(result == MOP_PASSED);
-    BOOST_VERIFY(len == command_bytes_size);
+    BOOST_VERIFY(len == command_bytes_size_);
 
+    interconnection::command_type command;
     const bool ok{command.ParseFromString(buffer)};
     BOOST_VERIFY(ok);
 
