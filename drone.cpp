@@ -11,6 +11,26 @@ drone::drone(int argc, char** argv) {
   spdlog::info("Setup for Linux");
   constexpr bool enable_advanced_sensing{true};
   linux_setup_.reset(new LinuxSetup(argc, argv, enable_advanced_sensing));
+
+  constexpr int freq{5};
+  DJI::OSDK::Telemetry::TopicName topic_list[] = {
+      DJI::OSDK::Telemetry::TOPIC_QUATERNION,
+      DJI::OSDK::Telemetry::TOPIC_GPS_FUSED
+  };
+  constexpr std::size_t num_topic{sizeof(topic_list) / sizeof(topic_list[0])};
+  constexpr bool enable_timestamp{false};
+
+  Vehicle* vehicle{linux_setup_->getVehicle()};
+  BOOST_VERIFY(vehicle);
+
+  const bool pkg_status = vehicle->subscribe->initPackageFromTopicList(
+          pkg_index, num_topic, topic_list, enable_timestamp, freq);
+  BOOST_VERIFY(pkg_status);
+
+  constexpr int response_timeout{1};
+  ACK::ErrorCode subscribe_status = vehicle->subscribe->startPackage(pkg_index, response_timeout);
+  BOOST_VERIFY(ACK::getError(subscribe_status) == ACK::SUCCESS);
+
   spdlog::info("Setup finished");
 
   interconnection::command_type command;
@@ -25,7 +45,15 @@ drone::drone(int argc, char** argv) {
   std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 }
 
-drone::~drone() = default;
+drone::~drone() {
+  if (linux_setup_.get()) {
+    Vehicle* vehicle{linux_setup_->getVehicle()};
+    if (vehicle) {
+      constexpr int response_timeout{1};
+      vehicle->subscribe->removePackage(pkg_index, response_timeout);
+    }
+  }
+}
 
 void drone::start() {
   spdlog::info("Protocol version: {}", protocol_version);
