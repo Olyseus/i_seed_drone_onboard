@@ -33,7 +33,7 @@ class drone {
   void write_job();
 
   static constexpr uint16_t channel_id{9745}; // Just a random number. Keep it consistent with Mobile SDK
-  static constexpr int32_t protocol_version{3}; // Keep it consistent with Mobile SDK
+  static constexpr int32_t protocol_version{5}; // Keep it consistent with Mobile SDK
 
   std::unique_ptr<LinuxSetup> linux_setup_;
 

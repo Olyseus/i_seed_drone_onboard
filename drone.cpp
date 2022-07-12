@@ -17,6 +17,7 @@ drone::drone(int argc, char** argv) {
 drone::~drone() = default;
 
 void drone::start() {
+  spdlog::info("Protocol version: {}", protocol_version);
   while (true) {
     connection_closed_ = false;
 
