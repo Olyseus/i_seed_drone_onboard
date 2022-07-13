@@ -177,20 +177,25 @@ void drone::write_job() {
         }
 
         DJI::OSDK::Telemetry::Quaternion quaternion{
-            vehicle->broadcast->getQuaternion()};
-        DJI::OSDK::Telemetry::GlobalPosition global{
-            vehicle->broadcast->getGlobalPosition()};
+            vehicle->subscribe
+                ->getValue<DJI::OSDK::Telemetry::TOPIC_QUATERNION>()};
+        DJI::OSDK::Telemetry::GPSFused global{
+            vehicle->subscribe
+                ->getValue<DJI::OSDK::Telemetry::TOPIC_GPS_FUSED>()};
+
+        const double latitude{global.latitude * 180.0 / M_PI};
+        const double longitude{global.longitude * 180.0 / M_PI};
 
         // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
         const double q2sqr{quaternion.q2 * quaternion.q2};
         const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
         const double t1{+2.0 * (quaternion.q1 * quaternion.q2 +
                                 quaternion.q0 * quaternion.q3)};
-        const double heading{atan2(t1, t0)};
+        const double heading{atan2(t1, t0) * 180.0 / M_PI};
 
         interconnection::drone_coordinates dc;
-        dc.set_latitude(global.latitude);
-        dc.set_longitude(global.longitude);
+        dc.set_latitude(latitude);
+        dc.set_longitude(longitude);
         dc.set_heading(heading);
         std::string buffer;
         const bool ok{dc.SerializeToString(&buffer)};
@@ -215,7 +220,7 @@ void drone::write_job() {
         BOOST_VERIFY(result == MOP_PASSED);
         BOOST_VERIFY(len == buffer.size());
         spdlog::info("Drone coordinates sent: lat:{}, lon:{}, head:{}",
-                     global.latitude, global.longitude, heading);
+                     latitude, longitude, heading);
         break;
       }
       default:
