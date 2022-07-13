@@ -35,11 +35,20 @@ drone::drone(int argc, char** argv) {
   interconnection::command_type command;
   command.set_type(interconnection::command_type::PING);
   command.set_version(protocol_version);
-  std::string buffer;
-  const bool ok{command.SerializeToString(&buffer)};
+  std::string buffer_1;
+  bool ok{command.SerializeToString(&buffer_1)};
   BOOST_VERIFY(ok);
-  command_bytes_size_ = {static_cast<uint32_t>(buffer.size())};
+  command_bytes_size_ = {static_cast<uint32_t>(buffer_1.size())};
   BOOST_VERIFY(command_bytes_size_ > 0);
+
+  interconnection::pin_coordinates pin_coordinates;
+  pin_coordinates.set_latitude(0.0);
+  pin_coordinates.set_longitude(0.0);
+  std::string buffer_2;
+  ok = pin_coordinates.SerializeToString(&buffer_2);
+  BOOST_VERIFY(ok);
+  pin_coordinates_bytes_size_ = {static_cast<uint32_t>(buffer_2.size())};
+  BOOST_VERIFY(pin_coordinates_bytes_size_ > 0);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 }
@@ -98,27 +107,11 @@ void drone::read_job() {
     if (connection_closed_) {
       return;
     }
-    BOOST_VERIFY(command_bytes_size_ == buffer.size());
-    char* char_buffer{buffer.data()};
-    static_assert(sizeof(char) == sizeof(uint8_t));
-    uint8_t* recv_buf{reinterpret_cast<uint8_t*>(char_buffer)};
-    MopPipeline::DataPackType read_pack = {recv_buf, command_bytes_size_};
-    uint32_t len{0};
-    MopErrCode result{pipeline_->recvData(read_pack, &len)};
-    spdlog::info("Read data code: {} (size: {})", result, len);
-    if (result == MOP_TIMEOUT) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
-      continue;
-    }
-    if (result == MOP_CONNECTIONCLOSE) {
-      spdlog::info("Read connection closed");
-      connection_closed_ = true;
-      continue;
-    }
-    spdlog::info("Read data code: {}", result);
-    BOOST_VERIFY(result == MOP_PASSED);
-    BOOST_VERIFY(len == command_bytes_size_);
 
+    BOOST_VERIFY(command_bytes_size_ == buffer.size());
+    if (!read_data(&buffer)) {
+      continue;
+    }
     interconnection::command_type command;
     const bool ok{command.ParseFromString(buffer)};
     BOOST_VERIFY(ok);
@@ -127,6 +120,28 @@ void drone::read_job() {
       case interconnection::command_type::PING: {
         std::lock_guard<std::mutex> lock(m_);
         execute_commands_.push_back(command.type());
+      } break;
+      case interconnection::command_type::MISSION_START: {
+        std::string buffer;
+        buffer.resize(pin_coordinates_bytes_size_);
+        if (!read_data(&buffer)) {
+          continue;
+        }
+
+        interconnection::pin_coordinates pin_coordinates;
+        const bool ok{pin_coordinates.ParseFromString(buffer)};
+        BOOST_VERIFY(ok);
+
+        spdlog::info("Mission start: lat({}), lon({})",
+                     pin_coordinates.latitude(), pin_coordinates.longitude());
+
+        // FIXME (implement)
+      } break;
+      case interconnection::command_type::MISSION_PAUSE: {
+        spdlog::info("Mission pause");  // FIXME (implement)
+      } break;
+      case interconnection::command_type::MISSION_ABORT: {
+        spdlog::info("Mission abort");  // FIXME (implement)
       } break;
       default:
         BOOST_VERIFY(false);
@@ -171,6 +186,12 @@ void drone::write_job() {
         }
         break;
       }
+      case interconnection::command_type::MISSION_FINISHED: {
+        spdlog::info("Execute MISSION_FINISHED command");
+        if (!send_command(interconnection::command_type::MISSION_FINISHED)) {
+          continue;
+        }
+      } break;
       case interconnection::command_type::DRONE_COORDINATES: {
         if (!send_command(interconnection::command_type::DRONE_COORDINATES)) {
           continue;
@@ -264,4 +285,36 @@ bool drone::send_command(
   BOOST_VERIFY(result == MOP_PASSED);
   BOOST_VERIFY(len == buffer.size());
   return true;
+}
+
+bool drone::read_data(std::string* buffer) {
+  BOOST_VERIFY(buffer != nullptr);
+  BOOST_VERIFY(buffer->size() > 0);
+
+  char* char_buffer{buffer->data()};
+  static_assert(sizeof(char) == sizeof(uint8_t));
+  uint8_t* recv_buf{reinterpret_cast<uint8_t*>(char_buffer)};
+  MopPipeline::DataPackType read_pack = {recv_buf,
+                                         static_cast<uint32_t>(buffer->size())};
+  uint32_t len{0};
+
+  while (true) {
+    MopErrCode result{pipeline_->recvData(read_pack, &len)};
+    spdlog::info("Read data code: {} (size: {})", result, len);
+
+    if (result == MOP_TIMEOUT) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      continue;
+    }
+
+    if (result == MOP_CONNECTIONCLOSE) {
+      spdlog::info("Read connection closed");
+      connection_closed_ = true;
+      return false;
+    }
+
+    BOOST_VERIFY(result == MOP_PASSED);
+    BOOST_VERIFY(len == buffer->size());
+    return true;
+  }
 }

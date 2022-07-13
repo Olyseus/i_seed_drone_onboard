@@ -32,6 +32,7 @@ class drone {
   void read_job();
   void write_job();
   bool send_command(interconnection::command_type::command_t);
+  bool read_data(std::string* buffer);
 
   static constexpr uint16_t channel_id{
       9745};  // Just a random number. Keep it consistent with Mobile SDK
@@ -44,6 +45,7 @@ class drone {
   DJI::OSDK::MopPipeline* pipeline_{nullptr};
 
   uint32_t command_bytes_size_{0};
+  uint32_t pin_coordinates_bytes_size_{0};
   bool connection_closed_{false};
   std::mutex m_;
   std::list<interconnection::command_type::command_t> execute_commands_;
