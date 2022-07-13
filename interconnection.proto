@@ -21,3 +21,8 @@ message drone_coordinates {
   required double longitude = 2;
   required float heading = 3;
 }
+
+message pin_coordinates {
+  required double latitude = 1;
+  required double longitude = 2;
+}
