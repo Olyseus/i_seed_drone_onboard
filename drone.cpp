@@ -398,8 +398,8 @@ DJI::OSDK::WaypointV2 drone::make_waypoint(double latitude, double longitude,
                                            float relative_height) {
   WaypointV2 p;
 
-  p.latitude = latitude;
-  p.longitude = longitude;
+  p.latitude = latitude * M_PI / 180.0;
+  p.longitude = longitude * M_PI / 180.0;
   p.relativeHeight = relative_height;
 
   p.waypointType = DJIWaypointV2FlightPathModeGoToPointInAStraightLineAndStop;
