@@ -116,6 +116,9 @@ void drone::read_job() {
     const bool ok{command.ParseFromString(buffer)};
     BOOST_VERIFY(ok);
 
+    Vehicle* vehicle{linux_setup_->getVehicle()};
+    BOOST_VERIFY(vehicle);
+
     switch (command.type()) {
       case interconnection::command_type::PING: {
         std::lock_guard<std::mutex> lock(m_);
@@ -128,20 +131,79 @@ void drone::read_job() {
           continue;
         }
 
+        if (mission_is_started_) {
+          spdlog::info("Mission resume");
+          constexpr int timeout{10};
+          ErrorCode::ErrorCodeType ret =
+              vehicle->waypointV2Mission->resume(timeout);
+          BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+          // FIXME (verify mission state)
+          continue;
+        }
+
         interconnection::pin_coordinates pin_coordinates;
         const bool ok{pin_coordinates.ParseFromString(buffer)};
         BOOST_VERIFY(ok);
 
-        spdlog::info("Mission start: lat({}), lon({})",
-                     pin_coordinates.latitude(), pin_coordinates.longitude());
+        const double lat{pin_coordinates.latitude()};
+        const double lon{pin_coordinates.longitude()};
 
-        // FIXME (implement)
+        spdlog::info("Mission start: lat({}), lon({})", lat, lon);
+
+        constexpr int timeout{10};
+        ACK::ErrorCode res{vehicle->control->obtainCtrlAuthority(timeout)};
+        BOOST_VERIFY(ACK::getError(res) == ACK::SUCCESS);
+
+        WayPointV2InitSettings s;
+        s.missionID = 2573;  // Just a random number
+        s.repeatTimes = 0;   // execute just once and go home
+        s.finishedAction = DJIWaypointV2MissionFinishedGoHome;
+        s.maxFlightSpeed = 10;
+        s.autoFlightSpeed = 2;
+        s.exitMissionOnRCSignalLost =
+            0;  // continue mission even if signal is lost
+        s.gotoFirstWaypointMode =
+            DJIWaypointV2MissionGotoFirstWaypointModeSafely;
+
+        // FIXME (points from polygons)
+        // FIXME (action at waypoint)
+        s.mission.clear();
+        s.mission.push_back(make_waypoint(lat, lon, 15.0F));
+        s.mission.push_back(make_waypoint(lat, lon, 20.0F));
+
+        s.missTotalLen = s.mission.size();
+        BOOST_VERIFY(s.missTotalLen >= 2);
+        BOOST_VERIFY(s.missTotalLen <= 65535);
+
+        ErrorCode::ErrorCodeType ret{
+            vehicle->waypointV2Mission->init(&s, timeout)};
+        BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+
+        ret = vehicle->waypointV2Mission->uploadMission(timeout);
+        BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+
+        ret = vehicle->waypointV2Mission->start(timeout);
+        BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+
+        mission_is_started_ = true;
+        // FIXME (verify mission state)
       } break;
       case interconnection::command_type::MISSION_PAUSE: {
-        spdlog::info("Mission pause");  // FIXME (implement)
+        spdlog::info("Mission pause");
+        constexpr int timeout{10};
+        ErrorCode::ErrorCodeType ret =
+            vehicle->waypointV2Mission->pause(timeout);
+        BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+        // FIXME (verify mission state)
       } break;
       case interconnection::command_type::MISSION_ABORT: {
-        spdlog::info("Mission abort");  // FIXME (implement)
+        spdlog::info("Mission abort");
+        constexpr int timeout{10};
+        ErrorCode::ErrorCodeType ret =
+            vehicle->waypointV2Mission->stop(timeout);
+        BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+        // FIXME (verify mission state)
+        mission_finished();
       } break;
       default:
         BOOST_VERIFY(false);
@@ -159,6 +221,19 @@ void drone::write_job() {
       return;
     }
     command.reset();
+
+    if (mission_is_started_) {
+      Vehicle* vehicle{linux_setup_->getVehicle()};
+      BOOST_VERIFY(vehicle);
+      if (vehicle->waypointV2Mission->getCurrentState() ==
+          DJIWaypointV2MissionStateFinishedMission) {
+        spdlog::info("Mission finished");
+        mission_finished();
+        std::lock_guard<std::mutex> lock(m_);
+        execute_commands_.push_back(
+            interconnection::command_type::MISSION_FINISHED);
+      }
+    }
 
     {
       std::lock_guard<std::mutex> lock(m_);
@@ -317,4 +392,46 @@ bool drone::read_data(std::string* buffer) {
     BOOST_VERIFY(len == buffer->size());
     return true;
   }
+}
+
+DJI::OSDK::WaypointV2 drone::make_waypoint(double latitude, double longitude,
+                                           float relative_height) {
+  WaypointV2 p;
+
+  p.latitude = latitude;
+  p.longitude = longitude;
+  p.relativeHeight = relative_height;
+
+  p.waypointType = DJIWaypointV2FlightPathModeGoToPointInAStraightLineAndStop;
+  p.headingMode = DJIWaypointV2HeadingModeAuto;
+
+  p.config.useLocalCruiseVel = 0;  // set local waypoint's cruise speed
+  p.config.useLocalMaxVel = 0;     // set local waypoint's max speed
+
+  p.dampingDistance = 40;  // cm
+  p.heading = 0.0;         // unused?
+
+  p.turnMode = DJIWaypointV2TurnModeClockwise;
+
+  // unused
+  p.pointOfInterest.positionX = 0.0F;
+  p.pointOfInterest.positionY = 0.0F;
+  p.pointOfInterest.positionZ = 0.0F;
+
+  p.maxFlightSpeed = 10.0F;
+  p.autoFlightSpeed = 2.0F;
+
+  return p;
+}
+
+void drone::mission_finished() {
+  BOOST_VERIFY(mission_is_started_);
+  mission_is_started_ = false;
+
+  Vehicle* vehicle{linux_setup_->getVehicle()};
+  BOOST_VERIFY(vehicle);
+
+  constexpr int timeout{10};
+  ACK::ErrorCode res{vehicle->control->releaseCtrlAuthority(timeout)};
+  BOOST_VERIFY(ACK::getError(res) == ACK::SUCCESS);
 }

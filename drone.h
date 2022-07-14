@@ -1,6 +1,7 @@
 #ifndef DRONE_H_
 #define DRONE_H_
 
+#include <atomic>
 #include <cstdint>  // uint16_t
 #include <list>
 #include <mutex>
@@ -12,6 +13,7 @@ class LinuxSetup;
 namespace DJI {
 namespace OSDK {
 class MopPipeline;
+class WaypointV2;
 }  // namespace OSDK
 }  // namespace DJI
 
@@ -33,6 +35,9 @@ class drone {
   void write_job();
   bool send_command(interconnection::command_type::command_t);
   bool read_data(std::string* buffer);
+  DJI::OSDK::WaypointV2 make_waypoint(double latitude, double longitude,
+                                      float relative_height);
+  void mission_finished();
 
   static constexpr uint16_t channel_id{
       9745};  // Just a random number. Keep it consistent with Mobile SDK
@@ -47,6 +52,7 @@ class drone {
   uint32_t command_bytes_size_{0};
   uint32_t pin_coordinates_bytes_size_{0};
   bool connection_closed_{false};
+  std::atomic<bool> mission_is_started_{false};
   std::mutex m_;
   std::list<interconnection::command_type::command_t> execute_commands_;
 };
