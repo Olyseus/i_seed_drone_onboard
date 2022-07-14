@@ -287,24 +287,10 @@ void drone::write_job() {
         const bool ok{dc.SerializeToString(&buffer)};
         BOOST_VERIFY(ok);
 
-        char* char_buf{buffer.data()};
-        static_assert(sizeof(char) == sizeof(uint8_t));
-        uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buf)};
-        MopPipeline::DataPackType req_pack = {
-            send_buf, static_cast<uint32_t>(buffer.size())};
-        uint32_t len{0};
-        MopErrCode result{MOP_TIMEOUT};
-        while (result == MOP_TIMEOUT) {
-          result = pipeline_->sendData(req_pack, &len);
-          spdlog::info("Write data code: {} (size: {})", result, len);
-          if (result == MOP_CONNECTIONCLOSE) {
-            connection_closed_ = true;
-            spdlog::info("Write connection closed (coordinates)");
-            return;
-          }
+        if (!write_data(buffer)) {
+          return;
         }
-        BOOST_VERIFY(result == MOP_PASSED);
-        BOOST_VERIFY(len == buffer.size());
+
         spdlog::info("Drone coordinates sent: lat:{}, lon:{}, head:{}",
                      latitude, longitude, heading);
         break;
@@ -330,26 +316,7 @@ bool drone::send_command(
   BOOST_VERIFY(ok);
   BOOST_VERIFY(buffer.size() == command_bytes_size_);
 
-  char* char_buf{buffer.data()};
-  static_assert(sizeof(char) == sizeof(uint8_t));
-  uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buf)};
-  MopPipeline::DataPackType req_pack = {send_buf,
-                                        static_cast<uint32_t>(buffer.size())};
-  uint32_t len{0};
-  MopErrCode result = pipeline_->sendData(req_pack, &len);
-  spdlog::info("Write data code: {} (size: {})", result, len);
-  if (result == MOP_TIMEOUT) {
-    spdlog::info("Write connection timeout (command)");
-    return false;
-  }
-  if (result == MOP_CONNECTIONCLOSE) {
-    connection_closed_ = true;
-    spdlog::info("Write connection closed (command)");
-    return false;
-  }
-  BOOST_VERIFY(result == MOP_PASSED);
-  BOOST_VERIFY(len == buffer.size());
-  return true;
+  return write_data(buffer);
 }
 
 bool drone::read_data(std::string* buffer) {
@@ -382,6 +349,37 @@ bool drone::read_data(std::string* buffer) {
     BOOST_VERIFY(len == buffer->size());
     return true;
   }
+}
+
+bool drone::write_data(std::string& buffer) {
+  BOOST_VERIFY(buffer->size() > 0);
+
+  char* char_buffer{buffer.data()};
+  static_assert(sizeof(char) == sizeof(uint8_t));
+  uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buffer)};
+  MopPipeline::DataPackType req_pack = {send_buf,
+                                        static_cast<uint32_t>(buffer.size())};
+  uint32_t len{0};
+
+  while (true) {
+    MopErrCode result{pipeline_->sendData(req_pack, &len)};
+    spdlog::info("Write data code: {} (size: {})", result, len);
+
+    if (result == MOP_TIMEOUT) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      continue;
+    }
+
+    if (result == MOP_CONNECTIONCLOSE) {
+      spdlog::info("Write connection closed");
+      connection_closed_ = true;
+      return false;
+    }
+  }
+
+  BOOST_VERIFY(result == MOP_PASSED);
+  BOOST_VERIFY(len == buffer.size());
+  return true;
 }
 
 DJI::OSDK::WaypointV2 drone::make_waypoint(double latitude, double longitude,

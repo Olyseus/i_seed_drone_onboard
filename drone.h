@@ -43,6 +43,7 @@ class drone {
   void write_job();
   bool send_command(interconnection::command_type::command_t);
   bool read_data(std::string* buffer);
+  bool write_data(std::string& buffer);
   DJI::OSDK::WaypointV2 make_waypoint(double latitude, double longitude,
                                       float relative_height);
   void mission_finished();
