@@ -185,6 +185,9 @@ void drone::read_job() {
         ret = vehicle->waypointV2Mission->start(timeout);
         BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
 
+        vehicle->waypointV2Mission->RegisterMissionStateCallback(
+            this, update_mission_state);
+
         mission_is_started_ = true;
         // FIXME (verify mission state)
       } break;
@@ -221,19 +224,6 @@ void drone::write_job() {
       return;
     }
     command.reset();
-
-    if (mission_is_started_) {
-      Vehicle* vehicle{linux_setup_->getVehicle()};
-      BOOST_VERIFY(vehicle);
-      if (vehicle->waypointV2Mission->getCurrentState() ==
-          DJIWaypointV2MissionStateFinishedMission) {
-        spdlog::info("Mission finished");
-        mission_finished();
-        std::lock_guard<std::mutex> lock(m_);
-        execute_commands_.push_back(
-            interconnection::command_type::MISSION_FINISHED);
-      }
-    }
 
     {
       std::lock_guard<std::mutex> lock(m_);
@@ -433,5 +423,73 @@ void drone::mission_finished() {
 
   constexpr int timeout{10};
   ACK::ErrorCode res{vehicle->control->releaseCtrlAuthority(timeout)};
-  BOOST_VERIFY(ACK::getError(res) == ACK::SUCCESS);
+  if (ACK::getError(res) == ACK::SUCCESS) {
+    spdlog::warn("Authority not released: {}", ACK::getError(res));
+  }
+}
+
+E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
+                                       const T_CmdInfo* cmd_info,
+                                       const uint8_t* cmd_data,
+                                       void* user_data) {
+  BOOST_VERIFY(user_data != nullptr);
+  auto* self{static_cast<drone*>(user_data)};
+
+  BOOST_VERIFY(cmd_data != nullptr);
+  auto* ack{reinterpret_cast<const DJI::OSDK::MissionStatePushAck*>(cmd_data)};
+  auto state{
+      static_cast<DJI::OSDK::DJIWaypointV2MissionState>(ack->data.state)};
+
+  BOOST_VERIFY(cmd_handle != nullptr);
+  BOOST_VERIFY(cmd_info != nullptr);
+
+  if (!self->mission_is_started_) {
+    return OSDK_STAT_OK;
+  }
+
+  bool finished{false};
+
+  switch (state) {
+    case DJIWaypointV2MissionStateUnWaypointActionActuatorknown:
+      spdlog::info("Mission state unknown");
+      break;
+    case DJIWaypointV2MissionStateDisconnected:
+      spdlog::info("Mission state disconnected");
+      break;
+    case DJIWaypointV2MissionStateReadyToExecute:
+      spdlog::info("Mission state ready to execute");
+      break;
+    case DJIWaypointV2MissionStateExecuting:
+      spdlog::info("Mission state executing");
+      break;
+    case DJIWaypointV2MissionStateInterrupted:
+      spdlog::info("Mission state interrupted");
+      // Interrupted by second smart controller while
+      // asking for a landing confirmation
+      finished = true;
+      break;
+    case DJIWaypointV2MissionStateResumeAfterInterrupted:
+      spdlog::info("Mission state resumed");
+      break;
+    case DJIWaypointV2MissionStateExitMission:
+      spdlog::info("Mission state exited");
+      BOOST_VERIFY(false);
+      break;
+    case DJIWaypointV2MissionStateFinishedMission: {
+      spdlog::info("Mission state finished");
+      finished = true;
+    } break;
+    default:
+      spdlog::error("Unknown state: {}", state);
+      BOOST_VERIFY(false);
+  }
+
+  if (finished) {
+    self->mission_finished();
+    std::lock_guard<std::mutex> lock(self->m_);
+    self->execute_commands_.push_back(
+        interconnection::command_type::MISSION_FINISHED);
+  }
+
+  return OSDK_STAT_OK;
 }

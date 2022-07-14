@@ -1,6 +1,8 @@
 #ifndef DRONE_H_
 #define DRONE_H_
 
+#include <osdk_typedef.h>  // E_OsdkStat
+
 #include <atomic>
 #include <cstdint>  // uint16_t
 #include <list>
@@ -9,6 +11,12 @@
 #include "interconnection.pb.h"
 
 class LinuxSetup;
+
+struct _cmdInfo;
+typedef struct _cmdInfo T_CmdInfo;
+
+struct _CommandHandle;
+typedef struct _CommandHandle T_CmdHandle;
 
 namespace DJI {
 namespace OSDK {
@@ -38,6 +46,11 @@ class drone {
   DJI::OSDK::WaypointV2 make_waypoint(double latitude, double longitude,
                                       float relative_height);
   void mission_finished();
+
+  static E_OsdkStat update_mission_state(T_CmdHandle* cmd_handle,
+                                         const T_CmdInfo* cmd_info,
+                                         const uint8_t* cmd_data,
+                                         void* user_data);
 
   static constexpr uint16_t channel_id{
       9745};  // Just a random number. Keep it consistent with Mobile SDK
