@@ -345,6 +345,12 @@ bool drone::read_data(std::string* buffer) {
       return false;
     }
 
+    if (result == MOP_NOMEM) {
+      spdlog::info("No memory for read");
+      connection_closed_ = true;
+      return false;
+    }
+
     BOOST_VERIFY(result == MOP_PASSED);
     BOOST_VERIFY(len == buffer->size());
     return true;
@@ -372,6 +378,12 @@ bool drone::write_data(std::string& buffer) {
 
     if (result == MOP_CONNECTIONCLOSE) {
       spdlog::info("Write connection closed");
+      connection_closed_ = true;
+      return false;
+    }
+
+    if (result == MOP_NOMEM) {
+      spdlog::info("No memory for write");
       connection_closed_ = true;
       return false;
     }
