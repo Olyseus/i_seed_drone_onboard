@@ -213,7 +213,7 @@ void drone::receive_data_job() {
         buffer.resize(pin_coordinates_bytes_size_);
         receive_data(&buffer);
 
-        if (mission_is_started_) {
+        if (mission_state_.is_started()) {
           spdlog::info("Mission resume");
           const api_code code{vehicle_->waypointV2Mission->resume(timeout)};
           BOOST_VERIFY(code.success());
@@ -269,7 +269,7 @@ void drone::receive_data_job() {
         vehicle_->waypointV2Mission->RegisterMissionStateCallback(
             this, update_mission_state);
 
-        mission_is_started_ = true;
+        mission_state_.start();
         // FIXME (verify mission state)
       } break;
       case interconnection::command_type::MISSION_PAUSE: {
@@ -283,7 +283,7 @@ void drone::receive_data_job() {
         const api_code code{vehicle_->waypointV2Mission->stop(timeout)};
         BOOST_VERIFY(code.success());
         // FIXME (verify mission state)
-        mission_finished();
+        mission_state_.finish();
       } break;
       default:
         spdlog::error("Unexpected command type: {}", command.type());
@@ -465,11 +465,6 @@ DJI::OSDK::WaypointV2 drone::make_waypoint(double latitude, double longitude,
   return p;
 }
 
-void drone::mission_finished() {
-  BOOST_VERIFY(mission_is_started_);
-  mission_is_started_ = false;
-}
-
 E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
                                        const T_CmdInfo* cmd_info,
                                        const uint8_t* cmd_data,
@@ -480,82 +475,30 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
   BOOST_VERIFY(cmd_data != nullptr);
   auto* ack{reinterpret_cast<const DJI::OSDK::MissionStatePushAck*>(cmd_data)};
 
-  // Handle negative values correctly
-  const int8_t state_i8{static_cast<int8_t>(ack->data.state)};
-  const auto state{static_cast<DJI::OSDK::DJIWaypointV2MissionState>(state_i8)};
-
-  const uint16_t waypoint_index{ack->data.curWaypointIndex};
-
   BOOST_VERIFY(cmd_handle != nullptr);
   BOOST_VERIFY(cmd_info != nullptr);
 
-  if (!self->mission_is_started_) {
+  if (!self->mission_state_.is_started()) {
     return OSDK_STAT_OK;
   }
 
-  DJI::OSDK::Telemetry::RC rc{
-      self->vehicle_->subscribe->getValue<DJI::OSDK::Telemetry::TOPIC_RC>()};
-  // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
-  switch (rc.mode) {
-    case -8000:
-      spdlog::info("Mode P");
-      break;
-    case 0:
-      spdlog::info("Mode A");
-      break;
-    case 8000:
-      spdlog::info("Mode F");
-      break;
-    default:
-      spdlog::error("Unknown mode: {}", rc.mode);
-      BOOST_VERIFY(false);
-      break;
-  }
+  self->mission_state_.update(ack);
 
-  bool finished{false};
-
-  switch (state) {
-    case DJIWaypointV2MissionStateUnWaypointActionActuatorknown:
-      spdlog::info("Mission state unknown");
-      break;
-    case DJIWaypointV2MissionStateDisconnected:
-      spdlog::info("Mission state disconnected");
-      break;
-    case DJIWaypointV2MissionStateReadyToExecute:
-      spdlog::info("Mission state ready to execute");
-      break;
-    case DJIWaypointV2MissionStateExecuting:
-      spdlog::info("Mission state executing, waypoint: {}", waypoint_index);
-      break;
-    case DJIWaypointV2MissionStateInterrupted:
-      spdlog::info("Mission state interrupted, waypoint: {}", waypoint_index);
-      break;
-    case DJIWaypointV2MissionStateResumeAfterInterrupted:
-      spdlog::info("Mission state resumed");
-      break;
-    case DJIWaypointV2MissionStateExitMission:
-      spdlog::info("Mission state exited");
-      BOOST_VERIFY(false);
-      break;
-    case DJIWaypointV2MissionStateFinishedMission: {
-      spdlog::info("Mission state finished");
-      finished = true;
-    } break;
-    case 7:
-      // Unknown state, receiving while using simulator,
-      // after receiving disconnected multiple times
-      spdlog::info("Mission state unknown (7)");
-      break;
-    default:
-      spdlog::error("Unknown state: {}", state);
-      BOOST_VERIFY(false);
-  }
-
-  if (finished) {
-    self->mission_finished();
+  if (!self->mission_state_.is_started()) {
     std::lock_guard<std::mutex> lock(self->m_);
     self->execute_commands_.push_back(
         interconnection::command_type::MISSION_FINISHED);
+  } else if (self->mission_state_.is_disconnected()) {
+    self->connection_closed_ = true;
+  }
+
+  // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
+  DJI::OSDK::Telemetry::RC rc{
+      self->vehicle_->subscribe->getValue<DJI::OSDK::Telemetry::TOPIC_RC>()};
+  if (rc.mode != 8000) {
+    // Value received while running tests on simulator
+    spdlog::error("Unexpected RC mode: {}", rc.mode);
+    BOOST_VERIFY(false);
   }
 
   return OSDK_STAT_OK;

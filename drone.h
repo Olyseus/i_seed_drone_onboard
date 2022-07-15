@@ -10,6 +10,8 @@
 
 #include "interconnection.pb.h"
 
+#include "mission_state.h"
+
 class LinuxSetup;
 
 struct _cmdInfo;
@@ -65,8 +67,6 @@ class drone {
   void send_data(std::string& buffer);
   DJI::OSDK::WaypointV2 make_waypoint(double latitude, double longitude,
                                       float relative_height);
-  void mission_finished();
-
   static E_OsdkStat update_mission_state(T_CmdHandle* cmd_handle,
                                          const T_CmdInfo* cmd_info,
                                          const uint8_t* cmd_data,
@@ -83,10 +83,11 @@ class drone {
   DJI::OSDK::Vehicle* vehicle_{nullptr};
   DJI::OSDK::MopPipeline* pipeline_{nullptr};
 
+  mission_state mission_state_;
+
   uint32_t command_bytes_size_{0};
   uint32_t pin_coordinates_bytes_size_{0};
   std::atomic<bool> connection_closed_{false};
-  std::atomic<bool> mission_is_started_{false};
   std::mutex m_;
   std::list<interconnection::command_type::command_t> execute_commands_;
 };
