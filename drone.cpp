@@ -90,6 +90,7 @@ drone::drone(int argc, char** argv) {
   constexpr int freq{5};
   DJI::OSDK::Telemetry::TopicName topic_list[] = {
       DJI::OSDK::Telemetry::TOPIC_QUATERNION,
+      DJI::OSDK::Telemetry::TOPIC_RC,
       DJI::OSDK::Telemetry::TOPIC_GPS_FUSED};
   constexpr std::size_t num_topic{sizeof(topic_list) / sizeof(topic_list[0])};
   constexpr bool enable_timestamp{false};
@@ -467,6 +468,24 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
 
   if (!self->mission_is_started_) {
     return OSDK_STAT_OK;
+  }
+
+  DJI::OSDK::Telemetry::RC rc{vehicle_->subscribe->getValue<DJI::OSDK::Telemetry::TOPIC_RC>()};
+  // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
+  switch (rc.mode) {
+    case -8000:
+      spdlog::info("Mode P");
+      break;
+    case 0:
+      spdlog::info("Mode A");
+      break;
+    case 8000:
+      spdlog::info("Mode F");
+      break;
+    default:
+      spdlog::error("Unknown mode: {}", rc.mode);
+      BOOST_VERIFY(false);
+      break;
   }
 
   bool finished{false};
