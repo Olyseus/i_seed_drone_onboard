@@ -1,5 +1,9 @@
 #include "mission_state.h"
 
+#include <boost/assert.hpp> // BOOST_VERIFY
+#include <dji_linux_helpers.hpp>  // DJI::OSDK::MissionStatePushAck
+#include <spdlog/spdlog.h>
+
 void mission_state::start() {
   std::lock_guard<std::mutex> lock(m_);
 
@@ -84,7 +88,7 @@ const char* mission_state::state_name() const {
     case mission_unknown_state_7_:
       return "unknown (7)";
     default:
-      spdlog::error("Unknown state: {}", state);
+      spdlog::error("Unknown state: {}", state_);
       BOOST_VERIFY(false);
       return "";
   }
