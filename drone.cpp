@@ -431,11 +431,6 @@ void drone::mission_finished() {
   Vehicle* vehicle{linux_setup_->getVehicle()};
   BOOST_VERIFY(vehicle);
 
-  constexpr int timeout{10};
-  ACK::ErrorCode res{vehicle->control->releaseCtrlAuthority(timeout)};
-  if (ACK::getError(res) == ACK::SUCCESS) {
-    spdlog::warn("Authority not released: {}", ACK::getError(res));
-  }
 }
 
 E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
