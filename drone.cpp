@@ -7,7 +7,7 @@
 #include <future>
 
 template <>
-api_code::api_code(const ACK::ErrorCode& error_code) {
+drone::api_code::api_code(const ACK::ErrorCode& error_code) {
   if (ACK::getError(error_code) == ACK::SUCCESS) {
     code_ = code::success;
     return;
@@ -23,7 +23,7 @@ api_code::api_code(const ACK::ErrorCode& error_code) {
 }
 
 template <>
-api_code::api_code(const ErrorCode::ErrorCodeType& error_code) {
+drone::api_code::api_code(const ErrorCode::ErrorCodeType& error_code) {
   if (error_code == ErrorCode::SysCommonErr::Success) {
     code_ = code::success;
     return;
@@ -33,7 +33,7 @@ api_code::api_code(const ErrorCode::ErrorCodeType& error_code) {
 
 // https://github.com/dji-sdk/Onboard-SDK/blob/4.1.0/osdk-core/modules/inc/mop/dji_mop_define.hpp#L49
 template <>
-api_code::api_code(const DJI::OSDK::MOP::MopErrCode& error_code) {
+drone::api_code::api_code(const DJI::OSDK::MOP::MopErrCode& error_code) {
   switch (error_code) {
     case MOP_PASSED:
       code_ = code::success;
@@ -52,7 +52,8 @@ api_code::api_code(const DJI::OSDK::MOP::MopErrCode& error_code) {
       throw pipeline_closed();
     case MOP_NOTREADY:
       spdlog::error("MOP_NOTREADY");
-      return make_retry();
+      make_retry();
+      return;
     case MOP_SEND:
       spdlog::error("MOP_SEND");
       return;
@@ -61,13 +62,16 @@ api_code::api_code(const DJI::OSDK::MOP::MopErrCode& error_code) {
       return;
     case MOP_TIMEOUT:
       spdlog::error("MOP_TIMEOUT");
-      return make_retry();
+      make_retry();
+      return;
     case MOP_RESBUSY:
       spdlog::error("MOP_RESBUSY");
-      return make_retry();
+      make_retry();
+      return;
     case MOP_RESOCCUPIED:
       spdlog::error("MOP_RESOCCUPIED");
-      return make_retry();
+      make_retry();
+      return;
     case MOP_CONNECTIONCLOSE:
       spdlog::error("MOP_CONNECTIONCLOSE");
       throw pipeline_closed();
@@ -113,6 +117,7 @@ drone::drone(int argc, char** argv) {
       continue;
     }
     BOOST_VERIFY(code.success());
+    break;
   }
 
   spdlog::info("Setup finished");
@@ -483,7 +488,7 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
     return OSDK_STAT_OK;
   }
 
-  DJI::OSDK::Telemetry::RC rc{vehicle_->subscribe->getValue<DJI::OSDK::Telemetry::TOPIC_RC>()};
+  DJI::OSDK::Telemetry::RC rc{self->vehicle_->subscribe->getValue<DJI::OSDK::Telemetry::TOPIC_RC>()};
   // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
   switch (rc.mode) {
     case -8000:
