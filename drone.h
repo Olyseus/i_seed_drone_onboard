@@ -60,11 +60,11 @@ class drone {
     code code_{code::failure};
   };
 
-  void read_job();
-  void write_job();
+  void receive_data_job();
+  void send_data_job();
   void send_command(interconnection::command_type::command_t);
-  void read_data(std::string* buffer);
-  void write_data(std::string& buffer);
+  void receive_data(std::string* buffer);
+  void send_data(std::string& buffer);
   DJI::OSDK::WaypointV2 make_waypoint(double latitude, double longitude,
                                       float relative_height);
   void mission_finished();

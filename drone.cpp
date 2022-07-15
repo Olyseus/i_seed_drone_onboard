@@ -147,18 +147,18 @@ void drone::start() {
 
     connection_closed_ = false;
 
-    std::future<void> read_future{
-        std::async(std::launch::async, &drone::read_job, this)};
-    std::future<void> write_future{
-        std::async(std::launch::async, &drone::write_job, this)};
+    std::future<void> receive_data_future{
+        std::async(std::launch::async, &drone::receive_data_job, this)};
+    std::future<void> send_data_future{
+        std::async(std::launch::async, &drone::send_data_job, this)};
 
     try {
-      read_future.get();
+      receive_data_future.get();
     } catch (pipeline_closed&) {
       connection_closed_ = true;
     }
     try {
-      write_future.get();
+      send_data_future.get();
     } catch (pipeline_closed&) {
       connection_closed_ = true;
     }
@@ -168,15 +168,15 @@ void drone::start() {
   }
 }
 
-void drone::read_job() {
-  spdlog::info("Read job started");
+void drone::receive_data_job() {
+  spdlog::info("Received data job started");
 
   std::string buffer;
   buffer.resize(command_bytes_size_);
 
   while (true) {
     BOOST_VERIFY(command_bytes_size_ == buffer.size());
-    read_data(&buffer);
+    receive_data(&buffer);
 
     interconnection::command_type command;
     const bool ok{command.ParseFromString(buffer)};
@@ -190,7 +190,7 @@ void drone::read_job() {
       case interconnection::command_type::MISSION_START: {
         std::string buffer;
         buffer.resize(pin_coordinates_bytes_size_);
-        read_data(&buffer);
+        receive_data(&buffer);
 
         if (mission_is_started_) {
           spdlog::info("Mission resume");
@@ -268,8 +268,8 @@ void drone::read_job() {
   }
 }
 
-void drone::write_job() {
-  spdlog::info("Write job started");
+void drone::send_data_job() {
+  spdlog::info("Send data job started");
 
   std::optional<interconnection::command_type::command_t> command;
 
@@ -329,7 +329,7 @@ void drone::write_job() {
         const bool ok{dc.SerializeToString(&buffer)};
         BOOST_VERIFY(ok);
 
-        write_data(buffer);
+        send_data(buffer);
 
         spdlog::info("Drone coordinates sent: lat:{}, lon:{}, head:{}",
                      latitude, longitude, heading);
@@ -357,17 +357,17 @@ void drone::send_command(
   BOOST_VERIFY(ok);
   BOOST_VERIFY(buffer.size() == command_bytes_size_);
 
-  write_data(buffer);
+  send_data(buffer);
 }
 
-void drone::read_data(std::string* buffer) {
+void drone::receive_data(std::string* buffer) {
   BOOST_VERIFY(buffer != nullptr);
   BOOST_VERIFY(buffer->size() > 0);
 
   char* char_buffer{buffer->data()};
   static_assert(sizeof(char) == sizeof(uint8_t));
   uint8_t* recv_buf{reinterpret_cast<uint8_t*>(char_buffer)};
-  MopPipeline::DataPackType read_pack = {recv_buf,
+  MopPipeline::DataPackType recv_pack = {recv_buf,
                                          static_cast<uint32_t>(buffer->size())};
   uint32_t len{0};
 
@@ -375,7 +375,7 @@ void drone::read_data(std::string* buffer) {
     if (connection_closed_) {
       throw pipeline_closed();
     }
-    const api_code code{pipeline_->recvData(read_pack, &len)};
+    const api_code code{pipeline_->recvData(recv_pack, &len)};
     if (code.retry()) {
       continue;
     }
@@ -386,13 +386,13 @@ void drone::read_data(std::string* buffer) {
   }
 }
 
-void drone::write_data(std::string& buffer) {
+void drone::send_data(std::string& buffer) {
   BOOST_VERIFY(buffer.size() > 0);
 
   char* char_buffer{buffer.data()};
   static_assert(sizeof(char) == sizeof(uint8_t));
   uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buffer)};
-  MopPipeline::DataPackType req_pack = {send_buf,
+  MopPipeline::DataPackType send_pack = {send_buf,
                                         static_cast<uint32_t>(buffer.size())};
   uint32_t len{0};
 
@@ -400,7 +400,7 @@ void drone::write_data(std::string& buffer) {
     if (connection_closed_) {
       throw pipeline_closed();
     }
-    const api_code code{pipeline_->sendData(req_pack, &len)};
+    const api_code code{pipeline_->sendData(send_pack, &len)};
     if (code.retry()) {
       continue;
     }
