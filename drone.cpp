@@ -24,9 +24,8 @@ drone::drone(int argc, char** argv) {
       pkg_index, num_topic, topic_list, enable_timestamp, freq);
   BOOST_VERIFY(pkg_status);
 
-  constexpr int response_timeout{1};
   ACK::ErrorCode subscribe_status =
-      vehicle_->subscribe->startPackage(pkg_index, response_timeout);
+      vehicle_->subscribe->startPackage(pkg_index, timeout);
   BOOST_VERIFY(ACK::getError(subscribe_status) == ACK::SUCCESS);
 
   spdlog::info("Setup finished");
@@ -54,8 +53,7 @@ drone::drone(int argc, char** argv) {
 
 drone::~drone() {
   if (vehicle_) {
-    constexpr int response_timeout{1};
-    vehicle_->subscribe->removePackage(pkg_index, response_timeout);
+    vehicle_->subscribe->removePackage(pkg_index, timeout);
   }
 }
 
@@ -126,7 +124,6 @@ void drone::read_job() {
 
         if (mission_is_started_) {
           spdlog::info("Mission resume");
-          constexpr int timeout{10};
           ErrorCode::ErrorCodeType ret =
               vehicle_->waypointV2Mission->resume(timeout);
           BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
@@ -143,7 +140,6 @@ void drone::read_job() {
 
         spdlog::info("Mission start: lat({}), lon({})", lat, lon);
 
-        constexpr int timeout{10};
         ACK::ErrorCode res{vehicle_->control->obtainCtrlAuthority(timeout)};
         BOOST_VERIFY(ACK::getError(res) == ACK::SUCCESS);
 
@@ -186,7 +182,6 @@ void drone::read_job() {
       } break;
       case interconnection::command_type::MISSION_PAUSE: {
         spdlog::info("Mission pause");
-        constexpr int timeout{10};
         ErrorCode::ErrorCodeType ret =
             vehicle_->waypointV2Mission->pause(timeout);
         BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
@@ -194,7 +189,6 @@ void drone::read_job() {
       } break;
       case interconnection::command_type::MISSION_ABORT: {
         spdlog::info("Mission abort");
-        constexpr int timeout{10};
         ErrorCode::ErrorCodeType ret =
             vehicle_->waypointV2Mission->stop(timeout);
         BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);

@@ -59,6 +59,7 @@ class drone {
   static constexpr int32_t protocol_version{
       6};  // Keep it consistent with Mobile SDK
   static constexpr int pkg_index{0};
+  static constexpr int timeout{10};
 
   std::unique_ptr<LinuxSetup> linux_setup_;
   DJI::OSDK::Vehicle* vehicle_{nullptr};
