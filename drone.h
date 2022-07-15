@@ -9,7 +9,6 @@
 #include <mutex>
 
 #include "interconnection.pb.h"
-
 #include "mission_state.h"
 
 class LinuxSetup;

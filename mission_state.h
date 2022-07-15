@@ -19,7 +19,7 @@ class mission_state {
 
   void update(const DJI::OSDK::MissionStatePushAck*);
 
-private:
+ private:
   const char* state_name() const;
 
   bool is_started_{false};
