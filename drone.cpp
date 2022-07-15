@@ -6,6 +6,80 @@
 #include <dji_linux_helpers.hpp>  // LinuxSetup
 #include <future>
 
+template <>
+api_code::api_code(const ACK::ErrorCode& error_code) {
+  if (ACK::getError(error_code) == ACK::SUCCESS) {
+    code_ = code::success;
+    return;
+  }
+  BOOST_VERIFY(ACK::getError(error_code) == ACK::FAIL);
+  ACK::getErrorCodeMessage(error_code, __func__);
+}
+
+template <>
+api_code::api_code(const ErrorCode::ErrorCodeType& error_code) {
+  if (error_code == ErrorCode::SysCommonErr::Success) {
+    code_ = code::success;
+    return;
+  }
+  ErrorCode::printErrorCodeMsg(error_code);
+}
+
+// https://github.com/dji-sdk/Onboard-SDK/blob/4.1.0/osdk-core/modules/inc/mop/dji_mop_define.hpp#L49
+template <>
+api_code::api_code(const DJI::OSDK::MOP::MopErrCode& error_code) {
+  switch (error_code) {
+    case MOP_PASSED:
+      code_ = code::success;
+      return;
+    case MOP_FAILED:
+      spdlog::error("MOP_FAILED");
+      return;
+    case MOP_CRC:
+      spdlog::error("MOP_CRC");
+      return;
+    case MOP_PARM:
+      spdlog::error("MOP_PARM");
+      return;
+    case MOP_NOMEM:
+      spdlog::error("MOP_NOMEM");
+      throw pipeline_closed();
+    case MOP_NOTREADY:
+      spdlog::error("MOP_NOTREADY");
+      break; // retry
+    case MOP_SEND:
+      spdlog::error("MOP_SEND");
+      return;
+    case MOP_RECV:
+      spdlog::error("MOP_RECV");
+      return;
+    case MOP_TIMEOUT:
+      spdlog::error("MOP_TIMEOUT");
+      break; // retry
+    case MOP_RESBUSY:
+      spdlog::error("MOP_RESBUSY");
+      break; // retry
+    case MOP_RESOCCUPIED:
+      spdlog::error("MOP_RESOCCUPIED");
+      break; // retry
+    case MOP_CONNECTIONCLOSE:
+      spdlog::error("MOP_CONNECTIONCLOSE");
+      throw pipeline_closed();
+    case MOP_NOTIMPLEMENT:
+      spdlog::error("MOP_NOTIMPLEMENT");
+      return;
+    case MOP_UNKNOWN_ERR:
+      spdlog::error("MOP_UNKNOWN_ERR");
+      return;
+    default:
+      spdlog::error("Invalid MopErrCode: {}", error_code);
+      return;
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  code_ = code::retry;
+}
+
 drone::drone(int argc, char** argv) {
   spdlog::info("Setup for Linux");
   constexpr bool enable_advanced_sensing{true};
@@ -24,9 +98,8 @@ drone::drone(int argc, char** argv) {
       pkg_index, num_topic, topic_list, enable_timestamp, freq);
   BOOST_VERIFY(pkg_status);
 
-  ACK::ErrorCode subscribe_status =
-      vehicle_->subscribe->startPackage(pkg_index, timeout);
-  BOOST_VERIFY(ACK::getError(subscribe_status) == ACK::SUCCESS);
+  const api_code code{vehicle_->subscribe->startPackage(pkg_index, timeout)};
+  BOOST_VERIFY(code.success());
 
   spdlog::info("Setup finished");
 
@@ -65,15 +138,11 @@ void drone::start() {
     std::unique_ptr<MopServer> server{new MopServer()};
 
     spdlog::info("Creating channel {}", channel_id);
-    MopErrCode error{
-        server->accept(channel_id, MOP::PipelineType::RELIABLE, pipeline_)};
-    if (error == MOP_NOTREADY) {
-      spdlog::info("Retry");
-      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    api_code code{server->accept(channel_id, MOP::PipelineType::RELIABLE, pipeline_)};
+    if (code.retry()) {
       continue;
     }
-    spdlog::info("Accept code: {}", error);
-    BOOST_VERIFY(error == MOP_PASSED);
+    BOOST_VERIFY(code.success());
     BOOST_VERIFY(pipeline_ != nullptr);
 
     connection_closed_ = false;
@@ -94,8 +163,8 @@ void drone::start() {
       connection_closed_ = true;
     }
 
-    error = server->close(channel_id);
-    BOOST_VERIFY(error == MOP_PASSED);
+    code = api_code{server->close(channel_id)};
+    BOOST_VERIFY(code.success());
   }
 }
 
@@ -125,9 +194,8 @@ void drone::read_job() {
 
         if (mission_is_started_) {
           spdlog::info("Mission resume");
-          ErrorCode::ErrorCodeType ret =
-              vehicle_->waypointV2Mission->resume(timeout);
-          BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+          const api_code code{vehicle_->waypointV2Mission->resume(timeout)};
+          BOOST_VERIFY(code.success());
           // FIXME (verify mission state)
           continue;
         }
@@ -141,8 +209,8 @@ void drone::read_job() {
 
         spdlog::info("Mission start: lat({}), lon({})", lat, lon);
 
-        ACK::ErrorCode res{vehicle_->control->obtainCtrlAuthority(timeout)};
-        BOOST_VERIFY(ACK::getError(res) == ACK::SUCCESS);
+        api_code code{vehicle_->control->obtainCtrlAuthority(timeout)};
+        BOOST_VERIFY(code.success());
 
         WayPointV2InitSettings s;
         s.missionID = 2573;  // Just a random number
@@ -165,15 +233,14 @@ void drone::read_job() {
         BOOST_VERIFY(s.missTotalLen >= 2);
         BOOST_VERIFY(s.missTotalLen <= 65535);
 
-        ErrorCode::ErrorCodeType ret{
-            vehicle_->waypointV2Mission->init(&s, timeout)};
-        BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+        code = api_code{vehicle_->waypointV2Mission->init(&s, timeout)};
+        BOOST_VERIFY(code.success());
 
-        ret = vehicle_->waypointV2Mission->uploadMission(timeout);
-        BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+        code = api_code{vehicle_->waypointV2Mission->uploadMission(timeout)};
+        BOOST_VERIFY(code.success());
 
-        ret = vehicle_->waypointV2Mission->start(timeout);
-        BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+        code = api_code{vehicle_->waypointV2Mission->start(timeout)};
+        BOOST_VERIFY(code.success());
 
         vehicle_->waypointV2Mission->RegisterMissionStateCallback(
             this, update_mission_state);
@@ -183,20 +250,19 @@ void drone::read_job() {
       } break;
       case interconnection::command_type::MISSION_PAUSE: {
         spdlog::info("Mission pause");
-        ErrorCode::ErrorCodeType ret =
-            vehicle_->waypointV2Mission->pause(timeout);
-        BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+        const api_code code{vehicle_->waypointV2Mission->pause(timeout)};
+        BOOST_VERIFY(code.success());
         // FIXME (verify mission state)
       } break;
       case interconnection::command_type::MISSION_ABORT: {
         spdlog::info("Mission abort");
-        ErrorCode::ErrorCodeType ret =
-            vehicle_->waypointV2Mission->stop(timeout);
-        BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
+        const api_code code{vehicle_->waypointV2Mission->stop(timeout)};
+        BOOST_VERIFY(code.success());
         // FIXME (verify mission state)
         mission_finished();
       } break;
       default:
+        spdlog::error("Unexpected command type: {}", command.type());
         BOOST_VERIFY(false);
     }
   }
@@ -270,6 +336,7 @@ void drone::write_job() {
         break;
       }
       default:
+        spdlog::error("Unexpected command: {}", command.value());
         BOOST_VERIFY(false);
     }
 
@@ -308,26 +375,13 @@ void drone::read_data(std::string* buffer) {
     if (connection_closed_) {
       throw pipeline_closed();
     }
-    MopErrCode result{pipeline_->recvData(read_pack, &len)};
-    spdlog::info("Read data code: {} (size: {})", result, len);
-
-    if (result == MOP_TIMEOUT) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    const api_code code{pipeline_->recvData(read_pack, &len)};
+    if (code.retry()) {
       continue;
     }
-
-    if (result == MOP_CONNECTIONCLOSE) {
-      spdlog::error("Read connection closed");
-      throw pipeline_closed();
-    }
-
-    if (result == MOP_NOMEM) {
-      spdlog::error("No memory for read");
-      throw pipeline_closed();
-    }
-
-    BOOST_VERIFY(result == MOP_PASSED);
+    BOOST_VERIFY(code.success());
     BOOST_VERIFY(len == buffer->size());
+    spdlog::info("{} bytes received", len);
     return;
   }
 }
@@ -346,25 +400,13 @@ void drone::write_data(std::string& buffer) {
     if (connection_closed_) {
       throw pipeline_closed();
     }
-    MopErrCode result{pipeline_->sendData(req_pack, &len)};
-    spdlog::info("Write data code: {} (size: {})", result, len);
-
-    if (result == MOP_TIMEOUT) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    const api_code code{pipeline_->sendData(req_pack, &len)};
+    if (code.retry()) {
       continue;
     }
-
-    if (result == MOP_CONNECTIONCLOSE) {
-      spdlog::error("Write connection closed");
-      throw pipeline_closed();
-    }
-
-    if (result == MOP_NOMEM) {
-      throw pipeline_closed();
-    }
-
-    BOOST_VERIFY(result == MOP_PASSED);
+    BOOST_VERIFY(code.success());
     BOOST_VERIFY(len == buffer.size());
+    spdlog::info("{} bytes sent", len);
     return;
   }
 }
