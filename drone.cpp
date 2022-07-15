@@ -430,7 +430,6 @@ void drone::mission_finished() {
 
   Vehicle* vehicle{linux_setup_->getVehicle()};
   BOOST_VERIFY(vehicle);
-
 }
 
 E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
