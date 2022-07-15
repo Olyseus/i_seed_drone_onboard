@@ -10,6 +10,8 @@ drone::drone(int argc, char** argv) {
   spdlog::info("Setup for Linux");
   constexpr bool enable_advanced_sensing{true};
   linux_setup_.reset(new LinuxSetup(argc, argv, enable_advanced_sensing));
+  vehicle_ = linux_setup_->getVehicle();
+  BOOST_VERIFY(vehicle_);
 
   constexpr int freq{5};
   DJI::OSDK::Telemetry::TopicName topic_list[] = {
@@ -18,16 +20,13 @@ drone::drone(int argc, char** argv) {
   constexpr std::size_t num_topic{sizeof(topic_list) / sizeof(topic_list[0])};
   constexpr bool enable_timestamp{false};
 
-  Vehicle* vehicle{linux_setup_->getVehicle()};
-  BOOST_VERIFY(vehicle);
-
-  const bool pkg_status = vehicle->subscribe->initPackageFromTopicList(
+  const bool pkg_status = vehicle_->subscribe->initPackageFromTopicList(
       pkg_index, num_topic, topic_list, enable_timestamp, freq);
   BOOST_VERIFY(pkg_status);
 
   constexpr int response_timeout{1};
   ACK::ErrorCode subscribe_status =
-      vehicle->subscribe->startPackage(pkg_index, response_timeout);
+      vehicle_->subscribe->startPackage(pkg_index, response_timeout);
   BOOST_VERIFY(ACK::getError(subscribe_status) == ACK::SUCCESS);
 
   spdlog::info("Setup finished");
@@ -54,12 +53,9 @@ drone::drone(int argc, char** argv) {
 }
 
 drone::~drone() {
-  if (linux_setup_.get()) {
-    Vehicle* vehicle{linux_setup_->getVehicle()};
-    if (vehicle) {
-      constexpr int response_timeout{1};
-      vehicle->subscribe->removePackage(pkg_index, response_timeout);
-    }
+  if (vehicle_) {
+    constexpr int response_timeout{1};
+    vehicle_->subscribe->removePackage(pkg_index, response_timeout);
   }
 }
 
@@ -116,9 +112,6 @@ void drone::read_job() {
     const bool ok{command.ParseFromString(buffer)};
     BOOST_VERIFY(ok);
 
-    Vehicle* vehicle{linux_setup_->getVehicle()};
-    BOOST_VERIFY(vehicle);
-
     switch (command.type()) {
       case interconnection::command_type::PING: {
         std::lock_guard<std::mutex> lock(m_);
@@ -135,7 +128,7 @@ void drone::read_job() {
           spdlog::info("Mission resume");
           constexpr int timeout{10};
           ErrorCode::ErrorCodeType ret =
-              vehicle->waypointV2Mission->resume(timeout);
+              vehicle_->waypointV2Mission->resume(timeout);
           BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
           // FIXME (verify mission state)
           continue;
@@ -151,7 +144,7 @@ void drone::read_job() {
         spdlog::info("Mission start: lat({}), lon({})", lat, lon);
 
         constexpr int timeout{10};
-        ACK::ErrorCode res{vehicle->control->obtainCtrlAuthority(timeout)};
+        ACK::ErrorCode res{vehicle_->control->obtainCtrlAuthority(timeout)};
         BOOST_VERIFY(ACK::getError(res) == ACK::SUCCESS);
 
         WayPointV2InitSettings s;
@@ -176,16 +169,16 @@ void drone::read_job() {
         BOOST_VERIFY(s.missTotalLen <= 65535);
 
         ErrorCode::ErrorCodeType ret{
-            vehicle->waypointV2Mission->init(&s, timeout)};
+            vehicle_->waypointV2Mission->init(&s, timeout)};
         BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
 
-        ret = vehicle->waypointV2Mission->uploadMission(timeout);
+        ret = vehicle_->waypointV2Mission->uploadMission(timeout);
         BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
 
-        ret = vehicle->waypointV2Mission->start(timeout);
+        ret = vehicle_->waypointV2Mission->start(timeout);
         BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
 
-        vehicle->waypointV2Mission->RegisterMissionStateCallback(
+        vehicle_->waypointV2Mission->RegisterMissionStateCallback(
             this, update_mission_state);
 
         mission_is_started_ = true;
@@ -195,7 +188,7 @@ void drone::read_job() {
         spdlog::info("Mission pause");
         constexpr int timeout{10};
         ErrorCode::ErrorCodeType ret =
-            vehicle->waypointV2Mission->pause(timeout);
+            vehicle_->waypointV2Mission->pause(timeout);
         BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
         // FIXME (verify mission state)
       } break;
@@ -203,7 +196,7 @@ void drone::read_job() {
         spdlog::info("Mission abort");
         constexpr int timeout{10};
         ErrorCode::ErrorCodeType ret =
-            vehicle->waypointV2Mission->stop(timeout);
+            vehicle_->waypointV2Mission->stop(timeout);
         BOOST_VERIFY(ret == ErrorCode::SysCommonErr::Success);
         // FIXME (verify mission state)
         mission_finished();
@@ -240,9 +233,6 @@ void drone::write_job() {
       continue;
     }
 
-    Vehicle* vehicle{linux_setup_->getVehicle()};
-    BOOST_VERIFY(vehicle);
-
     switch (command.value()) {
       case interconnection::command_type::PING: {
         spdlog::info("Execute PING command");
@@ -263,10 +253,10 @@ void drone::write_job() {
         }
 
         DJI::OSDK::Telemetry::Quaternion quaternion{
-            vehicle->subscribe
+            vehicle_->subscribe
                 ->getValue<DJI::OSDK::Telemetry::TOPIC_QUATERNION>()};
         DJI::OSDK::Telemetry::GPSFused global{
-            vehicle->subscribe
+            vehicle_->subscribe
                 ->getValue<DJI::OSDK::Telemetry::TOPIC_GPS_FUSED>()};
 
         const double latitude{global.latitude * 180.0 / M_PI};
@@ -427,9 +417,6 @@ DJI::OSDK::WaypointV2 drone::make_waypoint(double latitude, double longitude,
 void drone::mission_finished() {
   BOOST_VERIFY(mission_is_started_);
   mission_is_started_ = false;
-
-  Vehicle* vehicle{linux_setup_->getVehicle()};
-  BOOST_VERIFY(vehicle);
 }
 
 E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
