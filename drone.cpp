@@ -538,6 +538,11 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
       spdlog::info("Mission state finished");
       finished = true;
     } break;
+    case 7:
+      // Unknown state, receiving while using simulator,
+      // after receiving disconnected multiple times
+      spdlog::info("Mission state unknown (7)");
+      break;
     default:
       spdlog::error("Unknown state: {}", state);
       BOOST_VERIFY(false);
