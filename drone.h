@@ -40,11 +40,13 @@ class drone {
   void start();
 
  private:
+  class pipeline_closed {};
+
   void read_job();
   void write_job();
-  bool send_command(interconnection::command_type::command_t);
-  bool read_data(std::string* buffer);
-  bool write_data(std::string& buffer);
+  void send_command(interconnection::command_type::command_t);
+  void read_data(std::string* buffer);
+  void write_data(std::string& buffer);
   DJI::OSDK::WaypointV2 make_waypoint(double latitude, double longitude,
                                       float relative_height);
   void mission_finished();
@@ -67,7 +69,7 @@ class drone {
 
   uint32_t command_bytes_size_{0};
   uint32_t pin_coordinates_bytes_size_{0};
-  bool connection_closed_{false};
+  std::atomic<bool> connection_closed_{false};
   std::atomic<bool> mission_is_started_{false};
   std::mutex m_;
   std::list<interconnection::command_type::command_t> execute_commands_;

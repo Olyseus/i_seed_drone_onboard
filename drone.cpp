@@ -62,8 +62,6 @@ void drone::start() {
   spdlog::info("Command bytes size: {}", command_bytes_size_);
 
   while (true) {
-    connection_closed_ = false;
-
     std::unique_ptr<MopServer> server{new MopServer()};
 
     spdlog::info("Creating channel {}", channel_id);
@@ -78,13 +76,23 @@ void drone::start() {
     BOOST_VERIFY(error == MOP_PASSED);
     BOOST_VERIFY(pipeline_ != nullptr);
 
+    connection_closed_ = false;
+
     std::future<void> read_future{
         std::async(std::launch::async, &drone::read_job, this)};
     std::future<void> write_future{
         std::async(std::launch::async, &drone::write_job, this)};
 
-    read_future.get();
-    write_future.get();
+    try {
+      read_future.get();
+    } catch (pipeline_closed&) {
+      connection_closed_ = true;
+    }
+    try {
+      write_future.get();
+    } catch (pipeline_closed&) {
+      connection_closed_ = true;
+    }
 
     error = server->close(channel_id);
     BOOST_VERIFY(error == MOP_PASSED);
@@ -98,14 +106,9 @@ void drone::read_job() {
   buffer.resize(command_bytes_size_);
 
   while (true) {
-    if (connection_closed_) {
-      return;
-    }
-
     BOOST_VERIFY(command_bytes_size_ == buffer.size());
-    if (!read_data(&buffer)) {
-      continue;
-    }
+    read_data(&buffer);
+
     interconnection::command_type command;
     const bool ok{command.ParseFromString(buffer)};
     BOOST_VERIFY(ok);
@@ -118,9 +121,7 @@ void drone::read_job() {
       case interconnection::command_type::MISSION_START: {
         std::string buffer;
         buffer.resize(pin_coordinates_bytes_size_);
-        if (!read_data(&buffer)) {
-          continue;
-        }
+        read_data(&buffer);
 
         if (mission_is_started_) {
           spdlog::info("Mission resume");
@@ -207,9 +208,6 @@ void drone::write_job() {
   std::optional<interconnection::command_type::command_t> command;
 
   while (true) {
-    if (connection_closed_) {
-      return;
-    }
     command.reset();
 
     {
@@ -230,21 +228,15 @@ void drone::write_job() {
     switch (command.value()) {
       case interconnection::command_type::PING: {
         spdlog::info("Execute PING command");
-        if (!send_command(interconnection::command_type::PING)) {
-          continue;
-        }
+        send_command(interconnection::command_type::PING);
         break;
       }
       case interconnection::command_type::MISSION_FINISHED: {
         spdlog::info("Execute MISSION_FINISHED command");
-        if (!send_command(interconnection::command_type::MISSION_FINISHED)) {
-          continue;
-        }
+        send_command(interconnection::command_type::MISSION_FINISHED);
       } break;
       case interconnection::command_type::DRONE_COORDINATES: {
-        if (!send_command(interconnection::command_type::DRONE_COORDINATES)) {
-          continue;
-        }
+        send_command(interconnection::command_type::DRONE_COORDINATES);
 
         DJI::OSDK::Telemetry::Quaternion quaternion{
             vehicle_->subscribe
@@ -271,9 +263,7 @@ void drone::write_job() {
         const bool ok{dc.SerializeToString(&buffer)};
         BOOST_VERIFY(ok);
 
-        if (!write_data(buffer)) {
-          return;
-        }
+        write_data(buffer);
 
         spdlog::info("Drone coordinates sent: lat:{}, lon:{}, head:{}",
                      latitude, longitude, heading);
@@ -290,7 +280,7 @@ void drone::write_job() {
   }
 }
 
-bool drone::send_command(
+void drone::send_command(
     interconnection::command_type::command_t command_type) {
   interconnection::command_type command;
   command.set_type(command_type);
@@ -300,10 +290,10 @@ bool drone::send_command(
   BOOST_VERIFY(ok);
   BOOST_VERIFY(buffer.size() == command_bytes_size_);
 
-  return write_data(buffer);
+  write_data(buffer);
 }
 
-bool drone::read_data(std::string* buffer) {
+void drone::read_data(std::string* buffer) {
   BOOST_VERIFY(buffer != nullptr);
   BOOST_VERIFY(buffer->size() > 0);
 
@@ -315,6 +305,9 @@ bool drone::read_data(std::string* buffer) {
   uint32_t len{0};
 
   while (true) {
+    if (connection_closed_) {
+      throw pipeline_closed();
+    }
     MopErrCode result{pipeline_->recvData(read_pack, &len)};
     spdlog::info("Read data code: {} (size: {})", result, len);
 
@@ -324,24 +317,22 @@ bool drone::read_data(std::string* buffer) {
     }
 
     if (result == MOP_CONNECTIONCLOSE) {
-      spdlog::info("Read connection closed");
-      connection_closed_ = true;
-      return false;
+      spdlog::error("Read connection closed");
+      throw pipeline_closed();
     }
 
     if (result == MOP_NOMEM) {
-      spdlog::info("No memory for read");
-      connection_closed_ = true;
-      return false;
+      spdlog::error("No memory for read");
+      throw pipeline_closed();
     }
 
     BOOST_VERIFY(result == MOP_PASSED);
     BOOST_VERIFY(len == buffer->size());
-    return true;
+    return;
   }
 }
 
-bool drone::write_data(std::string& buffer) {
+void drone::write_data(std::string& buffer) {
   BOOST_VERIFY(buffer.size() > 0);
 
   char* char_buffer{buffer.data()};
@@ -352,6 +343,9 @@ bool drone::write_data(std::string& buffer) {
   uint32_t len{0};
 
   while (true) {
+    if (connection_closed_) {
+      throw pipeline_closed();
+    }
     MopErrCode result{pipeline_->sendData(req_pack, &len)};
     spdlog::info("Write data code: {} (size: {})", result, len);
 
@@ -361,20 +355,17 @@ bool drone::write_data(std::string& buffer) {
     }
 
     if (result == MOP_CONNECTIONCLOSE) {
-      spdlog::info("Write connection closed");
-      connection_closed_ = true;
-      return false;
+      spdlog::error("Write connection closed");
+      throw pipeline_closed();
     }
 
     if (result == MOP_NOMEM) {
-      spdlog::info("No memory for write");
-      connection_closed_ = true;
-      return false;
+      throw pipeline_closed();
     }
 
     BOOST_VERIFY(result == MOP_PASSED);
     BOOST_VERIFY(len == buffer.size());
-    return true;
+    return;
   }
 }
 
@@ -425,8 +416,7 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
 
   // Handle negative values correctly
   const int8_t state_i8{static_cast<int8_t>(ack->data.state)};
-  const auto state{
-      static_cast<DJI::OSDK::DJIWaypointV2MissionState>(state_i8)};
+  const auto state{static_cast<DJI::OSDK::DJIWaypointV2MissionState>(state_i8)};
 
   const uint16_t waypoint_index{ack->data.curWaypointIndex};
 
