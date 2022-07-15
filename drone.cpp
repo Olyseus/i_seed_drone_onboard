@@ -358,7 +358,7 @@ bool drone::read_data(std::string* buffer) {
 }
 
 bool drone::write_data(std::string& buffer) {
-  BOOST_VERIFY(buffer->size() > 0);
+  BOOST_VERIFY(buffer.size() > 0);
 
   char* char_buffer{buffer.data()};
   static_assert(sizeof(char) == sizeof(uint8_t));
@@ -387,11 +387,11 @@ bool drone::write_data(std::string& buffer) {
       connection_closed_ = true;
       return false;
     }
-  }
 
-  BOOST_VERIFY(result == MOP_PASSED);
-  BOOST_VERIFY(len == buffer.size());
-  return true;
+    BOOST_VERIFY(result == MOP_PASSED);
+    BOOST_VERIFY(len == buffer.size());
+    return true;
+  }
 }
 
 DJI::OSDK::WaypointV2 drone::make_waypoint(double latitude, double longitude,
