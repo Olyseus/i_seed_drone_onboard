@@ -449,6 +449,7 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
   auto* ack{reinterpret_cast<const DJI::OSDK::MissionStatePushAck*>(cmd_data)};
   auto state{
       static_cast<DJI::OSDK::DJIWaypointV2MissionState>(ack->data.state)};
+  const uint16_t waypoint_index{ack->data.curWaypointIndex};
 
   BOOST_VERIFY(cmd_handle != nullptr);
   BOOST_VERIFY(cmd_info != nullptr);
@@ -470,10 +471,10 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
       spdlog::info("Mission state ready to execute");
       break;
     case DJIWaypointV2MissionStateExecuting:
-      spdlog::info("Mission state executing");
+      spdlog::info("Mission state executing, waypoint: {}", waypoint_index);
       break;
     case DJIWaypointV2MissionStateInterrupted:
-      spdlog::info("Mission state interrupted");
+      spdlog::info("Mission state interrupted, waypoint: {}", waypoint_index);
       break;
     case DJIWaypointV2MissionStateResumeAfterInterrupted:
       spdlog::info("Mission state resumed");
