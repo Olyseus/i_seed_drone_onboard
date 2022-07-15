@@ -228,14 +228,14 @@ void drone::receive_data_job() {
         const double lat{pin_coordinates.latitude()};
         const double lon{pin_coordinates.longitude()};
 
-        spdlog::info("Mission start: lat({}), lon({})", lat, lon);
-
         api_code code{vehicle_->control->obtainCtrlAuthority(timeout)};
         BOOST_VERIFY(code.success());
 
+        srand(time(nullptr));
+
         WayPointV2InitSettings s;
-        s.missionID = 2573;  // Just a random number
-        s.repeatTimes = 0;   // execute just once and go home
+        s.missionID = rand();  // Just a random number
+        s.repeatTimes = 0;     // execute just once and go home
         s.finishedAction = DJIWaypointV2MissionFinishedGoHome;
         s.maxFlightSpeed = 10;
         s.autoFlightSpeed = 2;
@@ -253,6 +253,9 @@ void drone::receive_data_job() {
         s.missTotalLen = s.mission.size();
         BOOST_VERIFY(s.missTotalLen >= 2);
         BOOST_VERIFY(s.missTotalLen <= 65535);
+
+        spdlog::info("Mission start: lat({}), lon({}) (mission ID: {})", lat,
+                     lon, s.missionID);
 
         code = api_code{vehicle_->waypointV2Mission->init(&s, timeout)};
         BOOST_VERIFY(code.success());
