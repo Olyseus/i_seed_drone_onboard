@@ -13,7 +13,9 @@ drone::api_code::api_code(const ACK::ErrorCode& error_code) {
     return;
   }
 
-  if (error_code.info.cmd_set == OpenProtocolCMD::CMDSet::subscribe && error_code.data == OpenProtocolCMD::ErrorCode::SubscribeACK::VERSION_DOES_NOT_MATCH) {
+  if (error_code.info.cmd_set == OpenProtocolCMD::CMDSet::subscribe &&
+      error_code.data ==
+          OpenProtocolCMD::ErrorCode::SubscribeACK::VERSION_DOES_NOT_MATCH) {
     make_retry();
     return;
   }
@@ -101,8 +103,7 @@ drone::drone(int argc, char** argv) {
 
   constexpr int freq{5};
   DJI::OSDK::Telemetry::TopicName topic_list[] = {
-      DJI::OSDK::Telemetry::TOPIC_QUATERNION,
-      DJI::OSDK::Telemetry::TOPIC_RC,
+      DJI::OSDK::Telemetry::TOPIC_QUATERNION, DJI::OSDK::Telemetry::TOPIC_RC,
       DJI::OSDK::Telemetry::TOPIC_GPS_FUSED};
   constexpr std::size_t num_topic{sizeof(topic_list) / sizeof(topic_list[0])};
   constexpr bool enable_timestamp{false};
@@ -157,7 +158,8 @@ void drone::start() {
     std::unique_ptr<MopServer> server{new MopServer()};
 
     spdlog::info("Creating channel {}", channel_id);
-    api_code code{server->accept(channel_id, MOP::PipelineType::RELIABLE, pipeline_)};
+    api_code code{
+        server->accept(channel_id, MOP::PipelineType::RELIABLE, pipeline_)};
     if (code.retry()) {
       continue;
     }
@@ -412,7 +414,7 @@ void drone::send_data(std::string& buffer) {
   static_assert(sizeof(char) == sizeof(uint8_t));
   uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buffer)};
   MopPipeline::DataPackType send_pack = {send_buf,
-                                        static_cast<uint32_t>(buffer.size())};
+                                         static_cast<uint32_t>(buffer.size())};
   uint32_t len{0};
 
   while (true) {
@@ -488,7 +490,8 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
     return OSDK_STAT_OK;
   }
 
-  DJI::OSDK::Telemetry::RC rc{self->vehicle_->subscribe->getValue<DJI::OSDK::Telemetry::TOPIC_RC>()};
+  DJI::OSDK::Telemetry::RC rc{
+      self->vehicle_->subscribe->getValue<DJI::OSDK::Telemetry::TOPIC_RC>()};
   // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
   switch (rc.mode) {
     case -8000:

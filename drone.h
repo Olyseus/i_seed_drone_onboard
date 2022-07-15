@@ -53,11 +53,7 @@ class drone {
    private:
     void make_retry();
 
-    enum class code {
-      success,
-      failure,
-      retry
-    };
+    enum class code { success, failure, retry };
 
     code code_{code::failure};
   };
