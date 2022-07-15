@@ -442,8 +442,12 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
 
   BOOST_VERIFY(cmd_data != nullptr);
   auto* ack{reinterpret_cast<const DJI::OSDK::MissionStatePushAck*>(cmd_data)};
-  auto state{
-      static_cast<DJI::OSDK::DJIWaypointV2MissionState>(ack->data.state)};
+
+  // Handle negative values correctly
+  const int8_t state_i8{static_cast<int8_t>(ack->data.state)};
+  const auto state{
+      static_cast<DJI::OSDK::DJIWaypointV2MissionState>(state_i8)};
+
   const uint16_t waypoint_index{ack->data.curWaypointIndex};
 
   BOOST_VERIFY(cmd_handle != nullptr);
