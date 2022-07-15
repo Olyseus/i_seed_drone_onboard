@@ -474,9 +474,6 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
       break;
     case DJIWaypointV2MissionStateInterrupted:
       spdlog::info("Mission state interrupted");
-      // Interrupted by second smart controller while
-      // asking for a landing confirmation
-      finished = true;
       break;
     case DJIWaypointV2MissionStateResumeAfterInterrupted:
       spdlog::info("Mission state resumed");
