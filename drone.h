@@ -51,6 +51,8 @@ class drone {
     bool retry() const { return code_ == code::retry; }
 
    private:
+    void make_retry();
+
     enum class code {
       success,
       failure,

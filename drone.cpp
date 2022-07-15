@@ -12,6 +12,12 @@ api_code::api_code(const ACK::ErrorCode& error_code) {
     code_ = code::success;
     return;
   }
+
+  if (error_code.info.cmd_set == OpenProtocolCMD::CMDSet::subscribe && error_code.data == OpenProtocolCMD::ErrorCode::SubscribeACK::VERSION_DOES_NOT_MATCH) {
+    make_retry();
+    return;
+  }
+
   BOOST_VERIFY(ACK::getError(error_code) == ACK::FAIL);
   ACK::getErrorCodeMessage(error_code, __func__);
 }
@@ -46,7 +52,7 @@ api_code::api_code(const DJI::OSDK::MOP::MopErrCode& error_code) {
       throw pipeline_closed();
     case MOP_NOTREADY:
       spdlog::error("MOP_NOTREADY");
-      break; // retry
+      return make_retry();
     case MOP_SEND:
       spdlog::error("MOP_SEND");
       return;
@@ -55,13 +61,13 @@ api_code::api_code(const DJI::OSDK::MOP::MopErrCode& error_code) {
       return;
     case MOP_TIMEOUT:
       spdlog::error("MOP_TIMEOUT");
-      break; // retry
+      return make_retry();
     case MOP_RESBUSY:
       spdlog::error("MOP_RESBUSY");
-      break; // retry
+      return make_retry();
     case MOP_RESOCCUPIED:
       spdlog::error("MOP_RESOCCUPIED");
-      break; // retry
+      return make_retry();
     case MOP_CONNECTIONCLOSE:
       spdlog::error("MOP_CONNECTIONCLOSE");
       throw pipeline_closed();
@@ -75,7 +81,9 @@ api_code::api_code(const DJI::OSDK::MOP::MopErrCode& error_code) {
       spdlog::error("Invalid MopErrCode: {}", error_code);
       return;
   }
+}
 
+void drone::api_code::make_retry() {
   std::this_thread::sleep_for(std::chrono::milliseconds(200));
   code_ = code::retry;
 }
@@ -99,8 +107,13 @@ drone::drone(int argc, char** argv) {
       pkg_index, num_topic, topic_list, enable_timestamp, freq);
   BOOST_VERIFY(pkg_status);
 
-  const api_code code{vehicle_->subscribe->startPackage(pkg_index, timeout)};
-  BOOST_VERIFY(code.success());
+  while (true) {
+    const api_code code{vehicle_->subscribe->startPackage(pkg_index, timeout)};
+    if (code.retry()) {
+      continue;
+    }
+    BOOST_VERIFY(code.success());
+  }
 
   spdlog::info("Setup finished");
 
