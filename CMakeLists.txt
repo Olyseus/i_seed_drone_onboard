@@ -107,6 +107,8 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       manifold2/hal/hal_uart.h
       manifold2/hal/hal_usb_bulk.c
       manifold2/hal/hal_usb_bulk.h
+      mission_state.cpp
+      mission_state.h
       osdkhal_linux.c
       osdkhal_linux.h
       osdkosal_linux.c
