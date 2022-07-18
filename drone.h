@@ -2,6 +2,7 @@
 #define DRONE_H_
 
 #include <osdk_typedef.h>  // E_OsdkStat
+#include <signal.h>        // sig_atomic_t
 
 #include <atomic>
 #include <cstdint>  // uint16_t
@@ -41,8 +42,6 @@ class drone {
   void start();
 
  private:
-  class pipeline_closed {};
-
   void receive_data_job();
   void send_data_job();
   void send_command(interconnection::command_type::command_t);
@@ -73,6 +72,10 @@ class drone {
   std::atomic<bool> connection_closed_{false};
   std::mutex m_;
   std::list<interconnection::command_type::command_t> execute_commands_;
+
+  static void check_sigint();
+  static void sigint_handler(int);
+  static volatile sig_atomic_t sigint_received_;
 };
 
 #endif  //  DRONE_H_

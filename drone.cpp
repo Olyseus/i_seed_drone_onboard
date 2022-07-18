@@ -8,6 +8,8 @@
 
 #include "server.h"
 
+volatile sig_atomic_t drone::sigint_received_ = 0;
+
 drone::drone(int argc, char** argv) {
   spdlog::info("Setup for Linux");
   constexpr bool enable_advanced_sensing{true};
@@ -61,6 +63,17 @@ drone::drone(int argc, char** argv) {
   std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 }
 
+void drone::sigint_handler(int signal) {
+  (void)signal;
+  sigint_received_ = 1;
+}
+
+void drone::check_sigint() {
+  if (sigint_received_) {
+    throw std::runtime_error("SIGINT received");
+  }
+}
+
 drone::~drone() {
   if (vehicle_) {
     vehicle_->subscribe->removePackage(pkg_index, timeout);
@@ -72,8 +85,12 @@ void drone::start() {
   spdlog::info("Command bytes size: {}", command_bytes_size_);
 
   while (true) {
+    check_sigint();
+
+    BOOST_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
     server server;
     pipeline_ = server.pipeline();
+    BOOST_VERIFY(signal(SIGINT, sigint_handler) != SIG_ERR);
 
     connection_closed_ = false;
 
@@ -305,6 +322,7 @@ void drone::receive_data(std::string* buffer) {
     if (connection_closed_) {
       throw pipeline_closed();
     }
+    check_sigint();
     const api_code code{pipeline_->recvData(recv_pack, &len)};
     if (code.retry()) {
       continue;
@@ -330,6 +348,7 @@ void drone::send_data(std::string& buffer) {
     if (connection_closed_) {
       throw pipeline_closed();
     }
+    check_sigint();
     const api_code code{pipeline_->sendData(send_pack, &len)};
     if (code.retry()) {
       continue;
