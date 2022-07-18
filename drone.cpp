@@ -103,11 +103,18 @@ void drone::start() {
       receive_data_future.get();
     } catch (pipeline_closed&) {
       connection_closed_ = true;
+    } catch (std::exception& e) {
+      connection_closed_ = true;
+      throw e;
     }
+
     try {
       send_data_future.get();
     } catch (pipeline_closed&) {
       connection_closed_ = true;
+    } catch (std::exception& e) {
+      connection_closed_ = true;
+      throw e;
     }
   }
 }
