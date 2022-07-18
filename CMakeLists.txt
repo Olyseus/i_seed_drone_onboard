@@ -89,6 +89,8 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   target_sources(
       i_seed_drone_onboard_core
       PRIVATE
+      api_code.cpp
+      api_code.h
       common/osal/osal.c
       common/osal/osal.h
       common/osal/osal_fs.c
@@ -113,6 +115,7 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       osdkhal_linux.h
       osdkosal_linux.c
       osdkosal_linux.h
+      server.h
   )
   set_source_files_properties(
       drone.cpp
