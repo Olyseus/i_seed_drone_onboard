@@ -1,8 +1,9 @@
 #include "server.h"
 
-#include <boost/assert.hpp>  // BOOST_VERIFY
-#include <dji_linux_helpers.hpp>  // MopServer
 #include <spdlog/spdlog.h>
+
+#include <boost/assert.hpp>       // BOOST_VERIFY
+#include <dji_linux_helpers.hpp>  // MopServer
 
 #include "api_code.h"
 
