@@ -15,7 +15,8 @@ drone::api_code::api_code(const ACK::ErrorCode& error_code) {
 
   // Note: retry will not help
   // error_code.info.cmd_set == OpenProtocolCMD::CMDSet::subscribe
-  // error_code.data == OpenProtocolCMD::ErrorCode::SubscribeACK::VERSION_DOES_NOT_MATCH
+  // error_code.data ==
+  // OpenProtocolCMD::ErrorCode::SubscribeACK::VERSION_DOES_NOT_MATCH
 
   BOOST_VERIFY(ACK::getError(error_code) == ACK::FAIL);
   ACK::getErrorCodeMessage(error_code, __func__);
