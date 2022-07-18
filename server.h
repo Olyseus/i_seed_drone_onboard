@@ -1,6 +1,8 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
+#include <memory>  // std::unique_ptr
+
 namespace DJI {
 namespace OSDK {
 class MopServer;
@@ -25,7 +27,7 @@ class server {
 
  private:
   const uint16_t channel_id_{0};
-  std::unique_ptr<MopServer> mop_server_;
+  std::unique_ptr<DJI::OSDK::MopServer> mop_server_;
   DJI::OSDK::MopPipeline* pipeline_{nullptr};
 };
 
