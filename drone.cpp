@@ -105,12 +105,15 @@ drone::drone(int argc, char** argv) {
   constexpr std::size_t num_topic{sizeof(topic_list) / sizeof(topic_list[0])};
   constexpr bool enable_timestamp{false};
 
+  api_code code{vehicle_->subscribe->verify(timeout)};
+  BOOST_VERIFY(code.success());
+
   const bool pkg_status = vehicle_->subscribe->initPackageFromTopicList(
       pkg_index, num_topic, topic_list, enable_timestamp, freq);
   BOOST_VERIFY(pkg_status);
 
   while (true) {
-    const api_code code{vehicle_->subscribe->startPackage(pkg_index, timeout)};
+    code = api_code{vehicle_->subscribe->startPackage(pkg_index, timeout)};
     if (code.retry()) {
       continue;
     }
