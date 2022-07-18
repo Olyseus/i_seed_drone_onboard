@@ -85,4 +85,3 @@ void api_code::make_retry() {
   std::this_thread::sleep_for(std::chrono::milliseconds(200));
   code_ = code::retry;
 }
-

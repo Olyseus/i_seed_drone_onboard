@@ -1,8 +1,9 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
-#include <dji_linux_helpers.hpp>  // MopServer
 #include <spdlog/spdlog.h>
+
+#include <dji_linux_helpers.hpp>  // MopServer
 
 #include "api_code.h"
 
@@ -11,8 +12,8 @@ class server {
   server(uint16_t channel_id) {
     mop_server_.reset(new MopServer());
     spdlog::info("Creating channel {}", channel_id);
-    const api_code code{
-        mop_server_->accept(channel_id, MOP::PipelineType::RELIABLE, pipeline_)};
+    const api_code code{mop_server_->accept(
+        channel_id, MOP::PipelineType::RELIABLE, pipeline_)};
     BOOST_VERIFY(code.success());
     BOOST_VERIFY(pipeline_ != nullptr);
   }
