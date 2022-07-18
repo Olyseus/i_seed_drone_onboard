@@ -6,6 +6,7 @@
 #include <dji_linux_helpers.hpp>  // LinuxSetup
 #include <future>
 
+#include "api_code.h"
 #include "server.h"
 
 volatile sig_atomic_t drone::sigint_received_ = 0;
@@ -88,7 +89,7 @@ void drone::start() {
     check_sigint();
 
     BOOST_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
-    server server;
+    server server{channel_id};
     pipeline_ = server.pipeline();
     BOOST_VERIFY(signal(SIGINT, sigint_handler) != SIG_ERR);
 
