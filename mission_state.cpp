@@ -63,7 +63,9 @@ void mission_state::update(const DJI::OSDK::MissionStatePushAck* ack) {
     spdlog::info("Waypoint #{}", waypoint_index_);
   }
 
-  if (state_ == DJIWaypointV2MissionStateFinishedMission) {
+  // disconnected received when using DJIWaypointV2MissionFinishedNoAction
+  if (state_ == DJIWaypointV2MissionStateFinishedMission ||
+      state_ == DJIWaypointV2MissionStateDisconnected) {
     BOOST_VERIFY(is_started_);
     is_started_ = false;
   }
