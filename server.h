@@ -1,28 +1,19 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
-#include <spdlog/spdlog.h>
+namespace DJI {
+namespace OSDK {
+class MopServer;
+class MopPipeline;
+}  // namespace OSDK
+}  // namespace DJI
 
-#include <dji_linux_helpers.hpp>  // MopServer
-
-#include "api_code.h"
+class pipeline_closed {};
 
 class server {
  public:
-  server(uint16_t channel_id) {
-    mop_server_.reset(new MopServer());
-    spdlog::info("Creating channel {}", channel_id);
-    const api_code code{mop_server_->accept(
-        channel_id, MOP::PipelineType::RELIABLE, pipeline_)};
-    BOOST_VERIFY(code.success());
-    BOOST_VERIFY(pipeline_ != nullptr);
-  }
-
-  ~server() {
-    spdlog::info("Disconnect channel");
-    const api_code code{mop_server_->close(channel_id)};
-    BOOST_VERIFY(code.success());
-  }
+  server(uint16_t channel_id);
+  ~server();
 
   server(const server&) = delete;
   server(server&&) = delete;
@@ -33,6 +24,7 @@ class server {
   DJI::OSDK::MopPipeline* pipeline() { return pipeline_; }
 
  private:
+  const uint16_t channel_id_{0};
   std::unique_ptr<MopServer> mop_server_;
   DJI::OSDK::MopPipeline* pipeline_{nullptr};
 };
