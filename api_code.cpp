@@ -1,5 +1,13 @@
 #include "api_code.h"
 
+#include <spdlog/spdlog.h>
+
+#include <boost/assert.hpp>       // BOOST_VERIFY
+#include <dji_linux_helpers.hpp>  // ACK::ErrorCode
+#include <thread>                 // std::this_thread
+
+#include "server.h"  // pipeline_closed
+
 template <>
 api_code::api_code(const ACK::ErrorCode& error_code) {
   if (ACK::getError(error_code) == ACK::SUCCESS) {
