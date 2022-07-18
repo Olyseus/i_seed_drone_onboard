@@ -166,7 +166,7 @@ void drone::receive_data_job() {
         WayPointV2InitSettings s;
         s.missionID = rand();  // Just a random number
         s.repeatTimes = 0;     // execute just once and go home
-        s.finishedAction = DJIWaypointV2MissionFinishedGoHome;
+        s.finishedAction = DJIWaypointV2MissionFinishedNoAction;
         s.maxFlightSpeed = 10;
         s.autoFlightSpeed = 2;
         s.exitMissionOnRCSignalLost =
