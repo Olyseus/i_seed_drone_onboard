@@ -395,7 +395,7 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
     self->execute_commands_.push_back(
         interconnection::command_type::MISSION_FINISHED);
   } else if (self->mission_state_.is_disconnected()) {
-    self->connection_closed_ = true;
+    // FIXME (enable?) self->connection_closed_ = true;
   }
 
   // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
