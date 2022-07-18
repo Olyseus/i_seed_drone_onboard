@@ -140,6 +140,13 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       "-Wno-ignored-qualifiers;-Wno-pedantic"
   )
   set_source_files_properties(
+      api_code.cpp
+      PROPERTIES
+      COMPILE_OPTIONS
+      # libusb.h:736:4: error: ISO C++ forbids zero-size array ‘dev_capability_data’ [-Werror=pedantic]
+      "-Wno-ignored-qualifiers;-Wno-pedantic"
+  )
+  set_source_files_properties(
       osdkosal_linux.c
       PROPERTIES
       COMPILE_OPTIONS
