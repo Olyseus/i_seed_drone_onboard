@@ -15,7 +15,6 @@ class mission_state {
   void finish();
 
   bool is_started() const;
-  bool is_disconnected() const;
 
   void update(const DJI::OSDK::MissionStatePushAck*);
 

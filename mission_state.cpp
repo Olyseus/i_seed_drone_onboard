@@ -28,14 +28,6 @@ bool mission_state::is_started() const {
   return is_started_;
 }
 
-bool mission_state::is_disconnected() const {
-  std::lock_guard<std::mutex> lock(m_);
-  BOOST_VERIFY(is_started_);
-  BOOST_VERIFY(initial_update_received_);
-  return state_ == mission_unknown_state_7_ ||
-         state_ == DJIWaypointV2MissionStateDisconnected;
-}
-
 void mission_state::update(const DJI::OSDK::MissionStatePushAck* ack) {
   std::lock_guard<std::mutex> lock(m_);
 
@@ -63,9 +55,7 @@ void mission_state::update(const DJI::OSDK::MissionStatePushAck* ack) {
     spdlog::info("Waypoint #{}", waypoint_index_);
   }
 
-  // disconnected received when using DJIWaypointV2MissionFinishedNoAction
-  if (state_ == DJIWaypointV2MissionStateFinishedMission ||
-      state_ == DJIWaypointV2MissionStateDisconnected) {
+  if (state_ == DJIWaypointV2MissionStateFinishedMission) {
     BOOST_VERIFY(is_started_);
     is_started_ = false;
   }
