@@ -28,6 +28,23 @@ bool mission_state::is_started() const {
   return is_started_;
 }
 
+void mission_state::update(const DJI::OSDK::MissionEventPushAck* ack) {
+  std::lock_guard<std::mutex> lock(m_);
+
+  const unsigned event = ack->event;
+
+  // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/core/src/waypoint_v2_sample.cpp#L72-L102
+  if (event == 0x03) { // finish
+    spdlog::info("Finish event received");
+    BOOST_VERIFY(initial_update_received_);
+    BOOST_VERIFY(is_started_);
+    is_started_ = false;
+    BOOST_VERIFY(state_ != DJIWaypointV2MissionStateFinishedMission);
+    state_ = DJIWaypointV2MissionStateFinishedMission;
+    spdlog::info("Updated state: {}", state_name());
+  }
+}
+
 void mission_state::update(const DJI::OSDK::MissionStatePushAck* ack) {
   std::lock_guard<std::mutex> lock(m_);
 

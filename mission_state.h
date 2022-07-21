@@ -5,6 +5,7 @@
 
 namespace DJI {
 namespace OSDK {
+class MissionEventPushAck;
 class MissionStatePushAck;
 }  // namespace OSDK
 }  // namespace DJI
@@ -16,6 +17,7 @@ class mission_state {
 
   bool is_started() const;
 
+  void update(const DJI::OSDK::MissionEventPushAck*);
   void update(const DJI::OSDK::MissionStatePushAck*);
 
  private:

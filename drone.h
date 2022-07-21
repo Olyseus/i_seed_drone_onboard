@@ -53,6 +53,10 @@ class drone {
                                          const T_CmdInfo* cmd_info,
                                          const uint8_t* cmd_data,
                                          void* user_data);
+  static E_OsdkStat update_mission_event(T_CmdHandle* cmd_handle,
+                                         const T_CmdInfo* cmd_info,
+                                         const uint8_t* cmd_data,
+                                         void* user_data);
 
   static constexpr uint16_t channel_id{
       9745};  // Just a random number. Keep it consistent with Mobile SDK

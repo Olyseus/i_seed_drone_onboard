@@ -199,6 +199,8 @@ void drone::receive_data_job() {
 
         vehicle_->waypointV2Mission->RegisterMissionStateCallback(
             this, update_mission_state);
+        vehicle_->waypointV2Mission->RegisterMissionEventCallback(
+            this, update_mission_event);
 
         mission_state_.start();
         // FIXME (verify mission state)
@@ -430,6 +432,34 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
     // Value received while running tests on simulator
     spdlog::error("Unexpected RC mode: {}", rc.mode);
     BOOST_VERIFY(false);
+  }
+
+  return OSDK_STAT_OK;
+}
+
+E_OsdkStat drone::update_mission_event(T_CmdHandle* cmd_handle,
+                                       const T_CmdInfo* cmd_info,
+                                       const uint8_t* cmd_data,
+                                       void* user_data) {
+  BOOST_VERIFY(user_data != nullptr);
+  auto* self{static_cast<drone*>(user_data)};
+
+  BOOST_VERIFY(cmd_data != nullptr);
+  auto* ack{reinterpret_cast<const DJI::OSDK::MissionEventPushAck*>(cmd_data)};
+
+  BOOST_VERIFY(cmd_handle != nullptr);
+  BOOST_VERIFY(cmd_info != nullptr);
+
+  if (!self->mission_state_.is_started()) {
+    return OSDK_STAT_OK;
+  }
+
+  self->mission_state_.update(ack);
+
+  if (!self->mission_state_.is_started()) {
+    std::lock_guard<std::mutex> lock(self->m_);
+    self->execute_commands_.push_back(
+        interconnection::command_type::MISSION_FINISHED);
   }
 
   return OSDK_STAT_OK;
