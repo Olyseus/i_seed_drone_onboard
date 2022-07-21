@@ -212,11 +212,12 @@ void drone::receive_data_job() {
         // FIXME (verify mission state)
       } break;
       case interconnection::command_type::MISSION_ABORT: {
-        spdlog::info("Mission abort");
+        spdlog::info("Mission ABORT");
+        // Call it first to block the update callbacks
+        mission_state_.finish();
         const api_code code{vehicle_->waypointV2Mission->stop(timeout)};
         BOOST_VERIFY(code.success());
         // FIXME (verify mission state)
-        mission_state_.finish();
       } break;
       default:
         spdlog::error("Unexpected command type: {}", command.type());
