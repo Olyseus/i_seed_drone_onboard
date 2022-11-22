@@ -120,15 +120,15 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       server.h
       third_party/psdk/application.cpp
       third_party/psdk/application.hpp
-      third_party/psdk/dji_sdk_app_info.hpp
-      third_party/psdk/dji_sdk_config.hpp
+      third_party/psdk/dji_sdk_app_info.h
+      third_party/psdk/dji_sdk_config.h
   )
   set_source_files_properties(
       third_party/psdk/application.cpp
       PROPERTIES
       COMPILE_OPTIONS
       # ISO C++11 requires at least one argument for the "..." in a variadic macro
-      "-Wno-pedantic"
+      "-Wno-pedantic;-Wno-unused-but-set-variable"
   )
   set_source_files_properties(
       server.cpp
