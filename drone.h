@@ -1,6 +1,7 @@
 #ifndef DRONE_H_
 #define DRONE_H_
 
+// Onboard SDK
 #include <osdk_typedef.h>  // E_OsdkStat
 #include <signal.h>        // sig_atomic_t
 

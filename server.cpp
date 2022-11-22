@@ -3,6 +3,8 @@
 #include <spdlog/spdlog.h>
 
 #include <boost/assert.hpp>       // BOOST_VERIFY
+
+// Onboard SDK
 #include <dji_linux_helpers.hpp>  // MopServer
 
 #include "api_code.h"

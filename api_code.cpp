@@ -3,8 +3,10 @@
 #include <spdlog/spdlog.h>
 
 #include <boost/assert.hpp>       // BOOST_VERIFY
-#include <dji_linux_helpers.hpp>  // ACK::ErrorCode
 #include <thread>                 // std::this_thread
+
+// Onboard SDK
+#include <dji_linux_helpers.hpp>  // ACK::ErrorCode
 
 #include "server.h"  // pipeline_closed
 

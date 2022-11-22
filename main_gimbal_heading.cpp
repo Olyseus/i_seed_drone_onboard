@@ -1,12 +1,14 @@
 #include <boost/assert.hpp>
 #include <boost/filesystem.hpp>  // boost::filesystem::path
-#include <dji_linux_helpers.hpp>  // LinuxSetup
 #include <iostream>              // std::cerr
 #include <spdlog/sinks/rotating_file_sink.h>  // spdlog::sinks::rotating_file_sink_mt
 #include <spdlog/sinks/stdout_sinks.h>        // spdlog::sinks::stdout_sink_mt
 #include <spdlog/spdlog.h>
 #include <spdlog/spdlog.h>
 #include <thread>  // std::this_thread
+
+// Onboard SDK
+#include <dji_linux_helpers.hpp>  // LinuxSetup
 
 #include "api_code.h"
 

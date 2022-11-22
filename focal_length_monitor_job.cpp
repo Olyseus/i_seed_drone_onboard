@@ -2,6 +2,7 @@
 #include <spdlog/spdlog.h>
 #include <thread> // std::this_thread
 
+// Payload SDK
 #include <dji_camera_manager.h>  // DjiCameraManager_Init
 #include <dji_payload_camera.h>  // DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload
 
