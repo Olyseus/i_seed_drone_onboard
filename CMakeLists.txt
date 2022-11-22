@@ -91,24 +91,24 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       PRIVATE
       api_code.cpp
       api_code.h
-      common/osal/osal.c
-      common/osal/osal.h
-      common/osal/osal_fs.c
-      common/osal/osal_fs.h
-      common/osal/osal_socket.c
-      common/osal/osal_socket.h
+      third_party/psdk/common/osal/osal.c
+      third_party/psdk/common/osal/osal.h
+      third_party/psdk/common/osal/osal_fs.c
+      third_party/psdk/common/osal/osal_fs.h
+      third_party/psdk/common/osal/osal_socket.c
+      third_party/psdk/common/osal/osal_socket.h
       third_party/osdk/dji_linux_environment.cpp
       third_party/osdk/dji_linux_environment.hpp
       third_party/osdk/dji_linux_helpers.cpp
       third_party/osdk/dji_linux_helpers.hpp
       drone.cpp
       drone.h
-      manifold2/hal/hal_network.c
-      manifold2/hal/hal_network.h
-      manifold2/hal/hal_uart.c
-      manifold2/hal/hal_uart.h
-      manifold2/hal/hal_usb_bulk.c
-      manifold2/hal/hal_usb_bulk.h
+      third_party/psdk/manifold2/hal/hal_network.c
+      third_party/psdk/manifold2/hal/hal_network.h
+      third_party/psdk/manifold2/hal/hal_uart.c
+      third_party/psdk/manifold2/hal/hal_uart.h
+      third_party/psdk/manifold2/hal/hal_usb_bulk.c
+      third_party/psdk/manifold2/hal/hal_usb_bulk.h
       mission_state.cpp
       mission_state.h
       third_party/osdk/osdkhal_linux.c
@@ -153,14 +153,14 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       "-Wno-unused-parameter"
   )
   set_source_files_properties(
-      manifold2/hal/hal_usb_bulk.c
+      third_party/psdk/manifold2/hal/hal_usb_bulk.c
       PROPERTIES
       COMPILE_OPTIONS
       # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
       "-Wno-pedantic"
   )
   set_source_files_properties(
-      manifold2/hal/hal_network.c
+      third_party/psdk/manifold2/hal/hal_network.c
       PROPERTIES
       COMPILE_OPTIONS
       # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
@@ -185,7 +185,7 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       "-Wno-sign-compare;-Wno-pointer-sign"
   )
   set_source_files_properties(
-      common/osal/osal_socket.c
+      third_party/psdk/common/osal/osal_socket.c
       PROPERTIES
       COMPILE_OPTIONS
       # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
@@ -193,21 +193,21 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       "-Wno-extra;-Wno-pedantic"
   )
   set_source_files_properties(
-      manifold2/hal/hal_uart.c
+      third_party/psdk/manifold2/hal/hal_uart.c
       PROPERTIES
       COMPILE_OPTIONS
       # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
       "-Wno-pedantic;-Wno-unused-variable"
   )
   set_source_files_properties(
-      common/osal/osal.c
+      third_party/psdk/common/osal/osal.c
       PROPERTIES
       COMPILE_OPTIONS
       # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
       "-Wno-pedantic;-Wno-unused-parameter"
   )
   set_source_files_properties(
-      common/osal/osal_fs.c
+      third_party/psdk/common/osal/osal_fs.c
       PROPERTIES
       COMPILE_OPTIONS
       # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
