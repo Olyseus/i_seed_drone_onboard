@@ -269,6 +269,29 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       # libusb.h:736:4: error: ISO C++ forbids zero-size array ‘dev_capability_data’ [-Werror=pedantic]
       "-Wno-ignored-qualifiers;-Wno-pedantic"
   )
+
+  add_executable(
+      i_seed_drone_onboard_focal_length
+      focal_length_monitor_job.cpp
+      main_gimbal_heading.cpp
+  )
+  target_link_libraries(
+      i_seed_drone_onboard_focal_length PRIVATE i_seed_drone_onboard_core
+  )
+  set_source_files_properties(
+      main_focal_length.cpp
+      PROPERTIES
+      COMPILE_OPTIONS
+      # libusb.h:736:4: error: ISO C++ forbids zero-size array ‘dev_capability_data’ [-Werror=pedantic]
+      "-Wno-ignored-qualifiers;-Wno-pedantic"
+  )
+  set_source_files_properties(
+      focal_length_monitor_job.cpp
+      PROPERTIES
+      COMPILE_OPTIONS
+      # libusb.h:736:4: error: ISO C++ forbids zero-size array ‘dev_capability_data’ [-Werror=pedantic]
+      "-Wno-ignored-qualifiers;-Wno-pedantic"
+  )
 endif()
 
 add_executable(

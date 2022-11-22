@@ -1,3 +1,4 @@
 /run_test.sh
 /_builds/*
+i_seed_drone_onboard_focal_length.log
 i_seed_drone_onboard_gimbal_heading.log
