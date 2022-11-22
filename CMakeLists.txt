@@ -73,6 +73,7 @@ add_library(
 )
 
 target_link_libraries(i_seed_drone_onboard_core PUBLIC protobuf::libprotobuf)
+target_link_libraries(i_seed_drone_onboard_core PUBLIC -Wfatal-errors)
 
 target_compile_options(
     i_seed_drone_onboard_core PUBLIC -Wall -Werror -Wpedantic -Wextra
