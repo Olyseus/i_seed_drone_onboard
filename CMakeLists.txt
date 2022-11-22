@@ -217,6 +217,8 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
 
   # https://man7.org/linux/man-pages/man3/pthread_setname_np.3.html
   target_compile_definitions(i_seed_drone_onboard_core PUBLIC _GNU_SOURCE)
+
+  target_compile_definitions(i_seed_drone_onboard_core PUBLIC LIBUSB_INSTALLED)
 endif()
 
 find_package(Boost REQUIRED COMPONENTS filesystem)
