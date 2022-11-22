@@ -31,17 +31,19 @@ void focal_length_monitor_job() {
   BOOST_VERIFY(firmware_version.firmware_version[0] >= 4);
 
   while (true) {
-    const E_DjiCameraManagerFocusMode expected_focus_mode{DJI_CAMERA_MANAGER_FOCUS_MODE_AUTO};
+    if (false) { // FIXME (enable)
+      const E_DjiCameraManagerFocusMode expected_focus_mode{DJI_CAMERA_MANAGER_FOCUS_MODE_AUTO};
 
-    E_DjiCameraManagerFocusMode focus_mode;
-    code = DjiCameraManager_GetFocusMode(m_pos, &focus_mode);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-
-    if (focus_mode != expected_focus_mode) {
-      spdlog::info("Changing focus mode");
-      code = DjiCameraManager_SetFocusMode(m_pos, expected_focus_mode);
+      E_DjiCameraManagerFocusMode focus_mode;
+      code = DjiCameraManager_GetFocusMode(m_pos, &focus_mode);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-      spdlog::info("Changing focus mode: DONE");
+
+      if (focus_mode != expected_focus_mode) {
+        spdlog::info("Changing focus mode");
+        code = DjiCameraManager_SetFocusMode(m_pos, expected_focus_mode);
+        BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+        spdlog::info("Changing focus mode: DONE");
+      }
     }
 
     uint16_t focal_length{0};

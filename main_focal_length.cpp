@@ -7,9 +7,6 @@
 #include <spdlog/spdlog.h>
 #include <thread>  // std::this_thread
 
-// Onboard SDK
-#include <dji_linux_helpers.hpp>  // LinuxSetup
-
 #include "application.hpp" // Application
 
 void setup_logging() {
@@ -44,10 +41,9 @@ auto run_main(int argc, char** argv) -> int {
   setup_logging();
 
   try {
+    BOOST_VERIFY(argc == 1);
+    BOOST_VERIFY(argv != nullptr);
     auto app{std::make_unique<Application>()};
-
-    constexpr bool enable_advanced_sensing{true};
-    auto linux_setup{std::make_unique<LinuxSetup>(argc, argv, enable_advanced_sensing)};
 
     T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
     BOOST_VERIFY(osal);
