@@ -262,6 +262,13 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   target_link_libraries(
       i_seed_drone_onboard_gimbal_heading PRIVATE i_seed_drone_onboard_core
   )
+  set_source_files_properties(
+      main_gimbal_heading.cpp
+      PROPERTIES
+      COMPILE_OPTIONS
+      # libusb.h:736:4: error: ISO C++ forbids zero-size array ‘dev_capability_data’ [-Werror=pedantic]
+      "-Wno-ignored-qualifiers;-Wno-pedantic"
+  )
 endif()
 
 add_executable(
