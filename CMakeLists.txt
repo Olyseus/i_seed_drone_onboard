@@ -97,10 +97,10 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       common/osal/osal_fs.h
       common/osal/osal_socket.c
       common/osal/osal_socket.h
-      dji_linux_environment.cpp
-      dji_linux_environment.hpp
-      dji_linux_helpers.cpp
-      dji_linux_helpers.hpp
+      third_party/osdk/dji_linux_environment.cpp
+      third_party/osdk/dji_linux_environment.hpp
+      third_party/osdk/dji_linux_helpers.cpp
+      third_party/osdk/dji_linux_helpers.hpp
       drone.cpp
       drone.h
       manifold2/hal/hal_network.c
@@ -111,10 +111,10 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       manifold2/hal/hal_usb_bulk.h
       mission_state.cpp
       mission_state.h
-      osdkhal_linux.c
-      osdkhal_linux.h
-      osdkosal_linux.c
-      osdkosal_linux.h
+      third_party/osdk/osdkhal_linux.c
+      third_party/osdk/osdkhal_linux.h
+      third_party/osdk/osdkosal_linux.c
+      third_party/osdk/osdkosal_linux.h
       server.cpp
       server.h
   )
@@ -147,7 +147,7 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       "-Wno-ignored-qualifiers;-Wno-pedantic"
   )
   set_source_files_properties(
-      osdkosal_linux.c
+      third_party/osdk/osdkosal_linux.c
       PROPERTIES
       COMPILE_OPTIONS
       "-Wno-unused-parameter"
@@ -167,19 +167,19 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       "-Wno-pedantic;-Wno-unused-parameter"
   )
   set_source_files_properties(
-      dji_linux_environment.cpp
+      third_party/osdk/dji_linux_environment.cpp
       PROPERTIES
       COMPILE_OPTIONS
       "-Wno-format"
   )
   set_source_files_properties(
-      dji_linux_helpers.cpp
+      third_party/osdk/dji_linux_helpers.cpp
       PROPERTIES
       COMPILE_OPTIONS
       "-Wno-unused-parameter;-Wno-ignored-qualifiers;-Wno-pedantic"
   )
   set_source_files_properties(
-      osdkhal_linux.c
+      third_party/osdk/osdkhal_linux.c
       PROPERTIES
       COMPILE_OPTIONS
       "-Wno-sign-compare;-Wno-pointer-sign"
