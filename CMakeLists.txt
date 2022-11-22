@@ -251,9 +251,16 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       i_seed_drone_onboard
       main.cpp
   )
-
   target_link_libraries(
       i_seed_drone_onboard PRIVATE i_seed_drone_onboard_core
+  )
+
+  add_executable(
+      i_seed_drone_onboard_gimbal_heading
+      main_gimbal_heading.cpp
+  )
+  target_link_libraries(
+      i_seed_drone_onboard_gimbal_heading PRIVATE i_seed_drone_onboard_core
   )
 endif()
 
