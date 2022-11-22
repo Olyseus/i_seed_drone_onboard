@@ -85,6 +85,7 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/third_party/osdk>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/third_party/psdk>
 )
 
 if(I_SEED_DRONE_ONBOARD_MANIFOLD)
@@ -274,7 +275,7 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   add_executable(
       i_seed_drone_onboard_focal_length
       focal_length_monitor_job.cpp
-      main_gimbal_heading.cpp
+      main_focal_length.cpp
   )
   target_link_libraries(
       i_seed_drone_onboard_focal_length PRIVATE i_seed_drone_onboard_core
