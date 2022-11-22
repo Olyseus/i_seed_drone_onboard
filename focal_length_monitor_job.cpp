@@ -30,6 +30,8 @@ void focal_length_monitor_job() {
   // At least: Matrice 300 RTK：V03.00.01.01
   BOOST_VERIFY(firmware_version.firmware_version[0] >= 4);
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
   while (true) {
     if (false) { // FIXME (enable)
       const E_DjiCameraManagerFocusMode expected_focus_mode{DJI_CAMERA_MANAGER_FOCUS_MODE_AUTO};
