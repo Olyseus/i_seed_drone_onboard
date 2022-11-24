@@ -10,6 +10,9 @@ void focal_length_monitor_job() {
   T_DjiReturnCode code{DjiCameraManager_Init()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
+  code = DjiPayloadCamera_Init();
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
   E_DjiCameraType camera_type;
   constexpr E_DjiMountPosition m_pos{DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
   code = DjiCameraManager_GetCameraType(m_pos, &camera_type);
