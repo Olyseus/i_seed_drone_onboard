@@ -55,6 +55,11 @@ void focal_length_monitor_job() {
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     spdlog::info("current: {}, max: {}", optical_zoom_param.currentOpticalZoomFactor, optical_zoom_param.maxOpticalZoomFactor);
 
+    T_DjiCameraOpticalZoomSpec optical_zoom_spec;
+    code = DjiPayloadCamera_GetCameraOpticalZoomSpecOfPayload(m_pos, &optical_zoom_spec);
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    spdlog::info("focal length min: {}, max: {}, step: {}", optical_zoom_spec.minFocalLength, optical_zoom_spec.maxFocalLength, optical_zoom_spec.focalLengthStep);
+
     code = DjiCameraManager_SetOpticalZoomParam(m_pos, DJI_CAMERA_ZOOM_DIRECTION_OUT, optical_zoom_param.currentOpticalZoomFactor);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
