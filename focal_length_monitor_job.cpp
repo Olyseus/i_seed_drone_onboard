@@ -54,8 +54,16 @@ void focal_length_monitor_job() {
     uint16_t focal_length{0};
     code = DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload(m_pos, &focal_length);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-
     spdlog::info("Focal length: {}", focal_length);
+
+    T_DjiCameraManagerOpticalZoomParam optical_zoom_param;
+    code = DjiCameraManager_GetOpticalZoomParam(m_pos, &optical_zoom_param);
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    spdlog::info("current: {}, max: {}", optical_zoom_param.currentOpticalZoomFactor, optical_zoom_param.maxOpticalZoomFactor);
+
+    code = DjiCameraManager_SetOpticalZoomParam(m_pos, DJI_CAMERA_ZOOM_DIRECTION_OUT, optical_zoom_param.currentOpticalZoomFactor);
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
 
