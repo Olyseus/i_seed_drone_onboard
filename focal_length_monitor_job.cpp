@@ -32,6 +32,11 @@ void focal_length_monitor_job() {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
+  T_DjiCameraOpticalZoomSpec optical_zoom_spec;
+  code = DjiPayloadCamera_GetCameraOpticalZoomSpecOfPayload(m_pos, &optical_zoom_spec);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  spdlog::info("focal length min: {}, max: {}, step: {}", optical_zoom_spec.minFocalLength, optical_zoom_spec.maxFocalLength, optical_zoom_spec.focalLengthStep);
+
   while (true) {
     const E_DjiCameraManagerFocusMode expected_focus_mode{DJI_CAMERA_MANAGER_FOCUS_MODE_AUTO};
 
@@ -50,18 +55,23 @@ void focal_length_monitor_job() {
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     spdlog::info("Focal length: {}", focal_length);
 
-    T_DjiCameraManagerOpticalZoomParam optical_zoom_param;
-    code = DjiCameraManager_GetOpticalZoomParam(m_pos, &optical_zoom_param);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-    spdlog::info("current: {}, max: {}", optical_zoom_param.currentOpticalZoomFactor, optical_zoom_param.maxOpticalZoomFactor);
+    // FIXME (remove)
+    BOOST_VERIFY(focal_length == optical_zoom_spec.minFocalLength);
 
-    T_DjiCameraOpticalZoomSpec optical_zoom_spec;
-    code = DjiPayloadCamera_GetCameraOpticalZoomSpecOfPayload(m_pos, &optical_zoom_spec);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-    spdlog::info("focal length min: {}, max: {}, step: {}", optical_zoom_spec.minFocalLength, optical_zoom_spec.maxFocalLength, optical_zoom_spec.focalLengthStep);
+    if (focal_length != optical_zoom_spec.minFocalLength) {
+      T_DjiCameraManagerOpticalZoomParam optical_zoom_param;
+      code = DjiCameraManager_GetOpticalZoomParam(m_pos, &optical_zoom_param);
+      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      spdlog::info("zoom param current: {}", optical_zoom_param.currentOpticalZoomFactor);
 
-    code = DjiCameraManager_SetOpticalZoomParam(m_pos, DJI_CAMERA_ZOOM_DIRECTION_OUT, optical_zoom_param.currentOpticalZoomFactor);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      code = DjiCameraManager_SetOpticalZoomParam(m_pos, DJI_CAMERA_ZOOM_DIRECTION_OUT, optical_zoom_param.currentOpticalZoomFactor * optical_zoom_spec.minFocalLength / focal_length);
+      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+      code = DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload(m_pos, &focal_length);
+      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+      BOOST_VERIFY(focal_length == optical_zoom_spec.minFocalLength);
+    }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
