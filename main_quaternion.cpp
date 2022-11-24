@@ -84,9 +84,9 @@ auto run_main(int argc, char** argv) -> int {
       const double q2sqr{quaternion.q2 * quaternion.q2};
       const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
       const double t1{+2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
-      const double t2{-2.0 * (quaternion->q1 * quaternion->q3 - quaternion->q0 * quaternion->q2)};
-      const double t3{+2.0 * (quaternion->q2 * quaternion->q3 + quaternion->q0 * quaternion->q1)};
-      const double t4{-2.0 * (quaternion->q1 * quaternion->q1 + q2sqr) + 1.0};
+      double t2{-2.0 * (quaternion.q1 * quaternion.q3 - quaternion.q0 * quaternion.q2)};
+      const double t3{+2.0 * (quaternion.q2 * quaternion.q3 + quaternion.q0 * quaternion.q1)};
+      const double t4{-2.0 * (quaternion.q1 * quaternion.q1 + q2sqr) + 1.0};
 
       t2 = (t2 > 1.0) ? 1.0 : t2;
       t2 = (t2 < -1.0) ? -1.0 : t2;
