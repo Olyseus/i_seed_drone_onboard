@@ -96,6 +96,13 @@ auto run_main(int argc, char** argv) -> int {
       const double yaw{atan2(t1, t0) * 180.0 / M_PI}; // Z
 
       spdlog::info("roll: {}, pitch: {}, yaw: {}", roll, pitch, yaw);
+
+      BOOST_VERIFY(yaw >= -180.0);
+      BOOST_VERIFY(yaw <= 180.0);
+      BOOST_VERIFY(pitch > -90.0);
+      BOOST_VERIFY(pitch < 90.0);
+      BOOST_VERIFY(roll > -90.0);
+      BOOST_VERIFY(roll < 90.0);
     }
 
     // last
