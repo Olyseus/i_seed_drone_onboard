@@ -91,8 +91,10 @@ auto run_main(int argc, char** argv) -> int {
       t2 = (t2 > 1.0) ? 1.0 : t2;
       t2 = (t2 < -1.0) ? -1.0 : t2;
 
-      const double roll{asin(t2) * 180.0 / M_PI}; // X
-      const double pitch{atan2(t3, t4) * 180.0 / M_PI}; // Y
+      // https://sdk-forum.dji.net/hc/en-us/requests/74003
+      // https://sdk-forum.dji.net/hc/en-us/articles/360023657273
+      const double roll{atan2(t3, t4) * 180.0 / M_PI}; // X
+      const double pitch{asin(t2) * 180.0 / M_PI}; // Y
       const double yaw{atan2(t1, t0) * 180.0 / M_PI}; // Z
 
       spdlog::info("roll: {}, pitch: {}, yaw: {}", roll, pitch, yaw);
