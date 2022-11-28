@@ -7,6 +7,8 @@
 #include <dji_payload_camera.h>  // DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload
 
 void focal_length_monitor_job() {
+  std::this_thread::sleep_for(std::chrono::seconds(2));
+
   T_DjiReturnCode code{DjiCameraManager_Init()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
