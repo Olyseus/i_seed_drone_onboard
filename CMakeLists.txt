@@ -319,6 +319,9 @@ endif()
 add_executable(
     i_seed_drone_onboard_core_ut
     i_seed_drone_onboard_core_ut.cpp
+    magnetic_declination_ut.cpp
+    main_ut.cpp
+    main_ut.h
 )
 
 find_package(GTest CONFIG REQUIRED) # GTest::gtest_main
@@ -326,7 +329,7 @@ target_link_libraries(
     i_seed_drone_onboard_core_ut
     PRIVATE
     i_seed_drone_onboard_core
-    GTest::gtest_main
+    GTest::gtest
 )
 
 if(I_SEED_DRONE_ONBOARD_MANIFOLD)
