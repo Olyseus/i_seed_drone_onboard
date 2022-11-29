@@ -7,8 +7,8 @@
 #include <spdlog/spdlog.h>
 #include <thread>  // std::this_thread
 
-// Onboard SDK
-#include <dji_linux_helpers.hpp>  // LinuxSetup
+// Payload SDK
+#include "application.hpp" // Application
 
 #include "api_code.h"
 
@@ -38,77 +38,70 @@ void setup_logging() {
   spdlog::info("Logging to file: {}", log_path.string());
 }
 
+T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+  BOOST_VERIFY(data != nullptr);
+  auto quaternion{*static_cast<T_DjiFcSubscriptionQuaternion*>(data)};;
+  (void)data_size;
+  (void)timestamp;
+
+  // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
+  const double q2sqr{quaternion.q2 * quaternion.q2};
+  const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
+  const double t1{+2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
+  double t2{-2.0 * (quaternion.q1 * quaternion.q3 - quaternion.q0 * quaternion.q2)};
+  const double t3{+2.0 * (quaternion.q2 * quaternion.q3 + quaternion.q0 * quaternion.q1)};
+  const double t4{-2.0 * (quaternion.q1 * quaternion.q1 + q2sqr) + 1.0};
+
+  t2 = (t2 > 1.0) ? 1.0 : t2;
+  t2 = (t2 < -1.0) ? -1.0 : t2;
+
+  // https://sdk-forum.dji.net/hc/en-us/requests/74003
+  // https://sdk-forum.dji.net/hc/en-us/articles/360023657273
+  const double roll{atan2(t3, t4) * 180.0 / M_PI}; // X
+  const double pitch{asin(t2) * 180.0 / M_PI}; // Y
+  const double yaw{atan2(t1, t0) * 180.0 / M_PI}; // Z
+
+  spdlog::info("roll: {}, pitch: {}, yaw: {}", roll, pitch, yaw);
+
+  BOOST_VERIFY(yaw >= -180.0);
+  BOOST_VERIFY(yaw <= 180.0);
+  BOOST_VERIFY(pitch > -90.0);
+  BOOST_VERIFY(pitch < 90.0);
+  BOOST_VERIFY(roll > -90.0);
+  BOOST_VERIFY(roll < 90.0);
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
 auto run_main(int argc, char** argv) -> int {
   setup_logging();
 
   try {
-    constexpr bool enable_advanced_sensing{true};
-    LinuxSetup linux_setup{argc, argv, enable_advanced_sensing};
+    BOOST_VERIFY(argc == 1);
+    BOOST_VERIFY(argv != nullptr);
+    auto app{std::make_unique<Application>()};
 
-    DJI::OSDK::Vehicle* vehicle{linux_setup.getVehicle()};
-    BOOST_VERIFY(vehicle);
+    T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
+    BOOST_VERIFY(osal);
 
-    constexpr int freq{5};
-    DJI::OSDK::Telemetry::TopicName topic_list[] = {
-        DJI::OSDK::Telemetry::TOPIC_QUATERNION};
-    constexpr std::size_t num_topic{sizeof(topic_list) / sizeof(topic_list[0])};
-    constexpr bool enable_timestamp{false};
-
-    constexpr int timeout{20};
-
-    api_code code{vehicle->subscribe->verify(timeout)};
-    BOOST_VERIFY(code.success());
-
-    constexpr int pkg_index{0};
-
-    const bool pkg_status = vehicle->subscribe->initPackageFromTopicList(
-        pkg_index, num_topic, topic_list, enable_timestamp, freq);
-    BOOST_VERIFY(pkg_status);
-
-    code = api_code{vehicle->subscribe->startPackage(pkg_index, timeout)};
-    BOOST_VERIFY(code.success());
-
-    BOOST_VERIFY(vehicle->gimbalManager);
-    code = api_code{vehicle->gimbalManager->initGimbalModule(PAYLOAD_INDEX_0, "g0")};
-    BOOST_VERIFY(code.success());
-
+    // Wait for SDK to start
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
+    T_DjiReturnCode code{DjiFcSubscription_Init()};
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+    code = DjiFcSubscription_SubscribeTopic(
+        DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
+        quaternion_callback);
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
     while (true) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-      DJI::OSDK::Telemetry::Quaternion quaternion{
-          vehicle->subscribe->getValue<DJI::OSDK::Telemetry::TOPIC_QUATERNION>()};
-
-      // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
-      const double q2sqr{quaternion.q2 * quaternion.q2};
-      const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
-      const double t1{+2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
-      double t2{-2.0 * (quaternion.q1 * quaternion.q3 - quaternion.q0 * quaternion.q2)};
-      const double t3{+2.0 * (quaternion.q2 * quaternion.q3 + quaternion.q0 * quaternion.q1)};
-      const double t4{-2.0 * (quaternion.q1 * quaternion.q1 + q2sqr) + 1.0};
-
-      t2 = (t2 > 1.0) ? 1.0 : t2;
-      t2 = (t2 < -1.0) ? -1.0 : t2;
-
-      // https://sdk-forum.dji.net/hc/en-us/requests/74003
-      // https://sdk-forum.dji.net/hc/en-us/articles/360023657273
-      const double roll{atan2(t3, t4) * 180.0 / M_PI}; // X
-      const double pitch{asin(t2) * 180.0 / M_PI}; // Y
-      const double yaw{atan2(t1, t0) * 180.0 / M_PI}; // Z
-
-      spdlog::info("roll: {}, pitch: {}, yaw: {}", roll, pitch, yaw);
-
-      BOOST_VERIFY(yaw >= -180.0);
-      BOOST_VERIFY(yaw <= 180.0);
-      BOOST_VERIFY(pitch > -90.0);
-      BOOST_VERIFY(pitch < 90.0);
-      BOOST_VERIFY(roll > -90.0);
-      BOOST_VERIFY(roll < 90.0);
+      // Receive callbacks until interrupted
+      std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 
-    // last
-    vehicle->subscribe->removePackage(pkg_index, timeout);
+    code = DjiFcSubscription_DeInit();
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     return EXIT_SUCCESS;
   } catch (const std::system_error& exc) {
