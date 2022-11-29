@@ -3,9 +3,11 @@
 
 #include <string>
 
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 class magnetic_declination {
  public:
-  magnetic_declination(const std::string& filename, double lat, double lon);
+  magnetic_declination(const boost::gregorian::date& date, const std::string& filename, double lat, double lon);
   ~magnetic_declination();
 
   double declination() const;
