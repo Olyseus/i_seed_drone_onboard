@@ -7,8 +7,12 @@
 #include <spdlog/spdlog.h>
 #include <thread>  // std::this_thread
 
-// Onboard SDK
-#include <dji_linux_helpers.hpp>  // LinuxSetup
+// Payload SDK
+#include <dji_fc_subscription.h> // T_DjiFcSubscriptionQuaternion
+#include <dji_gimbal_manager.h> // DjiGimbalManager_Init
+
+// Payload SDK
+#include "application.hpp" // Application
 
 #include "api_code.h"
 
@@ -38,88 +42,114 @@ void setup_logging() {
   spdlog::info("Logging to file: {}", log_path.string());
 }
 
+static double drone_yaw{0.0};
+static double gimbal_roll{0.0};
+static double gimbal_pitch{0.0};
+static double gimbal_yaw{0.0};
+
+T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+  BOOST_VERIFY(data != nullptr);
+  const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};;
+  (void)data_size;
+  (void)timestamp;
+
+  // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
+  const double q2sqr{quaternion.q2 * quaternion.q2};
+  const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
+  const double t1{+2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
+
+  // https://sdk-forum.dji.net/hc/en-us/requests/74003
+  // https://sdk-forum.dji.net/hc/en-us/articles/360023657273
+  drone_yaw = atan2(t1, t0) * 180.0 / M_PI; // Z
+
+  spdlog::info("drone yaw: {}", drone_yaw);
+
+  BOOST_VERIFY(drone_yaw >= -180.0);
+  BOOST_VERIFY(drone_yaw <= 180.0);
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
+T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+  BOOST_VERIFY(data != nullptr);
+  const auto angles{*(const T_DjiFcSubscriptionGimbalAngles*)data};;
+  (void)data_size;
+  (void)timestamp;
+
+  gimbal_pitch = angles.x;
+  gimbal_roll = angles.y;
+  gimbal_yaw = angles.z;
+
+  spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch, gimbal_roll, gimbal_yaw);
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
 auto run_main(int argc, char** argv) -> int {
   setup_logging();
 
   try {
-    constexpr bool enable_advanced_sensing{true};
-    LinuxSetup linux_setup{argc, argv, enable_advanced_sensing};
+    BOOST_VERIFY(argc == 1);
+    BOOST_VERIFY(argv != nullptr);
+    auto app{std::make_unique<Application>()};
 
-    DJI::OSDK::Vehicle* vehicle{linux_setup.getVehicle()};
-    BOOST_VERIFY(vehicle);
+    T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
+    BOOST_VERIFY(osal);
 
-    constexpr int freq{5};
-    DJI::OSDK::Telemetry::TopicName topic_list[] = {
-        DJI::OSDK::Telemetry::TOPIC_QUATERNION,
-        DJI::OSDK::Telemetry::TOPIC_THREE_GIMBAL_DATA};
-    constexpr std::size_t num_topic{sizeof(topic_list) / sizeof(topic_list[0])};
-    constexpr bool enable_timestamp{false};
-
-    constexpr int timeout{20};
-
-    api_code code{vehicle->subscribe->verify(timeout)};
-    BOOST_VERIFY(code.success());
-
-    constexpr int pkg_index{0};
-
-    const bool pkg_status = vehicle->subscribe->initPackageFromTopicList(
-        pkg_index, num_topic, topic_list, enable_timestamp, freq);
-    BOOST_VERIFY(pkg_status);
-
-    code = api_code{vehicle->subscribe->startPackage(pkg_index, timeout)};
-    BOOST_VERIFY(code.success());
-
-    BOOST_VERIFY(vehicle->gimbalManager);
-    code = api_code{vehicle->gimbalManager->initGimbalModule(PAYLOAD_INDEX_0, "g0")};
-    BOOST_VERIFY(code.success());
-
+    // Wait for SDK to start
     std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    T_DjiReturnCode code{DjiFcSubscription_Init()};
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+    code = DjiFcSubscription_SubscribeTopic(
+        DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ,
+        quaternion_callback);
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+    code = DjiFcSubscription_SubscribeTopic(
+        DJI_FC_SUBSCRIPTION_TOPIC_GIMBAL_ANGLES, DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ,
+        gimbal_callback);
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+    code = DjiGimbalManager_Init();
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+    const E_DjiMountPosition m_pos{DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
+
+    code = DjiGimbalManager_SetMode(m_pos, DJI_GIMBAL_MODE_FREE);
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+    code = DjiGimbalManager_Reset(m_pos);
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     while (true) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-      Telemetry::GimbalSingleData g_data{
-          vehicle->subscribe->getValue<Telemetry::TOPIC_THREE_GIMBAL_DATA>().gbData[PAYLOAD_INDEX_0]};
-      DJI::OSDK::Telemetry::Quaternion quaternion{
-          vehicle->subscribe->getValue<DJI::OSDK::Telemetry::TOPIC_QUATERNION>()};
-
-      // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
-      const double q2sqr{quaternion.q2 * quaternion.q2};
-      const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
-      const double t1{+2.0 * (quaternion.q1 * quaternion.q2 +
-                              quaternion.q0 * quaternion.q3)};
-      const double heading{atan2(t1, t0) * 180.0 / M_PI};
-
-      spdlog::info("Drone heading: {}", heading);
-
-      GimbalModule::Rotation rotation;
-      rotation.roll = 0.0F;
-      rotation.pitch = 0.0F; // -90.0: down, 0.0: forward
-      rotation.yaw = heading;
-
-      // absolute angles:
-      // - https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/osdk-core/modules/inc/payload/dji_gimbal_module.hpp#L73
-      rotation.rotationMode = 0;
+      T_DjiGimbalManagerRotation rotation;
+      rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_ABSOLUTE_ANGLE;
+      rotation.pitch = 0.0; // -90.0: down, 0.0: forward
+      rotation.roll = 0.0;
+      rotation.yaw = drone_yaw;
       rotation.time = 0.1;
 
       constexpr float eps{1e-3};
       constexpr float rough_eps{0.1 + eps};
-      const float d_roll{std::abs(rotation.roll - g_data.roll)};
-      const float d_pitch{std::abs(rotation.pitch - g_data.pitch)};
-      const float d_yaw{std::abs(rotation.yaw - g_data.yaw)};
+      const double d_roll{std::abs(rotation.roll - gimbal_roll)};
+      const double d_pitch{std::abs(rotation.pitch - gimbal_pitch)};
+      const double d_yaw{std::abs(rotation.yaw - gimbal_yaw)};
       if (d_roll < rough_eps && d_pitch < rough_eps && d_yaw < rough_eps) {
         continue;
       }
 
-      spdlog::info("Gimbal roll: {:.4f}, pitch: {:.4f}, yaw: {:.4f}",
-                   g_data.roll, g_data.pitch, g_data.yaw);
-      spdlog::info("Rotating");
-      const api_code code{vehicle->gimbalManager->rotateSync(PAYLOAD_INDEX_0, rotation, timeout)};
-      BOOST_VERIFY(code.success());
+      spdlog::info("Run gimbal rotation");
+
+      code = DjiGimbalManager_Rotate(m_pos, rotation);
+      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     }
 
-    // last
-    vehicle->subscribe->removePackage(pkg_index, timeout);
+    code = DjiFcSubscription_DeInit();
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     return EXIT_SUCCESS;
   } catch (const std::system_error& exc) {
