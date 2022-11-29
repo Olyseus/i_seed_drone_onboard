@@ -69,11 +69,16 @@ add_library(
     ${gen_cc}
     ${gen_h}
     boost_assert.cpp
+    magnetic_declination.cpp
+    magnetic_declination.h
     timer.h
 )
 
 target_link_libraries(i_seed_drone_onboard_core PUBLIC protobuf::libprotobuf)
 target_link_libraries(i_seed_drone_onboard_core PUBLIC -Wfatal-errors)
+
+find_package(nlohmann_json CONFIG REQUIRED) # nlohmann_json::nlohmann_json
+target_link_libraries(i_seed_drone_onboard_core PUBLIC nlohmann_json::nlohmann_json)
 
 target_compile_options(
     i_seed_drone_onboard_core PUBLIC -Wall -Werror -Wpedantic -Wextra
