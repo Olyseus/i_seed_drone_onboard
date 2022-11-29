@@ -8,6 +8,9 @@
 #include <thread>  // std::this_thread
 
 // Payload SDK
+#include <dji_fc_subscription.h> // T_DjiFcSubscriptionQuaternion
+
+// Payload SDK
 #include "application.hpp" // Application
 
 #include "api_code.h"
@@ -40,7 +43,7 @@ void setup_logging() {
 
 T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
-  auto quaternion{*static_cast<T_DjiFcSubscriptionQuaternion*>(data)};;
+  const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};;
   (void)data_size;
   (void)timestamp;
 
