@@ -4,22 +4,27 @@
 
 #include <boost/assert.hpp>       // BOOST_VERIFY
 
-// Onboard SDK
-#include <dji_linux_helpers.hpp>  // MopServer
+server::server(uint16_t channel_id) {
+  spdlog::info("Creating channel {}", channel_id);
+  T_PsdkMopChannelHandle channel_handle;
 
-#include "api_code.h"
+  code = DjiMopChannel_Create(&channel_handle, DJI_MOP_CHANNEL_TRANS_RELIABLE);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-server::server(uint16_t channel_id) : channel_id_{channel_id} {
-  mop_server_.reset(new MopServer());
-  spdlog::info("Creating channel {}", channel_id_);
-  const api_code code{
-      mop_server_->accept(channel_id_, MOP::PipelineType::RELIABLE, pipeline_)};
-  BOOST_VERIFY(code.success());
-  BOOST_VERIFY(pipeline_ != nullptr);
+  code = DjiMopChannel_Bind(channel_handle, channel_id);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiMopChannel_Accept(channel_handle, &out_channel_handle_);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  BOOST_VERIFY(out_channel_handle_ != nullptr);
 }
 
 server::~server() {
-  spdlog::info("Disconnect channel");
-  const api_code code{mop_server_->close(channel_id_)};
-  BOOST_VERIFY(code.success());
+  spdlog::info("Close channel");
+
+  code = DjiMopChannel_Close(out_channel_handle_);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiMopChannel_Destroy(out_channel_handle_);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }

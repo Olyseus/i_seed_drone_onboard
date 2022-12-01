@@ -3,13 +3,6 @@
 
 #include <memory>  // std::unique_ptr
 
-namespace DJI {
-namespace OSDK {
-class MopServer;
-class MopPipeline;
-}  // namespace OSDK
-}  // namespace DJI
-
 class pipeline_closed {};
 
 class server {
@@ -23,12 +16,10 @@ class server {
   server& operator=(const server&) = delete;
   server& operator=(server&&) = delete;
 
-  DJI::OSDK::MopPipeline* pipeline() { return pipeline_; }
+  T_PsdkMopChannelHandle handle() const { return out_channel_handle_; }
 
  private:
-  const uint16_t channel_id_{0};
-  std::unique_ptr<DJI::OSDK::MopServer> mop_server_;
-  DJI::OSDK::MopPipeline* pipeline_{nullptr};
+  T_PsdkMopChannelHandle out_channel_handle_{nullptr};
 };
 
 #endif  // SERVER_H_
