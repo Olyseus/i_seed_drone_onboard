@@ -5,6 +5,7 @@
 #include <boost/filesystem.hpp>  // boost::filesystem::path
 #include <iostream>              // std::cerr
 
+#include "application.hpp" // Application
 #include "drone.h"
 
 void setup_logging() {
@@ -37,7 +38,17 @@ auto run_main(int argc, char** argv) -> int {
   setup_logging();
 
   try {
-    drone x{argc, argv};
+    BOOST_VERIFY(argc == 1);
+    BOOST_VERIFY(argv != nullptr);
+    auto app{std::make_unique<Application>()};
+
+    T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
+    BOOST_VERIFY(osal);
+
+    // Wait for SDK to start
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    drone x;
     x.start();
     return EXIT_SUCCESS;
   } catch (const std::system_error& exc) {

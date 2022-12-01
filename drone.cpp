@@ -11,37 +11,68 @@
 
 volatile sig_atomic_t drone::sigint_received_ = 0;
 
-drone::drone(int argc, char** argv) {
-  spdlog::info("Setup for Linux");
-  constexpr bool enable_advanced_sensing{true};
-  linux_setup_.reset(new LinuxSetup(argc, argv, enable_advanced_sensing));
-  vehicle_ = linux_setup_->getVehicle();
-  BOOST_VERIFY(vehicle_);
+T_DjiReturnCode drone::quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+  BOOST_VERIFY(data != nullptr);
+  const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};
+  (void)data_size;
+  (void)timestamp;
 
-  constexpr int freq{5};
-  DJI::OSDK::Telemetry::TopicName topic_list[] = {
-      DJI::OSDK::Telemetry::TOPIC_QUATERNION, DJI::OSDK::Telemetry::TOPIC_RC,
-      DJI::OSDK::Telemetry::TOPIC_GPS_FUSED};
-  constexpr std::size_t num_topic{sizeof(topic_list) / sizeof(topic_list[0])};
-  constexpr bool enable_timestamp{false};
+  // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
+  const double q2sqr{quaternion.q2 * quaternion.q2};
+  const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
+  const double t1{+2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
 
-  api_code code{vehicle_->subscribe->verify(timeout)};
-  BOOST_VERIFY(code.success());
+  // https://sdk-forum.dji.net/hc/en-us/requests/74003
+  // https://sdk-forum.dji.net/hc/en-us/articles/360023657273
+  drone_yaw_ = atan2(t1, t0) * 180.0 / M_PI; // Z
 
-  const bool pkg_status = vehicle_->subscribe->initPackageFromTopicList(
-      pkg_index, num_topic, topic_list, enable_timestamp, freq);
-  BOOST_VERIFY(pkg_status);
+  BOOST_VERIFY(drone_yaw_ >= -180.0);
+  BOOST_VERIFY(drone_yaw_ <= 180.0);
 
-  while (true) {
-    code = api_code{vehicle_->subscribe->startPackage(pkg_index, timeout)};
-    if (code.retry()) {
-      continue;
-    }
-    BOOST_VERIFY(code.success());
-    break;
-  }
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
 
-  spdlog::info("Setup finished");
+T_DjiReturnCode drone::rc_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+  BOOST_VERIFY(data != nullptr);
+  const auto rc{*(const T_DjiFcSubscriptionRC*)data};
+  (void)data_size;
+  (void)timestamp;
+
+  rc_mode_ = rc.mode;
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
+T_DjiReturnCode drone::position_fused_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+  BOOST_VERIFY(data != nullptr);
+  const auto position{*(const T_DjiFcSubscriptionPositionFused*)data};
+  (void)data_size;
+  (void)timestamp;
+
+  drone_latitude_ = position.latitude * 180.0 / M_PI;
+  drone_longitude_ = position.longitude * 180.0 / M_PI;
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
+drone::drone() {
+  T_DjiReturnCode code{DjiFcSubscription_Init()};
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiFcSubscription_SubscribeTopic(
+      DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ,
+      quaternion_callback);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiFcSubscription_SubscribeTopic(
+      DJI_FC_SUBSCRIPTION_TOPIC_RC, DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ,
+      rc_callback);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiFcSubscription_SubscribeTopic(
+      DJI_FC_SUBSCRIPTION_TOPIC_POSITION_FUSED, DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ,
+      position_fused_callback);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   interconnection::command_type command;
   command.set_type(interconnection::command_type::PING);
@@ -266,27 +297,10 @@ void drone::send_data_job() {
       case interconnection::command_type::DRONE_COORDINATES: {
         send_command(interconnection::command_type::DRONE_COORDINATES);
 
-        DJI::OSDK::Telemetry::Quaternion quaternion{
-            vehicle_->subscribe
-                ->getValue<DJI::OSDK::Telemetry::TOPIC_QUATERNION>()};
-        DJI::OSDK::Telemetry::GPSFused global{
-            vehicle_->subscribe
-                ->getValue<DJI::OSDK::Telemetry::TOPIC_GPS_FUSED>()};
-
-        const double latitude{global.latitude * 180.0 / M_PI};
-        const double longitude{global.longitude * 180.0 / M_PI};
-
-        // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
-        const double q2sqr{quaternion.q2 * quaternion.q2};
-        const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
-        const double t1{+2.0 * (quaternion.q1 * quaternion.q2 +
-                                quaternion.q0 * quaternion.q3)};
-        const double heading{atan2(t1, t0) * 180.0 / M_PI};
-
         interconnection::drone_coordinates dc;
-        dc.set_latitude(latitude);
-        dc.set_longitude(longitude);
-        dc.set_heading(heading);
+        dc.set_latitude(drone_latitude_);
+        dc.set_longitude(drone_longitude_);
+        dc.set_heading(drone_yaw_);
         std::string buffer;
         const bool ok{dc.SerializeToString(&buffer)};
         BOOST_VERIFY(ok);
@@ -431,11 +445,9 @@ E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
   }
 
   // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
-  DJI::OSDK::Telemetry::RC rc{
-      self->vehicle_->subscribe->getValue<DJI::OSDK::Telemetry::TOPIC_RC>()};
-  if (rc.mode != 8000) {
+  if (rc_mode_ != 8000) {
     // Value received while running tests on simulator
-    spdlog::error("Unexpected RC mode: {}", rc.mode);
+    spdlog::error("Unexpected RC mode: {}", rc_mode_);
     BOOST_VERIFY(false);
   }
 

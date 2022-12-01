@@ -19,7 +19,7 @@ typedef struct _CommandHandle T_CmdHandle;
 
 class drone {
  public:
-  drone(int argc, char** argv);
+  drone();
   ~drone();
 
   drone(const drone&) = delete;
@@ -31,6 +31,15 @@ class drone {
   void start();
 
  private:
+  static T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
+  static T_DjiReturnCode rc_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
+  static T_DjiReturnCode position_fused_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
+
+  static double drone_yaw_{0.0};
+  static double drone_longitude_{0.0};
+  static double drone_latitude_{0.0};
+  static int16_t rc_mode_{-1};
+
   void receive_data_job();
   void send_data_job();
   void send_command(interconnection::command_type::command_t);
