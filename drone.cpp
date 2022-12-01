@@ -89,12 +89,16 @@ void drone::start() {
   spdlog::info("Protocol version: {}", protocol_version);
   spdlog::info("Command bytes size: {}", command_bytes_size_);
 
+  code = DjiMopChannel_Init();
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
   while (true) {
     check_sigint();
 
     BOOST_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
     server server{channel_id};
-    pipeline_ = server.pipeline();
+    channel_handle_ = server.handle();
+    BOOST_VERIFY(channel_handle_ != nullptr);
     BOOST_VERIFY(signal(SIGINT, sigint_handler) != SIG_ERR);
 
     connection_closed_ = false;
@@ -329,22 +333,22 @@ void drone::receive_data(std::string* buffer) {
   char* char_buffer{buffer->data()};
   static_assert(sizeof(char) == sizeof(uint8_t));
   uint8_t* recv_buf{reinterpret_cast<uint8_t*>(char_buffer)};
-  MopPipeline::DataPackType recv_pack = {recv_buf,
-                                         static_cast<uint32_t>(buffer->size())};
-  uint32_t len{0};
 
   while (true) {
     if (connection_closed_) {
       throw pipeline_closed();
     }
     check_sigint();
-    const api_code code{pipeline_->recvData(recv_pack, &len)};
+
+    uint32_t real_len{0};
+    BOOST_VERIFY(channel_hangle_ != nullptr);
+    const api_code code{DjiMopChannel_RecvData(channel_handle_, recv_buf, buffer->size(), &real_len)};
     if (code.retry()) {
       continue;
     }
     BOOST_VERIFY(code.success());
-    BOOST_VERIFY(len == buffer->size());
-    spdlog::info("{} bytes received", len);
+    BOOST_VERIFY(real_len == buffer->size());
+    spdlog::info("{} bytes received", real_len);
     return;
   }
 }
@@ -355,22 +359,22 @@ void drone::send_data(std::string& buffer) {
   char* char_buffer{buffer.data()};
   static_assert(sizeof(char) == sizeof(uint8_t));
   uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buffer)};
-  MopPipeline::DataPackType send_pack = {send_buf,
-                                         static_cast<uint32_t>(buffer.size())};
-  uint32_t len{0};
 
   while (true) {
     if (connection_closed_) {
       throw pipeline_closed();
     }
     check_sigint();
-    const api_code code{pipeline_->sendData(send_pack, &len)};
+
+    uint32_t real_len{0};
+    BOOST_VERIFY(channel_hangle_ != nullptr);
+    const api_code code{DjiMopChannel_SendData(channel_handle_, send_buf, buffer.size(), &real_len)};
     if (code.retry()) {
       continue;
     }
     BOOST_VERIFY(code.success());
-    BOOST_VERIFY(len == buffer.size());
-    spdlog::info("{} bytes sent", len);
+    BOOST_VERIFY(real_len == buffer.size());
+    spdlog::info("{} bytes sent", real_len);
     return;
   }
 }

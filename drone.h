@@ -1,8 +1,6 @@
 #ifndef DRONE_H_
 #define DRONE_H_
 
-// Onboard SDK
-#include <osdk_typedef.h>  // E_OsdkStat
 #include <signal.h>        // sig_atomic_t
 
 #include <atomic>
@@ -13,21 +11,11 @@
 #include "interconnection.pb.h"
 #include "mission_state.h"
 
-class LinuxSetup;
-
 struct _cmdInfo;
 typedef struct _cmdInfo T_CmdInfo;
 
 struct _CommandHandle;
 typedef struct _CommandHandle T_CmdHandle;
-
-namespace DJI {
-namespace OSDK {
-class MopPipeline;
-class Vehicle;
-class WaypointV2;
-}  // namespace OSDK
-}  // namespace DJI
 
 class drone {
  public:
@@ -66,9 +54,8 @@ class drone {
   static constexpr int pkg_index{0};
   static constexpr int timeout{10};
 
-  std::unique_ptr<LinuxSetup> linux_setup_;
   DJI::OSDK::Vehicle* vehicle_{nullptr};
-  DJI::OSDK::MopPipeline* pipeline_{nullptr};
+  T_PsdkMopChannelHandle channel_handle_{nullptr};
 
   mission_state mission_state_;
 
