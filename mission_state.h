@@ -10,8 +10,8 @@ class mission_state {
 
   bool is_started() const;
 
-  void update(const DJI::OSDK::MissionEventPushAck*);
-  void update(const DJI::OSDK::MissionStatePushAck*);
+  void update(T_DjiWaypointV2MissionEventPush event_data);
+  void update(T_DjiWaypointV2MissionStatePush state_data);
 
  private:
   const char* state_name() const;
