@@ -1,10 +1,12 @@
 #ifndef API_CODE_H_
 #define API_CODE_H_
 
+// Payload SDK
+#include <dji_error.h> // DjiErrorCode
+
 class api_code {
  public:
-  template <class T>
-  explicit api_code(const T&);
+  explicit api_code(const DjiErrorCode code);
 
   bool success() const { return code_ == code::success; }
   bool retry() const { return code_ == code::retry; }
