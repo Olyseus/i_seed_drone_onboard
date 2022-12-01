@@ -91,7 +91,6 @@ target_include_directories(
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/third_party/osdk>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/third_party/psdk>
 )
 
@@ -107,10 +106,6 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       third_party/psdk/common/osal/osal_fs.h
       third_party/psdk/common/osal/osal_socket.c
       third_party/psdk/common/osal/osal_socket.h
-      third_party/osdk/dji_linux_environment.cpp
-      third_party/osdk/dji_linux_environment.hpp
-      third_party/osdk/dji_linux_helpers.cpp
-      third_party/osdk/dji_linux_helpers.hpp
       drone.cpp
       drone.h
       third_party/psdk/manifold2/hal/hal_network.c
@@ -121,10 +116,6 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       third_party/psdk/manifold2/hal/hal_usb_bulk.h
       mission_state.cpp
       mission_state.h
-      third_party/osdk/osdkhal_linux.c
-      third_party/osdk/osdkhal_linux.h
-      third_party/osdk/osdkosal_linux.c
-      third_party/osdk/osdkosal_linux.h
       server.cpp
       server.h
       third_party/psdk/application.cpp
@@ -168,12 +159,6 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       "-Wno-ignored-qualifiers;-Wno-pedantic"
   )
   set_source_files_properties(
-      third_party/osdk/osdkosal_linux.c
-      PROPERTIES
-      COMPILE_OPTIONS
-      "-Wno-unused-parameter"
-  )
-  set_source_files_properties(
       third_party/psdk/manifold2/hal/hal_usb_bulk.c
       PROPERTIES
       COMPILE_OPTIONS
@@ -186,24 +171,6 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       COMPILE_OPTIONS
       # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
       "-Wno-pedantic;-Wno-unused-parameter"
-  )
-  set_source_files_properties(
-      third_party/osdk/dji_linux_environment.cpp
-      PROPERTIES
-      COMPILE_OPTIONS
-      "-Wno-format"
-  )
-  set_source_files_properties(
-      third_party/osdk/dji_linux_helpers.cpp
-      PROPERTIES
-      COMPILE_OPTIONS
-      "-Wno-unused-parameter;-Wno-ignored-qualifiers;-Wno-pedantic"
-  )
-  set_source_files_properties(
-      third_party/osdk/osdkhal_linux.c
-      PROPERTIES
-      COMPILE_OPTIONS
-      "-Wno-sign-compare;-Wno-pointer-sign"
   )
   set_source_files_properties(
       third_party/psdk/common/osal/osal_socket.c
@@ -342,13 +309,6 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   target_link_libraries(i_seed_drone_onboard_core PUBLIC "${trt_so_dir}/libnvinfer.so")
   target_link_libraries(i_seed_drone_onboard_core PUBLIC "${trt_so_dir}/libnvonnxparser.so")
 
-  if("${OSDK_DIR}" STREQUAL "")
-    message(FATAL_ERROR "OSDK_DIR is not set")
-  endif()
-  if(NOT EXISTS "${OSDK_DIR}")
-    message(FATAL_ERROR "Directory not found: ${OSDK_DIR}")
-  endif()
-
   if("${PSDK_DIR}" STREQUAL "")
     message(FATAL_ERROR "PSDK_DIR is not set")
   endif()
@@ -359,7 +319,6 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   target_include_directories(
       i_seed_drone_onboard_core
       PUBLIC
-      "${OSDK_DIR}/include"
       "${PSDK_DIR}/include"
       "/usr/include/libusb-1.0/"
   )
@@ -370,9 +329,6 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   target_link_libraries(
       i_seed_drone_onboard_core
       PUBLIC
-      "${OSDK_DIR}/lib/libdjiosdk-core.a"
-      "${OSDK_DIR}/lib/libadvanced-sensing.a"
-      "${OSDK_DIR}/lib/libdji-linker.a"
       "${PSDK_DIR}/lib/libpayloadsdk.a"
       "${FFMPEG_LIBRARIES}"
       Threads::Threads
