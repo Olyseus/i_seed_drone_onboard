@@ -55,7 +55,7 @@ class drone {
   static constexpr int timeout{10};
 
   DJI::OSDK::Vehicle* vehicle_{nullptr};
-  T_PsdkMopChannelHandle channel_handle_{nullptr};
+  T_DjiMopChannelHandle channel_handle_{nullptr};
 
   mission_state mission_state_;
 

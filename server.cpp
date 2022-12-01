@@ -6,7 +6,7 @@
 
 server::server(uint16_t channel_id) {
   spdlog::info("Creating channel {}", channel_id);
-  T_PsdkMopChannelHandle channel_handle;
+  T_DjiMopChannelHandle channel_handle;
 
   code = DjiMopChannel_Create(&channel_handle, DJI_MOP_CHANNEL_TRANS_RELIABLE);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);

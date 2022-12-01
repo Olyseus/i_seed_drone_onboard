@@ -16,10 +16,10 @@ class server {
   server& operator=(const server&) = delete;
   server& operator=(server&&) = delete;
 
-  T_PsdkMopChannelHandle handle() const { return out_channel_handle_; }
+  T_DjiMopChannelHandle handle() const { return out_channel_handle_; }
 
  private:
-  T_PsdkMopChannelHandle out_channel_handle_{nullptr};
+  T_DjiMopChannelHandle out_channel_handle_{nullptr};
 };
 
 #endif  // SERVER_H_
