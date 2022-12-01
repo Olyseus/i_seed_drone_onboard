@@ -11,6 +11,11 @@
 
 volatile sig_atomic_t drone::sigint_received_ = 0;
 
+double drone::drone_yaw_{0.0};
+double drone::drone_longitude_{0.0};
+double drone::drone_latitude_{0.0};
+int16_t drone::rc_mode_{-1};
+
 T_DjiReturnCode drone::quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
   const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};
@@ -55,6 +60,45 @@ T_DjiReturnCode drone::position_fused_callback(const uint8_t* data, uint16_t dat
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
+T_DjiReturnCode drone::mission_event_callback(T_DjiWaypointV2MissionEventPush event_data) {
+  if (!mission_state_.is_started()) {
+    return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+  }
+
+  mission_state_.update(event_data);
+
+  if (!mission_state_.is_started()) {
+    std::lock_guard<std::mutex> lock(m_);
+    execute_commands_.push_back(
+        interconnection::command_type::MISSION_FINISHED);
+  }
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
+T_DjiReturnCode drone::mission_state_callback(T_DjiWaypointV2MissionStatePush state_data) {
+  if (!mission_state_.is_started()) {
+    return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+  }
+
+  mission_state_.update(ack);
+
+  if (!mission_state_.is_started()) {
+    std::lock_guard<std::mutex> lock(m_);
+    execute_commands_.push_back(
+        interconnection::command_type::MISSION_FINISHED);
+  }
+
+  // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
+  if (rc_mode_ != 8000) {
+    // Value received while running tests on simulator
+    spdlog::error("Unexpected RC mode: {}", rc_mode_);
+    BOOST_VERIFY(false);
+  }
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
 drone::drone() {
   T_DjiReturnCode code{DjiFcSubscription_Init()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
@@ -72,6 +116,15 @@ drone::drone() {
   code = DjiFcSubscription_SubscribeTopic(
       DJI_FC_SUBSCRIPTION_TOPIC_POSITION_FUSED, DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ,
       position_fused_callback);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiWaypointV2_Init();
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiWaypointV2_RegisterMissionEventCallback(mission_event_callback);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiWaypointV2_RegisterMissionStateCallback(mission_state_callback);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   interconnection::command_type command;
@@ -107,16 +160,15 @@ void drone::check_sigint() {
 }
 
 drone::~drone() {
-  if (vehicle_) {
-    vehicle_->subscribe->removePackage(pkg_index, timeout);
-  }
+  T_DjiReturnCode code{DjiFcSubscription_DeInit()};
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
 void drone::start() {
   spdlog::info("Protocol version: {}", protocol_version);
   spdlog::info("Command bytes size: {}", command_bytes_size_);
 
-  code = DjiMopChannel_Init();
+  T_DjiReturnCode code = DjiMopChannel_Init();
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   while (true) {
@@ -417,67 +469,4 @@ DJI::OSDK::WaypointV2 drone::make_waypoint(double latitude, double longitude,
   p.autoFlightSpeed = 2.0F;
 
   return p;
-}
-
-E_OsdkStat drone::update_mission_state(T_CmdHandle* cmd_handle,
-                                       const T_CmdInfo* cmd_info,
-                                       const uint8_t* cmd_data,
-                                       void* user_data) {
-  BOOST_VERIFY(user_data != nullptr);
-  auto* self{static_cast<drone*>(user_data)};
-
-  BOOST_VERIFY(cmd_data != nullptr);
-  auto* ack{reinterpret_cast<const DJI::OSDK::MissionStatePushAck*>(cmd_data)};
-
-  BOOST_VERIFY(cmd_handle != nullptr);
-  BOOST_VERIFY(cmd_info != nullptr);
-
-  if (!self->mission_state_.is_started()) {
-    return OSDK_STAT_OK;
-  }
-
-  self->mission_state_.update(ack);
-
-  if (!self->mission_state_.is_started()) {
-    std::lock_guard<std::mutex> lock(self->m_);
-    self->execute_commands_.push_back(
-        interconnection::command_type::MISSION_FINISHED);
-  }
-
-  // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
-  if (rc_mode_ != 8000) {
-    // Value received while running tests on simulator
-    spdlog::error("Unexpected RC mode: {}", rc_mode_);
-    BOOST_VERIFY(false);
-  }
-
-  return OSDK_STAT_OK;
-}
-
-E_OsdkStat drone::update_mission_event(T_CmdHandle* cmd_handle,
-                                       const T_CmdInfo* cmd_info,
-                                       const uint8_t* cmd_data,
-                                       void* user_data) {
-  BOOST_VERIFY(user_data != nullptr);
-  auto* self{static_cast<drone*>(user_data)};
-
-  BOOST_VERIFY(cmd_data != nullptr);
-  auto* ack{reinterpret_cast<const DJI::OSDK::MissionEventPushAck*>(cmd_data)};
-
-  BOOST_VERIFY(cmd_handle != nullptr);
-  BOOST_VERIFY(cmd_info != nullptr);
-
-  if (!self->mission_state_.is_started()) {
-    return OSDK_STAT_OK;
-  }
-
-  self->mission_state_.update(ack);
-
-  if (!self->mission_state_.is_started()) {
-    std::lock_guard<std::mutex> lock(self->m_);
-    self->execute_commands_.push_back(
-        interconnection::command_type::MISSION_FINISHED);
-  }
-
-  return OSDK_STAT_OK;
 }

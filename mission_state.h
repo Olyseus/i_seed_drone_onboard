@@ -3,6 +3,8 @@
 
 #include <mutex>
 
+#include <dji_waypoint_v2.h> // T_DjiWaypointV2MissionEventPush
+
 class mission_state {
  public:
   void start();

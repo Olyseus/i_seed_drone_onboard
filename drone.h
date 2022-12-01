@@ -34,11 +34,16 @@ class drone {
   static T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
   static T_DjiReturnCode rc_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
   static T_DjiReturnCode position_fused_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
+  static T_DjiReturnCode mission_event_callback(T_DjiWaypointV2MissionEventPush event_data);
+  static T_DjiReturnCode mission_state_callback(T_DjiWaypointV2MissionStatePush state_data);
 
-  static double drone_yaw_{0.0};
-  static double drone_longitude_{0.0};
-  static double drone_latitude_{0.0};
-  static int16_t rc_mode_{-1};
+  static double drone_yaw_;
+  static double drone_longitude_;
+  static double drone_latitude_;
+  static int16_t rc_mode_;
+  static mission_state mission_state_;
+  static std::mutex m_;
+  static std::list<interconnection::command_type::command_t> execute_commands_;
 
   void receive_data_job();
   void send_data_job();
@@ -47,14 +52,6 @@ class drone {
   void send_data(std::string& buffer);
   DJI::OSDK::WaypointV2 make_waypoint(double latitude, double longitude,
                                       float relative_height);
-  static E_OsdkStat update_mission_state(T_CmdHandle* cmd_handle,
-                                         const T_CmdInfo* cmd_info,
-                                         const uint8_t* cmd_data,
-                                         void* user_data);
-  static E_OsdkStat update_mission_event(T_CmdHandle* cmd_handle,
-                                         const T_CmdInfo* cmd_info,
-                                         const uint8_t* cmd_data,
-                                         void* user_data);
 
   static constexpr uint16_t channel_id{
       9745};  // Just a random number. Keep it consistent with Mobile SDK
@@ -66,13 +63,9 @@ class drone {
   DJI::OSDK::Vehicle* vehicle_{nullptr};
   T_DjiMopChannelHandle channel_handle_{nullptr};
 
-  mission_state mission_state_;
-
   uint32_t command_bytes_size_{0};
   uint32_t pin_coordinates_bytes_size_{0};
   std::atomic<bool> connection_closed_{false};
-  std::mutex m_;
-  std::list<interconnection::command_type::command_t> execute_commands_;
 
   static void check_sigint();
   static void sigint_handler(int);
