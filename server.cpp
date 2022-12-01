@@ -4,11 +4,14 @@
 
 #include <boost/assert.hpp>       // BOOST_VERIFY
 
+// Payload SDK
+#include <dji_mop_channel.h> // DjiMopChannel_Create
+
 server::server(uint16_t channel_id) {
   spdlog::info("Creating channel {}", channel_id);
   T_DjiMopChannelHandle channel_handle;
 
-  code = DjiMopChannel_Create(&channel_handle, DJI_MOP_CHANNEL_TRANS_RELIABLE);
+  T_DjiReturnCode code{DjiMopChannel_Create(&channel_handle, DJI_MOP_CHANNEL_TRANS_RELIABLE)};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiMopChannel_Bind(channel_handle, channel_id);
@@ -22,7 +25,7 @@ server::server(uint16_t channel_id) {
 server::~server() {
   spdlog::info("Close channel");
 
-  code = DjiMopChannel_Close(out_channel_handle_);
+  T_DjiReturnCode code{DjiMopChannel_Close(out_channel_handle_)};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiMopChannel_Destroy(out_channel_handle_);

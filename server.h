@@ -3,6 +3,8 @@
 
 #include <memory>  // std::unique_ptr
 
+using T_DjiMopChannelHandle = void*;
+
 class pipeline_closed {};
 
 class server {
