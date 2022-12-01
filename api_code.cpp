@@ -7,8 +7,8 @@
 
 #include "server.h"  // pipeline_closed
 
-api_code::api_code(const DjiErrorCode code) {
-  switch (code) {
+api_code::api_code(const T_DjiReturnCode code) {
+  switch (static_cast<DjiErrorCode>(code)) {
     case DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS:
       code_ = code::success;
       break;

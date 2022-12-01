@@ -6,6 +6,9 @@
 
 #include <future>
 
+#include <dji_fc_subscription.h> // T_DjiFcSubscriptionQuaternion
+#include <dji_mop_channel.h> // DjiMopChannel_Init
+
 #include "api_code.h"
 #include "server.h"
 
@@ -15,6 +18,10 @@ double drone::drone_yaw_{0.0};
 double drone::drone_longitude_{0.0};
 double drone::drone_latitude_{0.0};
 int16_t drone::rc_mode_{-1};
+
+mission_state drone::mission_state_;
+std::mutex drone::m_;
+std::list<interconnection::command_type::command_t> drone::execute_commands_;
 
 T_DjiReturnCode drone::quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
@@ -81,7 +88,7 @@ T_DjiReturnCode drone::mission_state_callback(T_DjiWaypointV2MissionStatePush st
     return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
   }
 
-  mission_state_.update(ack);
+  mission_state_.update(state_data);
 
   if (!mission_state_.is_started()) {
     std::lock_guard<std::mutex> lock(m_);
@@ -267,7 +274,7 @@ void drone::receive_data_job() {
         waypoints_.push_back(make_waypoint(lat, lon, 20.0F));
         s.mission = waypoints_.data();
 
-        s.missTotalLen = s.mission.size();
+        s.missTotalLen = waypoints_.size();
         BOOST_VERIFY(s.missTotalLen >= 2);
         BOOST_VERIFY(s.missTotalLen <= 65535);
 
@@ -293,8 +300,8 @@ void drone::receive_data_job() {
         spdlog::info("Mission ABORT");
         // Call it first to block the update callbacks
         mission_state_.finish();
-        const api_code code{vehicle_->waypointV2Mission->stop(timeout)};
-        BOOST_VERIFY(code.success());
+        T_DjiReturnCode code{DjiWaypointV2_Stop()};
+        BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
         // FIXME (verify mission state)
       } break;
       default:
@@ -351,7 +358,7 @@ void drone::send_data_job() {
         send_data(buffer);
 
         spdlog::info("Drone coordinates sent: lat:{}, lon:{}, head:{}",
-                     latitude, longitude, heading);
+                     drone_latitude_, drone_longitude_, drone_yaw_);
         break;
       }
       default:
@@ -394,7 +401,7 @@ void drone::receive_data(std::string* buffer) {
     check_sigint();
 
     uint32_t real_len{0};
-    BOOST_VERIFY(channel_hangle_ != nullptr);
+    BOOST_VERIFY(channel_handle_ != nullptr);
     const api_code code{DjiMopChannel_RecvData(channel_handle_, recv_buf, buffer->size(), &real_len)};
     if (code.retry()) {
       continue;
@@ -420,7 +427,7 @@ void drone::send_data(std::string& buffer) {
     check_sigint();
 
     uint32_t real_len{0};
-    BOOST_VERIFY(channel_hangle_ != nullptr);
+    BOOST_VERIFY(channel_handle_ != nullptr);
     const api_code code{DjiMopChannel_SendData(channel_handle_, send_buf, buffer.size(), &real_len)};
     if (code.retry()) {
       continue;

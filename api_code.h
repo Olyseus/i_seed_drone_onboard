@@ -1,11 +1,11 @@
 #ifndef API_CODE_H_
 #define API_CODE_H_
 
-#include <dji_error.h> // DjiErrorCode
+#include <dji_typedef.h> // T_DjiReturnCode
 
 class api_code {
  public:
-  explicit api_code(const DjiErrorCode code);
+  explicit api_code(T_DjiReturnCode code);
 
   bool success() const { return code_ == code::success; }
   bool retry() const { return code_ == code::retry; }

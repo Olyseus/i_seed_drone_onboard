@@ -30,7 +30,7 @@ bool mission_state::is_started() const {
 void mission_state::update(T_DjiWaypointV2MissionEventPush event_data) {
   std::lock_guard<std::mutex> lock(m_);
 
-  const unsigned event{ack->event};
+  const unsigned event{event_data.event};
 
   // https://developer.dji.com/doc/payload-sdk-api-reference/en/practice/waypoint-v2-type.html#typedef-struct-t-djiwaypointv2missioneventpush
   if (event == 0x03) { // finish, mission stop event
@@ -85,7 +85,7 @@ const char* mission_state::state_name() const {
       return "unknown";
     case DJI_WAYPOINT_V2_MISSION_STATE_DISCONNECTED:
       return "disconnected";
-    case DJI_WAYPOINT_V2_MISSION_STATE_READY_TO_EXECUTE:
+    case 1: // FIXME DJI_WAYPOINT_V2_MISSION_STATE_READY_TO_EXECUTE:
       return "ready to execute";
     case DJI_WAYPOINT_V2_MISSION_STATE_EXECUTING:
       return "executing";

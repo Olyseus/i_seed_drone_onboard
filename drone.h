@@ -8,14 +8,12 @@
 #include <list>
 #include <mutex>
 
+#include <dji_waypoint_v2.h> // T_DjiWaypointV2
+
 #include "interconnection.pb.h"
 #include "mission_state.h"
 
-struct _cmdInfo;
-typedef struct _cmdInfo T_CmdInfo;
-
-struct _CommandHandle;
-typedef struct _CommandHandle T_CmdHandle;
+using T_DjiMopChannelHandle = void*;
 
 class drone {
  public:
