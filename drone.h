@@ -50,7 +50,7 @@ class drone {
   void send_command(interconnection::command_type::command_t);
   void receive_data(std::string* buffer);
   void send_data(std::string& buffer);
-  DJI::OSDK::WaypointV2 make_waypoint(double latitude, double longitude,
+  T_DjiWaypointV2 make_waypoint(double latitude, double longitude,
                                       float relative_height);
 
   static constexpr uint16_t channel_id{
@@ -60,12 +60,13 @@ class drone {
   static constexpr int pkg_index{0};
   static constexpr int timeout{10};
 
-  DJI::OSDK::Vehicle* vehicle_{nullptr};
   T_DjiMopChannelHandle channel_handle_{nullptr};
 
   uint32_t command_bytes_size_{0};
   uint32_t pin_coordinates_bytes_size_{0};
   std::atomic<bool> connection_closed_{false};
+
+  std::vector<T_DjiWaypointV2> waypoints_;
 
   static void check_sigint();
   static void sigint_handler(int);

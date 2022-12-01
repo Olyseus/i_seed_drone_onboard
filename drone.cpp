@@ -162,6 +162,9 @@ void drone::check_sigint() {
 drone::~drone() {
   T_DjiReturnCode code{DjiFcSubscription_DeInit()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiWaypointV2_Deinit();
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
 void drone::start() {
@@ -233,8 +236,8 @@ void drone::receive_data_job() {
 
         if (mission_state_.is_started()) {
           spdlog::info("Mission resume");
-          const api_code code{vehicle_->waypointV2Mission->resume(timeout)};
-          BOOST_VERIFY(code.success());
+          T_DjiReturnCode code{DjiWaypointV2_Resume()};
+          BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
           // FIXME (verify mission state)
           continue;
         }
@@ -246,27 +249,23 @@ void drone::receive_data_job() {
         const double lat{pin_coordinates.latitude()};
         const double lon{pin_coordinates.longitude()};
 
-        api_code code{vehicle_->control->obtainCtrlAuthority(timeout)};
-        BOOST_VERIFY(code.success());
-
         srand(time(nullptr));
 
-        WayPointV2InitSettings s;
+        T_DjiWayPointV2MissionSettings s;
         s.missionID = rand();  // Just a random number
         s.repeatTimes = 0;     // execute just once and go home
-        s.finishedAction = DJIWaypointV2MissionFinishedNoAction;
+        s.finishedAction = DJI_WAYPOINT_V2_FINISHED_NO_ACTION;
         s.maxFlightSpeed = 10;
         s.autoFlightSpeed = 2;
-        s.exitMissionOnRCSignalLost =
-            0;  // continue mission even if signal is lost
-        s.gotoFirstWaypointMode =
-            DJIWaypointV2MissionGotoFirstWaypointModeSafely;
+        s.actionWhenRcLost = DJI_WAYPOINT_V2_MISSION_KEEP_EXECUTE_WAYPOINT_V2;
+        s.gotoFirstWaypointMode = DJI_WAYPOINT_V2_MISSION_GO_TO_FIRST_WAYPOINT_MODE_SAFELY;
 
         // FIXME (points from polygons)
         // FIXME (action at waypoint)
-        s.mission.clear();
-        s.mission.push_back(make_waypoint(lat, lon, 15.0F));
-        s.mission.push_back(make_waypoint(lat, lon, 20.0F));
+        waypoints_.clear();
+        waypoints_.push_back(make_waypoint(lat, lon, 15.0F));
+        waypoints_.push_back(make_waypoint(lat, lon, 20.0F));
+        s.mission = waypoints_.data();
 
         s.missTotalLen = s.mission.size();
         BOOST_VERIFY(s.missTotalLen >= 2);
@@ -275,27 +274,19 @@ void drone::receive_data_job() {
         spdlog::info("Mission start: lat({}), lon({}) (mission ID: {})", lat,
                      lon, s.missionID);
 
-        code = api_code{vehicle_->waypointV2Mission->init(&s, timeout)};
-        BOOST_VERIFY(code.success());
+        T_DjiReturnCode code = DjiWaypointV2_UploadMission(&s);
+        BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-        code = api_code{vehicle_->waypointV2Mission->uploadMission(timeout)};
-        BOOST_VERIFY(code.success());
-
-        code = api_code{vehicle_->waypointV2Mission->start(timeout)};
-        BOOST_VERIFY(code.success());
-
-        vehicle_->waypointV2Mission->RegisterMissionStateCallback(
-            this, update_mission_state);
-        vehicle_->waypointV2Mission->RegisterMissionEventCallback(
-            this, update_mission_event);
+        code = DjiWaypointV2_Start();
+        BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
         mission_state_.start();
         // FIXME (verify mission state)
       } break;
       case interconnection::command_type::MISSION_PAUSE: {
         spdlog::info("Mission pause");
-        const api_code code{vehicle_->waypointV2Mission->pause(timeout)};
-        BOOST_VERIFY(code.success());
+        T_DjiReturnCode code{DjiWaypointV2_Pause()};
+        BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
         // FIXME (verify mission state)
       } break;
       case interconnection::command_type::MISSION_ABORT: {
@@ -441,16 +432,16 @@ void drone::send_data(std::string& buffer) {
   }
 }
 
-DJI::OSDK::WaypointV2 drone::make_waypoint(double latitude, double longitude,
+T_DjiWaypointV2 drone::make_waypoint(double latitude, double longitude,
                                            float relative_height) {
-  WaypointV2 p;
+  T_DjiWaypointV2 p;
 
   p.latitude = latitude * M_PI / 180.0;
   p.longitude = longitude * M_PI / 180.0;
   p.relativeHeight = relative_height;
 
-  p.waypointType = DJIWaypointV2FlightPathModeGoToPointInAStraightLineAndStop;
-  p.headingMode = DJIWaypointV2HeadingModeAuto;
+  p.waypointType = DJI_WAYPOINT_V2_FLIGHT_PATH_MODE_GO_TO_POINT_IN_STRAIGHT_AND_STOP;
+  p.headingMode = DJI_WAYPOINT_V2_HEADING_MODE_AUTO;
 
   p.config.useLocalCruiseVel = 0;  // set local waypoint's cruise speed
   p.config.useLocalMaxVel = 0;     // set local waypoint's max speed
@@ -458,7 +449,7 @@ DJI::OSDK::WaypointV2 drone::make_waypoint(double latitude, double longitude,
   p.dampingDistance = 40;  // cm
   p.heading = 0.0;         // unused?
 
-  p.turnMode = DJIWaypointV2TurnModeClockwise;
+  p.turnMode = DJI_WAYPOINT_V2_TURN_MODE_CLOCK_WISE;
 
   // unused
   p.pointOfInterest.positionX = 0.0F;
