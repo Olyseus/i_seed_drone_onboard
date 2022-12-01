@@ -4,7 +4,6 @@
 
 #include <boost/assert.hpp>       // BOOST_VERIFY
 
-// Payload SDK
 #include <dji_mop_channel.h> // DjiMopChannel_Create
 
 server::server(uint16_t channel_id) {

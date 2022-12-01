@@ -5,7 +5,6 @@
 #include <boost/filesystem.hpp>  // boost::filesystem::path
 #include <iostream>              // std::cerr
 
-// Onboard SDK
 #include "drone.h"
 
 void setup_logging() {

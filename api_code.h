@@ -1,7 +1,6 @@
 #ifndef API_CODE_H_
 #define API_CODE_H_
 
-// Payload SDK
 #include <dji_error.h> // DjiErrorCode
 
 class api_code {

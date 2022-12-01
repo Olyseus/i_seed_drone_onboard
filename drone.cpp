@@ -1,12 +1,8 @@
-// Onboard SDK
 #include "drone.h"
 
 #include <spdlog/spdlog.h>
 
 #include <boost/assert.hpp>
-
-// Onboard SDK
-#include <dji_linux_helpers.hpp>  // LinuxSetup
 
 #include <future>
 

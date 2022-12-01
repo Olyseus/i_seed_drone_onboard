@@ -3,13 +3,6 @@
 
 #include <mutex>
 
-namespace DJI {
-namespace OSDK {
-class MissionEventPushAck;
-class MissionStatePushAck;
-}  // namespace OSDK
-}  // namespace DJI
-
 class mission_state {
  public:
   void start();

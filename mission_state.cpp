@@ -4,9 +4,6 @@
 
 #include <boost/assert.hpp>       // BOOST_VERIFY
 
-// Onboard SDK
-#include <dji_linux_helpers.hpp>  // DJI::OSDK::MissionStatePushAck
-
 void mission_state::start() {
   std::lock_guard<std::mutex> lock(m_);
 

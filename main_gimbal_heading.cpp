@@ -1,5 +1,7 @@
 #include <boost/assert.hpp>
 #include <boost/filesystem.hpp>  // boost::filesystem::path
+#include <dji_fc_subscription.h> // T_DjiFcSubscriptionQuaternion
+#include <dji_gimbal_manager.h> // DjiGimbalManager_Init
 #include <iostream>              // std::cerr
 #include <spdlog/sinks/rotating_file_sink.h>  // spdlog::sinks::rotating_file_sink_mt
 #include <spdlog/sinks/stdout_sinks.h>        // spdlog::sinks::stdout_sink_mt
@@ -7,11 +9,6 @@
 #include <spdlog/spdlog.h>
 #include <thread>  // std::this_thread
 
-// Payload SDK
-#include <dji_fc_subscription.h> // T_DjiFcSubscriptionQuaternion
-#include <dji_gimbal_manager.h> // DjiGimbalManager_Init
-
-// Payload SDK
 #include "application.hpp" // Application
 
 #include "api_code.h"

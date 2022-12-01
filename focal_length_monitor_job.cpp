@@ -1,10 +1,8 @@
 #include <boost/assert.hpp>  // BOOST_VERIFY
-#include <spdlog/spdlog.h>
-#include <thread> // std::this_thread
-
-// Payload SDK
 #include <dji_camera_manager.h>  // DjiCameraManager_Init
 #include <dji_payload_camera.h>  // DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload
+#include <spdlog/spdlog.h>
+#include <thread> // std::this_thread
 
 void focal_length_monitor_job() {
   std::this_thread::sleep_for(std::chrono::seconds(2));
