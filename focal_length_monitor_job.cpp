@@ -37,6 +37,8 @@ void focal_length_monitor_job() {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   spdlog::info("focal length min: {}, max: {}, step: {}", optical_zoom_spec.minFocalLength, optical_zoom_spec.maxFocalLength, optical_zoom_spec.focalLengthStep);
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
   while (true) {
     const E_DjiCameraManagerFocusMode expected_focus_mode{DJI_CAMERA_MANAGER_FOCUS_MODE_AUTO};
 
@@ -54,9 +56,6 @@ void focal_length_monitor_job() {
     code = DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload(m_pos, &focal_length);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     spdlog::info("Focal length: {}", focal_length);
-
-    // FIXME (remove)
-    BOOST_VERIFY(focal_length == optical_zoom_spec.minFocalLength);
 
     if (focal_length != optical_zoom_spec.minFocalLength) {
       T_DjiCameraManagerOpticalZoomParam optical_zoom_param;
