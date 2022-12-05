@@ -85,7 +85,7 @@ const char* mission_state::state_name() const {
       return "unknown";
     case DJI_WAYPOINT_V2_MISSION_STATE_DISCONNECTED:
       return "disconnected";
-    case 1: // FIXME DJI_WAYPOINT_V2_MISSION_STATE_READY_TO_EXECUTE:
+    case DJI_WAYPOINT_V2_MISSION_STATE_READY_TO_EXECUTE:
       return "ready to execute";
     case DJI_WAYPOINT_V2_MISSION_STATE_EXECUTING:
       return "executing";
