@@ -73,6 +73,17 @@ T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, con
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
+T_DjiReturnCode position_fused_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+  BOOST_VERIFY(data != nullptr);
+  const auto position{*(const T_DjiFcSubscriptionPositionFused*)data};
+  (void)data_size;
+  (void)timestamp;
+
+  spdlog::info("latitude: {}, longitude: {}, altitude: {}", position.latitude * 180.0 / M_PI, position.longitude * 180.0 / M_PI, position.altitude);
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
 auto run_main(int argc, char** argv) -> int {
   setup_logging();
 
@@ -94,6 +105,10 @@ auto run_main(int argc, char** argv) -> int {
         DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
         quaternion_callback);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+    code = DjiFcSubscription_SubscribeTopic(
+        DJI_FC_SUBSCRIPTION_TOPIC_POSITION_FUSED, DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
+        position_fused_callback);
 
     while (true) {
       // Receive callbacks until interrupted
