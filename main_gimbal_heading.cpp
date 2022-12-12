@@ -123,6 +123,10 @@ auto run_main(int argc, char** argv) -> int {
     while (true) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
+      if (true) {
+        continue; // FIXME (remove)
+      }
+
       T_DjiGimbalManagerRotation rotation;
       rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_ABSOLUTE_ANGLE;
       rotation.pitch = 0.0; // -90.0: down, 0.0: forward
