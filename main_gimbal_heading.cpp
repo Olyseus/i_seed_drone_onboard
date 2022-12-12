@@ -69,15 +69,13 @@ T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, con
 
 T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
-  const auto angles{*(const T_DjiFcSubscriptionGimbalAngles*)data};;
+  const auto gimbal_three_data{(const T_DjiFcSubscriptionThreeGimbalData*)data};
+  const GimbalSingleData data{gimbal_three_data->gbData[0]};
+
   (void)data_size;
   (void)timestamp;
 
-  gimbal_pitch = angles.x;
-  gimbal_roll = angles.y;
-  gimbal_yaw = angles.z;
-
-  spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch, gimbal_roll, gimbal_yaw);
+  spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", data.pitch, data.roll, data.yaw);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
@@ -105,7 +103,8 @@ auto run_main(int argc, char** argv) -> int {
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiFcSubscription_SubscribeTopic(
-        DJI_FC_SUBSCRIPTION_TOPIC_GIMBAL_ANGLES, DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ,
+        DJI_FC_SUBSCRIPTION_TOPIC_THREE_GIMBAL_DATA,
+        DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ,
         gimbal_callback);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
