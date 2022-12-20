@@ -142,7 +142,7 @@ auto run_main(int argc, char** argv) -> int {
         continue;
       }
 
-      spdlog::info("Run gimbal rotation");
+      spdlog::info("Run gimbal rotation, yaw: {}", rotation.yaw);
 
       code = DjiGimbalManager_Rotate(m_pos, rotation);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
