@@ -38,6 +38,21 @@ void setup_logging() {
   spdlog::info("Logging to file: {}", log_path.string());
 }
 
+T_DjiReturnCode get_newest_pps_callback(uint64_t* local_time_us) {
+  BOOST_VERIFY(local_time_us != nullptr);
+
+  /* FIXME (implement?)
+  if (s_ppsNewestTriggerLocalTimeMs == 0) {
+    USER_LOG_WARN("pps have not been triggered.");
+    return DJI_ERROR_SYSTEM_MODULE_CODE_BUSY;
+  }
+
+  *localTimeUs = (uint64_t) (s_ppsNewestTriggerLocalTimeMs * 1000);
+  */
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
 auto run_main(int argc, char** argv) -> int {
   setup_logging();
 
@@ -55,15 +70,28 @@ auto run_main(int argc, char** argv) -> int {
     T_DjiReturnCode code{DjiPositioning_Init()};
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
+    code = DjiTimeSync_Init();
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
     constexpr uint8_t task_index{0};
     DjiPositioning_SetTaskIndex(task_index);
 
+    /* FIXME (enable?)
+    code = DjiTimeSync_RegGetNewestPpsTriggerTimeCallback(get_newest_pps_callback);
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    */
+
     T_DjiTimeSyncAircraftTime aircraft_time;
+
+    uint32_t current_time_ms{0};
+    code = osal->GetTimeMs(&current_time_ms);
+    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     uint64_t pps_newest_trigger_time_us{0}; // FIXME
     constexpr uint64_t dji_test_time_interval_among_events_us{200000};
-    code = DjiTimeSync_TransferToAircraftTime(
-        pps_newest_trigger_time_us - 1000000 - dji_test_time_interval_among_events_us, &aircraft_time);
+    code = DjiTimeSync_TransferToAircraftTime(current_time_ms * 1000,
+        // FIXME (???) pps_newest_trigger_time_us - 1000000 - dji_test_time_interval_among_events_us,
+        &aircraft_time);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     T_DjiPositioningEventInfo event_info;
