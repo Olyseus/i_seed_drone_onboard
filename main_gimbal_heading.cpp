@@ -70,12 +70,12 @@ T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, con
 T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
   const auto gimbal_three_data{(const T_DjiFcSubscriptionThreeGimbalData*)data};
-  const GimbalSingleData data{gimbal_three_data->gbData[0]};
+  const GimbalSingleData d{gimbal_three_data->gbData[0]};
 
   (void)data_size;
   (void)timestamp;
 
-  spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", data.pitch, data.roll, data.yaw);
+  spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", d.pitch, d.roll, d.yaw);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
