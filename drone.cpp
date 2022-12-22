@@ -36,7 +36,7 @@ T_DjiReturnCode drone::quaternion_callback(const uint8_t* data, uint16_t data_si
 
   // https://sdk-forum.dji.net/hc/en-us/requests/74003
   // https://sdk-forum.dji.net/hc/en-us/articles/360023657273
-  drone_yaw_ = atan2(t1, t0) * 180.0 / M_PI; // Z
+  drone_yaw_ = atan2(t1, t0) * rad2deg; // Z
 
   BOOST_VERIFY(drone_yaw_ >= -180.0);
   BOOST_VERIFY(drone_yaw_ <= 180.0);
@@ -61,8 +61,8 @@ T_DjiReturnCode drone::position_fused_callback(const uint8_t* data, uint16_t dat
   (void)data_size;
   (void)timestamp;
 
-  drone_latitude_ = position.latitude * 180.0 / M_PI;
-  drone_longitude_ = position.longitude * 180.0 / M_PI;
+  drone_latitude_ = position.latitude * rad2deg;
+  drone_longitude_ = position.longitude * rad2deg;
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
@@ -443,8 +443,8 @@ T_DjiWaypointV2 drone::make_waypoint(double latitude, double longitude,
                                            float relative_height) {
   T_DjiWaypointV2 p;
 
-  p.latitude = latitude * M_PI / 180.0;
-  p.longitude = longitude * M_PI / 180.0;
+  p.latitude = latitude * deg2rad;
+  p.longitude = longitude * deg2rad;
   p.relativeHeight = relative_height;
 
   p.waypointType = DJI_WAYPOINT_V2_FLIGHT_PATH_MODE_GO_TO_POINT_IN_STRAIGHT_AND_STOP;

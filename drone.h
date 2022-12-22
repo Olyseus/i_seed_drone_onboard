@@ -58,6 +58,10 @@ class drone {
   static constexpr int pkg_index{0};
   static constexpr int timeout{10};
 
+  static constexpr double pi_degree{180.0};
+  static constexpr double rad2deg{pi_degree / M_PI};
+  static constexpr double deg2rad{M_PI / pi_degree};
+
   T_DjiMopChannelHandle channel_handle_{nullptr};
 
   uint32_t command_bytes_size_{0};
