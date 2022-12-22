@@ -12,6 +12,7 @@
 
 #include "interconnection.pb.h"
 #include "mission_state.h"
+#include "simulator.h"
 
 using T_DjiMopChannelHandle = void*;
 
@@ -27,6 +28,9 @@ class drone {
   drone& operator=(drone&&) = delete;
 
   void start();
+
+  static constexpr int32_t protocol_version{
+      6};  // Keep it consistent with Mobile SDK
 
  private:
   static T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
@@ -53,8 +57,6 @@ class drone {
 
   static constexpr uint16_t channel_id{
       9745};  // Just a random number. Keep it consistent with Mobile SDK
-  static constexpr int32_t protocol_version{
-      6};  // Keep it consistent with Mobile SDK
   static constexpr int pkg_index{0};
   static constexpr int timeout{10};
 
@@ -69,6 +71,10 @@ class drone {
   std::atomic<bool> connection_closed_{false};
 
   std::vector<T_DjiWaypointV2> waypoints_;
+
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  simulator simulator_;
+#endif
 
   static void check_sigint();
   static void sigint_handler(int);

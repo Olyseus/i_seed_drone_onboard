@@ -27,6 +27,7 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
 endif()
 
 option(I_SEED_DRONE_ONBOARD_PEDANTIC "Enable pedantic checks" OFF)
+option(I_SEED_DRONE_ONBOARD_SIMULATOR "Run on simulator" OFF)
 
 # * CMAKE_INSTALL_LIBDIR
 # * CMAKE_INSTALL_BINDIR
@@ -73,6 +74,8 @@ add_library(
     json_sax_event_consumer.h
     magnetic_declination.cpp
     magnetic_declination.h
+    simulator.cpp
+    simulator.h
     timer.h
 )
 
@@ -205,6 +208,10 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   target_compile_definitions(i_seed_drone_onboard_core PUBLIC _GNU_SOURCE)
 
   target_compile_definitions(i_seed_drone_onboard_core PUBLIC LIBUSB_INSTALLED)
+
+  if(I_SEED_DRONE_ONBOARD_SIMULATOR)
+    target_compile_definitions(i_seed_drone_onboard_core PUBLIC I_SEED_DRONE_ONBOARD_SIMULATOR)
+  endif()
 endif()
 
 find_package(Boost REQUIRED COMPONENTS filesystem)

@@ -64,6 +64,10 @@ T_DjiReturnCode drone::position_fused_callback(const uint8_t* data, uint16_t dat
   drone_latitude_ = position.latitude * rad2deg;
   drone_longitude_ = position.longitude * rad2deg;
 
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  simulator_.gps_callback(drone_latitude_, drone_longitude_);
+#endif
+
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
@@ -178,6 +182,10 @@ void drone::start() {
   spdlog::info("Protocol version: {}", protocol_version);
   spdlog::info("Command bytes size: {}", command_bytes_size_);
 
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  spdlog::info("SIMULATOR MODE");
+#endif
+
   T_DjiReturnCode code = DjiMopChannel_Init();
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
@@ -187,7 +195,11 @@ void drone::start() {
     BOOST_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
     server server{channel_id};
     channel_handle_ = server.handle();
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+    BOOST_VERIFY(channel_handle_ == nullptr);
+#else
     BOOST_VERIFY(channel_handle_ != nullptr);
+#endif
     BOOST_VERIFY(signal(SIGINT, sigint_handler) != SIG_ERR);
 
     connection_closed_ = false;
@@ -401,8 +413,16 @@ void drone::receive_data(std::string* buffer) {
     check_sigint();
 
     uint32_t real_len{0};
+
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+    BOOST_VERIFY(channel_handle_ == nullptr);
+    const api_code code{simulator_.receive_data(buffer)};
+    real_len = buffer->size();
+#else
     BOOST_VERIFY(channel_handle_ != nullptr);
     const api_code code{DjiMopChannel_RecvData(channel_handle_, recv_buf, buffer->size(), &real_len)};
+#endif
+
     if (code.retry()) {
       continue;
     }
@@ -416,6 +436,9 @@ void drone::receive_data(std::string* buffer) {
 void drone::send_data(std::string& buffer) {
   BOOST_VERIFY(buffer.size() > 0);
 
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  // Act like data was successfully sent
+#else
   char* char_buffer{buffer.data()};
   static_assert(sizeof(char) == sizeof(uint8_t));
   uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buffer)};
@@ -437,6 +460,7 @@ void drone::send_data(std::string& buffer) {
     spdlog::info("{} bytes sent", real_len);
     return;
   }
+#endif
 }
 
 T_DjiWaypointV2 drone::make_waypoint(double latitude, double longitude,
