@@ -369,7 +369,7 @@ void drone::send_data_job() {
 
         send_data(buffer);
 
-        spdlog::info("Drone coordinates sent: lat:{}, lon:{}, head:{}",
+        spdlog::debug("Drone coordinates sent: lat:{}, lon:{}, head:{}",
                      drone_latitude_, drone_longitude_, drone_yaw_);
         break;
       }
@@ -428,7 +428,7 @@ void drone::receive_data(std::string* buffer) {
     }
     BOOST_VERIFY(code.success());
     BOOST_VERIFY(real_len == buffer->size());
-    spdlog::info("{} bytes received", real_len);
+    spdlog::debug("{} bytes received", real_len);
     return;
   }
 }
@@ -457,7 +457,7 @@ void drone::send_data(std::string& buffer) {
     }
     BOOST_VERIFY(code.success());
     BOOST_VERIFY(real_len == buffer.size());
-    spdlog::info("{} bytes sent", real_len);
+    spdlog::debug("{} bytes sent", real_len);
     return;
   }
 #endif
