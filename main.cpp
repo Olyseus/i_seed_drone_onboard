@@ -11,20 +11,28 @@
 
 void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
-  console_sink->set_level(spdlog::level::info);
+  console_sink->set_level(spdlog::level::debug);
 
   const boost::filesystem::path log_path{"i_seed_drone_onboard.log"};
   boost::filesystem::remove(log_path);
 
+  const boost::filesystem::path log_path_debug{"i_seed_drone_onboard_debug.log"};
+  boost::filesystem::remove(log_path_debug);
+
   constexpr std::size_t max_file_size{10 * 1024 * 1024};
   constexpr std::size_t max_file_num{3};
   constexpr bool rotate_on_open{true};
+
   auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
       log_path.string(), max_file_size, max_file_num, rotate_on_open);
   file_sink->set_level(spdlog::level::info);
 
+  auto file_sink_debug = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+      log_path_debug.string(), max_file_size, max_file_num, rotate_on_open);
+  file_sink_debug->set_level(spdlog::level::debug);
+
   auto logger = std::make_shared<spdlog::logger>(
-      "", spdlog::sinks_init_list({console_sink, file_sink}));
+      "", spdlog::sinks_init_list({console_sink, file_sink, file_sink_debug}));
 
   spdlog::set_default_logger(logger);
   spdlog::set_level(spdlog::level::trace);
@@ -33,6 +41,7 @@ void setup_logging() {
   spdlog::flush_on(spdlog::level::info);
 
   spdlog::info("Logging to file: {}", log_path.string());
+  spdlog::info("Logging to file (debug): {}", log_path_debug.string());
 }
 
 auto run_main(int argc, char** argv) -> int {
