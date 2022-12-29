@@ -87,8 +87,8 @@ auto run_main(int argc, char** argv) -> int {
     code = osal->GetTimeMs(&current_time_ms);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-    uint64_t pps_newest_trigger_time_us{0}; // FIXME
-    constexpr uint64_t dji_test_time_interval_among_events_us{200000};
+    // FIXME uint64_t pps_newest_trigger_time_us{0};
+    // FIXME constexpr uint64_t dji_test_time_interval_among_events_us{200000};
     code = DjiTimeSync_TransferToAircraftTime(current_time_ms * 1000,
         // FIXME (???) pps_newest_trigger_time_us - 1000000 - dji_test_time_interval_among_events_us,
         &aircraft_time);
