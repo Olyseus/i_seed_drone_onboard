@@ -1,12 +1,12 @@
 #ifndef DRONE_H_
 #define DRONE_H_
 
-#include <signal.h>        // sig_atomic_t
-
 #include <atomic>
+#include <cmath>  // M_PI
 #include <cstdint>  // uint16_t
 #include <list>
 #include <mutex>
+#include <signal.h>        // sig_atomic_t
 
 #include <dji_waypoint_v2.h> // T_DjiWaypointV2
 
@@ -73,7 +73,7 @@ class drone {
   std::vector<T_DjiWaypointV2> waypoints_;
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  simulator simulator_;
+  static simulator simulator_;
 #endif
 
   static void check_sigint();

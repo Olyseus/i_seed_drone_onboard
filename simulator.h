@@ -1,6 +1,8 @@
 #ifndef SIMULATOR_H_
 #define SIMULATOR_H_
 
+#include <string>
+
 #include "api_code.h"
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)

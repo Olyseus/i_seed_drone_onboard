@@ -1,5 +1,8 @@
 #include "simulator.h"
 
+#include <boost/assert.hpp> // BOOST_VERIFY
+#include <thread> // std::this_thread
+
 #include "drone.h"
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
@@ -34,20 +37,23 @@ api_code simulator::receive_data(std::string* buffer) {
       const bool ok{command.SerializeToString(buffer)};
       BOOST_VERIFY(ok);
       state_ = mission_start;
-      return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+      return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
     }
     case mission_start: {
       interconnection::pin_coordinates pin_coordinates;
       pin_coordinates.set_latitude(mission_lat);
       pin_coordinates.set_longitude(mission_lon);
-      ok = pin_coordinates.SerializeToString(&buffer);
+      const bool ok{pin_coordinates.SerializeToString(buffer)};
       BOOST_VERIFY(ok);
       state_ = end;
-      return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+      return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
     }
     case end:
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-      return DJI_ERROR_SYSTEM_MODULE_CODE_TIMEOUT;
+      return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_TIMEOUT};
+    default:
+      BOOST_VERIFY(false);
+      return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_INVALID_PARAMETER};
   }
 }
 

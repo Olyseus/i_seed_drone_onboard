@@ -12,6 +12,10 @@
 #include "api_code.h"
 #include "server.h"
 
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+simulator drone::simulator_;
+#endif
+
 volatile sig_atomic_t drone::sigint_received_ = 0;
 
 double drone::drone_yaw_{0.0};
@@ -402,10 +406,6 @@ void drone::receive_data(std::string* buffer) {
   BOOST_VERIFY(buffer != nullptr);
   BOOST_VERIFY(buffer->size() > 0);
 
-  char* char_buffer{buffer->data()};
-  static_assert(sizeof(char) == sizeof(uint8_t));
-  uint8_t* recv_buf{reinterpret_cast<uint8_t*>(char_buffer)};
-
   while (true) {
     if (connection_closed_) {
       throw pipeline_closed();
@@ -419,6 +419,10 @@ void drone::receive_data(std::string* buffer) {
     const api_code code{simulator_.receive_data(buffer)};
     real_len = buffer->size();
 #else
+    char* char_buffer{buffer->data()};
+    static_assert(sizeof(char) == sizeof(uint8_t));
+    uint8_t* recv_buf{reinterpret_cast<uint8_t*>(char_buffer)};
+
     BOOST_VERIFY(channel_handle_ != nullptr);
     const api_code code{DjiMopChannel_RecvData(channel_handle_, recv_buf, buffer->size(), &real_len)};
 #endif

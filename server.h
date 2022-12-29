@@ -18,7 +18,7 @@ class server {
   server& operator=(const server&) = delete;
   server& operator=(server&&) = delete;
 
-  T_DjiMopChannelHandle handle() const { return out_channel_handle_; }
+  T_DjiMopChannelHandle handle() const;
 
  private:
   T_DjiMopChannelHandle out_channel_handle_{nullptr};
