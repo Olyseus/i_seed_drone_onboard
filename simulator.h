@@ -1,6 +1,7 @@
 #ifndef SIMULATOR_H_
 #define SIMULATOR_H_
 
+#include <cmath>  // M_PI
 #include <string>
 
 #include "api_code.h"
@@ -38,8 +39,8 @@ class simulator {
   static constexpr double p1_lat_{48.85};
   static constexpr double p1_lon_{2.40};
 
-  static constexpr double p2_lat_{48.85002};
-  static constexpr double p2_lon_{2.401};
+  static constexpr double p2_lat_{48.85};
+  static constexpr double p2_lon_{2.4003};
 };
 #endif
 
