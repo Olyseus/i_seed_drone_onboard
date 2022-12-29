@@ -11,7 +11,7 @@
 
 void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
-  console_sink->set_level(spdlog::level::debug);
+  console_sink->set_level(spdlog::level::info);
 
   const boost::filesystem::path log_path{"i_seed_drone_onboard.log"};
   boost::filesystem::remove(log_path);
