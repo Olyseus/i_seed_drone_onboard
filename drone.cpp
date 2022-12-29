@@ -457,7 +457,7 @@ void drone::send_data(std::string& buffer) {
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
     // Act like data was successfully sent
-    return
+    return;
 #else
     char* char_buffer{buffer.data()};
     static_assert(sizeof(char) == sizeof(uint8_t));
