@@ -68,6 +68,8 @@ T_DjiReturnCode drone::position_fused_callback(const uint8_t* data, uint16_t dat
   drone_latitude_ = position.latitude * rad2deg;
   drone_longitude_ = position.longitude * rad2deg;
 
+  spdlog::debug("drone latitude: {}, longitude: {}", drone_latitude_, drone_longitude_);
+
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   simulator_.gps_callback(drone_latitude_, drone_longitude_);
 #endif
@@ -188,10 +190,11 @@ void drone::start() {
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   spdlog::info("SIMULATOR MODE");
-#endif
-
+#else
+  // FIXME (enable always)
   T_DjiReturnCode code = DjiMopChannel_Init();
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+#endif
 
   while (true) {
     check_sigint();
@@ -218,6 +221,7 @@ void drone::start() {
     } catch (pipeline_closed&) {
       connection_closed_ = true;
     } catch (std::exception& e) {
+      spdlog::critical("receive_data_future exception caught");
       connection_closed_ = true;
       throw e;
     }
@@ -227,6 +231,7 @@ void drone::start() {
     } catch (pipeline_closed&) {
       connection_closed_ = true;
     } catch (std::exception& e) {
+      spdlog::critical("send_data_future exception caught");
       connection_closed_ = true;
       throw e;
     }
@@ -282,6 +287,8 @@ void drone::receive_data_job() {
         s.autoFlightSpeed = 2;
         s.actionWhenRcLost = DJI_WAYPOINT_V2_MISSION_KEEP_EXECUTE_WAYPOINT_V2;
         s.gotoFirstWaypointMode = DJI_WAYPOINT_V2_MISSION_GO_TO_FIRST_WAYPOINT_MODE_SAFELY;
+        s.actionList.actions = nullptr;
+        s.actionList.actionNum = 0;
 
         // FIXME (points from polygons)
         // FIXME (action at waypoint)
@@ -299,6 +306,8 @@ void drone::receive_data_job() {
 
         T_DjiReturnCode code = DjiWaypointV2_UploadMission(&s);
         BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         code = DjiWaypointV2_Start();
         BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
@@ -440,18 +449,19 @@ void drone::receive_data(std::string* buffer) {
 void drone::send_data(std::string& buffer) {
   BOOST_VERIFY(buffer.size() > 0);
 
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  // Act like data was successfully sent
-#else
-  char* char_buffer{buffer.data()};
-  static_assert(sizeof(char) == sizeof(uint8_t));
-  uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buffer)};
-
   while (true) {
     if (connection_closed_) {
       throw pipeline_closed();
     }
     check_sigint();
+
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+    // Act like data was successfully sent
+    return
+#else
+    char* char_buffer{buffer.data()};
+    static_assert(sizeof(char) == sizeof(uint8_t));
+    uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buffer)};
 
     uint32_t real_len{0};
     BOOST_VERIFY(channel_handle_ != nullptr);
@@ -463,8 +473,8 @@ void drone::send_data(std::string& buffer) {
     BOOST_VERIFY(real_len == buffer.size());
     spdlog::debug("{} bytes sent", real_len);
     return;
-  }
 #endif
+  }
 }
 
 T_DjiWaypointV2 drone::make_waypoint(double latitude, double longitude,

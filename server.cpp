@@ -8,6 +8,11 @@
 
 server::server(uint16_t channel_id) {
   spdlog::info("Creating channel {}", channel_id);
+
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  BOOST_VERIFY(out_channel_handle_ == nullptr);
+#else
+  // FIXME (enable creation and bind)
   T_DjiMopChannelHandle channel_handle;
 
   T_DjiReturnCode code{DjiMopChannel_Create(&channel_handle, DJI_MOP_CHANNEL_TRANS_RELIABLE)};
@@ -16,9 +21,6 @@ server::server(uint16_t channel_id) {
   code = DjiMopChannel_Bind(channel_handle, channel_id);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  BOOST_VERIFY(out_channel_handle_ == nullptr);
-#else
   code = DjiMopChannel_Accept(channel_handle, &out_channel_handle_);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   BOOST_VERIFY(out_channel_handle_ != nullptr);
