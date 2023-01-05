@@ -297,8 +297,10 @@ void drone::receive_data_job() {
         // FIXME (points from polygons)
         // FIXME (action at waypoint)
         waypoints_.clear();
-        waypoints_.push_back(make_waypoint(lat, lon, 15.0F));
-        waypoints_.push_back(make_waypoint(lat, lon, 20.0F));
+        waypoints_.push_back(make_waypoint(lat, lon + 0.0001, 15.0F));
+        waypoints_.push_back(make_waypoint(lat, lon + 0.0002, 25.0F));
+        waypoints_.push_back(make_waypoint(lat, lon + 0.0003, 35.0F));
+        waypoints_.push_back(make_waypoint(lat, lon + 0.0004, 45.0F));
         s.mission = waypoints_.data();
 
         s.missTotalLen = waypoints_.size();
