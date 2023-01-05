@@ -44,7 +44,7 @@ class drone {
   static double drone_latitude_;
   static int16_t rc_mode_;
   static mission_state mission_state_;
-  static std::mutex m_;
+  static std::mutex execute_commands_mutex_;
   static std::list<interconnection::command_type::command_t> execute_commands_;
 
   void receive_data_job();

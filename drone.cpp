@@ -24,7 +24,7 @@ double drone::drone_latitude_{0.0};
 int16_t drone::rc_mode_{-1};
 
 mission_state drone::mission_state_;
-std::mutex drone::m_;
+std::mutex drone::execute_commands_mutex_;
 std::list<interconnection::command_type::command_t> drone::execute_commands_;
 
 T_DjiReturnCode drone::quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
@@ -85,7 +85,7 @@ T_DjiReturnCode drone::mission_event_callback(T_DjiWaypointV2MissionEventPush ev
   mission_state_.update(event_data);
 
   if (!mission_state_.is_started()) {
-    std::lock_guard<std::mutex> lock(m_);
+    std::lock_guard<std::mutex> lock(execute_commands_mutex_);
     execute_commands_.push_back(
         interconnection::command_type::MISSION_FINISHED);
   }
@@ -101,7 +101,7 @@ T_DjiReturnCode drone::mission_state_callback(T_DjiWaypointV2MissionStatePush st
   mission_state_.update(state_data);
 
   if (!mission_state_.is_started()) {
-    std::lock_guard<std::mutex> lock(m_);
+    std::lock_guard<std::mutex> lock(execute_commands_mutex_);
     execute_commands_.push_back(
         interconnection::command_type::MISSION_FINISHED);
   }
@@ -258,7 +258,7 @@ void drone::receive_data_job() {
 
     switch (command.type()) {
       case interconnection::command_type::PING: {
-        std::lock_guard<std::mutex> lock(m_);
+        std::lock_guard<std::mutex> lock(execute_commands_mutex_);
         execute_commands_.push_back(command.type());
       } break;
       case interconnection::command_type::MISSION_START: {
@@ -351,7 +351,7 @@ void drone::send_data_job() {
     command.reset();
 
     {
-      std::lock_guard<std::mutex> lock(m_);
+      std::lock_guard<std::mutex> lock(execute_commands_mutex_);
       if (!execute_commands_.empty()) {
         command = execute_commands_.front();
       }
@@ -359,7 +359,7 @@ void drone::send_data_job() {
 
     if (!command.has_value()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
-      std::lock_guard<std::mutex> lock(m_);
+      std::lock_guard<std::mutex> lock(execute_commands_mutex_);
       execute_commands_.push_back(
           interconnection::command_type::DRONE_COORDINATES);
       continue;
@@ -398,7 +398,7 @@ void drone::send_data_job() {
     }
 
     {
-      std::lock_guard<std::mutex> lock(m_);
+      std::lock_guard<std::mutex> lock(execute_commands_mutex_);
       execute_commands_.pop_front();
     }
   }
