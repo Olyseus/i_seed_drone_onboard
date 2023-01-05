@@ -176,12 +176,6 @@ void drone::sigint_handler(int signal) {
   sigint_received_ = true;
 }
 
-void drone::check_sigint() {
-  if (sigint_received_) {
-    throw std::runtime_error("SIGINT received");
-  }
-}
-
 drone::~drone() {
   T_DjiReturnCode code{DjiFcSubscription_DeInit()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
@@ -202,9 +196,7 @@ void drone::start() {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 #endif
 
-  while (true) {
-    check_sigint();
-
+  while (!interrupt_condition()) {
     BOOST_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
     server server{channel_id};
     channel_handle_ = server.handle();
@@ -217,34 +209,40 @@ void drone::start() {
 
     connection_closed_ = false;
 
-    std::future<void> receive_data_future{
-        std::async(std::launch::async, &drone::receive_data_job, this)};
-    std::future<void> send_data_future{
-        std::async(std::launch::async, &drone::send_data_job, this)};
+    std::thread receive_data_thread{&drone::receive_data_job, this};
+    std::thread send_data_thread{&drone::send_data_job, this};
 
-    try {
-      receive_data_future.get();
-    } catch (pipeline_closed&) {
-      connection_closed_ = true;
-    } catch (std::exception& e) {
-      spdlog::critical("receive_data_future exception caught");
-      connection_closed_ = true;
-      throw e;
-    }
-
-    try {
-      send_data_future.get();
-    } catch (pipeline_closed&) {
-      connection_closed_ = true;
-    } catch (std::exception& e) {
-      spdlog::critical("send_data_future exception caught");
-      connection_closed_ = true;
-      throw e;
-    }
+    receive_data_thread.join();
+    send_data_thread.join();
   }
+
+  if (sigint_received_) {
+    throw std::runtime_error("SIGINT received");
+  }
+
+  BOOST_VERIFY(exception_caught_);
+  throw std::runtime_error("Exception in thread");
+}
+
+auto drone::interrupt_condition() const -> bool {
+  return exception_caught_ || sigint_received_;
 }
 
 void drone::receive_data_job() {
+  try {
+    receive_data_job_internal();
+  } catch (job_interrupted_event&) {
+    BOOST_VERIFY(interrupt_condition());
+  } catch (pipeline_closed&) {
+    connection_closed_ = true;
+  } catch (std::exception& e) {
+    exception_caught_ = true;
+    spdlog::critical("Exception: {}", e.what());
+    BOOST_VERIFY(interrupt_condition());
+  }
+}
+
+void drone::receive_data_job_internal() {
   spdlog::info("Received data job started");
 
   std::string buffer;
@@ -345,6 +343,20 @@ void drone::receive_data_job() {
 }
 
 void drone::send_data_job() {
+  try {
+    send_data_job_internal();
+  } catch (job_interrupted_event&) {
+    BOOST_VERIFY(interrupt_condition());
+  } catch (pipeline_closed&) {
+    connection_closed_ = true;
+  } catch (std::exception& e) {
+    exception_caught_ = true;
+    spdlog::critical("Exception: {}", e.what());
+    BOOST_VERIFY(interrupt_condition());
+  }
+}
+
+void drone::send_data_job_internal() {
   spdlog::info("Send data job started");
 
   std::optional<interconnection::command_type::command_t> command;
@@ -424,10 +436,12 @@ void drone::receive_data(std::string* buffer) {
   BOOST_VERIFY(buffer->size() > 0);
 
   while (true) {
+    if (interrupt_condition()) {
+      throw job_interrupted_event();
+    }
     if (connection_closed_) {
       throw pipeline_closed();
     }
-    check_sigint();
 
     uint32_t real_len{0};
 
@@ -458,10 +472,12 @@ void drone::send_data(std::string& buffer) {
   BOOST_VERIFY(buffer.size() > 0);
 
   while (true) {
+    if (interrupt_condition()) {
+      throw job_interrupted_event();
+    }
     if (connection_closed_) {
       throw pipeline_closed();
     }
-    check_sigint();
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
     // Act like data was successfully sent

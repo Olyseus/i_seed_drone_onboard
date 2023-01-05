@@ -16,6 +16,8 @@
 
 using T_DjiMopChannelHandle = void*;
 
+class job_interrupted_event {};
+
 class drone {
  public:
   drone();
@@ -47,8 +49,14 @@ class drone {
   static std::mutex execute_commands_mutex_;
   static std::list<interconnection::command_type::command_t> execute_commands_;
 
+  bool interrupt_condition() const;
+
   void receive_data_job();
+  void receive_data_job_internal();
+
   void send_data_job();
+  void send_data_job_internal();
+
   void send_command(interconnection::command_type::command_t);
   void receive_data(std::string* buffer);
   void send_data(std::string& buffer);
@@ -69,6 +77,7 @@ class drone {
   uint32_t command_bytes_size_{0};
   uint32_t pin_coordinates_bytes_size_{0};
   std::atomic<bool> connection_closed_{false};
+  std::atomic<bool> exception_caught_{false};
 
   std::vector<T_DjiWaypointV2> waypoints_;
 
@@ -76,7 +85,6 @@ class drone {
   static simulator simulator_;
 #endif
 
-  static void check_sigint();
   static void sigint_handler(int);
   static std::atomic<bool> sigint_received_;
 };
