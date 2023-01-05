@@ -58,7 +58,7 @@ class drone {
   static constexpr uint16_t channel_id{
       9745};  // Just a random number. Keep it consistent with Mobile SDK
   static constexpr int pkg_index{0};
-  static constexpr int timeout{10};
+  static constexpr int timeout{20};
 
   static constexpr double pi_degree{180.0};
   static constexpr double rad2deg{pi_degree / M_PI};
