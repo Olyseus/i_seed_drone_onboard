@@ -108,9 +108,13 @@ T_DjiReturnCode drone::mission_state_callback(T_DjiWaypointV2MissionStatePush st
 
   // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
   if (rc_mode_ != 8000) {
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+    BOOST_VERIFY(rc_mode_ == -8000);
+#else
     // Value received while running tests on simulator
     spdlog::error("Unexpected RC mode: {}", rc_mode_);
     BOOST_VERIFY(false);
+#endif
   }
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
