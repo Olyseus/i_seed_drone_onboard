@@ -78,7 +78,7 @@ class drone {
 
   static void check_sigint();
   static void sigint_handler(int);
-  static volatile sig_atomic_t sigint_received_;
+  static std::atomic<bool> sigint_received_;
 };
 
 #endif  //  DRONE_H_

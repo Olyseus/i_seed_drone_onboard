@@ -16,7 +16,7 @@
 simulator drone::simulator_;
 #endif
 
-volatile sig_atomic_t drone::sigint_received_ = 0;
+std::atomic<bool> drone::sigint_received_{false};
 
 double drone::drone_yaw_{0.0};
 double drone::drone_longitude_{0.0};
@@ -121,6 +121,8 @@ T_DjiReturnCode drone::mission_state_callback(T_DjiWaypointV2MissionStatePush st
 }
 
 drone::drone() {
+  BOOST_VERIFY(sigint_received_.is_lock_free());
+
   T_DjiReturnCode code{DjiFcSubscription_Init()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
@@ -171,7 +173,7 @@ drone::drone() {
 
 void drone::sigint_handler(int signal) {
   (void)signal;
-  sigint_received_ = 1;
+  sigint_received_ = true;
 }
 
 void drone::check_sigint() {
