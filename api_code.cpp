@@ -13,7 +13,8 @@ api_code::api_code(const T_DjiReturnCode code) {
       code_ = code::success;
       break;
     case DJI_ERROR_SYSTEM_MODULE_CODE_TIMEOUT:
-      spdlog::error("DjiErrorCode: timeout");
+      // common read error
+      spdlog::debug("DjiErrorCode: timeout");
       make_retry();
       break;
     case DJI_ERROR_SYSTEM_MODULE_CODE_BUSY:
