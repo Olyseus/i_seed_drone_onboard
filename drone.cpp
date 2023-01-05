@@ -277,14 +277,15 @@ void drone::action_job() {
 }
 
 void drone::action_job_internal() {
-  spdlog::info("DRONE TODO {} (pause)", action_waypoint_);
-
+  spdlog::info("Pause mission #{}", action_waypoint_);
   T_DjiReturnCode code{DjiWaypointV2_Pause()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-  spdlog::info("DRONE TODO {}", action_waypoint_);
+  // FIXME (real action)
+  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
-  T_DjiReturnCode code{DjiWaypointV2_Resume()};
+  spdlog::info("Resume mission #{}", action_waypoint_);
+  code = DjiWaypointV2_Resume();
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   // mark as processed
