@@ -27,6 +27,10 @@ mission_state drone::mission_state_;
 std::mutex drone::execute_commands_mutex_;
 std::list<interconnection::command_type::command_t> drone::execute_commands_;
 
+std::mutex drone::action_mutex_;
+std::condition_variable drone::action_condition_variable_;
+uint16_t drone::action_waypoint_{mission_state::invalid_waypoint};
+
 T_DjiReturnCode drone::quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
   const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};
@@ -98,9 +102,20 @@ T_DjiReturnCode drone::mission_state_callback(T_DjiWaypointV2MissionStatePush st
     return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
   }
 
-  mission_state_.update(state_data);
+  const uint16_t action_index{mission_state_.update(state_data)};
+
+  if (action_index != mission_state::invalid_waypoint) {
+    spdlog::info("RUN ACTION FOR WAYPOINT #{}", action_index);
+    {
+      std::lock_guard lock(action_mutex_);
+      BOOST_VERIFY(action_waypoint_ == mission_state::invalid_waypoint);
+      action_waypoint_ = action_index;
+    }
+    action_condition_variable_.notify_one();
+  }
 
   if (!mission_state_.is_started()) {
+    BOOST_VERIFY(action_index == mission_state::invalid_waypoint);
     std::lock_guard<std::mutex> lock(execute_commands_mutex_);
     execute_commands_.push_back(
         interconnection::command_type::MISSION_FINISHED);
@@ -196,6 +211,8 @@ void drone::start() {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 #endif
 
+  std::thread action_thread{&drone::action_job, this};
+
   while (!interrupt_condition()) {
     BOOST_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
     server server{channel_id};
@@ -216,6 +233,17 @@ void drone::start() {
     send_data_thread.join();
   }
 
+  // The main loop is endless so we reach this point only in case of error
+
+  // Wake up all the threads that can possible wait for been notified
+  {
+    std::lock_guard lock{action_mutex_};
+    action_waypoint_ = 0; // just assign any valid value
+    BOOST_VERIFY(action_waypoint_ != mission_state::invalid_waypoint);
+  }
+  action_condition_variable_.notify_one();
+  action_thread.join();
+
   if (sigint_received_) {
     throw std::runtime_error("SIGINT received");
   }
@@ -226,6 +254,41 @@ void drone::start() {
 
 auto drone::interrupt_condition() const -> bool {
   return exception_caught_ || sigint_received_;
+}
+
+void drone::action_job() {
+  try {
+    while (true) {
+      std::unique_lock lock{action_mutex_};
+      action_condition_variable_.wait(lock, [this]{
+          return action_waypoint_ != mission_state::invalid_waypoint;
+      });
+      BOOST_VERIFY(action_waypoint_ != mission_state::invalid_waypoint);
+
+      if (interrupt_condition()) {
+        return;
+      }
+      action_job_internal();
+    }
+  } catch (std::exception& e) {
+    exception_caught_ = true;
+    spdlog::critical("Exception: {}", e.what());
+  }
+}
+
+void drone::action_job_internal() {
+  spdlog::info("DRONE TODO {} (pause)", action_waypoint_);
+
+  T_DjiReturnCode code{DjiWaypointV2_Pause()};
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  spdlog::info("DRONE TODO {}", action_waypoint_);
+
+  T_DjiReturnCode code{DjiWaypointV2_Resume()};
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  // mark as processed
+  action_waypoint_ = mission_state::invalid_waypoint;
 }
 
 void drone::receive_data_job() {

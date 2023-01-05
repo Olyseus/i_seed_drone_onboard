@@ -3,6 +3,7 @@
 
 #include <atomic>
 #include <cmath>  // M_PI
+#include <condition_variable>
 #include <cstdint>  // uint16_t
 #include <list>
 #include <mutex>
@@ -51,6 +52,9 @@ class drone {
 
   bool interrupt_condition() const;
 
+  void action_job();
+  void action_job_internal();
+
   void receive_data_job();
   void receive_data_job_internal();
 
@@ -84,6 +88,10 @@ class drone {
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   static simulator simulator_;
 #endif
+
+  static std::mutex action_mutex_;
+  static std::condition_variable action_condition_variable_;
+  static uint16_t action_waypoint_;
 
   static void sigint_handler(int);
   static std::atomic<bool> sigint_received_;
