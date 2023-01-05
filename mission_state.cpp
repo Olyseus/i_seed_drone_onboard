@@ -44,7 +44,7 @@ void mission_state::update(T_DjiWaypointV2MissionEventPush event_data) {
   }
 }
 
-void mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
+uint16_t mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
   std::lock_guard<std::mutex> lock(m_);
 
   // Handle negative values correctly
@@ -58,18 +58,31 @@ void mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
     waypoint_index_ = waypoint_index;
     spdlog::info("Starting state: {}, waypoint #{}", state_name(),
                  waypoint_index_);
-    return;
+    return invalid_waypoint;
   }
+
+  bool run_action{false};
 
   if (state_ != state || waypoint_index_ != waypoint_index) {
     state_ = state;
     waypoint_index_ = waypoint_index;
     spdlog::info("State: {}, waypoint #{}", state_name(), waypoint_index_);
+    if (state_ == DJI_WAYPOINT_V2_MISSION_STATE_INTERRUPTED) {
+      run_action = true;
+    }
   }
 
   if (state_ == DJI_WAYPOINT_V2_MISSION_STATE_FINISHED_MISSION) {
+    BOOST_VERIFY(!run_action);
     BOOST_VERIFY(is_started_);
     is_started_ = false;
+  }
+
+  if (run_action) {
+    BOOST_VERIFY(waypoint_index_ != invalid_waypoint);
+    return waypoint_index_;
+  } else {
+    return invalid_waypoint;
   }
 }
 
