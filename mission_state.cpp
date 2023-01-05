@@ -61,14 +61,10 @@ void mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
     return;
   }
 
-  if (state_ != state) {
+  if (state_ != state || waypoint_index_ != waypoint_index) {
     state_ = state;
-    spdlog::info("Updated state: {}", state_name());
-  }
-
-  if (waypoint_index_ != waypoint_index) {
     waypoint_index_ = waypoint_index;
-    spdlog::info("Waypoint #{}", waypoint_index_);
+    spdlog::info("State: {}, waypoint #{}", state_name(), waypoint_index_);
   }
 
   if (state_ == DJI_WAYPOINT_V2_MISSION_STATE_FINISHED_MISSION) {
