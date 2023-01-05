@@ -68,7 +68,7 @@ T_DjiReturnCode drone::position_fused_callback(const uint8_t* data, uint16_t dat
   drone_latitude_ = position.latitude * rad2deg;
   drone_longitude_ = position.longitude * rad2deg;
 
-  spdlog::debug("drone latitude: {}, longitude: {}", drone_latitude_, drone_longitude_);
+  spdlog::debug("drone latitude: {}, longitude: {}, altitude: {}", drone_latitude_, drone_longitude_, position.altitude);
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   simulator_.gps_callback(drone_latitude_, drone_longitude_);
