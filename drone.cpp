@@ -7,6 +7,7 @@
 #include <future>
 
 #include <dji_fc_subscription.h> // T_DjiFcSubscriptionQuaternion
+#include <dji_gimbal_manager.h> // DjiGimbalManager_Init
 #include <dji_mop_channel.h> // DjiMopChannel_Init
 
 #include "api_code.h"
@@ -77,6 +78,19 @@ T_DjiReturnCode drone::position_fused_callback(const uint8_t* data, uint16_t dat
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   simulator_.gps_callback(drone_latitude_, drone_longitude_);
 #endif
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
+T_DjiReturnCode drone::gimbal_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+  BOOST_VERIFY(data != nullptr);
+  const auto gimbal_three_data{(const T_DjiFcSubscriptionThreeGimbalData*)data};
+  const GimbalSingleData d{gimbal_three_data->gbData[0]};
+
+  (void)data_size;
+  (void)timestamp;
+
+  spdlog::debug("gimbal pitch: {}, roll: {}, yaw: {}", d.pitch, d.roll, d.yaw);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
@@ -157,6 +171,21 @@ drone::drone() :
       position_fused_callback);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
+  code = DjiFcSubscription_SubscribeTopic(
+      DJI_FC_SUBSCRIPTION_TOPIC_THREE_GIMBAL_DATA,
+      DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
+      gimbal_callback);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiGimbalManager_Init();
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiGimbalManager_SetMode(m_pos_, DJI_GIMBAL_MODE_FREE);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  code = DjiGimbalManager_Reset(m_pos_);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
   code = DjiWaypointV2_Init();
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
@@ -212,6 +241,7 @@ void drone::start() {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   std::thread action_thread{&drone::action_job, this};
+  std::thread gimbal_thread{&drone::gimbal_job, this};
   std::thread inference_thread{&drone::inference_job, this};
 
   while (!interrupt_condition()) {
@@ -246,6 +276,7 @@ void drone::start() {
   action_thread.join();
 
   // Wait for other threads to finish. No need to nofify
+  gimbal_thread.join();
   inference_thread.join();
 
   if (sigint_received_) {
@@ -303,6 +334,56 @@ void drone::action_job_internal() {
 
   // mark as processed
   action_waypoint_ = mission_state::invalid_waypoint;
+}
+
+void drone::gimbal_job() {
+  try {
+    // Wait for callbacks initialization
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+    while (true) {
+      if (interrupt_condition()) {
+        return;
+      }
+      gimbal_job_internal();
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+  } catch (std::exception& e) {
+    exception_caught_ = true;
+    spdlog::critical("Exception: {}", e.what());
+  }
+}
+
+void drone::gimbal_job_internal() {
+  if (true) { // FIXME (enable)
+    return;
+  }
+
+  T_DjiGimbalManagerRotation rotation;
+  rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_ABSOLUTE_ANGLE;
+  rotation.pitch = 0.0; // -90.0: down, 0.0: forward
+  rotation.roll = 0.0;
+  rotation.yaw = drone_yaw_;
+  rotation.time = 0.1;
+
+  // FIXME (read from callback)
+  const double gimbal_roll{0.0};
+  const double gimbal_pitch{0.0};
+  const double gimbal_yaw{0.0};
+
+  constexpr float eps{1e-3};
+  constexpr float rough_eps{0.1 + eps};
+  const double d_roll{std::abs(rotation.roll - gimbal_roll)};
+  const double d_pitch{std::abs(rotation.pitch - gimbal_pitch)};
+  const double d_yaw{std::abs(rotation.yaw - gimbal_yaw)};
+  if (d_roll < rough_eps && d_pitch < rough_eps && d_yaw < rough_eps) {
+    return;
+  }
+
+  spdlog::info("Run gimbal rotation, yaw: {}", rotation.yaw);
+
+  const T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos_, rotation)};
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
 void drone::inference_job() {

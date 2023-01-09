@@ -40,6 +40,7 @@ class drone {
   static T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
   static T_DjiReturnCode rc_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
   static T_DjiReturnCode position_fused_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
+  static T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
   static T_DjiReturnCode mission_event_callback(T_DjiWaypointV2MissionEventPush event_data);
   static T_DjiReturnCode mission_state_callback(T_DjiWaypointV2MissionStatePush state_data);
 
@@ -55,6 +56,9 @@ class drone {
 
   void action_job();
   void action_job_internal();
+
+  void gimbal_job();
+  void gimbal_job_internal();
 
   void inference_job();
 
