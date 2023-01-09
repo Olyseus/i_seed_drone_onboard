@@ -78,13 +78,28 @@ add_library(
     simulator.h
     bounding_box.cpp
     bounding_box.h
+    inference.cpp
+    inference.h
     timer.h
 )
+
+set_source_files_properties(
+    inference.cpp
+    PROPERTIES
+    COMPILE_OPTIONS
+    "-Wno-deprecated-declarations"
+)
+
+find_package(CUDAToolkit REQUIRED) # CUDA::cudart
+target_link_libraries(i_seed_drone_onboard_core PUBLIC CUDA::cudart)
 
 target_link_libraries(i_seed_drone_onboard_core PUBLIC protobuf::libprotobuf)
 
 find_package(nlohmann_json CONFIG REQUIRED) # nlohmann_json::nlohmann_json
 target_link_libraries(i_seed_drone_onboard_core PUBLIC nlohmann_json::nlohmann_json)
+
+find_package(JPEG REQUIRED)
+target_link_libraries(i_seed_drone_onboard_core PUBLIC JPEG::JPEG)
 
 target_compile_options(
     i_seed_drone_onboard_core PUBLIC -Wall -Werror -Wpedantic -Wextra -Wfatal-errors
