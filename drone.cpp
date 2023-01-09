@@ -18,10 +18,10 @@ simulator drone::simulator_;
 
 std::atomic<bool> drone::sigint_received_{false};
 
-double drone::drone_yaw_{0.0};
-double drone::drone_longitude_{0.0};
-double drone::drone_latitude_{0.0};
-int16_t drone::rc_mode_{-1};
+std::atomic<double> drone::drone_yaw_{0.0};
+std::atomic<double> drone::drone_longitude_{0.0};
+std::atomic<double> drone::drone_latitude_{0.0};
+std::atomic<int16_t> drone::rc_mode_{-1};
 
 mission_state drone::mission_state_;
 std::mutex drone::execute_commands_mutex_;

@@ -42,10 +42,10 @@ class drone {
   static T_DjiReturnCode mission_event_callback(T_DjiWaypointV2MissionEventPush event_data);
   static T_DjiReturnCode mission_state_callback(T_DjiWaypointV2MissionStatePush state_data);
 
-  static double drone_yaw_;
-  static double drone_longitude_;
-  static double drone_latitude_;
-  static int16_t rc_mode_;
+  static std::atomic<double> drone_yaw_;
+  static std::atomic<double> drone_longitude_;
+  static std::atomic<double> drone_latitude_;
+  static std::atomic<int16_t> rc_mode_;
   static mission_state mission_state_;
   static std::mutex execute_commands_mutex_;
   static std::list<interconnection::command_type::command_t> execute_commands_;
