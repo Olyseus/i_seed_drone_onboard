@@ -76,6 +76,8 @@ add_library(
     magnetic_declination.h
     simulator.cpp
     simulator.h
+    bounding_box.cpp
+    bounding_box.h
     timer.h
 )
 
