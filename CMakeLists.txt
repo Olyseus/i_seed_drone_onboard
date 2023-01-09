@@ -141,6 +141,8 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       third_party/psdk/application.hpp
       third_party/psdk/dji_sdk_app_info.h
       third_party/psdk/dji_sdk_config.h
+      camera_psdk.h
+      camera_psdk.cpp
   )
   set_source_files_properties(
       third_party/psdk/application.cpp
