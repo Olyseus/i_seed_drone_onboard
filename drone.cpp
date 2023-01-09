@@ -135,7 +135,8 @@ T_DjiReturnCode drone::mission_state_callback(T_DjiWaypointV2MissionStatePush st
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-drone::drone() {
+drone::drone() :
+    camera_psdk_{"/var/opt/i_seed_drone_onboard/best.engine"} {
   BOOST_VERIFY(sigint_received_.is_lock_free());
 
   T_DjiReturnCode code{DjiFcSubscription_Init()};
@@ -211,6 +212,7 @@ void drone::start() {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   std::thread action_thread{&drone::action_job, this};
+  std::thread inference_thread{&drone::inference_job, this};
 
   while (!interrupt_condition()) {
     BOOST_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
@@ -242,6 +244,9 @@ void drone::start() {
   }
   action_condition_variable_.notify_one();
   action_thread.join();
+
+  // Wait for other threads to finish. No need to nofify
+  inference_thread.join();
 
   if (sigint_received_) {
     throw std::runtime_error("SIGINT received");
@@ -289,6 +294,24 @@ void drone::action_job_internal() {
 
   // mark as processed
   action_waypoint_ = mission_state::invalid_waypoint;
+}
+
+void drone::inference_job() {
+  try {
+    while (true) {
+      if (interrupt_condition()) {
+        return;
+      }
+      if (true) { // FIXME (remove)
+        return;
+      }
+      camera_psdk_.check_sdcard();
+      std::this_thread::sleep_for(std::chrono::seconds{1});
+    }
+  } catch (std::exception& e) {
+    exception_caught_ = true;
+    spdlog::critical("Exception: {}", e.what());
+  }
 }
 
 void drone::receive_data_job() {

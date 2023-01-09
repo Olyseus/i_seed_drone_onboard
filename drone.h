@@ -11,6 +11,7 @@
 
 #include <dji_waypoint_v2.h> // T_DjiWaypointV2
 
+#include "camera_psdk.h"
 #include "interconnection.pb.h"
 #include "mission_state.h"
 #include "simulator.h"
@@ -55,6 +56,8 @@ class drone {
   void action_job();
   void action_job_internal();
 
+  void inference_job();
+
   void receive_data_job();
   void receive_data_job_internal();
 
@@ -75,8 +78,10 @@ class drone {
   static constexpr double pi_degree{180.0};
   static constexpr double rad2deg{pi_degree / M_PI};
   static constexpr double deg2rad{M_PI / pi_degree};
+  static constexpr E_DjiMountPosition m_pos_{DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
 
   T_DjiMopChannelHandle channel_handle_{nullptr};
+  camera_psdk camera_psdk_;
 
   uint32_t command_bytes_size_{0};
   uint32_t pin_coordinates_bytes_size_{0};
