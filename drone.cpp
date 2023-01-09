@@ -205,11 +205,10 @@ void drone::start() {
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   spdlog::info("SIMULATOR MODE");
-#else
-  // FIXME (enable always)
+#endif
+
   T_DjiReturnCode code = DjiMopChannel_Init();
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-#endif
 
   std::thread action_thread{&drone::action_job, this};
 
