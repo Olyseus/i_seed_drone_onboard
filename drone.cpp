@@ -285,8 +285,17 @@ void drone::action_job_internal() {
   T_DjiReturnCode code{DjiWaypointV2_Pause()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-  // FIXME (real action)
-  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+  if (true) {
+    // FIXME (real action)
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+  } else {
+    // FIXME (read data from callbacks)
+    gps_coordinates gps;
+    quaternion q;
+    gimbal_data gimbal;
+
+    camera_psdk_.shoot_photo(gps, q, gimbal);
+  }
 
   spdlog::info("Resume mission #{}", action_waypoint_);
   code = DjiWaypointV2_Resume();
