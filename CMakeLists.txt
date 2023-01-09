@@ -357,6 +357,12 @@ target_link_libraries(i_seed_convert PRIVATE i_seed_drone_onboard_core)
 find_package(CLI11 CONFIG REQUIRED) # CLI11::CLI11
 target_link_libraries(i_seed_convert PUBLIC CLI11::CLI11)
 
+add_executable(i_seed_inference inference_main.cpp)
+target_link_libraries(i_seed_inference PRIVATE i_seed_drone_onboard_core)
+
+find_package(CLI11 CONFIG REQUIRED) # CLI11::CLI11
+target_link_libraries(i_seed_inference PUBLIC CLI11::CLI11)
+
 find_package(GTest CONFIG REQUIRED) # GTest::gtest_main
 target_link_libraries(
     i_seed_drone_onboard_core_ut
