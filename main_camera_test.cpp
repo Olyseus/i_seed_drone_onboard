@@ -7,7 +7,7 @@
 #include <spdlog/spdlog.h>
 #include <thread>  // std::this_thread
 
-#include "application.h" // Application
+#include "application.hpp" // Application
 #include "camera_psdk.h"
 
 void setup_logging() {
