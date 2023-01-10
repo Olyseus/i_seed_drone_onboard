@@ -11,8 +11,10 @@ void mission_state::start() {
   is_started_ = true;
 
   initial_update_received_ = false;
-  state_ = DJI_WAYPOINT_V2_MISSION_STATE_DISCONNECTED;
+  state_ = ground_station_not_start;
   waypoint_index_ = 0;
+
+  already_executed_.clear();
 }
 
 void mission_state::finish() {
@@ -38,8 +40,8 @@ void mission_state::update(T_DjiWaypointV2MissionEventPush event_data) {
     BOOST_VERIFY(initial_update_received_);
     BOOST_VERIFY(is_started_);
     is_started_ = false;
-    BOOST_VERIFY(state_ != DJI_WAYPOINT_V2_MISSION_STATE_FINISHED_MISSION);
-    state_ = DJI_WAYPOINT_V2_MISSION_STATE_FINISHED_MISSION;
+    BOOST_VERIFY(state_ != exit_mission);
+    state_ = exit_mission;
     spdlog::info("Updated state: {}", state_name());
   }
 }
@@ -47,14 +49,12 @@ void mission_state::update(T_DjiWaypointV2MissionEventPush event_data) {
 uint16_t mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
   std::lock_guard<std::mutex> lock(m_);
 
-  // Handle negative values correctly
-  const int8_t state{static_cast<int8_t>(state_data.state)};
   const uint16_t waypoint_index{state_data.curWaypointIndex};
 
   if (!initial_update_received_) {
     initial_update_received_ = true;
-    state_ = state;
-    BOOST_VERIFY(state_ != DJI_WAYPOINT_V2_MISSION_STATE_FINISHED_MISSION);
+    state_ = state_data.state;
+    BOOST_VERIFY(state_ != exit_mission);
     waypoint_index_ = waypoint_index;
     spdlog::info("Starting state: {}, waypoint #{}", state_name(),
                  waypoint_index_);
@@ -63,16 +63,19 @@ uint16_t mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
 
   bool run_action{false};
 
-  if (state_ != state || waypoint_index_ != waypoint_index) {
-    state_ = state;
+  if (state_ != state_data.state || waypoint_index_ != waypoint_index) {
+    state_ = state_data.state;
     waypoint_index_ = waypoint_index;
     spdlog::info("State: {}, waypoint #{}", state_name(), waypoint_index_);
-    if (state_ == DJI_WAYPOINT_V2_MISSION_STATE_INTERRUPTED) {
-      run_action = true;
+    if (state_ == execute_flying_route_mission) {
+      auto [it, inserted] = already_executed_.insert(waypoint_index_);
+      BOOST_VERIFY(it != already_executed_.end());
+      BOOST_VERIFY(*it == waypoint_index_);
+      run_action = inserted;
     }
   }
 
-  if (state_ == DJI_WAYPOINT_V2_MISSION_STATE_FINISHED_MISSION) {
+  if (state_ == exit_mission) {
     BOOST_VERIFY(!run_action);
     BOOST_VERIFY(is_started_);
     is_started_ = false;
@@ -87,30 +90,23 @@ uint16_t mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
 }
 
 const char* mission_state::state_name() const {
-  // https://github.com/dji-sdk/Payload-SDK/blob/3.3/psdk_lib/include/dji_waypoint_v2_type.h#L221-L266
-
   switch (state_) {
-    case DJI_WAYPOINT_V2_MISSION_STATE_UNKNOWN:
-      return "unknown";
-    case DJI_WAYPOINT_V2_MISSION_STATE_DISCONNECTED:
-      return "disconnected";
-    case DJI_WAYPOINT_V2_MISSION_STATE_READY_TO_EXECUTE:
-      return "ready to execute";
-    case DJI_WAYPOINT_V2_MISSION_STATE_EXECUTING:
-      return "executing";
-    case DJI_WAYPOINT_V2_MISSION_STATE_INTERRUPTED:
-      return "interrupted";
-    case DJI_WAYPOINT_V2_MISSION_STATE_RESUME_AFTER_INTERRUPTED:
-      return "resumed";
-    case DJI_WAYPOINT_V2_MISSION_STATE_EXIT_MISSION:
-      BOOST_VERIFY(false);
-      return "exited";
-    case DJI_WAYPOINT_V2_MISSION_STATE_FINISHED_MISSION:
-      return "finished";
-    case mission_unknown_state_7_:
-      return "unknown (7)";
+    case ground_station_not_start:
+      return "ground station not start";
+    case mission_prepared:
+      return "mission prepared";
+    case enter_mission:
+      return "enter mission";
+    case execute_flying_route_mission:
+      return "execute flying route mission";
+    case pause_state:
+      return "pause state";
+    case enter_mission_after_ending_pause:
+      return "enter mission after ending pause";
+    case exit_mission:
+      return "exit mission";
     default:
-      spdlog::error("Unknown state: {}", state_);
+      spdlog::error("Unknown state: {}", static_cast<unsigned>(state_));
       BOOST_VERIFY(false);
       return "";
   }
