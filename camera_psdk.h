@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "inference.h"
+#include "timer.h"
 
 struct gps_coordinates {
   double longitude;
@@ -67,6 +68,7 @@ class camera_psdk {
     gimbal_data gimbal;
   };
   std::list<queue_entry> queue_;
+  timer file_waiting_timer_;
 
   std::mutex api_call_mutex_;
 

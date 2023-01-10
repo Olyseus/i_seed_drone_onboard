@@ -132,6 +132,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const quaternion& quat
   {
     std::lock_guard lock{queue_mutex_};
     queue_.push_back({gps, quat, gimbal});
+    file_waiting_timer_.start();
   }
 
   {
@@ -145,7 +146,13 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const quaternion& quat
 }
 
 void camera_psdk::check_sdcard() {
-  // FIXME (if queue is not empty, check the timestamp and crash if waiting too long)
+  {
+    std::lock_guard lock{queue_mutex_};
+    constexpr uint64_t wait_ms{20 * 1000}; // 20 sec
+    if (!queue_.empty() && file_waiting_timer_.elapsed_ms() > wait_ms) {
+      throw std::runtime_error("Waiting for a file too long. SD Card is full?");
+    }
+  }
 
   T_DjiCameraManagerFileList media_file_list;
   {
