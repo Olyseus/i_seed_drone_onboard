@@ -53,7 +53,7 @@ camera_psdk::camera_psdk(const std::string& model_file) :
   constexpr auto m_pos{static_cast<E_DjiMountPosition>(mount_position())};
   code = DjiCameraManager_GetCameraType(m_pos, &camera_type);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-  BOOST_VERIFY(camera_type == DJI_CAMERA_TYPE_H20T);
+  BOOST_VERIFY(camera_type == DJI_CAMERA_TYPE_H20);
 
   T_DjiCameraManagerFirmwareVersion firmware_version;
 
@@ -258,6 +258,9 @@ void camera_psdk::check_sdcard() {
     }
 
     spdlog::info("{} objects detected", bb.size());
+    for (const bounding_box& b : bb) {
+      spdlog::info("x: {}, y: {}, {:.2f}%", b.mid_x(), b.mid_y(), b.confidence() * 100.0);
+    }
 
     detection_result res;
     res.gps = queue_head.gps;
