@@ -270,6 +270,23 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       i_seed_drone_camera_test PRIVATE i_seed_drone_onboard_core
   )
 
+  add_executable(
+      i_seed_battery_monitor
+      battery_monitor_main.cpp
+  )
+
+  set_source_files_properties(
+      battery_monitor_main.cpp
+      PROPERTIES
+      COMPILE_OPTIONS
+      # libusb.h:736:4: error: ISO C++ forbids zero-size array ‘dev_capability_data’ [-Werror=pedantic]
+      "-Wno-ignored-qualifiers;-Wno-pedantic"
+  )
+
+  target_link_libraries(
+      i_seed_battery_monitor PRIVATE i_seed_drone_onboard_core
+  )
+
   target_link_libraries(
       i_seed_drone_onboard PRIVATE i_seed_drone_onboard_core
   )
