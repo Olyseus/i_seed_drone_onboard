@@ -145,7 +145,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const quaternion& quat
   }
 }
 
-void camera_psdk::check_sdcard() {
+auto camera_psdk::check_sdcard() -> bool {
   {
     std::lock_guard lock{queue_mutex_};
     constexpr uint64_t wait_ms{20 * 1000}; // 20 sec
@@ -202,7 +202,7 @@ void camera_psdk::check_sdcard() {
   if (inference_files.empty()) {
     // No files to process
     spdlog::info("No files to process"); // FIXME (remove)
-    return;
+    return false;
   }
 
   std::sort(inference_files.begin(), inference_files.end(),
@@ -279,4 +279,6 @@ void camera_psdk::check_sdcard() {
 
     detections_.push_back(res);
   }
+
+  return true;
 }

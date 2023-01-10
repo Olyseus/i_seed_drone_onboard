@@ -55,7 +55,9 @@ auto run_main(int argc, char** argv) -> int {
     spdlog::info("Shoot photo: DONE");
     while (true) {
       spdlog::info("Check SD card");
-      c.check_sdcard();
+      if (c.check_sdcard()) {
+        break;
+      }
       std::this_thread::sleep_for(std::chrono::seconds{1});
     }
     return EXIT_SUCCESS;

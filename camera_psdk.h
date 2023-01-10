@@ -56,7 +56,7 @@ class camera_psdk {
   void shoot_photo(const gps_coordinates&, const quaternion&,
       const gimbal_data&);
 
-  void check_sdcard();
+  bool check_sdcard();
 
  private:
   inference inference_;
