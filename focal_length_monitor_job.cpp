@@ -42,6 +42,8 @@ void focal_length_monitor_job() {
   while (true) {
     const E_DjiCameraManagerFocusMode expected_focus_mode{DJI_CAMERA_MANAGER_FOCUS_MODE_AUTO};
 
+    // If failed, check camera is ZOOM:
+    // - https://sdk-forum.dji.net/hc/en-us/requests/73828
     E_DjiCameraManagerFocusMode focus_mode;
     code = DjiCameraManager_GetFocusMode(m_pos, &focus_mode);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
