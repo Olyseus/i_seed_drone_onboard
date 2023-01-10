@@ -3,6 +3,8 @@
 
 #include <chrono>
 
+#include <boost/assert.hpp> // BOOST_VERIFY
+
 class timer {
  public:
   void start() { start_ = clock::now(); }
