@@ -41,7 +41,7 @@ constexpr int camera_psdk::mount_position() {
 }
 
 camera_psdk::camera_psdk(const std::string& model_file) :
-    inference_(model_file), app_(new Application) {
+    inference_(model_file) {
   T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
   BOOST_VERIFY(osal);
 

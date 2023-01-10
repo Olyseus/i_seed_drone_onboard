@@ -10,8 +10,6 @@
 
 #include "inference.h"
 
-class Application;
-
 struct gps_coordinates {
   double longitude;
   double latitude;
@@ -75,7 +73,6 @@ class camera_psdk {
   std::vector<detection_result> detections_;
 
   static constexpr int mount_position();
-  std::unique_ptr<Application> app_;
   std::set<uint32_t> already_present_indexes_;
 
   const std::regex jpeg_regex{".*_ZOOM\\.jpg"};

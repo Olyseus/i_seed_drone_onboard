@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 #include <thread>  // std::this_thread
 
+#include "application.h" // Application
 #include "camera_psdk.h"
 
 void setup_logging() {
@@ -41,6 +42,8 @@ auto run_main(int argc, char** argv) -> int {
   try {
     BOOST_VERIFY(argc == 1);
     BOOST_VERIFY(argv != nullptr);
+    auto app{std::make_unique<Application>()};
+
     camera_psdk c{"/var/opt/i_seed_drone_onboard/best.engine"};
 
     gps_coordinates gps;
