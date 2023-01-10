@@ -148,7 +148,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const quaternion& quat
 auto camera_psdk::check_sdcard() -> bool {
   {
     std::lock_guard lock{queue_mutex_};
-    constexpr uint64_t wait_ms{20 * 1000}; // 20 sec
+    constexpr int64_t wait_ms{20 * 1000}; // 20 sec
     if (!queue_.empty() && file_waiting_timer_.elapsed_ms() > wait_ms) {
       throw std::runtime_error("Waiting for a file too long. SD Card is full?");
     }
@@ -238,6 +238,9 @@ auto camera_psdk::check_sdcard() -> bool {
     spdlog::info("Download file with index {} to {}", file_index, camera_psdk_file_dst);
     constexpr auto m_pos{static_cast<E_DjiMountPosition>(mount_position())};
     T_DjiReturnCode code{DjiCameraManager_DownloadFileByIndex(m_pos, file_index)};
+    if (code != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
+      spdlog::critical("Error code: {}", code);
+    }
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     // global variable should be cleared in callbacks for future use
