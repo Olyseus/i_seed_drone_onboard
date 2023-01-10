@@ -67,6 +67,7 @@ auto run_main(int argc, char** argv) -> int {
     // Wait for SDK to start
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
+    // Will not work: https://sdk-forum.dji.net/hc/en-us/requests/75138
     T_DjiReturnCode code{DjiPositioning_Init()};
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
