@@ -37,12 +37,12 @@ void focal_length_monitor_job() {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   spdlog::info("focal length min: {}, max: {}, step: {}", optical_zoom_spec.minFocalLength, optical_zoom_spec.maxFocalLength, optical_zoom_spec.focalLengthStep);
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
   while (true) {
     const E_DjiCameraManagerFocusMode expected_focus_mode{DJI_CAMERA_MANAGER_FOCUS_MODE_AUTO};
 
-    // If failed, check camera is ZOOM:
+    // If failed, check camera is ZOOM and the pause is long enough:
     // - https://sdk-forum.dji.net/hc/en-us/requests/73828
     E_DjiCameraManagerFocusMode focus_mode;
     code = DjiCameraManager_GetFocusMode(m_pos, &focus_mode);
