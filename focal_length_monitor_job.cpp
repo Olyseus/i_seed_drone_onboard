@@ -40,7 +40,7 @@ void focal_length_monitor_job() {
   std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
   while (true) {
-    const E_DjiCameraManagerFocusMode expected_focus_mode{DJI_CAMERA_MANAGER_FOCUS_MODE_AUTO};
+    const E_DjiCameraManagerFocusMode expected_focus_mode{DJI_CAMERA_MANAGER_FOCUS_MODE_MANUAL};
 
     // If failed, check camera is ZOOM and the pause is long enough:
     // - https://sdk-forum.dji.net/hc/en-us/requests/73828
