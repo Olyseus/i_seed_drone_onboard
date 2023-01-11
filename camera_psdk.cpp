@@ -527,7 +527,7 @@ auto camera_psdk::shutter_speed_name(int value) -> const char* {
     case DJI_CAMERA_MANAGER_SHUTTER_SPEED_20: return "20.0 s";
     case DJI_CAMERA_MANAGER_SHUTTER_SPEED_25: return "25.0 s";
     case DJI_CAMERA_MANAGER_SHUTTER_SPEED_30: return "30.0 s";
-    case DJI_CAMERA_MANAGER_SHUTTER_SPEED_UNKNOWN: return "";
+    case DJI_CAMERA_MANAGER_SHUTTER_SPEED_UNKNOWN: return "unknown";
     default:
       spdlog::critical("unknown SHUTTER_SPEED value: {}", value);
       return "ERROR";
