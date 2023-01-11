@@ -177,7 +177,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const quaternion& quat
     code = DjiCameraManager_SetISO(m_pos, DJI_CAMERA_MANAGER_ISO_100);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-    code = DjiCameraManager_SetAperture(m_pos, DJI_CAMERA_MANAGER_APERTURE_F_1_DOT_6);
+    code = DjiCameraManager_SetAperture(m_pos, DJI_CAMERA_MANAGER_APERTURE_F_1_DOT_7);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiCameraManager_SetShutterSpeed(m_pos, DJI_CAMERA_MANAGER_SHUTTER_SPEED_1_8000);
