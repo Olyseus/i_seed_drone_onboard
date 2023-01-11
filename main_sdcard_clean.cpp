@@ -129,6 +129,9 @@ auto run_main(int argc, char** argv) -> int {
       // The file can be deleted only after a download from sd card
       code = DjiCameraManager_DeleteFileByIndex(m_pos, file_index);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+      boost::filesystem::remove(dst_path);
+      BOOST_VERIFY(!boost::filesystem::exists(dst_path));
     }
 
     boost::filesystem::remove_all(top_dir);
