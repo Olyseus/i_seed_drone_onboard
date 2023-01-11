@@ -377,8 +377,8 @@ auto camera_psdk::iso_name(int value) -> const char* {
     case DJI_CAMERA_MANAGER_ISO_FIXED:
       return "fixed";
     default:
-      BOOST_VERIFY(false);
-      return "";
+      spdlog::critical("unknown ISO value: {}", value);
+      return "ERROR";
   }
 }
 
@@ -453,9 +453,8 @@ auto camera_psdk::aperture_name(int value) -> const char* {
     case DJI_CAMERA_MANAGER_APERTURE_F_UNKNOWN:
       return "unknown";
     default:
-      spdlog::critical("unknown value: {}", value);
-      BOOST_VERIFY(false);
-      return "";
+      spdlog::critical("unknown APERTURE value: {}", value);
+      return "ERROR";
   }
 }
 
@@ -530,8 +529,8 @@ auto camera_psdk::shutter_speed_name(int value) -> const char* {
     case DJI_CAMERA_MANAGER_SHUTTER_SPEED_30: return "30.0 s";
     case DJI_CAMERA_MANAGER_SHUTTER_SPEED_UNKNOWN: return "";
     default:
-      BOOST_VERIFY(false);
-      return "";
+      spdlog::critical("unknown SHUTTER_SPEED value: {}", value);
+      return "ERROR";
   }
 }
 
@@ -602,8 +601,7 @@ auto camera_psdk::compensation_name(int value) -> const char* {
     case DJI_CAMERA_MANAGER_EXPOSURE_COMPENSATION_FIXED:
       return "fixed";
     default:
-      spdlog::critical("unknown value: {}", value);
-      BOOST_VERIFY(false);
-      return "";
+      spdlog::critical("unknown EXPOSURE_COMPENSATION value: {}", value);
+      return "ERROR";
   }
 }
