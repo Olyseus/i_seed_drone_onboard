@@ -49,7 +49,7 @@ void focal_length_monitor_job() {
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     if (focus_mode != expected_focus_mode) {
-      spdlog::info("Changing focus mode to AF-S");
+      spdlog::info("Changing focus mode to MF");
       code = DjiCameraManager_SetFocusMode(m_pos, expected_focus_mode);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     }
