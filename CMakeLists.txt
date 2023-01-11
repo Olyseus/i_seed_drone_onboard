@@ -266,13 +266,13 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       "-Wno-ignored-qualifiers;-Wno-pedantic"
   )
 
-  target_link_libraries(
-      i_seed_drone_sdcard_clean PRIVATE i_seed_drone_onboard_core
-  )
-
   add_executable(
       i_seed_drone_sdcard_clean
-      main_camera_test.cpp
+      main_sdcard_clean.cpp
+  )
+
+  target_link_libraries(
+      i_seed_drone_sdcard_clean PRIVATE i_seed_drone_onboard_core
   )
 
   target_link_libraries(
