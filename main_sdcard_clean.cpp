@@ -134,7 +134,7 @@ auto run_main(int argc, char** argv) -> int {
     boost::filesystem::remove_all(top_dir);
     BOOST_VERIFY(!boost::filesystem::exists(top_dir));
 
-    T_DjiReturnCode code = DjiCameraManager_DeInit();
+    code = DjiCameraManager_DeInit();
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     return EXIT_SUCCESS;
   } catch (const std::system_error& exc) {
