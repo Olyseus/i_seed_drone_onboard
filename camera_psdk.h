@@ -77,6 +77,11 @@ class camera_psdk {
   static constexpr int mount_position();
   std::set<uint32_t> already_present_indexes_;
 
+  static const char* iso_name(int value);
+  static const char* aperture_name(int value);
+  static const char* shutter_speed_name(int value);
+  static const char* compensation_name(int value);
+
   const std::regex jpeg_regex{".*_ZOOM\\.jpg"};
 };
 
