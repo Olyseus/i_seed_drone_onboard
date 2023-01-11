@@ -12,7 +12,7 @@
 
 void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
-  console_sink->set_level(spdlog::level::info);
+  console_sink->set_level(spdlog::level::debug);
 
   const boost::filesystem::path log_path{"i_seed_drone_camera.log"};
   boost::filesystem::remove(log_path);
@@ -22,7 +22,7 @@ void setup_logging() {
   constexpr bool rotate_on_open{true};
   auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
       log_path.string(), max_file_size, max_file_num, rotate_on_open);
-  file_sink->set_level(spdlog::level::info);
+  file_sink->set_level(spdlog::level::debug);
 
   auto logger = std::make_shared<spdlog::logger>(
       "", spdlog::sinks_init_list({console_sink, file_sink}));
@@ -31,7 +31,7 @@ void setup_logging() {
   spdlog::set_level(spdlog::level::trace);
 
   spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] (t:%t) [%l] %v");
-  spdlog::flush_on(spdlog::level::info);
+  spdlog::flush_on(spdlog::level::debug);
 
   spdlog::info("Logging to file: {}", log_path.string());
 }
