@@ -4,6 +4,7 @@
 #include <boost/filesystem.hpp>
 #include <dji_camera_manager.h>  // DjiCameraManager_Init
 #include <dji_liveview.h>  // DjiLiveview_Init
+#include <dji_payload_camera.h>  // DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload
 #include <spdlog/spdlog.h>
 
 #include <sstream>  // std::ostringstream
@@ -142,7 +143,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const quaternion& quat
     constexpr auto m_pos{static_cast<E_DjiMountPosition>(mount_position())};
 
     T_DjiCameraOpticalZoomSpec optical_zoom_spec;
-    code = DjiPayloadCamera_GetCameraOpticalZoomSpecOfPayload(m_pos, &optical_zoom_spec);
+    T_DjiReturnCode code{DjiPayloadCamera_GetCameraOpticalZoomSpecOfPayload(m_pos, &optical_zoom_spec)};
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     spdlog::debug("focal length min: {}, max: {}, step: {}", optical_zoom_spec.minFocalLength, optical_zoom_spec.maxFocalLength, optical_zoom_spec.focalLengthStep);
 
@@ -183,9 +184,8 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const quaternion& quat
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     spdlog::debug("Call DjiCameraManager_StartShootPhoto");
-    const T_DjiReturnCode code{
-        DjiCameraManager_StartShootPhoto(m_pos,
-            DJI_CAMERA_MANAGER_SHOOT_PHOTO_MODE_SINGLE)};
+    code = DjiCameraManager_StartShootPhoto(m_pos,
+            DJI_CAMERA_MANAGER_SHOOT_PHOTO_MODE_SINGLE);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     spdlog::debug("DjiCameraManager_StartShootPhoto OK");
 
@@ -453,6 +453,7 @@ auto camera_psdk::aperture_name(int value) -> const char* {
     case DJI_CAMERA_MANAGER_APERTURE_F_UNKNOWN:
       return "unknown";
     default:
+      spdlog::critical("unknown value: {}", value);
       BOOST_VERIFY(false);
       return "";
   }
@@ -601,6 +602,7 @@ auto camera_psdk::compensation_name(int value) -> const char* {
     case DJI_CAMERA_MANAGER_EXPOSURE_COMPENSATION_FIXED:
       return "fixed";
     default:
+      spdlog::critical("unknown value: {}", value);
       BOOST_VERIFY(false);
       return "";
   }
