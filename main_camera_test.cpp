@@ -47,11 +47,11 @@ auto run_main(int argc, char** argv) -> int {
     camera_psdk c{"/var/opt/i_seed_drone_onboard/best.engine"};
 
     gps_coordinates gps;
-    quaternion quat;
-    gimbal_data gimbal;
+    attitude drone_attitude;
+    attitude gimbal_attitude;
 
     spdlog::info("Shoot photo");
-    c.shoot_photo(gps, quat, gimbal);
+    c.shoot_photo(gps, drone_attitude, gimbal_attitude);
     spdlog::info("Shoot photo: DONE");
     while (true) {
       spdlog::info("Check SD card");

@@ -61,7 +61,7 @@ T_DjiReturnCode drone::quaternion_callback(const uint8_t* data, uint16_t data_si
   drone_pitch_ = asin(t2) * rad2deg; // Y
   drone_yaw_ = atan2(t1, t0) * rad2deg; // Z
 
-  spdlog::info("roll: {}, pitch: {}, yaw: {}", roll, pitch, yaw);
+  spdlog::info("roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_, drone_yaw_);
 
   BOOST_VERIFY(drone_yaw_ >= -180.0);
   BOOST_VERIFY(drone_yaw_ <= 180.0);
