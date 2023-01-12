@@ -17,14 +17,7 @@ struct gps_coordinates {
   float altitude;
 };
 
-struct quaternion {
-  float q0;
-  float q1;
-  float q2;
-  float q3;
-};
-
-struct gimbal_data {
+struct attitude {
   float pitch;
   float roll;
   float yaw;
@@ -37,8 +30,8 @@ struct detected_pixel {
 
 struct detection_result {
   gps_coordinates gps;
-  quaternion quat;
-  gimbal_data gimbal;
+  attitude drone_attitude;
+  attitude gimbal_attitude;
   std::vector<detected_pixel> pixels;
 };
 
@@ -53,8 +46,8 @@ class camera_psdk {
   camera_psdk& operator=(const camera_psdk&) = delete;
   camera_psdk& operator=(camera_psdk&&) = delete;
 
-  void shoot_photo(const gps_coordinates&, const quaternion&,
-      const gimbal_data&);
+  void shoot_photo(const gps_coordinates&, const attitude& drone_attitude,
+      const attitude& gimbal_attitude);
 
   bool check_sdcard();
 
@@ -64,8 +57,8 @@ class camera_psdk {
   std::mutex queue_mutex_;
   struct queue_entry {
     gps_coordinates gps;
-    quaternion quat;
-    gimbal_data gimbal;
+    attitude drone_attitude;
+    attitude gimbal_attitude;
   };
   std::list<queue_entry> queue_;
   timer file_waiting_timer_;

@@ -347,17 +347,22 @@ void drone::action_job_internal() {
   T_DjiReturnCode code{DjiWaypointV2_Pause()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-  if (true) {
-    // FIXME (real action)
-    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-  } else {
-    // FIXME (read data from callbacks)
-    gps_coordinates gps;
-    quaternion q;
-    gimbal_data gimbal;
+  gps_coordinates gps;
+  gps.longitude = drone_longitude_;
+  gps.latitude = drone_latitude_;
+  gps.altitude = drone_altitude_;
 
-    camera_psdk_.shoot_photo(gps, q, gimbal);
-  }
+  attitude drone_attitude;
+  drone_attitude.pitch = drone_pitch_;
+  drone_attitude.roll = drone_roll_;
+  drone_attitude.yaw = drone_yaw_;
+
+  attitude gimbal_attitude;
+  gimbal_attitude.pitch = gimbal_pitch_;
+  gimbal_attitude.roll = gimbal_roll_;
+  gimbal_attitude.yaw = gimbal_yaw_;
+
+  camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude);
 
   spdlog::info("Resume mission #{}", action_waypoint_);
   code = DjiWaypointV2_Resume();
@@ -421,9 +426,6 @@ void drone::inference_job() {
   try {
     while (true) {
       if (interrupt_condition()) {
-        return;
-      }
-      if (true) { // FIXME (remove)
         return;
       }
       camera_psdk_.check_sdcard();

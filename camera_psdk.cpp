@@ -125,11 +125,11 @@ camera_psdk::~camera_psdk() {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
-void camera_psdk::shoot_photo(const gps_coordinates& gps, const quaternion& quat,
-    const gimbal_data& gimbal) {
+void camera_psdk::shoot_photo(const gps_coordinates& gps, const attitude& drone_attitude,
+    const attitude& gimbal_attitude) {
   {
     std::lock_guard lock{queue_mutex_};
-    queue_.push_back({gps, quat, gimbal});
+    queue_.push_back({gps, drone_attitude, gimbal_attitude});
     file_waiting_timer_.start();
   }
 
@@ -340,8 +340,8 @@ auto camera_psdk::check_sdcard() -> bool {
 
     detection_result res;
     res.gps = queue_head.gps;
-    res.quat = queue_head.quat;
-    res.gimbal = queue_head.gimbal;
+    res.drone_attitude = queue_head.drone_attitude;
+    res.gimbal_attitude = queue_head.gimbal_attitude;
     for (const bounding_box& box: bb) {
       res.pixels.push_back({box.mid_x(), box.mid_y()});
     }
