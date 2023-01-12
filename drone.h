@@ -36,6 +36,8 @@ class drone {
   static constexpr int32_t protocol_version{
       6};  // Keep it consistent with Mobile SDK
 
+  static constexpr E_DjiMountPosition m_pos{DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
+
  private:
   static T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
   static T_DjiReturnCode rc_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
@@ -82,7 +84,6 @@ class drone {
   static constexpr double pi_degree{180.0};
   static constexpr double rad2deg{pi_degree / M_PI};
   static constexpr double deg2rad{M_PI / pi_degree};
-  static constexpr E_DjiMountPosition m_pos_{DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
 
   T_DjiMopChannelHandle channel_handle_{nullptr};
   camera_psdk camera_psdk_;

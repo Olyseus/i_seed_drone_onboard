@@ -12,6 +12,7 @@
 
 #include "application.hpp"
 #include "bounding_box.h"
+#include "drone.h"
 
 static std::string camera_psdk_file_dst;
 static std::FILE* camera_psdk_file;
@@ -37,10 +38,6 @@ T_DjiReturnCode camera_psdk_data_callback(
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-constexpr int camera_psdk::mount_position() {
-  return DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1;
-}
-
 camera_psdk::camera_psdk(const std::string& model_file) :
     inference_(model_file) {
   T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
@@ -51,7 +48,7 @@ camera_psdk::camera_psdk(const std::string& model_file) :
 
   E_DjiCameraType camera_type;
 
-  constexpr auto m_pos{static_cast<E_DjiMountPosition>(mount_position())};
+  constexpr E_DjiMountPosition m_pos{drone::m_pos};
   code = DjiCameraManager_GetCameraType(m_pos, &camera_type);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   BOOST_VERIFY(camera_type == DJI_CAMERA_TYPE_H20);
@@ -140,7 +137,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const quaternion& quat
     std::lock_guard lock{api_call_mutex_};
     spdlog::debug("Shoot photo request");
 
-    constexpr auto m_pos{static_cast<E_DjiMountPosition>(mount_position())};
+    constexpr E_DjiMountPosition m_pos{drone::m_pos};
 
     T_DjiCameraOpticalZoomSpec optical_zoom_spec;
     T_DjiReturnCode code{DjiPayloadCamera_GetCameraOpticalZoomSpecOfPayload(m_pos, &optical_zoom_spec)};
@@ -223,7 +220,7 @@ auto camera_psdk::check_sdcard() -> bool {
   T_DjiCameraManagerFileList media_file_list;
   {
     std::lock_guard lock{api_call_mutex_};
-    constexpr auto m_pos{static_cast<E_DjiMountPosition>(mount_position())};
+    constexpr E_DjiMountPosition m_pos{drone::m_pos};
     spdlog::info("Downloading file list"); // FIXME (remove)
     const T_DjiReturnCode code{
       DjiCameraManager_DownloadFileList(m_pos, &media_file_list)};
@@ -302,7 +299,7 @@ auto camera_psdk::check_sdcard() -> bool {
     BOOST_VERIFY(camera_psdk_file_dst.empty());
     camera_psdk_file_dst = dst_path.string();
     spdlog::info("Download file with index {} to {}", file_index, camera_psdk_file_dst);
-    constexpr auto m_pos{static_cast<E_DjiMountPosition>(mount_position())};
+    constexpr E_DjiMountPosition m_pos{drone::m_pos};
     T_DjiReturnCode code{DjiCameraManager_DownloadFileByIndex(m_pos, file_index)};
     if (code != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
       spdlog::critical("Error code: {}", code);

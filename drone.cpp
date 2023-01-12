@@ -180,10 +180,10 @@ drone::drone() :
   code = DjiGimbalManager_Init();
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-  code = DjiGimbalManager_SetMode(m_pos_, DJI_GIMBAL_MODE_FREE);
+  code = DjiGimbalManager_SetMode(m_pos, DJI_GIMBAL_MODE_FREE);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-  code = DjiGimbalManager_Reset(m_pos_);
+  code = DjiGimbalManager_Reset(m_pos);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiWaypointV2_Init();
@@ -382,7 +382,7 @@ void drone::gimbal_job_internal() {
 
   spdlog::info("Run gimbal rotation, yaw: {}", rotation.yaw);
 
-  const T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos_, rotation)};
+  const T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos, rotation)};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 

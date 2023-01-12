@@ -74,7 +74,6 @@ class camera_psdk {
 
   std::vector<detection_result> detections_;
 
-  static constexpr int mount_position();
   std::set<uint32_t> already_present_indexes_;
 
   static const char* iso_name(int value);
