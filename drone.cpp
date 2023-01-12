@@ -22,6 +22,7 @@ std::atomic<bool> drone::sigint_received_{false};
 std::atomic<double> drone::drone_yaw_{0.0};
 std::atomic<double> drone::drone_longitude_{0.0};
 std::atomic<double> drone::drone_latitude_{0.0};
+std::atomic<double> drone::drone_altitude_{0.0};
 std::atomic<int16_t> drone::rc_mode_{-1};
 
 mission_state drone::mission_state_;
@@ -86,8 +87,9 @@ T_DjiReturnCode drone::position_fused_callback(const uint8_t* data, uint16_t dat
 
   drone_latitude_ = position.latitude * rad2deg;
   drone_longitude_ = position.longitude * rad2deg;
+  drone_altitude_ = position.altitude;
 
-  spdlog::debug("drone latitude: {}, longitude: {}, altitude: {}", drone_latitude_, drone_longitude_, position.altitude);
+  spdlog::debug("drone latitude: {}, longitude: {}, altitude: {}", drone_latitude_, drone_longitude_, drone_altitude_);
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   simulator_.gps_callback(drone_latitude_, drone_longitude_);

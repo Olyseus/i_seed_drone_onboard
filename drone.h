@@ -51,6 +51,7 @@ class drone {
   static std::atomic<double> drone_roll_;
   static std::atomic<double> drone_longitude_;
   static std::atomic<double> drone_latitude_;
+  static std::atomic<double> drone_altitude_;
   static std::atomic<int16_t> rc_mode_;
   static mission_state mission_state_;
   static std::mutex execute_commands_mutex_;
