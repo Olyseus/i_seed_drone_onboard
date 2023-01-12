@@ -47,6 +47,8 @@ class drone {
   static T_DjiReturnCode mission_state_callback(T_DjiWaypointV2MissionStatePush state_data);
 
   static std::atomic<double> drone_yaw_;
+  static std::atomic<double> drone_pitch_;
+  static std::atomic<double> drone_roll_;
   static std::atomic<double> drone_longitude_;
   static std::atomic<double> drone_latitude_;
   static std::atomic<int16_t> rc_mode_;

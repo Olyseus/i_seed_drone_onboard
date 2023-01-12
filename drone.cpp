@@ -42,13 +42,27 @@ T_DjiReturnCode drone::quaternion_callback(const uint8_t* data, uint16_t data_si
   const double q2sqr{quaternion.q2 * quaternion.q2};
   const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
   const double t1{+2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
+  double t2{-2.0 * (quaternion.q1 * quaternion.q3 - quaternion.q0 * quaternion.q2)};
+  const double t3{+2.0 * (quaternion.q2 * quaternion.q3 + quaternion.q0 * quaternion.q1)};
+  const double t4{-2.0 * (quaternion.q1 * quaternion.q1 + q2sqr) + 1.0};
+
+  t2 = (t2 > 1.0) ? 1.0 : t2;
+  t2 = (t2 < -1.0) ? -1.0 : t2;
 
   // https://sdk-forum.dji.net/hc/en-us/requests/74003
   // https://sdk-forum.dji.net/hc/en-us/articles/360023657273
+  drone_roll_ = atan2(t3, t4) * rad2deg; // X
+  drone_pitch_ = asin(t2) * rad2deg; // Y
   drone_yaw_ = atan2(t1, t0) * rad2deg; // Z
+
+  spdlog::info("roll: {}, pitch: {}, yaw: {}", roll, pitch, yaw);
 
   BOOST_VERIFY(drone_yaw_ >= -180.0);
   BOOST_VERIFY(drone_yaw_ <= 180.0);
+  BOOST_VERIFY(drone_pitch_ > -90.0);
+  BOOST_VERIFY(drone_pitch_ < 90.0);
+  BOOST_VERIFY(drone_roll_ > -90.0);
+  BOOST_VERIFY(drone_roll_ < 90.0);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
