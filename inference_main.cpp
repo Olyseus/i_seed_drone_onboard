@@ -15,8 +15,10 @@ void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
   console_sink->set_level(spdlog::level::info);
 
-  const boost::filesystem::path log_path{"inference.log"};
-  boost::filesystem::remove(log_path);
+  namespace fs = boost::filesystem;
+
+  const fs::path log_path{fs::absolute("inference.log")};
+  fs::remove(log_path);
 
   constexpr std::size_t max_file_size{10 * 1024 * 1024};
   constexpr std::size_t max_file_num{3};

@@ -37,8 +37,10 @@ void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
   console_sink->set_level(spdlog::level::info);
 
-  const boost::filesystem::path log_path{"i_seed_drone_sdcard_clean.log"};
-  boost::filesystem::remove(log_path);
+  namespace fs = boost::filesystem;
+
+  const fs::path log_path{fs::absolute("i_seed_drone_sdcard_clean.log")};
+  fs::remove(log_path);
 
   constexpr std::size_t max_file_size{10 * 1024 * 1024};
   constexpr std::size_t max_file_num{3};
@@ -130,12 +132,12 @@ auto run_main(int argc, char** argv) -> int {
       code = DjiCameraManager_DeleteFileByIndex(m_pos, file_index);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-      boost::filesystem::remove(dst_path);
-      BOOST_VERIFY(!boost::filesystem::exists(dst_path));
+      fs::remove(dst_path);
+      BOOST_VERIFY(!fs::exists(dst_path));
     }
 
-    boost::filesystem::remove_all(top_dir);
-    BOOST_VERIFY(!boost::filesystem::exists(top_dir));
+    fs::remove_all(top_dir);
+    BOOST_VERIFY(!fs::exists(top_dir));
 
     code = DjiCameraManager_DeInit();
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
