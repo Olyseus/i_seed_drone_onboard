@@ -166,19 +166,20 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const quaternion& quat
 
     // FIXME, try:
     // DJI_CAMERA_MANAGER_EXPOSURE_MODE_PROGRAM_AUTO
-    // DJI_CAMERA_MANAGER_EXPOSURE_MODE_SHUTTER_PRIORITY
-    // DJI_CAMERA_MANAGER_EXPOSURE_MODE_APERTURE_PRIORITY
-    code = DjiCameraManager_SetExposureMode(m_pos, DJI_CAMERA_MANAGER_EXPOSURE_MODE_EXPOSURE_MANUAL);
+    // DJI_CAMERA_MANAGER_EXPOSURE_MODE_EXPOSURE_MANUAL
+    code = DjiCameraManager_SetExposureMode(m_pos, DJI_CAMERA_MANAGER_EXPOSURE_MODE_PROGRAM_AUTO);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-    code = DjiCameraManager_SetISO(m_pos, DJI_CAMERA_MANAGER_ISO_100);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    if (false) { // FIXME (upstream issue)
+      code = DjiCameraManager_SetISO(m_pos, DJI_CAMERA_MANAGER_ISO_100);
+      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-    code = DjiCameraManager_SetAperture(m_pos, DJI_CAMERA_MANAGER_APERTURE_F_1_DOT_7);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      code = DjiCameraManager_SetAperture(m_pos, DJI_CAMERA_MANAGER_APERTURE_F_1_DOT_7);
+      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-    code = DjiCameraManager_SetShutterSpeed(m_pos, DJI_CAMERA_MANAGER_SHUTTER_SPEED_1_8000);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      code = DjiCameraManager_SetShutterSpeed(m_pos, DJI_CAMERA_MANAGER_SHUTTER_SPEED_1_8000);
+      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    }
 
     spdlog::debug("Call DjiCameraManager_StartShootPhoto");
     code = DjiCameraManager_StartShootPhoto(m_pos,
@@ -186,25 +187,27 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const quaternion& quat
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     spdlog::debug("DjiCameraManager_StartShootPhoto OK");
 
-    E_DjiCameraManagerISO iso;
-    code = DjiCameraManager_GetISO(m_pos, &iso);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-    spdlog::info("ISO: {}", iso_name(iso));
+    if (false) { // FIXME (upstream issue)
+      E_DjiCameraManagerISO iso;
+      code = DjiCameraManager_GetISO(m_pos, &iso);
+      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      spdlog::info("ISO: {}", iso_name(iso));
 
-    E_DjiCameraManagerAperture aperture;
-    code = DjiCameraManager_GetAperture(m_pos, &aperture);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-    spdlog::info("aperture: {}", aperture_name(aperture));
+      E_DjiCameraManagerAperture aperture;
+      code = DjiCameraManager_GetAperture(m_pos, &aperture);
+      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      spdlog::info("aperture: {}", aperture_name(aperture));
 
-    E_DjiCameraManagerShutterSpeed shutter_speed;
-    code = DjiCameraManager_GetShutterSpeed(m_pos, &shutter_speed);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-    spdlog::info("shutter speed: {}", shutter_speed_name(shutter_speed));
+      E_DjiCameraManagerShutterSpeed shutter_speed;
+      code = DjiCameraManager_GetShutterSpeed(m_pos, &shutter_speed);
+      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      spdlog::info("shutter speed: {}", shutter_speed_name(shutter_speed));
 
-    E_DjiCameraManagerExposureCompensation compensation;
-    code = DjiCameraManager_GetExposureCompensation(m_pos, &compensation);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-    spdlog::info("exposure compensation: {}", compensation_name(compensation));
+      E_DjiCameraManagerExposureCompensation compensation;
+      code = DjiCameraManager_GetExposureCompensation(m_pos, &compensation);
+      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      spdlog::info("exposure compensation: {}", compensation_name(compensation));
+    }
   }
 }
 
