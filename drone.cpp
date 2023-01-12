@@ -153,27 +153,33 @@ drone::drone() :
     camera_psdk_{"/var/opt/i_seed_drone_onboard/best.engine"} {
   BOOST_VERIFY(sigint_received_.is_lock_free());
 
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  constexpr E_DjiDataSubscriptionTopicFreq topic_freq{DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ};
+#else
+  constexpr E_DjiDataSubscriptionTopicFreq topic_freq{DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ};
+#endif
+
   T_DjiReturnCode code{DjiFcSubscription_Init()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiFcSubscription_SubscribeTopic(
-      DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ,
+      DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, topic_freq,
       quaternion_callback);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiFcSubscription_SubscribeTopic(
-      DJI_FC_SUBSCRIPTION_TOPIC_RC, DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ,
+      DJI_FC_SUBSCRIPTION_TOPIC_RC, topic_freq,
       rc_callback);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiFcSubscription_SubscribeTopic(
-      DJI_FC_SUBSCRIPTION_TOPIC_POSITION_FUSED, DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ,
+      DJI_FC_SUBSCRIPTION_TOPIC_POSITION_FUSED, topic_freq,
       position_fused_callback);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiFcSubscription_SubscribeTopic(
       DJI_FC_SUBSCRIPTION_TOPIC_THREE_GIMBAL_DATA,
-      DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
+      topic_freq,
       gimbal_callback);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
