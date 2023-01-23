@@ -145,7 +145,7 @@ auto run_main(int argc, char** argv) -> int {
         continue;
       }
 
-      spdlog::info("RUN GIMBAL ROTATION, + {} yaw", rotation.yaw);
+      spdlog::info("RUN GIMBAL ROTATION yaw: {}, roll: {}, pitch: {}", rotation.yaw, rotation.roll, rotation.pitch);
 
       code = DjiGimbalManager_Rotate(m_pos, rotation);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
