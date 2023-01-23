@@ -388,10 +388,6 @@ void drone::gimbal_job() {
 }
 
 void drone::gimbal_job_internal() {
-  if (true) { // FIXME (enable)
-    return;
-  }
-
   T_DjiGimbalManagerRotation rotation;
   rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_ABSOLUTE_ANGLE;
   rotation.pitch = 0.0; // -90.0: down, 0.0: forward
