@@ -41,10 +41,10 @@ void setup_logging() {
   spdlog::info("Logging to file: {}", log_path.string());
 }
 
-static double drone_yaw{0.0};
-static double gimbal_roll{0.0};
-static double gimbal_pitch{0.0};
-static double gimbal_yaw{0.0};
+static std::atomic<double> drone_yaw{0.0};
+static std::atomic<double> gimbal_roll{0.0};
+static std::atomic<double> gimbal_pitch{0.0};
+static std::atomic<double> gimbal_yaw{0.0};
 
 T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
@@ -77,7 +77,11 @@ T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size, const T
   (void)data_size;
   (void)timestamp;
 
-  spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", d.pitch, d.roll, d.yaw);
+  gimbal_roll = d.roll;
+  gimbal_pitch = d.pitch;
+  gimbal_yaw = d.yaw;
+
+  spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch, gimbal_roll, gimbal_yaw);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
@@ -122,25 +126,29 @@ auto run_main(int argc, char** argv) -> int {
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     while (true) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+
+      constexpr double expected_gimbal_pitch{0.0}; // -90.0: down, 0.0: forward
+      constexpr double expected_gimbal_roll{0.0};
+      const double expected_gimbal_yaw{drone_yaw};
 
       T_DjiGimbalManagerRotation rotation;
-      rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_ABSOLUTE_ANGLE;
-      rotation.pitch = 0.0; // -90.0: down, 0.0: forward
-      rotation.roll = 0.0;
-      rotation.yaw = drone_yaw;
-      rotation.time = 0.1;
+      rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_RELATIVE_ANGLE;
+      rotation.pitch = expected_gimbal_pitch - gimbal_pitch;
+      rotation.roll = expected_gimbal_roll - gimbal_roll;
+      rotation.yaw = expected_gimbal_yaw - gimbal_yaw;
+      rotation.time = 0.5;
 
       constexpr float eps{1e-3};
       constexpr float rough_eps{0.1 + eps};
-      const double d_roll{std::abs(rotation.roll - gimbal_roll)};
-      const double d_pitch{std::abs(rotation.pitch - gimbal_pitch)};
-      const double d_yaw{std::abs(rotation.yaw - gimbal_yaw)};
+      const double d_roll{std::abs(rotation.roll)};
+      const double d_pitch{std::abs(rotation.pitch)};
+      const double d_yaw{std::abs(rotation.yaw)};
       if (d_roll < rough_eps && d_pitch < rough_eps && d_yaw < rough_eps) {
         continue;
       }
 
-      spdlog::info("Run gimbal rotation, yaw: {}", rotation.yaw);
+      spdlog::info("RUN GIMBAL ROTATION, + {} yaw", rotation.yaw);
 
       code = DjiGimbalManager_Rotate(m_pos, rotation);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
