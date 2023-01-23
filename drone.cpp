@@ -379,7 +379,9 @@ void drone::gimbal_job() {
         return;
       }
       gimbal_job_internal();
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+      // Rotation time is 500ms, check every 1000ms
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
   } catch (std::exception& e) {
     exception_caught_ = true;
@@ -388,28 +390,32 @@ void drone::gimbal_job() {
 }
 
 void drone::gimbal_job_internal() {
-  T_DjiGimbalManagerRotation rotation;
-  rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_ABSOLUTE_ANGLE;
-  rotation.pitch = 0.0; // -90.0: down, 0.0: forward
-  rotation.roll = 0.0;
-  rotation.yaw = drone_yaw_;
-  rotation.time = 0.1;
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  constexpr double expected_gimbal_pitch{0.0}; // forward
+#else
+  constexpr double expected_gimbal_pitch{-90.0}; // down
+#endif
 
-  // FIXME (read from callback)
-  const double gimbal_roll{0.0};
-  const double gimbal_pitch{0.0};
-  const double gimbal_yaw{0.0};
+  constexpr double expected_gimbal_roll{0.0};
+  const double expected_gimbal_yaw{drone_yaw_};
+
+  T_DjiGimbalManagerRotation rotation;
+  rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_RELATIVE_ANGLE;
+  rotation.pitch = expected_gimbal_pitch - gimbal_pitch_;
+  rotation.roll = expected_gimbal_roll - gimbal_roll_;
+  rotation.yaw = expected_gimbal_yaw - gimbal_yaw_;
+  rotation.time = 0.5; // 500ms, should be consistent with check loop
 
   constexpr float eps{1e-3};
   constexpr float rough_eps{0.1 + eps};
-  const double d_roll{std::abs(rotation.roll - gimbal_roll)};
-  const double d_pitch{std::abs(rotation.pitch - gimbal_pitch)};
-  const double d_yaw{std::abs(rotation.yaw - gimbal_yaw)};
+  const double d_roll{std::abs(rotation.roll)};
+  const double d_pitch{std::abs(rotation.pitch)};
+  const double d_yaw{std::abs(rotation.yaw)};
   if (d_roll < rough_eps && d_pitch < rough_eps && d_yaw < rough_eps) {
     return;
   }
 
-  spdlog::info("Run gimbal rotation, yaw: {}", rotation.yaw);
+  spdlog::info("Run gimbal rotation, yaw: {}, roll: {}, pitch: {}", rotation.yaw, rotation.roll, rotation.pitch);
 
   const T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos, rotation)};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
