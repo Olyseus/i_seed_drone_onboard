@@ -122,9 +122,6 @@ auto run_main(int argc, char** argv) -> int {
     code = DjiGimbalManager_SetMode(m_pos, DJI_GIMBAL_MODE_FREE);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-    code = DjiGimbalManager_Reset(m_pos);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-
     while (true) {
       std::this_thread::sleep_for(std::chrono::seconds(1));
 
