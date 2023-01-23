@@ -214,9 +214,6 @@ drone::drone() :
   code = DjiGimbalManager_SetMode(m_pos, DJI_GIMBAL_MODE_FREE);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-  code = DjiGimbalManager_Reset(m_pos);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-
   code = DjiWaypointV2_Init();
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
