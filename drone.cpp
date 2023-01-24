@@ -359,6 +359,7 @@ void drone::action_job_internal() {
   gimbal_attitude.roll = gimbal_roll_;
   gimbal_attitude.yaw = gimbal_yaw_;
 
+  spdlog::debug("Gimbal/drone yaw diff: {}", std::abs(drone_yaw_ - gimbal_yaw_));
   camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude);
 
   spdlog::info("Resume mission #{}", action_waypoint_);
