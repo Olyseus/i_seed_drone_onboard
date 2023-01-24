@@ -718,13 +718,18 @@ T_DjiWaypointV2 drone::make_waypoint(double latitude, double longitude,
   p.relativeHeight = relative_height;
 
   p.waypointType = DJI_WAYPOINT_V2_FLIGHT_PATH_MODE_GO_TO_POINT_IN_STRAIGHT_AND_STOP;
+
+  // Aircraft's heading will always be in the direction of flight
   p.headingMode = DJI_WAYPOINT_V2_HEADING_MODE_AUTO;
+
+  // FIXME (use for the backward mission)
+  // p.headingMode = DJI_WAYPOINT_V2_HEADING_WAYPOINT_CUSTOM;
 
   p.config.useLocalCruiseVel = 0;  // set local waypoint's cruise speed
   p.config.useLocalMaxVel = 0;     // set local waypoint's max speed
 
   p.dampingDistance = 40;  // cm
-  p.heading = 0.0;         // unused?
+  p.heading = 0.0; // FIXME: use for DJI_WAYPOINT_V2_HEADING_WAYPOINT_CUSTOM
 
   p.turnMode = DJI_WAYPOINT_V2_TURN_MODE_CLOCK_WISE;
 
