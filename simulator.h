@@ -36,11 +36,11 @@ class simulator {
   double latitude_{0.0};
   double longitude_{0.0};
 
-  static constexpr double p1_lat_{48.85};
-  static constexpr double p1_lon_{2.40};
+  static constexpr double p1_lat_{48.90};
+  static constexpr double p1_lon_{-9.40};
 
-  static constexpr double p2_lat_{48.85};
-  static constexpr double p2_lon_{2.4003};
+  static constexpr double p2_lat_{48.90};
+  static constexpr double p2_lon_{-9.4003};
 };
 #endif
 
