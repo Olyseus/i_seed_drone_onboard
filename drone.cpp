@@ -513,8 +513,8 @@ void drone::receive_data_job_internal() {
         waypoints_.clear();
         waypoints_.push_back(make_waypoint(lat, lon + 0.0001, 15.0F));
         waypoints_.push_back(make_waypoint(lat, lon + 0.0002, 25.0F));
-        waypoints_.push_back(make_waypoint(lat, lon + 0.0003, 35.0F));
-        waypoints_.push_back(make_waypoint(lat, lon + 0.0004, 45.0F));
+        // FIXME (remove) waypoints_.push_back(make_waypoint(lat, lon + 0.0003, 35.0F));
+        // FIXME (remove) waypoints_.push_back(make_waypoint(lat, lon + 0.0004, 45.0F));
         s.mission = waypoints_.data();
 
         s.missTotalLen = waypoints_.size();
