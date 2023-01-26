@@ -224,10 +224,10 @@ auto camera_psdk::check_sdcard() -> bool {
   {
     std::lock_guard lock{api_call_mutex_};
     constexpr E_DjiMountPosition m_pos{drone::m_pos};
-    spdlog::info("Downloading file list"); // FIXME (remove)
+    spdlog::debug("Downloading file list"); // FIXME (remove)
     const T_DjiReturnCode code{
       DjiCameraManager_DownloadFileList(m_pos, &media_file_list)};
-    spdlog::info("Downloading file list: DONE"); // FIXME (remove)
+    spdlog::debug("Downloading file list: DONE"); // FIXME (remove)
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   }
 
@@ -238,7 +238,7 @@ auto camera_psdk::check_sdcard() -> bool {
     const T_DjiCameraManagerFileListInfo& info{media_file_list.fileListInfo[i]};
 
     // FIXME (remove)
-    spdlog::info(
+    spdlog::debug(
                    "  Name: {}, index: {}, time:{}-{}-{}_{}:{}:{}, size: {:.2f} MB",
                    info.fileName,
                    info.fileIndex,
@@ -267,7 +267,7 @@ auto camera_psdk::check_sdcard() -> bool {
 
   if (inference_files.empty()) {
     // No files to process
-    spdlog::info("No files to process"); // FIXME (remove)
+    spdlog::debug("No files to process"); // FIXME (remove)
     return false;
   }
 
