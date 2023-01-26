@@ -246,6 +246,7 @@ drone::drone() :
 
 void drone::sigint_handler(int signal) {
   (void)signal;
+  spdlog::critical("SIGINT received");
   sigint_received_ = true;
 }
 
@@ -329,6 +330,7 @@ void drone::action_job() {
       BOOST_VERIFY(action_waypoint_ != mission_state::invalid_waypoint);
 
       if (interrupt_condition()) {
+        spdlog::critical("Action job exit");
         return;
       }
       action_job_internal();
@@ -377,6 +379,7 @@ void drone::gimbal_job() {
 
     while (true) {
       if (interrupt_condition()) {
+        spdlog::critical("Gimbal job exit");
         return;
       }
       gimbal_job_internal();
@@ -416,6 +419,7 @@ void drone::gimbal_job_internal() {
     return;
   }
 
+  spdlog::info("Current gimbal yaw: {}", gimbal_yaw_);
   spdlog::info("Run gimbal rotation, yaw: {}, roll: {}, pitch: {}", rotation.yaw, rotation.roll, rotation.pitch);
 
   const T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos, rotation)};
@@ -426,6 +430,7 @@ void drone::inference_job() {
   try {
     while (true) {
       if (interrupt_condition()) {
+        spdlog::critical("Inference job exit");
         return;
       }
       camera_psdk_.check_sdcard();
