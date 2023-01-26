@@ -47,6 +47,7 @@ void mission_state::update(T_DjiWaypointV2MissionEventPush event_data) {
 }
 
 uint16_t mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
+  spdlog::debug("update: T_DjiWaypointV2MissionStatePush.state = {}", static_cast<unsigned>(state_data.state));
   std::lock_guard<std::mutex> lock(m_);
 
   const uint16_t waypoint_index{state_data.curWaypointIndex};
