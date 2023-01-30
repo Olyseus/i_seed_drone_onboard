@@ -513,6 +513,23 @@ void drone::receive_data_job_internal() {
                      lon, s.missionID);
 
         T_DjiReturnCode code = DjiWaypointV2_UploadMission(&s);
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+        if (code != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
+          // Assuming that mission can't be uploaded because it's paused
+          spdlog::critical("Resume previous mission (?)");
+          code = DjiWaypointV2_Resume();
+          BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+          while (true) {
+            code = DjiWaypointV2_UploadMission(&s);
+            if (code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
+              break;
+            }
+            spdlog::critical("Upload failed, waiting...");
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+          }
+        }
+#endif
         BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
