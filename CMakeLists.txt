@@ -72,6 +72,8 @@ add_library(
     boost_assert.cpp
     bounding_box.cpp
     bounding_box.h
+    home_altitude.cpp
+    home_altitude.h
     inference.cpp
     inference.h
     json_sax_event_consumer.cpp
@@ -363,6 +365,7 @@ endif()
 
 add_executable(
     i_seed_drone_onboard_core_ut
+    home_altitude_ut.cpp
     i_seed_drone_onboard_core_ut.cpp
     magnetic_declination_ut.cpp
     main_ut.cpp
