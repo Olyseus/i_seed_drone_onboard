@@ -270,7 +270,6 @@ void drone::start() {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   std::thread action_thread{&drone::action_job, this};
-  std::thread gimbal_thread{&drone::gimbal_job, this};
   std::thread inference_thread{&drone::inference_job, this};
 
   while (!interrupt_condition()) {
@@ -305,7 +304,6 @@ void drone::start() {
   action_thread.join();
 
   // Wait for other threads to finish. No need to nofify
-  gimbal_thread.join();
   inference_thread.join();
 
   if (sigint_received_) {
@@ -346,6 +344,8 @@ void drone::action_job_internal() {
   T_DjiReturnCode code{DjiWaypointV2_Pause()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
+  align_gimbal();
+
   gps_coordinates gps;
   gps.longitude = drone_longitude_;
   gps.latitude = drone_latitude_;
@@ -372,33 +372,14 @@ void drone::action_job_internal() {
   action_waypoint_ = mission_state::invalid_waypoint;
 }
 
-void drone::gimbal_job() {
-  try {
-    // Wait for callbacks initialization
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-
-    while (true) {
-      if (interrupt_condition()) {
-        spdlog::critical("Gimbal job exit");
-        return;
-      }
-      gimbal_job_internal();
-
-      // Rotation time is 500ms, check every 1000ms
-      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
-  } catch (std::exception& e) {
-    exception_caught_ = true;
-    spdlog::critical("Exception: {}", e.what());
-  }
-}
-
-void drone::gimbal_job_internal() {
+void drone::align_gimbal() {
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   constexpr double expected_gimbal_pitch{0.0}; // forward
 #else
   constexpr double expected_gimbal_pitch{-90.0}; // down
 #endif
+
+  constexpr int time_ms{500};
 
   constexpr double expected_gimbal_roll{0.0};
   const double expected_gimbal_yaw{drone_yaw_};
@@ -408,7 +389,7 @@ void drone::gimbal_job_internal() {
   rotation.pitch = expected_gimbal_pitch - gimbal_pitch_;
   rotation.roll = expected_gimbal_roll - gimbal_roll_;
   rotation.yaw = expected_gimbal_yaw - gimbal_yaw_;
-  rotation.time = 0.5; // 500ms, should be consistent with check loop
+  rotation.time = time_ms / 1000.0;
 
   constexpr float eps{1e-3};
   constexpr float rough_eps{0.1 + eps};
@@ -424,6 +405,8 @@ void drone::gimbal_job_internal() {
 
   const T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos, rotation)};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(time_ms));
 }
 
 void drone::inference_job() {

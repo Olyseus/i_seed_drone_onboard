@@ -65,8 +65,7 @@ class drone {
   void action_job();
   void action_job_internal();
 
-  void gimbal_job();
-  void gimbal_job_internal();
+  void align_gimbal();
 
   void inference_job();
 
