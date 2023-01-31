@@ -70,14 +70,14 @@ add_library(
     ${gen_cc}
     ${gen_h}
     boost_assert.cpp
-    json_sax_event_consumer.cpp
-    json_sax_event_consumer.h
-    magnetic_declination.cpp
-    magnetic_declination.h
     bounding_box.cpp
     bounding_box.h
     inference.cpp
     inference.h
+    json_sax_event_consumer.cpp
+    json_sax_event_consumer.h
+    magnetic_declination.cpp
+    magnetic_declination.h
     timer.h
 )
 
