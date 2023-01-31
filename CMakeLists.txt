@@ -74,8 +74,6 @@ add_library(
     json_sax_event_consumer.h
     magnetic_declination.cpp
     magnetic_declination.h
-    simulator.cpp
-    simulator.h
     bounding_box.cpp
     bounding_box.h
     inference.cpp
@@ -87,7 +85,7 @@ set_source_files_properties(
     inference.cpp
     PROPERTIES
     COMPILE_OPTIONS
-    "-Wno-deprecated-declarations"
+    "-Wno-deprecated-declarations;-Wno-unused-parameter"
 )
 
 find_package(CUDAToolkit REQUIRED) # CUDA::cudart
@@ -141,8 +139,10 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       third_party/psdk/application.hpp
       third_party/psdk/dji_sdk_app_info.h
       third_party/psdk/dji_sdk_config.h
-      camera_psdk.h
       camera_psdk.cpp
+      camera_psdk.h
+      simulator.cpp
+      simulator.h
   )
   set_source_files_properties(
       third_party/psdk/application.cpp
@@ -372,11 +372,25 @@ add_executable(
 add_executable(i_seed_convert convert_main.cpp)
 target_link_libraries(i_seed_convert PRIVATE i_seed_drone_onboard_core)
 
+set_source_files_properties(
+    convert_main.cpp
+    PROPERTIES
+    COMPILE_OPTIONS
+    "-Wno-deprecated-declarations;-Wno-unused-parameter"
+)
+
 find_package(CLI11 CONFIG REQUIRED) # CLI11::CLI11
 target_link_libraries(i_seed_convert PUBLIC CLI11::CLI11)
 
 add_executable(i_seed_inference inference_main.cpp)
 target_link_libraries(i_seed_inference PRIVATE i_seed_drone_onboard_core)
+
+set_source_files_properties(
+    inference_main.cpp
+    PROPERTIES
+    COMPILE_OPTIONS
+    "-Wno-deprecated-declarations;-Wno-unused-parameter"
+)
 
 find_package(CLI11 CONFIG REQUIRED) # CLI11::CLI11
 target_link_libraries(i_seed_inference PUBLIC CLI11::CLI11)
