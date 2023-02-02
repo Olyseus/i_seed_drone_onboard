@@ -48,6 +48,9 @@ camera_psdk::camera_psdk(const std::string& model_file) :
 
   E_DjiCameraType camera_type;
 
+  // Workaround for failed DjiCameraManager_GetCameraType
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
   constexpr E_DjiMountPosition m_pos{drone::m_pos};
   code = DjiCameraManager_GetCameraType(m_pos, &camera_type);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
