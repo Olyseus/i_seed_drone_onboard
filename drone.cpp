@@ -435,11 +435,6 @@ void drone::align_gimbal() {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
-
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  // Wait for a topic update
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000 - time_ms));
-#endif
 }
 
 void drone::inference_job() {
