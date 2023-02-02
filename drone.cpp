@@ -362,6 +362,9 @@ void drone::action_job_internal() {
   T_DjiReturnCode code{DjiWaypointV2_Pause()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
+  // Wait for drone to finish the movement
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
   align_gimbal();
 
   spdlog::info("drone latitude: {}, longitude: {}, altitude: {}", drone_latitude_, drone_longitude_, drone_altitude_);
