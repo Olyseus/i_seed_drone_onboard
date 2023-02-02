@@ -82,13 +82,13 @@ class drone {
   void send_command(interconnection::command_type::command_t);
   void receive_data(std::string* buffer);
   void send_data(std::string& buffer);
-  T_DjiWaypointV2 make_waypoint(double latitude, double longitude,
-                                      float relative_height);
+  T_DjiWaypointV2 make_waypoint(double latitude, double longitude);
 
   static constexpr uint16_t channel_id{
       9745};  // Just a random number. Keep it consistent with Mobile SDK
   static constexpr int pkg_index{0};
   static constexpr int timeout{20};
+  static constexpr double mission_altitude_{15}; // 15m
 
   static constexpr double pi_degree{180.0};
   static constexpr double rad2deg{pi_degree / M_PI};

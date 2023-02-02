@@ -524,8 +524,8 @@ void drone::receive_data_job_internal() {
         // FIXME (points from polygons)
         // FIXME (action at waypoint)
         waypoints_.clear();
-        waypoints_.push_back(make_waypoint(lat, lon + 0.0001, 15.0F));
-        waypoints_.push_back(make_waypoint(lat, lon + 0.0002, 25.0F));
+        waypoints_.push_back(make_waypoint(lat, lon + 0.0001));
+        waypoints_.push_back(make_waypoint(lat, lon + 0.0002));
         // FIXME (remove) waypoints_.push_back(make_waypoint(lat, lon + 0.0003, 35.0F));
         // FIXME (remove) waypoints_.push_back(make_waypoint(lat, lon + 0.0004, 45.0F));
         s.mission = waypoints_.data();
@@ -746,13 +746,12 @@ void drone::send_data(std::string& buffer) {
   }
 }
 
-T_DjiWaypointV2 drone::make_waypoint(double latitude, double longitude,
-                                           float relative_height) {
+T_DjiWaypointV2 drone::make_waypoint(double latitude, double longitude) {
   T_DjiWaypointV2 p;
 
   p.latitude = latitude * deg2rad;
   p.longitude = longitude * deg2rad;
-  p.relativeHeight = relative_height;
+  p.relativeHeight = mission_altitude_;
 
   p.waypointType = DJI_WAYPOINT_V2_FLIGHT_PATH_MODE_GO_TO_POINT_IN_STRAIGHT_AND_STOP;
 
