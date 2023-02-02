@@ -45,6 +45,9 @@ class drone {
   static T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
   static T_DjiReturnCode mission_event_callback(T_DjiWaypointV2MissionEventPush event_data);
   static T_DjiReturnCode mission_state_callback(T_DjiWaypointV2MissionStatePush state_data);
+  static T_DjiReturnCode homepoint_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
+
+  static constexpr double invalid_homepoint_altitude_{std::numeric_limits<double>::lowest()};
 
   static std::atomic<double> drone_yaw_;
   static std::atomic<double> drone_pitch_;
@@ -55,6 +58,7 @@ class drone {
   static std::atomic<double> gimbal_yaw_;
   static std::atomic<double> gimbal_pitch_;
   static std::atomic<double> gimbal_roll_;
+  static std::atomic<double> homepoint_altitude_;
   static std::atomic<int16_t> rc_mode_;
   static mission_state mission_state_;
   static std::mutex execute_commands_mutex_;

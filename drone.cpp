@@ -28,6 +28,7 @@ std::atomic<double> drone::drone_altitude_{0.0};
 std::atomic<double> drone::gimbal_yaw_;
 std::atomic<double> drone::gimbal_pitch_;
 std::atomic<double> drone::gimbal_roll_;
+std::atomic<double> drone::homepoint_altitude_{invalid_homepoint_altitude_};
 std::atomic<int16_t> drone::rc_mode_{-1};
 
 mission_state drone::mission_state_;
@@ -174,6 +175,20 @@ T_DjiReturnCode drone::mission_state_callback(T_DjiWaypointV2MissionStatePush st
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
+T_DjiReturnCode drone::homepoint_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+  BOOST_VERIFY(data != nullptr);
+  const auto altitude{*(const T_DjiFcSubscriptionAltitudeOfHomePoint*)data};
+  (void)data_size;
+  (void)timestamp;
+
+  homepoint_altitude_ = altitude;
+  BOOST_VERIFY(homepoint_altitude_ > invalid_homepoint_altitude_);
+
+  spdlog::debug("home altitude: {}", homepoint_altitude_);
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+
 drone::drone() :
     camera_psdk_{"/var/opt/i_seed_drone_onboard/best.engine"} {
   BOOST_VERIFY(sigint_received_.is_lock_free());
@@ -202,6 +217,13 @@ drone::drone() :
       DJI_FC_SUBSCRIPTION_TOPIC_THREE_GIMBAL_DATA,
       topic_freq,
       gimbal_callback);
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  // https://sdk-forum.dji.net/hc/en-us/requests/76593
+  code = DjiFcSubscription_SubscribeTopic(
+      DJI_FC_SUBSCRIPTION_TOPIC_ALTITUDE_OF_HOMEPOINT,
+      DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
+      homepoint_callback);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiGimbalManager_Init();
