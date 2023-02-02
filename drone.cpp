@@ -382,6 +382,7 @@ void drone::align_gimbal() {
 #endif
 
   constexpr int time_ms{500};
+  constexpr int time_wait_ms{3 * time_ms};
 
   constexpr double expected_gimbal_roll{0.0};
   const double expected_gimbal_yaw{drone_yaw_};
@@ -408,7 +409,7 @@ void drone::align_gimbal() {
   const T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos, rotation)};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(time_ms));
+  std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   // Wait for a topic update
