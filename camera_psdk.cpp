@@ -138,7 +138,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const attitude& drone_
 
   {
     std::lock_guard lock{api_call_mutex_};
-    spdlog::debug("Shoot photo request");
+    spdlog::info("Shoot photo request");
 
     constexpr E_DjiMountPosition m_pos{drone::m_pos};
 
