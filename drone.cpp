@@ -534,7 +534,8 @@ void drone::receive_data_job_internal() {
 #endif
         BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        // If DjiWaypointV2_Start failed
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
         code = DjiWaypointV2_Start();
         BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
