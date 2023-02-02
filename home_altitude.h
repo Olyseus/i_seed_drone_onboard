@@ -1,6 +1,7 @@
 #ifndef HOME_ALTITUDE_H_
 #define HOME_ALTITUDE_H_
 
+#include <optional>
 #include <vector>
 
 class home_altitude {
@@ -17,16 +18,14 @@ class home_altitude {
 
   void mission_start();
 
-  void set_altitude(double drone_altitude, double mission_altitude);
+  void set_altitude(double drone_altitude, double mission_altitude, double home_altitude);
   double get_home_altitude() const;
 
   void mission_stop();
 
  private:
-  double average_drone_altitude() const;
-
   bool in_progress_{false};
-  std::vector<double> altitudes_;
+  std::optional<double> home_altitude_;
   double mission_altitude_{0.0};
 };
 
