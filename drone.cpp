@@ -61,7 +61,7 @@ T_DjiReturnCode drone::quaternion_callback(const uint8_t* data, uint16_t data_si
   drone_pitch_ = asin(t2) * rad2deg; // Y
   drone_yaw_ = atan2(t1, t0) * rad2deg; // Z
 
-  spdlog::info("roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_, drone_yaw_);
+  spdlog::debug("roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_, drone_yaw_);
 
   BOOST_VERIFY(drone_yaw_ >= -180.0);
   BOOST_VERIFY(drone_yaw_ <= 180.0);
@@ -346,6 +346,10 @@ void drone::action_job_internal() {
 
   align_gimbal();
 
+  spdlog::info("drone latitude: {}, longitude: {}, altitude: {}", drone_latitude_, drone_longitude_, drone_altitude_);
+  spdlog::info("drone roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_, drone_yaw_);
+  spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch_, gimbal_roll_, gimbal_yaw_);
+
   gps_coordinates gps;
   gps.longitude = drone_longitude_;
   gps.latitude = drone_latitude_;
@@ -362,7 +366,7 @@ void drone::action_job_internal() {
   gimbal_attitude.yaw = gimbal_yaw_;
 
   const double yaw_diff{std::abs(drone_yaw_ - gimbal_yaw_)};
-  spdlog::debug("Gimbal/drone yaw diff: {}", yaw_diff);
+  spdlog::info("Gimbal/drone yaw diff: {}", yaw_diff);
   BOOST_VERIFY(yaw_diff < 0.5);
   camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude);
 
@@ -402,7 +406,7 @@ void drone::align_gimbal() {
     return;
   }
 
-  spdlog::info("Current gimbal yaw: {}", gimbal_yaw_);
+  spdlog::info("Current gimbal yaw: {}, expected: {}", gimbal_yaw_, expected_gimbal_yaw);
   spdlog::info("Run gimbal rotation, yaw: {}, roll: {}, pitch: {}", rotation.yaw, rotation.roll, rotation.pitch);
 
   const T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos, rotation)};
