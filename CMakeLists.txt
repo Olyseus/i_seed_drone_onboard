@@ -78,6 +78,8 @@ add_library(
     inference.h
     json_sax_event_consumer.cpp
     json_sax_event_consumer.h
+    laser_range.cpp
+    laser_range.h
     magnetic_declination.cpp
     magnetic_declination.h
     timer.h
