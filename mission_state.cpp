@@ -106,6 +106,8 @@ const char* mission_state::state_name() const {
       return "enter mission after ending pause";
     case exit_mission:
       return "exit mission";
+    case end_of_waypoint_mission:
+      return "end of waypoint mission";
     default:
       spdlog::error("Unknown state: {}", static_cast<unsigned>(state_));
       BOOST_VERIFY(false);

@@ -34,7 +34,8 @@ class mission_state {
     execute_flying_route_mission = 0x3,
     pause_state = 0x4,
     enter_mission_after_ending_pause = 0x5,
-    exit_mission = 0x6
+    exit_mission = 0x6,
+    end_of_waypoint_mission = 0x7 // https://sdk-forum.dji.net/hc/en-us/requests/76600
   };
 
   std::set<uint16_t> already_executed_;
