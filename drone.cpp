@@ -371,6 +371,9 @@ void drone::action_job_internal() {
   spdlog::info("drone roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_, drone_yaw_);
   spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch_, gimbal_roll_, gimbal_yaw_);
 
+  BOOST_VERIFY(homepoint_altitude_ > invalid_homepoint_altitude_);
+  home_altitude_.set_altitude(drone_altitude_, mission_altitude_, homepoint_altitude_);
+
   gps_coordinates gps;
   gps.longitude = drone_longitude_;
   gps.latitude = drone_latitude_;
@@ -562,6 +565,7 @@ void drone::receive_data_job_internal() {
         BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
         mission_state_.start();
+        home_altitude_.mission_start();
         // FIXME (verify mission state)
       } break;
       case interconnection::command_type::MISSION_PAUSE: {
@@ -574,6 +578,7 @@ void drone::receive_data_job_internal() {
         spdlog::info("Mission ABORT");
         // Call it first to block the update callbacks
         mission_state_.finish();
+        home_altitude_.mission_stop();
         T_DjiReturnCode code{DjiWaypointV2_Stop()};
         BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
         // FIXME (verify mission state)
@@ -630,6 +635,7 @@ void drone::send_data_job_internal() {
       }
       case interconnection::command_type::MISSION_FINISHED: {
         spdlog::info("Execute MISSION_FINISHED command");
+        home_altitude_.mission_stop();
         send_command(interconnection::command_type::MISSION_FINISHED);
       } break;
       case interconnection::command_type::DRONE_COORDINATES: {

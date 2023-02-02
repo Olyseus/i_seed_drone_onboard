@@ -12,6 +12,7 @@
 #include <dji_waypoint_v2.h> // T_DjiWaypointV2
 
 #include "camera_psdk.h"
+#include "home_altitude.h"
 #include "interconnection.pb.h"
 #include "mission_state.h"
 #include "simulator.h"
@@ -114,6 +115,7 @@ class drone {
 
   static void sigint_handler(int);
   static std::atomic<bool> sigint_received_;
+  home_altitude home_altitude_;
 };
 
 #endif  //  DRONE_H_
