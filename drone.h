@@ -2,7 +2,6 @@
 #define DRONE_H_
 
 #include <atomic>
-#include <cmath>  // M_PI
 #include <condition_variable>
 #include <cstdint>  // uint16_t
 #include <list>

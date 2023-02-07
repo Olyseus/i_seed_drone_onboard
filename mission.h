@@ -2,6 +2,7 @@
 #define MISSION_H_
 
 #include <mutex>
+#include <vector>
 
 #include <dji_waypoint_v2.h> // T_DjiWaypointV2
 

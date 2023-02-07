@@ -1,6 +1,14 @@
 #include "mission.h"
 
+#include <boost/assert.hpp> // BOOST_VERIFY
+#include <spdlog/spdlog.h>
+#include <thread> // std::this_thread
+
+#include "mission_state.h" // mission_state_
 #include "utils.h" // deg2rad
+
+mission::mission(mission_state& m) : mission_state_(m) {}
+mission::~mission() = default;
 
 void mission::init(double lat, double lon) {
   {
@@ -13,8 +21,8 @@ void mission::init(double lat, double lon) {
     global_waypoints_.clear();
     global_waypoints_.emplace_back(lat, lon + 0.0001);
     global_waypoints_.emplace_back(lat, lon + 0.0002);
-    // FIXME (remove) global_waypoints_.emplace_back(lat, lon + 0.0003);
-    // FIXME (remove) global_waypoints_.emplace_back(lat, lon + 0.0004);
+    global_waypoints_.emplace_back(lat, lon + 0.0003);
+    global_waypoints_.emplace_back(lat, lon + 0.0004);
   }
 
   upload_mission_and_start();
