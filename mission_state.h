@@ -8,15 +8,13 @@
 
 class mission_state {
  public:
-  static constexpr uint16_t invalid_waypoint{std::numeric_limits<uint16_t>::max()};
-
   void start();
   void finish();
 
   bool is_started() const;
 
   void update(T_DjiWaypointV2MissionEventPush event_data);
-  uint16_t update(T_DjiWaypointV2MissionStatePush state_data);
+  bool update(T_DjiWaypointV2MissionStatePush state_data);
 
  private:
   const char* state_name() const;

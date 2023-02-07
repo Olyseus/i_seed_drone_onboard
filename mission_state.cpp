@@ -46,7 +46,7 @@ void mission_state::update(T_DjiWaypointV2MissionEventPush event_data) {
   }
 }
 
-uint16_t mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
+bool mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
   spdlog::debug("update: T_DjiWaypointV2MissionStatePush.state = {}", static_cast<unsigned>(state_data.state));
   std::lock_guard<std::mutex> lock(m_);
 
@@ -59,7 +59,7 @@ uint16_t mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
     waypoint_index_ = waypoint_index;
     spdlog::info("Starting state: {}, waypoint #{}", state_name(),
                  waypoint_index_);
-    return invalid_waypoint;
+    return false;
   }
 
   bool run_action{false};
@@ -82,12 +82,7 @@ uint16_t mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
     is_started_ = false;
   }
 
-  if (run_action) {
-    BOOST_VERIFY(waypoint_index_ != invalid_waypoint);
-    return waypoint_index_;
-  } else {
-    return invalid_waypoint;
-  }
+  return run_action;
 }
 
 const char* mission_state::state_name() const {

@@ -119,7 +119,7 @@ class drone {
 
   static std::mutex action_mutex_;
   static std::condition_variable action_condition_variable_;
-  static uint16_t action_waypoint_;
+  static bool run_action_;
 
   static void sigint_handler(int);
   static std::atomic<bool> sigint_received_;

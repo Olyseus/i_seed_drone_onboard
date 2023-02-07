@@ -37,7 +37,7 @@ std::list<interconnection::command_type::command_t> drone::execute_commands_;
 
 std::mutex drone::action_mutex_;
 std::condition_variable drone::action_condition_variable_;
-uint16_t drone::action_waypoint_{mission_state::invalid_waypoint};
+bool drone::run_action_{false};
 
 T_DjiReturnCode drone::quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
@@ -142,20 +142,20 @@ T_DjiReturnCode drone::mission_state_callback(T_DjiWaypointV2MissionStatePush st
     return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
   }
 
-  const uint16_t action_index{mission_state_.update(state_data)};
+  const bool run_action{mission_state_.update(state_data)};
 
-  if (action_index != mission_state::invalid_waypoint) {
-    spdlog::info("RUN ACTION FOR WAYPOINT #{}", action_index);
+  if (run_action) {
+    spdlog::info("RUN ACTION FOR WAYPOINT");
     {
       std::lock_guard lock(action_mutex_);
-      BOOST_VERIFY(action_waypoint_ == mission_state::invalid_waypoint);
-      action_waypoint_ = action_index;
+      BOOST_VERIFY(!run_action_);
+      run_action_ = true;
     }
     action_condition_variable_.notify_one();
   }
 
   if (!mission_state_.is_started()) {
-    BOOST_VERIFY(action_index == mission_state::invalid_waypoint);
+    BOOST_VERIFY(!run_action);
     std::lock_guard<std::mutex> lock(execute_commands_mutex_);
     execute_commands_.push_back(
         interconnection::command_type::MISSION_FINISHED);
@@ -315,8 +315,7 @@ void drone::start() {
   // Wake up all the threads that can possible wait for been notified
   {
     std::lock_guard lock{action_mutex_};
-    action_waypoint_ = 0; // just assign any valid value
-    BOOST_VERIFY(action_waypoint_ != mission_state::invalid_waypoint);
+    run_action_ = true;
   }
   action_condition_variable_.notify_one();
   action_thread.join();
@@ -341,9 +340,9 @@ void drone::action_job() {
     while (true) {
       std::unique_lock lock{action_mutex_};
       action_condition_variable_.wait(lock, [this]{
-          return action_waypoint_ != mission_state::invalid_waypoint;
+          return run_action_;
       });
-      BOOST_VERIFY(action_waypoint_ != mission_state::invalid_waypoint);
+      BOOST_VERIFY(run_action_);
 
       if (interrupt_condition()) {
         spdlog::critical("Action job exit");
@@ -358,7 +357,7 @@ void drone::action_job() {
 }
 
 void drone::action_job_internal() {
-  spdlog::info("Pause mission #{}", action_waypoint_);
+  spdlog::info("Pause mission");
   T_DjiReturnCode code{DjiWaypointV2_Pause()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
@@ -420,12 +419,12 @@ void drone::action_job_internal() {
   BOOST_VERIFY(yaw_diff < 0.7);
   camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude);
 
-  spdlog::info("Resume mission #{}", action_waypoint_);
+  spdlog::info("Resume mission");
   code = DjiWaypointV2_Resume();
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   // mark as processed
-  action_waypoint_ = mission_state::invalid_waypoint;
+  run_action_ = false;
 }
 
 void drone::align_gimbal() {
@@ -875,7 +874,7 @@ void drone::upload_mission_and_start() {
 
 void drone::abort_mission() {
   // Avoid condition trigger
-  action_waypoint_ = mission_state::invalid_waypoint;
+  run_action_ = false;
 
   spdlog::info("Mission ABORT");
 
