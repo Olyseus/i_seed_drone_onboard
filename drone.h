@@ -14,8 +14,10 @@
 #include "camera_psdk.h"
 #include "home_altitude.h"
 #include "interconnection.pb.h"
+#include "laser_range.h"
 #include "mission_state.h"
 #include "simulator.h"
+#include "waypoint.h"
 
 using T_DjiMopChannelHandle = void*;
 
@@ -83,13 +85,17 @@ class drone {
   void send_command(interconnection::command_type::command_t);
   void receive_data(std::string* buffer);
   void send_data(std::string& buffer);
-  T_DjiWaypointV2 make_waypoint(double latitude, double longitude);
+  T_DjiWaypointV2 make_waypoint(double latitude, double longitude, double relative_height);
+  void upload_mission_and_start();
+  // Should be locked with 'action_mutex_'
+  void abort_mission();
+
+  waypoint* current_waypoint();
 
   static constexpr uint16_t channel_id{
       9745};  // Just a random number. Keep it consistent with Mobile SDK
   static constexpr int pkg_index{0};
   static constexpr int timeout{20};
-  static constexpr double mission_altitude_{15}; // 15m
 
   static constexpr double pi_degree{180.0};
   static constexpr double rad2deg{pi_degree / M_PI};
@@ -105,6 +111,8 @@ class drone {
 
   std::vector<T_DjiWaypointV2> waypoints_;
 
+  std::vector<waypoint> global_waypoints_;
+
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   static simulator simulator_;
 #endif
@@ -116,6 +124,8 @@ class drone {
   static void sigint_handler(int);
   static std::atomic<bool> sigint_received_;
   home_altitude home_altitude_;
+
+  laser_range laser_range_;
 };
 
 #endif  //  DRONE_H_
