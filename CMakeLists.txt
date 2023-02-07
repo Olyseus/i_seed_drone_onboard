@@ -83,6 +83,8 @@ add_library(
     magnetic_declination.cpp
     magnetic_declination.h
     timer.h
+    waypoint.cpp
+    waypoint.h
 )
 
 set_source_files_properties(
