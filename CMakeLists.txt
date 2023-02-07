@@ -83,6 +83,7 @@ add_library(
     magnetic_declination.cpp
     magnetic_declination.h
     timer.h
+    utils.h
     waypoint.cpp
     waypoint.h
 )
