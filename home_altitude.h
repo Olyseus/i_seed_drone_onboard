@@ -26,7 +26,6 @@ class home_altitude {
  private:
   bool in_progress_{false};
   std::optional<double> home_altitude_;
-  double mission_altitude_{0.0};
 };
 
 #endif // HOME_ALTITUDE_H_

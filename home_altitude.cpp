@@ -20,14 +20,11 @@ void home_altitude::set_altitude(double drone_altitude, double mission_altitude,
 
   if (home_altitude_.has_value()) {
     BOOST_VERIFY(home_altitude_.value() == home_altitude);
-    BOOST_VERIFY(mission_altitude_ == mission_altitude);
   } else {
     home_altitude_ = home_altitude;
-    mission_altitude_ = mission_altitude;
-    spdlog::debug("home_altitude::set_altitude, home: {}, mission: {}", home_altitude_.value(), mission_altitude_);
   }
 
-  const double diff{home_altitude_.value() + mission_altitude_ - drone_altitude};
+  const double diff{home_altitude_.value() + mission_altitude - drone_altitude};
   BOOST_VERIFY(std::abs(diff) < 1.0);
 }
 
