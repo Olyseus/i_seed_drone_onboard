@@ -150,6 +150,8 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       camera_psdk.h
       simulator.cpp
       simulator.h
+      mission.h
+      mission.cpp
   )
   set_source_files_properties(
       third_party/psdk/application.cpp

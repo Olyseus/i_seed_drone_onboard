@@ -12,6 +12,7 @@
 
 #include "api_code.h"
 #include "server.h"
+#include "utils.h" // rad2deg
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
 simulator drone::simulator_;
@@ -190,7 +191,8 @@ T_DjiReturnCode drone::homepoint_callback(const uint8_t* data, uint16_t data_siz
 }
 
 drone::drone() :
-    camera_psdk_{"/var/opt/i_seed_drone_onboard/best.engine"} {
+    camera_psdk_{"/var/opt/i_seed_drone_onboard/best.engine"},
+    mission_(mission_state_) {
   BOOST_VERIFY(sigint_received_.is_lock_free());
 
   constexpr E_DjiDataSubscriptionTopicFreq topic_freq{DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ};
@@ -364,28 +366,24 @@ void drone::action_job_internal() {
   // Wait for drone to finish the movement
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-  waypoint* global_waypoint_ptr{current_waypoint()};
+  double waypoint_lat{0.0};
+  double waypoint_lon{0.0};
+  double waypoint_alt{0.0};
 
-  if (global_waypoint_ptr == nullptr) {
-    spdlog::info("Abort mission on a last fake waypoint");
-    abort_mission();
-    return;
+  switch (mission_.waypoint_reached(laser_range_.latest(), &waypoint_lat, &waypoint_lon, &waypoint_alt)) {
+    case waypoint_action::ok:
+      break;
+    case waypoint_action::abort:
+      spdlog::info("Abort mission on a last fake waypoint");
+      abort_mission();
+      return;
+    case waypoint_action::restart:
+      abort_mission();
+      mission_.upload_mission_and_start();
+      return;
+    default:
+      BOOST_VERIFY(false);
   }
-
-  waypoint& global_waypoint{*global_waypoint_ptr};
-
-  const double laser_range{laser_range_.latest()};
-  if (std::abs(laser_range - waypoint::expected_height) > 1.0) {
-    spdlog::info("Bad laser range, waypoint altitude tweak");
-    BOOST_VERIFY(global_waypoint.is_default_altitude());
-    global_waypoint.set_custom_altitude(laser_range);
-    BOOST_VERIFY(!global_waypoint.is_default_altitude());
-    abort_mission();
-    upload_mission_and_start();
-    return;
-  }
-
-  global_waypoint.set_ready();
 
   align_gimbal();
 
@@ -393,11 +391,11 @@ void drone::action_job_internal() {
   spdlog::info("drone roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_, drone_yaw_);
   spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch_, gimbal_roll_, gimbal_yaw_);
 
-  BOOST_VERIFY(std::abs(global_waypoint.lat() - drone_latitude_) < 1e-4);
-  BOOST_VERIFY(std::abs(global_waypoint.lon() - drone_longitude_) < 1e-4);
+  BOOST_VERIFY(std::abs(waypoint_lat - drone_latitude_) < 1e-4);
+  BOOST_VERIFY(std::abs(waypoint_lon - drone_longitude_) < 1e-4);
 
   BOOST_VERIFY(homepoint_altitude_ > invalid_homepoint_altitude_);
-  home_altitude_.set_altitude(drone_altitude_, global_waypoint.altitude(), homepoint_altitude_);
+  home_altitude_.set_altitude(drone_altitude_, waypoint_alt, homepoint_altitude_);
 
   gps_coordinates gps;
   gps.longitude = drone_longitude_;
@@ -569,20 +567,7 @@ void drone::receive_data_job_internal() {
         const bool ok{pin_coordinates.ParseFromString(buffer)};
         BOOST_VERIFY(ok);
 
-        const double lat{pin_coordinates.latitude()};
-        const double lon{pin_coordinates.longitude()};
-
-        spdlog::info("Mission parameters: lat({}), lon({})", lat, lon);
-
-        // FIXME (points from polygons)
-        // FIXME (action at waypoint?)
-        global_waypoints_.clear();
-        global_waypoints_.emplace_back(lat, lon + 0.0001);
-        global_waypoints_.emplace_back(lat, lon + 0.0002);
-        // FIXME (remove) global_waypoints_.emplace_back(lat, lon + 0.0003);
-        // FIXME (remove) global_waypoints_.emplace_back(lat, lon + 0.0004);
-
-        upload_mission_and_start();
+        mission_.init(pin_coordinates.latitude(), pin_coordinates.longitude());
 
         home_altitude_.mission_start();
         // FIXME (verify mission state)
@@ -768,110 +753,6 @@ void drone::send_data(std::string& buffer) {
   }
 }
 
-T_DjiWaypointV2 drone::make_waypoint(double latitude, double longitude, double relative_height) {
-  spdlog::info("Add waypoint lat({}), lon({}), height({})", latitude, longitude, relative_height);
-  T_DjiWaypointV2 p;
-
-  p.latitude = latitude * deg2rad;
-  p.longitude = longitude * deg2rad;
-  p.relativeHeight = relative_height;
-
-  p.waypointType = DJI_WAYPOINT_V2_FLIGHT_PATH_MODE_GO_TO_POINT_IN_STRAIGHT_AND_STOP;
-
-  // Aircraft's heading will always be in the direction of flight
-  p.headingMode = DJI_WAYPOINT_V2_HEADING_MODE_AUTO;
-
-  // FIXME (use for the backward mission)
-  // p.headingMode = DJI_WAYPOINT_V2_HEADING_WAYPOINT_CUSTOM;
-
-  p.config.useLocalCruiseVel = 0;  // set local waypoint's cruise speed
-  p.config.useLocalMaxVel = 0;     // set local waypoint's max speed
-
-  p.dampingDistance = 40;  // cm
-  p.heading = 0.0; // FIXME: use for DJI_WAYPOINT_V2_HEADING_WAYPOINT_CUSTOM
-
-  p.turnMode = DJI_WAYPOINT_V2_TURN_MODE_CLOCK_WISE;
-
-  // unused
-  p.pointOfInterest.positionX = 0.0F;
-  p.pointOfInterest.positionY = 0.0F;
-  p.pointOfInterest.positionZ = 0.0F;
-
-  p.maxFlightSpeed = 10.0F;
-  p.autoFlightSpeed = 2.0F;
-
-  return p;
-}
-
-void drone::upload_mission_and_start() {
-  spdlog::info("Upload mission and start");
-
-  srand(time(nullptr));
-
-  T_DjiWayPointV2MissionSettings s;
-  s.missionID = rand();  // Just a random number
-  s.repeatTimes = 0;     // execute just once and go home
-  s.finishedAction = DJI_WAYPOINT_V2_FINISHED_NO_ACTION;
-  s.maxFlightSpeed = 10;
-  s.autoFlightSpeed = 2;
-  s.actionWhenRcLost = DJI_WAYPOINT_V2_MISSION_KEEP_EXECUTE_WAYPOINT_V2;
-  s.gotoFirstWaypointMode = DJI_WAYPOINT_V2_MISSION_GO_TO_FIRST_WAYPOINT_MODE_SAFELY;
-  s.actionList.actions = nullptr;
-  s.actionList.actionNum = 0;
-
-  waypoints_.clear();
-  for (const waypoint& w : global_waypoints_) {
-    if (w.is_ready()) {
-      BOOST_VERIFY(waypoints_.empty());
-      continue;
-    }
-    waypoints_.push_back(make_waypoint(w.lat(), w.lon(), w.altitude()));
-  }
-  BOOST_VERIFY(!waypoints_.empty());
-  if (waypoints_.size() == 1) {
-    // Duplicate the last and ignore it when reached
-    // Tweak the height to avoid "points are too close" error
-    const waypoint& w{global_waypoints_.back()};
-    BOOST_VERIFY(!w.is_ready());
-    waypoints_.push_back(make_waypoint(w.lat(), w.lon(), w.altitude() + 5.0));
-  }
-  s.mission = waypoints_.data();
-
-  s.missTotalLen = waypoints_.size();
-  BOOST_VERIFY(s.missTotalLen >= 2);
-  BOOST_VERIFY(s.missTotalLen <= 65535);
-
-  spdlog::info("Mission start, ID {}", s.missionID);
-
-  T_DjiReturnCode code = DjiWaypointV2_UploadMission(&s);
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  if (code != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
-    // Assuming that mission can't be uploaded because it's paused
-    spdlog::critical("Resume previous mission (?)");
-    code = DjiWaypointV2_Resume();
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-
-    while (true) {
-      code = DjiWaypointV2_UploadMission(&s);
-      if (code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
-        break;
-      }
-      spdlog::critical("Upload failed, waiting...");
-      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
-  }
-#endif
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-
-  // If DjiWaypointV2_Start failed
-  std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-
-  code = DjiWaypointV2_Start();
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-
-  mission_state_.start();
-}
-
 void drone::abort_mission() {
   // Avoid condition trigger
   run_action_ = false;
@@ -883,21 +764,4 @@ void drone::abort_mission() {
 
   T_DjiReturnCode code{DjiWaypointV2_Stop()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-}
-
-auto drone::current_waypoint() -> waypoint* {
-  waypoint* result{nullptr};
-  for (std::size_t i{0}; i < global_waypoints_.size(); ++i) {
-    waypoint& w{global_waypoints_[i]};
-    if (result != nullptr) {
-      BOOST_VERIFY(!w.is_ready());
-      continue;
-    }
-
-    if (!w.is_ready()) {
-      spdlog::info("Global waypoint #{}", i);
-      result = &w;
-    }
-  }
-  return result;
 }
