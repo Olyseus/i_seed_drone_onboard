@@ -94,6 +94,7 @@ void mission::upload_mission_and_start() {
     }
   }
 
+  // FIXME (if nothing is detected, report to user)
   BOOST_VERIFY(!waypoints_.empty());
 
   if (waypoints_.size() == 1) {
