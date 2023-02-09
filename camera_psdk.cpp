@@ -342,15 +342,17 @@ auto camera_psdk::check_sdcard() -> bool {
     res.gimbal_attitude = queue_head.gimbal_attitude;
     for (const bounding_box& box: bb) {
       constexpr double threshold{0.5}; // 50%
-      const bool ignored{b.confidence() < threshold};
+      const bool ignored{box.confidence() < threshold};
       const char* s{ignored ? "(ignored)" : ""};
-      spdlog::info("x: {}, y: {}, {:.2f}% {}", b.mid_x(), b.mid_y(), b.confidence() * 100.0, s);
+      spdlog::info("x: {}, y: {}, {:.2f}% {}", box.mid_x(), box.mid_y(), box.confidence() * 100.0, s);
       if (!ignored) {
         res.pixels.push_back({box.mid_x(), box.mid_y()});
       }
     }
 
-    mission_.save_detection(queue_head.waypoint_index, res);
+    if (!res.pixels.empty()) {
+      mission_.save_detection(queue_head.waypoint_index, res);
+    }
 
     // Remove entry only after result saved in mission
     // Backward mission will only start when queue is empty
