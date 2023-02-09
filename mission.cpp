@@ -128,7 +128,6 @@ void mission::upload_mission_and_start() {
 
 auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
   std::lock_guard<std::mutex> lock(m_);
-  BOOST_VERIFY(index >= 0);
   BOOST_VERIFY(index < global_waypoints_.size());
   return global_waypoints_.at(index);
 }

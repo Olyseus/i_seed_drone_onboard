@@ -36,7 +36,7 @@ class mission {
   T_DjiWaypointV2 make_waypoint(double latitude, double longitude, double relative_height);
   std::optional<std::size_t> current_waypoint_index() const;
 
-  std::mutex m_;
+  mutable std::mutex m_;
 
   std::vector<T_DjiWaypointV2> waypoints_;
   std::vector<waypoint> global_waypoints_;
