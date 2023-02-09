@@ -33,14 +33,19 @@ class mission {
   waypoint get_waypoint_copy(std::size_t index) const;
   void save_detection(std::size_t index, const detection_result&);
 
+  void set_backward();
+  bool is_forward() const;
+
  private:
-  T_DjiWaypointV2 make_waypoint(double latitude, double longitude, double relative_height);
+  T_DjiWaypointV2 make_waypoint(const waypoint& w);
   std::optional<std::size_t> current_waypoint_index() const;
 
   mutable std::mutex m_;
 
   std::vector<T_DjiWaypointV2> waypoints_;
   std::vector<waypoint> global_waypoints_;
+
+  bool is_forward_{false};
 
   mission_state& mission_state_;
 };

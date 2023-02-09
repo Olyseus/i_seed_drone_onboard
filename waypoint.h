@@ -26,8 +26,11 @@ class waypoint {
   static constexpr double expected_height{15.0}; // 15m
 
   // Forward pass is ready
-  void set_ready();
-  bool is_ready() const;
+  void set_ready(bool is_forward);
+  bool is_forward_ready() const;
+  bool is_backward_ready() const;
+  bool has_detection() const;
+  double heading() const;
 
   void save_detection(const detection_result&);
 
@@ -35,7 +38,8 @@ class waypoint {
   const double latitude_;
   const double longitude_;
   std::optional<double> mission_altitude_;
-  bool is_ready_{false};
+  bool is_forward_ready_{false};
+  bool is_backward_ready_{false};
   std::optional<detection_result> detection_result_;
 };
 

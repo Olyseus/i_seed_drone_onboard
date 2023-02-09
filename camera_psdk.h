@@ -29,6 +29,7 @@ class camera_psdk {
       const attitude& gimbal_attitude, std::size_t waypoint_index);
 
   bool check_sdcard();
+  bool queue_is_empty() const;
 
  private:
   inference inference_;

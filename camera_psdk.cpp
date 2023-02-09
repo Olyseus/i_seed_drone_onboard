@@ -328,7 +328,6 @@ auto camera_psdk::check_sdcard() -> bool {
       std::lock_guard lock{queue_mutex_};
       BOOST_VERIFY(!queue_.empty());
       queue_head = queue_.front();
-      queue_.pop_front();
     }
 
     std::vector<bounding_box> bb{inference_.run(dst_path.string())};
@@ -351,9 +350,22 @@ auto camera_psdk::check_sdcard() -> bool {
     }
 
     mission_.save_detection(queue_head.waypoint_index, res);
+
+    // Remove entry only after result saved in mission
+    // Backward mission will only start when queue is empty
+    {
+      std::lock_guard lock{queue_mutex_};
+      BOOST_VERIFY(!queue_.empty());
+      queue_.pop_front();
+    }
   }
 
   return true;
+}
+
+auto camera_psdk::queue_is_empty() const -> bool {
+  std::lock_guard lock{queue_mutex_};
+  return queue_.empty();
 }
 
 auto camera_psdk::iso_name(int value) -> const char* {

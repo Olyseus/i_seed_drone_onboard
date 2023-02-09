@@ -374,8 +374,14 @@ void drone::action_job_internal() {
     case waypoint_action::abort:
       spdlog::info("Abort mission on a last fake waypoint");
       abort_mission();
+      {
+        std::lock_guard<std::mutex> lock(execute_commands_mutex_);
+        execute_commands_.push_back(
+            interconnection::command_type::MISSION_FINISHED);
+      }
       return;
     case waypoint_action::restart:
+      BOOST_VERIFY(mission_.is_forward());
       abort_mission();
       mission_.upload_mission_and_start();
       return;
@@ -383,7 +389,9 @@ void drone::action_job_internal() {
       BOOST_VERIFY(false);
   }
 
-  align_gimbal();
+  if (mission_.is_forward()) {
+    align_gimbal();
+  }
 
   spdlog::info("drone latitude: {}, longitude: {}, altitude: {}", drone_latitude_, drone_longitude_, drone_altitude_);
   spdlog::info("drone roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_, drone_yaw_);
@@ -397,26 +405,32 @@ void drone::action_job_internal() {
   BOOST_VERIFY(homepoint_altitude_ > invalid_homepoint_altitude_);
   home_altitude_.set_altitude(drone_altitude_, w.altitude(), homepoint_altitude_);
 
-  gps_coordinates gps;
-  gps.longitude = drone_longitude_;
-  gps.latitude = drone_latitude_;
-  gps.altitude = drone_altitude_;
-  gps.relative_altitude = w.altitude();
+  if (mission_.is_forward()) {
+    gps_coordinates gps;
+    gps.longitude = drone_longitude_;
+    gps.latitude = drone_latitude_;
+    gps.altitude = drone_altitude_;
+    gps.relative_altitude = w.altitude();
 
-  attitude drone_attitude;
-  drone_attitude.pitch = drone_pitch_;
-  drone_attitude.roll = drone_roll_;
-  drone_attitude.yaw = drone_yaw_;
+    attitude drone_attitude;
+    drone_attitude.pitch = drone_pitch_;
+    drone_attitude.roll = drone_roll_;
+    drone_attitude.yaw = drone_yaw_;
 
-  attitude gimbal_attitude;
-  gimbal_attitude.pitch = gimbal_pitch_;
-  gimbal_attitude.roll = gimbal_roll_;
-  gimbal_attitude.yaw = gimbal_yaw_;
+    attitude gimbal_attitude;
+    gimbal_attitude.pitch = gimbal_pitch_;
+    gimbal_attitude.roll = gimbal_roll_;
+    gimbal_attitude.yaw = gimbal_yaw_;
 
-  const double yaw_diff{std::abs(drone_yaw_ - gimbal_yaw_)};
-  spdlog::info("Gimbal/drone yaw diff: {}", yaw_diff);
-  BOOST_VERIFY(yaw_diff < 0.7);
-  camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude, waypoint_index);
+    const double yaw_diff{std::abs(drone_yaw_ - gimbal_yaw_)};
+    spdlog::info("Gimbal/drone yaw diff: {}", yaw_diff);
+    BOOST_VERIFY(yaw_diff < 0.7);
+    camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude, waypoint_index);
+  }
+  else {
+    // FIXME (implement)
+    spdlog::info("RUN BACKWARD JOB #{}", waypoint_index);
+  }
 
   spdlog::info("Resume mission");
   code = DjiWaypointV2_Resume();
@@ -569,6 +583,7 @@ void drone::receive_data_job_internal() {
         BOOST_VERIFY(ok);
 
         mission_.init(pin_coordinates.latitude(), pin_coordinates.longitude());
+        mission_.upload_mission_and_start();
 
         home_altitude_.mission_start();
         // FIXME (verify mission state)
@@ -638,9 +653,20 @@ void drone::send_data_job_internal() {
         break;
       }
       case interconnection::command_type::MISSION_FINISHED: {
-        spdlog::info("Execute MISSION_FINISHED command");
-        home_altitude_.mission_stop();
-        send_command(interconnection::command_type::MISSION_FINISHED);
+        if (mission_.is_forward()) {
+          // Forward mission is finished and we can run backward mission
+          while (!camera_psdk_.queue_is_empty()) {
+            spdlog::info("Wait for inference to finish...");
+            std::this_thread::sleep_for(std::chrono::seconds{5});
+          }
+          mission_.set_backward();
+          mission_.upload_mission_and_start();
+        }
+        else {
+          spdlog::info("Execute MISSION_FINISHED command");
+          home_altitude_.mission_stop();
+          send_command(interconnection::command_type::MISSION_FINISHED);
+        }
       } break;
       case interconnection::command_type::DRONE_COORDINATES: {
         send_command(interconnection::command_type::DRONE_COORDINATES);

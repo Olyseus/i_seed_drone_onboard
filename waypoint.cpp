@@ -15,7 +15,7 @@ auto waypoint::is_default_altitude() const -> bool {
 }
 
 void waypoint::set_custom_altitude(double laser_range) {
-  BOOST_VERIFY(!is_ready());
+  BOOST_VERIFY(!is_forward_ready());
   BOOST_VERIFY(!mission_altitude_.has_value());
 
   // If laser range is good and equals to 'expected_height', the new mission
@@ -33,16 +33,41 @@ auto waypoint::altitude() const -> double {
   return mission_altitude_.value_or(expected_height);
 }
 
-void waypoint::set_ready() {
-  BOOST_VERIFY(!is_ready());
-  is_ready_ = true;
+void waypoint::set_ready(bool forward) {
+  if (forward) {
+    BOOST_VERIFY(!is_forward_ready());
+    BOOST_VERIFY(!is_backward_ready());
+    is_forward_ready_ = true;
+  }
+  else {
+    BOOST_VERIFY(is_forward_ready());
+    BOOST_VERIFY(!is_backward_ready());
+    is_backward_ready_ = true;
+  }
 }
 
-auto waypoint::is_ready() const -> bool {
-  return is_ready_;
+auto waypoint::is_forward_ready() const -> bool {
+  return is_forward_ready_;
+}
+
+auto waypoint::is_backward_ready() const -> bool {
+  return is_backward_ready_;
+}
+
+auto waypoint::has_detection() const -> bool {
+  BOOST_VERIFY(is_forward_ready());
+  return detection_result_.has_value();
+}
+
+auto waypoint::heading() const -> double {
+  BOOST_VERIFY(has_detection());
+  return detection_result_.value().drone_attitude.yaw;
 }
 
 void waypoint::save_detection(const detection_result& result) {
+  BOOST_VERIFY(is_forward_ready());
+  BOOST_VERIFY(!is_backward_ready());
+
   BOOST_VERIFY(!detection_result_.has_value());
   detection_result_ = result;
 

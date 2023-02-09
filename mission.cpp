@@ -11,21 +11,19 @@ mission::mission(mission_state& m) : mission_state_(m) {}
 mission::~mission() = default;
 
 void mission::init(double lat, double lon) {
-  {
-    std::lock_guard<std::mutex> lock(m_);
+  std::lock_guard<std::mutex> lock(m_);
 
-    spdlog::info("Mission parameters: lat({}), lon({})", lat, lon);
+  spdlog::info("Mission parameters: lat({}), lon({})", lat, lon);
 
-    // FIXME (points from polygons)
-    // FIXME (action at waypoint?)
-    global_waypoints_.clear();
-    global_waypoints_.emplace_back(lat, lon + 0.0001);
-    global_waypoints_.emplace_back(lat, lon + 0.0002);
-    global_waypoints_.emplace_back(lat, lon + 0.0003);
-    global_waypoints_.emplace_back(lat, lon + 0.0004);
-  }
+  // FIXME (points from polygons)
+  // FIXME (action at waypoint?)
+  global_waypoints_.clear();
+  global_waypoints_.emplace_back(lat, lon + 0.0001);
+  global_waypoints_.emplace_back(lat, lon + 0.0002);
+  global_waypoints_.emplace_back(lat, lon + 0.0003);
+  global_waypoints_.emplace_back(lat, lon + 0.0004);
 
-  upload_mission_and_start();
+  is_forward_ = true;
 }
 
 auto mission::waypoint_reached(double laser_range, std::size_t* waypoint_index) -> waypoint_action {
@@ -44,13 +42,14 @@ auto mission::waypoint_reached(double laser_range, std::size_t* waypoint_index) 
 
   if (std::abs(laser_range - waypoint::expected_height) > 1.0) {
     spdlog::info("Bad laser range, waypoint altitude tweak");
+    BOOST_VERIFY(is_forward_);
     BOOST_VERIFY(w.is_default_altitude());
     w.set_custom_altitude(laser_range);
     BOOST_VERIFY(!w.is_default_altitude());
     return waypoint_action::restart;
   }
 
-  w.set_ready();
+  w.set_ready(is_forward_);
 
   return waypoint_action::ok;
 }
@@ -74,20 +73,35 @@ void mission::upload_mission_and_start() {
   s.actionList.actionNum = 0;
 
   waypoints_.clear();
-  for (const waypoint& w : global_waypoints_) {
-    if (w.is_ready()) {
-      BOOST_VERIFY(waypoints_.empty());
-      continue;
+
+  if (is_forward_) {
+    for (const waypoint& w : global_waypoints_) {
+      if (w.is_forward_ready()) {
+        BOOST_VERIFY(waypoints_.empty());
+        continue;
+      }
+      waypoints_.push_back(make_waypoint(w));
     }
-    waypoints_.push_back(make_waypoint(w.lat(), w.lon(), w.altitude()));
   }
+  else {
+    for (auto it{global_waypoints_.rbegin()}; it != global_waypoints_.rend(); ++it) {
+      const waypoint& w{*it};
+      BOOST_VERIFY(w.is_forward_ready());
+      BOOST_VERIFY(!w.is_backward_ready());
+      if (w.has_detection()) {
+        waypoints_.push_back(make_waypoint(w));
+      }
+    }
+  }
+
   BOOST_VERIFY(!waypoints_.empty());
+
   if (waypoints_.size() == 1) {
     // Duplicate the last and ignore it when reached
     // Tweak the height to avoid "points are too close" error
-    const waypoint& w{global_waypoints_.back()};
-    BOOST_VERIFY(!w.is_ready());
-    waypoints_.push_back(make_waypoint(w.lat(), w.lon(), w.altitude() + 5.0));
+    T_DjiWaypointV2 w{waypoints_.back()};
+    w.relativeHeight += 5.0;
+    waypoints_.push_back(w);
   }
   s.mission = waypoints_.data();
 
@@ -126,6 +140,17 @@ void mission::upload_mission_and_start() {
   mission_state_.start();
 }
 
+void mission::set_backward() {
+  std::lock_guard<std::mutex> lock(m_);
+  BOOST_VERIFY(is_forward_);
+  is_forward_ = false;
+}
+
+auto mission::is_forward() const -> bool {
+  std::lock_guard<std::mutex> lock(m_);
+  return is_forward_;
+}
+
 auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
   std::lock_guard<std::mutex> lock(m_);
   BOOST_VERIFY(index < global_waypoints_.size());
@@ -138,8 +163,21 @@ void mission::save_detection(std::size_t index, const detection_result& result) 
   global_waypoints_.at(index).save_detection(result);
 }
 
-T_DjiWaypointV2 mission::make_waypoint(double latitude, double longitude, double relative_height) {
-  spdlog::info("Add waypoint lat({}), lon({}), height({})", latitude, longitude, relative_height);
+T_DjiWaypointV2 mission::make_waypoint(const waypoint& w) {
+  const double latitude{w.lat()};
+  const double longitude{w.lon()};
+  const double relative_height{w.altitude()};
+
+  double heading{0.0};
+  std::string heading_str{"auto"};
+
+  if (!is_forward_) {
+    BOOST_VERIFY(w.has_detection());
+    heading = w.heading();
+    heading_str = std::to_string(heading);
+  }
+
+  spdlog::info("Add waypoint lat({}), lon({}), height({}), heading({})", latitude, longitude, relative_height, heading_str);
   T_DjiWaypointV2 p;
 
   p.latitude = latitude * deg2rad;
@@ -148,17 +186,19 @@ T_DjiWaypointV2 mission::make_waypoint(double latitude, double longitude, double
 
   p.waypointType = DJI_WAYPOINT_V2_FLIGHT_PATH_MODE_GO_TO_POINT_IN_STRAIGHT_AND_STOP;
 
-  // Aircraft's heading will always be in the direction of flight
-  p.headingMode = DJI_WAYPOINT_V2_HEADING_MODE_AUTO;
+  if (is_forward_) {
+    // Aircraft's heading will always be in the direction of flight
+    p.headingMode = DJI_WAYPOINT_V2_HEADING_MODE_AUTO;
+  } else {
+    p.headingMode = DJI_WAYPOINT_V2_HEADING_WAYPOINT_CUSTOM;
+  }
 
-  // FIXME (use for the backward mission)
-  // p.headingMode = DJI_WAYPOINT_V2_HEADING_WAYPOINT_CUSTOM;
+  p.heading = heading;
 
   p.config.useLocalCruiseVel = 0;  // set local waypoint's cruise speed
   p.config.useLocalMaxVel = 0;     // set local waypoint's max speed
 
   p.dampingDistance = 40;  // cm
-  p.heading = 0.0; // FIXME: use for DJI_WAYPOINT_V2_HEADING_WAYPOINT_CUSTOM
 
   p.turnMode = DJI_WAYPOINT_V2_TURN_MODE_CLOCK_WISE;
 
@@ -175,17 +215,36 @@ T_DjiWaypointV2 mission::make_waypoint(double latitude, double longitude, double
 
 auto mission::current_waypoint_index() const -> std::optional<std::size_t> {
   std::optional<std::size_t> result;
-  for (std::size_t i{0}; i < global_waypoints_.size(); ++i) {
-    const waypoint& w{global_waypoints_[i]};
-    if (result.has_value()) {
-      BOOST_VERIFY(!w.is_ready());
-      continue;
-    }
 
-    if (!w.is_ready()) {
-      spdlog::info("Global waypoint #{}", i);
-      result = i;
+  if (is_forward_) {
+    for (std::size_t i{0}; i < global_waypoints_.size(); ++i) {
+      const waypoint& w{global_waypoints_[i]};
+      if (result.has_value()) {
+        BOOST_VERIFY(!w.is_forward_ready());
+        continue;
+      }
+
+      if (!w.is_forward_ready()) {
+        spdlog::info("Global waypoint #{}", i);
+        result = i;
+      }
     }
   }
+  else {
+    for (std::size_t i{global_waypoint_.size()}; i > 0; --i) {
+      std::size_t index{i - 1};
+      const waypoint& w{global_waypoints_[index]};
+      if (result.has_value()) {
+        BOOST_VERIFY(!w.is_backward_ready());
+        continue;
+      }
+
+      if (!w.is_backward_ready() && w.has_detection()) {
+        spdlog::info("Global waypoint #{}", index);
+        result = index;
+      }
+    }
+  }
+
   return result;
 }
