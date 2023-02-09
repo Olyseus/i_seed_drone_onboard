@@ -8,6 +8,7 @@ waypoint::waypoint(double latitude, double longitude) : latitude_(latitude), lon
 
 waypoint::~waypoint() = default;
 waypoint::waypoint(waypoint&&) = default;
+waypoint::waypoint(const waypoint&) = default;
 
 auto waypoint::is_default_altitude() const -> bool {
   return !mission_altitude_.has_value();

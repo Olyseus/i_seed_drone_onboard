@@ -28,16 +28,19 @@ void mission::init(double lat, double lon) {
   upload_mission_and_start();
 }
 
-auto mission::waypoint_reached(double laser_range, double* waypoint_lat, double* waypoint_lon, double* waypoint_alt) -> waypoint_action {
+auto mission::waypoint_reached(double laser_range, std::size_t* waypoint_index) -> waypoint_action {
   std::lock_guard<std::mutex> lock(m_);
 
-  waypoint* ptr{current_waypoint()};
+  std::optional<std::size_t> index{current_waypoint_index()};
 
-  if (ptr == nullptr) {
+  if (!index.has_value()) {
     return waypoint_action::abort;
   }
 
-  waypoint& w{*ptr};
+  BOOST_VERIFY(waypoint_index != nullptr);
+  *waypoint_index = index.value();
+
+  waypoint& w{global_waypoints_.at(index.value())};
 
   if (std::abs(laser_range - waypoint::expected_height) > 1.0) {
     spdlog::info("Bad laser range, waypoint altitude tweak");
@@ -48,15 +51,6 @@ auto mission::waypoint_reached(double laser_range, double* waypoint_lat, double*
   }
 
   w.set_ready();
-
-  BOOST_VERIFY(waypoint_lat != nullptr);
-  *waypoint_lat = w.lat();
-
-  BOOST_VERIFY(waypoint_lon != nullptr);
-  *waypoint_lon = w.lon();
-
-  BOOST_VERIFY(waypoint_alt != nullptr);
-  *waypoint_alt = w.altitude();
 
   return waypoint_action::ok;
 }
@@ -132,6 +126,13 @@ void mission::upload_mission_and_start() {
   mission_state_.start();
 }
 
+auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
+  std::lock_guard<std::mutex> lock(m_);
+  BOOST_VERIFY(index >= 0);
+  BOOST_VERIFY(index < global_waypoints_.size());
+  return global_waypoints_.at(index);
+}
+
 T_DjiWaypointV2 mission::make_waypoint(double latitude, double longitude, double relative_height) {
   spdlog::info("Add waypoint lat({}), lon({}), height({})", latitude, longitude, relative_height);
   T_DjiWaypointV2 p;
@@ -167,18 +168,18 @@ T_DjiWaypointV2 mission::make_waypoint(double latitude, double longitude, double
   return p;
 }
 
-auto mission::current_waypoint() -> waypoint* {
-  waypoint* result{nullptr};
+auto mission::current_waypoint_index() const -> std::optional<std::size_t> {
+  std::optional<std::size_t> result;
   for (std::size_t i{0}; i < global_waypoints_.size(); ++i) {
-    waypoint& w{global_waypoints_[i]};
-    if (result != nullptr) {
+    const waypoint& w{global_waypoints_[i]};
+    if (result.has_value()) {
       BOOST_VERIFY(!w.is_ready());
       continue;
     }
 
     if (!w.is_ready()) {
       spdlog::info("Global waypoint #{}", i);
-      result = &w;
+      result = i;
     }
   }
   return result;

@@ -366,11 +366,9 @@ void drone::action_job_internal() {
   // Wait for drone to finish the movement
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-  double waypoint_lat{0.0};
-  double waypoint_lon{0.0};
-  double waypoint_alt{0.0};
+  std::size_t waypoint_index{0};
 
-  switch (mission_.waypoint_reached(laser_range_.latest(), &waypoint_lat, &waypoint_lon, &waypoint_alt)) {
+  switch (mission_.waypoint_reached(laser_range_.latest(), &waypoint_index)) {
     case waypoint_action::ok:
       break;
     case waypoint_action::abort:
@@ -391,11 +389,13 @@ void drone::action_job_internal() {
   spdlog::info("drone roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_, drone_yaw_);
   spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch_, gimbal_roll_, gimbal_yaw_);
 
-  BOOST_VERIFY(std::abs(waypoint_lat - drone_latitude_) < 1e-4);
-  BOOST_VERIFY(std::abs(waypoint_lon - drone_longitude_) < 1e-4);
+  waypoint w{mission_.get_waypoint_copy(waypoint_index)};
+
+  BOOST_VERIFY(std::abs(w.lat() - drone_latitude_) < 1e-4);
+  BOOST_VERIFY(std::abs(w.lon() - drone_longitude_) < 1e-4);
 
   BOOST_VERIFY(homepoint_altitude_ > invalid_homepoint_altitude_);
-  home_altitude_.set_altitude(drone_altitude_, waypoint_alt, homepoint_altitude_);
+  home_altitude_.set_altitude(drone_altitude_, w.altitude(), homepoint_altitude_);
 
   gps_coordinates gps;
   gps.longitude = drone_longitude_;

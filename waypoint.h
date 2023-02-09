@@ -8,7 +8,7 @@ class waypoint {
   waypoint(double latitude, double longitude);
   ~waypoint();
 
-  waypoint(const waypoint&) = delete;
+  waypoint(const waypoint&);
   waypoint(waypoint&&);
 
   waypoint& operator=(const waypoint&) = delete;

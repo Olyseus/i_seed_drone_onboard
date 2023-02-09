@@ -27,12 +27,14 @@ class mission {
   mission& operator=(mission&&) = delete;
 
   void init(double lat, double lon);
-  waypoint_action waypoint_reached(double laser_range, double* waypoint_lat, double* waypoint_lon, double* waypoint_alt);
+  waypoint_action waypoint_reached(double laser_range, std::size_t* waypoint_index);
   void upload_mission_and_start();
+
+  waypoint get_waypoint_copy(std::size_t index) const;
 
  private:
   T_DjiWaypointV2 make_waypoint(double latitude, double longitude, double relative_height);
-  waypoint* current_waypoint();
+  std::optional<std::size_t> current_waypoint_index() const;
 
   std::mutex m_;
 
