@@ -76,3 +76,11 @@ void waypoint::save_detection(const detection_result& result) {
 
   BOOST_VERIFY(!detection_result_.value().pixels.empty());
 }
+
+auto waypoint::get_detection() const -> detection_result {
+  BOOST_VERIFY(is_forward_ready());
+  BOOST_VERIFY(is_backward_ready());
+
+  BOOST_VERIFY(detection_result_.has_value());
+  return detection_result_.value();
+}

@@ -33,6 +33,7 @@ class waypoint {
   double heading() const;
 
   void save_detection(const detection_result&);
+  detection_result get_detection() const;
 
  private:
   const double latitude_;

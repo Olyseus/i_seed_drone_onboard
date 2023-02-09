@@ -428,8 +428,14 @@ void drone::action_job_internal() {
     camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude, waypoint_index);
   }
   else {
-    // FIXME (implement)
-    spdlog::info("RUN BACKWARD JOB #{}", waypoint_index);
+    BOOST_VERIFY(w.has_detection());
+    detection_result d{w.get_detection()};
+    BOOST_VERIFY(!d.pixels.empty());
+
+    for (const detected_pixel& p : d.pixels) {
+      spdlog::info("GIMBAL ROTATE: pixel({},{}), global waypoint #{}", p.x, p.y, waypoint_index);
+      // FIXME (implement)
+    }
   }
 
   spdlog::info("Resume mission");
