@@ -3,6 +3,8 @@
 
 #include <optional>
 
+#include "detection_result.h"
+
 class waypoint {
  public:
   waypoint(double latitude, double longitude);
@@ -27,11 +29,14 @@ class waypoint {
   void set_ready();
   bool is_ready() const;
 
+  void save_detection(const detection_result&);
+
  private:
   const double latitude_;
   const double longitude_;
   std::optional<double> mission_altitude_;
   bool is_ready_{false};
+  std::optional<detection_result> detection_result_;
 };
 
 #endif // WAYPOINT_H_

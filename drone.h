@@ -90,10 +90,9 @@ class drone {
   static constexpr int pkg_index{0};
   static constexpr int timeout{20};
 
+  mission mission_;
   T_DjiMopChannelHandle channel_handle_{nullptr};
   camera_psdk camera_psdk_;
-
-  mission mission_;
 
   uint32_t command_bytes_size_{0};
   uint32_t pin_coordinates_bytes_size_{0};

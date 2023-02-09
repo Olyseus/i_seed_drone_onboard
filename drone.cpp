@@ -191,8 +191,8 @@ T_DjiReturnCode drone::homepoint_callback(const uint8_t* data, uint16_t data_siz
 }
 
 drone::drone() :
-    camera_psdk_{"/var/opt/i_seed_drone_onboard/best.engine"},
-    mission_(mission_state_) {
+    mission_(mission_state_),
+    camera_psdk_("/var/opt/i_seed_drone_onboard/best.engine", mission_) {
   BOOST_VERIFY(sigint_received_.is_lock_free());
 
   constexpr E_DjiDataSubscriptionTopicFreq topic_freq{DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ};
@@ -415,7 +415,7 @@ void drone::action_job_internal() {
   const double yaw_diff{std::abs(drone_yaw_ - gimbal_yaw_)};
   spdlog::info("Gimbal/drone yaw diff: {}", yaw_diff);
   BOOST_VERIFY(yaw_diff < 0.7);
-  camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude);
+  camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude, waypoint_index);
 
   spdlog::info("Resume mission");
   code = DjiWaypointV2_Resume();

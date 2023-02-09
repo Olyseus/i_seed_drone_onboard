@@ -72,6 +72,7 @@ add_library(
     boost_assert.cpp
     bounding_box.cpp
     bounding_box.h
+    detection_result.h
     home_altitude.cpp
     home_altitude.h
     inference.cpp

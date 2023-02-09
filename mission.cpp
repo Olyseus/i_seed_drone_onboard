@@ -132,6 +132,12 @@ auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
   return global_waypoints_.at(index);
 }
 
+void mission::save_detection(std::size_t index, const detection_result& result) {
+  std::lock_guard<std::mutex> lock(m_);
+  BOOST_VERIFY(index < global_waypoints_.size());
+  global_waypoints_.at(index).save_detection(result);
+}
+
 T_DjiWaypointV2 mission::make_waypoint(double latitude, double longitude, double relative_height) {
   spdlog::info("Add waypoint lat({}), lon({}), height({})", latitude, longitude, relative_height);
   T_DjiWaypointV2 p;

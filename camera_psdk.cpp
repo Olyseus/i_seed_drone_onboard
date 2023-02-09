@@ -13,6 +13,7 @@
 #include "application.hpp"
 #include "bounding_box.h"
 #include "drone.h"
+#include "mission.h"
 
 static std::string camera_psdk_file_dst;
 static std::FILE* camera_psdk_file;
@@ -38,8 +39,8 @@ T_DjiReturnCode camera_psdk_data_callback(
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-camera_psdk::camera_psdk(const std::string& model_file) :
-    inference_(model_file) {
+camera_psdk::camera_psdk(const std::string& model_file, mission& m) :
+    inference_(model_file), mission_(m) {
   T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
   BOOST_VERIFY(osal);
 
@@ -129,10 +130,10 @@ camera_psdk::~camera_psdk() {
 }
 
 void camera_psdk::shoot_photo(const gps_coordinates& gps, const attitude& drone_attitude,
-    const attitude& gimbal_attitude) {
+    const attitude& gimbal_attitude, std::size_t waypoint_index) {
   {
     std::lock_guard lock{queue_mutex_};
-    queue_.push_back({gps, drone_attitude, gimbal_attitude});
+    queue_.push_back({gps, drone_attitude, gimbal_attitude, waypoint_index});
     file_waiting_timer_.start();
   }
 
@@ -349,7 +350,7 @@ auto camera_psdk::check_sdcard() -> bool {
       res.pixels.push_back({box.mid_x(), box.mid_y()});
     }
 
-    detections_.push_back(res);
+    mission_.save_detection(queue_head.waypoint_index, res);
   }
 
   return true;

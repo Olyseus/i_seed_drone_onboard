@@ -31,6 +31,7 @@ class mission {
   void upload_mission_and_start();
 
   waypoint get_waypoint_copy(std::size_t index) const;
+  void save_detection(std::size_t index, const detection_result&);
 
  private:
   T_DjiWaypointV2 make_waypoint(double latitude, double longitude, double relative_height);
