@@ -1,7 +1,7 @@
 #ifndef LASER_RANGE_H_
 #define LASER_RANGE_H_
 
-#include <random> // std::random_device
+#include <list>
 
 class laser_range {
  public:
@@ -11,7 +11,7 @@ class laser_range {
 
  private:
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  std::vector<double> values_;
+  std::list<double> values_;
 #endif
 };
 

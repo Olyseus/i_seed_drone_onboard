@@ -19,6 +19,9 @@ laser_range::laser_range() {
   values_.push_back(17.8);
   values_.push_back(15.0);
 
+  // fake waypoint
+  values_.push_back(15.0);
+
   // backward
 
   // waypoint 3
