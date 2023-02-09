@@ -401,6 +401,7 @@ void drone::action_job_internal() {
   gps.longitude = drone_longitude_;
   gps.latitude = drone_latitude_;
   gps.altitude = drone_altitude_;
+  gps.relative_altitude = w.altitude();
 
   attitude drone_attitude;
   drone_attitude.pitch = drone_pitch_;

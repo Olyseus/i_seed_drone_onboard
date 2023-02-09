@@ -7,6 +7,7 @@ struct gps_coordinates {
   double longitude;
   double latitude;
   float altitude;
+  float relative_altitude;
 };
 
 struct attitude {
