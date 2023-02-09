@@ -46,8 +46,8 @@ void waypoint::save_detection(const detection_result& result) {
   BOOST_VERIFY(!detection_result_.has_value());
   detection_result_ = result;
 
-  BOOST_VERIFY(std::abs(detection_result_.gps.latitude - latitude_) < 1e-4);
-  BOOST_VERIFY(std::abs(detection_result_.gps.longitude - longitude_) < 1e-4);
+  BOOST_VERIFY(std::abs(detection_result_.value().gps.latitude - latitude_) < 1e-4);
+  BOOST_VERIFY(std::abs(detection_result_.value().gps.longitude - longitude_) < 1e-4);
 
-  BOOST_VERIFY(!detection_result_.pixels.empty());
+  BOOST_VERIFY(!detection_result_.value().pixels.empty());
 }

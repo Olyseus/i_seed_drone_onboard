@@ -9,6 +9,8 @@
 
 #include "application.hpp" // Application
 #include "camera_psdk.h"
+#include "mission.h"
+#include "mission_state.h"
 
 void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
@@ -46,14 +48,16 @@ auto run_main(int argc, char** argv) -> int {
     BOOST_VERIFY(argv != nullptr);
     auto app{std::make_unique<Application>()};
 
-    camera_psdk c{"/var/opt/i_seed_drone_onboard/best.engine"};
+    mission_state s;
+    mission m{s};
+    camera_psdk c{"/var/opt/i_seed_drone_onboard/best.engine", m};
 
     gps_coordinates gps;
     attitude drone_attitude;
     attitude gimbal_attitude;
 
     spdlog::info("Shoot photo");
-    c.shoot_photo(gps, drone_attitude, gimbal_attitude);
+    c.shoot_photo(gps, drone_attitude, gimbal_attitude, 0);
     spdlog::info("Shoot photo: DONE");
     while (true) {
       spdlog::info("Check SD card");
