@@ -231,7 +231,7 @@ auto mission::current_waypoint_index() const -> std::optional<std::size_t> {
     }
   }
   else {
-    for (std::size_t i{global_waypoint_.size()}; i > 0; --i) {
+    for (std::size_t i{global_waypoints_.size()}; i > 0; --i) {
       std::size_t index{i - 1};
       const waypoint& w{global_waypoints_[index]};
       if (result.has_value()) {

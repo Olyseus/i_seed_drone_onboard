@@ -35,7 +35,7 @@ class camera_psdk {
   inference inference_;
   mission& mission_;
 
-  std::mutex queue_mutex_;
+  mutable std::mutex queue_mutex_;
   struct queue_entry {
     gps_coordinates gps;
     attitude drone_attitude;
