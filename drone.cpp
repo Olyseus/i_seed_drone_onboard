@@ -551,7 +551,7 @@ void drone::rotate_gimbal(float x, float y, double drone_heading_degree) {
 
   constexpr double expected_eps{0.3};
   BOOST_VERIFY(std::abs(gimbal_pitch_ - pitch) < expected_eps);
-  BOOST_VERIFY(std::abs(gimbal_roll_ - roll) < expected_eps);
+  BOOST_VERIFY(std::abs(gimbal_roll_) < expected_eps);
   BOOST_VERIFY(std::abs(gimbal_yaw_ - yaw) < expected_eps);
 }
 
