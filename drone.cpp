@@ -433,8 +433,13 @@ void drone::action_job_internal() {
     BOOST_VERIFY(!d.pixels.empty());
 
     for (const detected_pixel& p : d.pixels) {
-      spdlog::info("GIMBAL ROTATE: pixel({},{}), global waypoint #{}", p.x, p.y, waypoint_index);
-      // FIXME (implement)
+      rotate_gimbal(p.x, p.y, drone_yaw_);
+
+      spdlog::info("drone latitude: {}, longitude: {}, altitude: {}", drone_latitude_, drone_longitude_, drone_altitude_);
+      spdlog::info("drone roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_, drone_yaw_);
+      spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch_, gimbal_roll_, gimbal_yaw_);
+
+      // FIXME (calc EFEC coordinates)
     }
   }
 
@@ -520,6 +525,34 @@ void drone::align_gimbal() {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
   }
+}
+
+void drone::rotate_gimbal(float x, float y, double drone_heading_degree) {
+  spdlog::info("Gimbal rotate to pixel {}, {}", x, y);
+
+  auto [yaw, pitch] = gimbal_rotation_params(x, y, drone_heading_degree);
+
+  constexpr int time_ms{500};
+  constexpr int time_wait_ms{2 * time_ms};
+
+  T_DjiGimbalManagerRotation rotation;
+  rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_ABSOLUTE_ANGLE;
+  rotation.pitch = pitch;
+  rotation.roll = 0.0;
+  rotation.yaw = yaw;
+  rotation.time = time_ms / 1000.0;
+
+  spdlog::info("Run gimbal rotation, yaw: {}, roll: {}, pitch: {}", rotation.yaw, rotation.roll, rotation.pitch);
+
+  const T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos, rotation)};
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
+
+  constexpr double expected_eps{0.3};
+  BOOST_VERIFY(std::abs(gimbal_pitch_ - pitch) < expected_eps);
+  BOOST_VERIFY(std::abs(gimbal_roll_ - roll) < expected_eps);
+  BOOST_VERIFY(std::abs(gimbal_yaw_ - yaw) < expected_eps);
 }
 
 void drone::inference_job() {
