@@ -84,6 +84,7 @@ add_library(
     magnetic_declination.cpp
     magnetic_declination.h
     timer.h
+    utils.cpp
     utils.h
     waypoint.cpp
     waypoint.h
@@ -91,6 +92,13 @@ add_library(
 
 set_source_files_properties(
     inference.cpp
+    PROPERTIES
+    COMPILE_OPTIONS
+    "-Wno-deprecated-declarations;-Wno-unused-parameter"
+)
+
+set_source_files_properties(
+    utils.cpp
     PROPERTIES
     COMPILE_OPTIONS
     "-Wno-deprecated-declarations;-Wno-unused-parameter"
@@ -378,6 +386,7 @@ add_executable(
     magnetic_declination_ut.cpp
     main_ut.cpp
     main_ut.h
+    utils_ut.cpp
 )
 
 add_executable(i_seed_convert convert_main.cpp)
