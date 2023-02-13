@@ -22,18 +22,18 @@ class inference {
 
   std::vector<bounding_box> run(const std::string& image);
 
-  static constexpr std::size_t h20t_img_width{5184};
-  static constexpr std::size_t h20t_img_height{3888};
+  static constexpr std::size_t h20_img_width{5184};
+  static constexpr std::size_t h20_img_height{3888};
 
   static constexpr std::size_t inference_img_width{768};
   static constexpr std::size_t inference_img_height{768};
 
-  static_assert(h20t_img_width >= inference_img_width);
-  static_assert(h20t_img_height >= inference_img_height);
+  static_assert(h20_img_width >= inference_img_width);
+  static_assert(h20_img_height >= inference_img_height);
 
-  static constexpr std::size_t n_batch_width{h20t_img_width /
+  static constexpr std::size_t n_batch_width{h20_img_width /
                                              inference_img_width};
-  static constexpr std::size_t n_batch_height{h20t_img_height /
+  static constexpr std::size_t n_batch_height{h20_img_height /
                                               inference_img_height};
 
   static_assert(n_batch_width > 0);
@@ -43,13 +43,13 @@ class inference {
 
  private:
   static constexpr std::size_t height_crop_size{
-      (h20t_img_height - n_batch_height * inference_img_height) / 2};
-  static_assert(h20t_img_height - 2 * height_crop_size ==
+      (h20_img_height - n_batch_height * inference_img_height) / 2};
+  static_assert(h20_img_height - 2 * height_crop_size ==
                 n_batch_height * inference_img_height);
 
   static constexpr std::size_t width_crop_size{
-      (h20t_img_width - n_batch_width * inference_img_width) / 2};
-  static_assert(h20t_img_width - 2 * width_crop_size ==
+      (h20_img_width - n_batch_width * inference_img_width) / 2};
+  static_assert(h20_img_width - 2 * width_crop_size ==
                 n_batch_width * inference_img_width);
 
   static constexpr std::size_t rgb_size{3};

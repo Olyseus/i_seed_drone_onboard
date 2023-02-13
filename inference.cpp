@@ -166,8 +166,8 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
   boost::gil::rgb8_image_t input_image;
   boost::gil::jpeg_read_image(image, input_image);
   const auto image_view{boost::gil::const_view(input_image)};
-  BOOST_VERIFY(input_image.height() == h20t_img_height);
-  BOOST_VERIFY(input_image.width() == h20t_img_width);
+  BOOST_VERIFY(input_image.height() == h20_img_height);
+  BOOST_VERIFY(input_image.width() == h20_img_width);
 
   spdlog::info("Image uint8 read from disk in {}ms", t.elapsed_ms());
 
