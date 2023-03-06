@@ -527,21 +527,21 @@ void drone::align_gimbal() {
   }
 }
 
-void drone::rotate_gimbal(float x, float y, double drone_heading_degree) {
+auto drone::rotate_gimbal(float x, float y, double drone_heading_degree) -> attitude {
   spdlog::info("Gimbal rotate to pixel {}, {}", x, y);
 
-  auto [expected_gimbal_yaw, expected_gimbal_pitch] = gimbal_rotation_params(x, y, drone_heading_degree);
+  attitude expected;
+  expected.roll = 0.0;
+  std::tie(expected.yaw, expected.pitch) = gimbal_rotation_params(x, y, drone_heading_degree);
 
   constexpr int time_ms{500};
   constexpr int time_wait_ms{3 * time_ms};
 
-  constexpr double expected_gimbal_roll{0.0};
-
   T_DjiGimbalManagerRotation rotation;
   rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_RELATIVE_ANGLE;
-  rotation.pitch = expected_gimbal_pitch - gimbal_pitch_;
-  rotation.roll = expected_gimbal_roll - gimbal_roll_;
-  rotation.yaw = expected_gimbal_yaw - gimbal_yaw_;
+  rotation.pitch = expected.pitch - gimbal_pitch_;
+  rotation.roll = expected.roll - gimbal_roll_;
+  rotation.yaw = expected.yaw - gimbal_yaw_;
   rotation.time = time_ms / 1000.0;
 
   spdlog::info("Run gimbal rotation, yaw: {}, roll: {}, pitch: {}", rotation.yaw, rotation.roll, rotation.pitch);
@@ -552,9 +552,9 @@ void drone::rotate_gimbal(float x, float y, double drone_heading_degree) {
   std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
 
   constexpr double expected_eps{0.3};
-  const double d_roll{expected_gimbal_roll - gimbal_roll_};
-  const double d_pitch{expected_gimbal_pitch - gimbal_pitch_};
-  const double d_yaw{expected_gimbal_yaw - gimbal_yaw_};
+  const double d_roll{expected.roll - gimbal_roll_};
+  const double d_pitch{expected.pitch - gimbal_pitch_};
+  const double d_yaw{expected.yaw - gimbal_yaw_};
 
   if (std::abs(d_roll) > expected_eps || std::abs(d_pitch) > expected_eps || std::abs(d_yaw) > expected_eps) {
     spdlog::info("Gimbal rotation failed, trying another direction, diff roll: {}, pitch: {}, yaw: {}", d_roll, d_pitch, d_yaw);
@@ -574,12 +574,10 @@ void drone::rotate_gimbal(float x, float y, double drone_heading_degree) {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
 
-    const double expected_gimbal_yaw{drone_yaw_};
-
     rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_RELATIVE_ANGLE;
-    rotation.pitch = expected_gimbal_pitch - gimbal_pitch_;
-    rotation.roll = expected_gimbal_roll - gimbal_roll_;
-    rotation.yaw = expected_gimbal_yaw - gimbal_yaw_;
+    rotation.pitch = expected.pitch - gimbal_pitch_;
+    rotation.roll = expected.roll - gimbal_roll_;
+    rotation.yaw = expected.yaw - gimbal_yaw_;
     rotation.time = time_ms / 1000.0;
 
     spdlog::info("Run gimbal rotation, yaw: {}, roll: {}, pitch: {}", rotation.yaw, rotation.roll, rotation.pitch);
@@ -589,6 +587,8 @@ void drone::rotate_gimbal(float x, float y, double drone_heading_degree) {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
   }
+
+  return expected;
 }
 
 void drone::inference_job() {

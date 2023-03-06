@@ -70,7 +70,7 @@ class drone {
   void action_job_internal();
 
   void align_gimbal();
-  void rotate_gimbal(float x, float y, double drone_heading_degree);
+  attitude rotate_gimbal(float x, float y, double drone_heading_degree);
 
   void inference_job();
 
