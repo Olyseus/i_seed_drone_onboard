@@ -333,25 +333,25 @@ auto camera_psdk::check_sdcard() -> bool {
     std::vector<bounding_box> bb{inference_.run(dst_path.string())};
     if (bb.empty()) {
       spdlog::info("No objects found");
-      continue;
     }
-
-    detection_result res;
-    res.gps = queue_head.gps;
-    res.drone_attitude = queue_head.drone_attitude;
-    res.gimbal_attitude = queue_head.gimbal_attitude;
-    for (const bounding_box& box: bb) {
-      constexpr double threshold{0.5}; // 50%
-      const bool ignored{box.confidence() < threshold};
-      const char* s{ignored ? "(ignored)" : ""};
-      spdlog::info("x: {}, y: {}, {:.2f}% {}", box.mid_x(), box.mid_y(), box.confidence() * 100.0, s);
-      if (!ignored) {
-        res.pixels.push_back({box.mid_x(), box.mid_y()});
+    else {
+      detection_result res;
+      res.gps = queue_head.gps;
+      res.drone_attitude = queue_head.drone_attitude;
+      res.gimbal_attitude = queue_head.gimbal_attitude;
+      for (const bounding_box& box: bb) {
+        constexpr double threshold{0.5}; // 50%
+        const bool ignored{box.confidence() < threshold};
+        const char* s{ignored ? "(ignored)" : ""};
+        spdlog::info("x: {}, y: {}, {:.2f}% {}", box.mid_x(), box.mid_y(), box.confidence() * 100.0, s);
+        if (!ignored) {
+          res.pixels.push_back({box.mid_x(), box.mid_y()});
+        }
       }
-    }
 
-    if (!res.pixels.empty()) {
-      mission_.save_detection(queue_head.waypoint_index, res);
+      if (!res.pixels.empty()) {
+        mission_.save_detection(queue_head.waypoint_index, res);
+      }
     }
 
     // Remove entry only after result saved in mission
