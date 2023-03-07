@@ -11,6 +11,7 @@
 #include <dji_mop_channel.h> // DjiMopChannel_Init
 
 #include "api_code.h"
+#include "converter.h"
 #include "server.h"
 #include "utils.h" // rad2deg
 
@@ -456,7 +457,7 @@ void drone::action_job_internal() {
       laser_gimbal_attitude.roll = gimbal_roll_;
       laser_gimbal_attitude.yaw = gimbal_yaw_ - drone_yaw_; // yaw relative to drone
 
-      const converter_result pixel_result{converter::run(d.gps(), d.drone_attitude(), pixel_gimbal_attitude, 1.0)};
+      const converter_result pixel_result{converter::run(d.gps, d.drone_attitude, pixel_gimbal_attitude, 1.0)};
       const converter_result laser_result{converter::run(gps, drone_attitude, laser_gimbal_attitude, laser_range_.latest())};
 
       BOOST_VERIFY((pixel_result.p - laser_result.p).norm() < 5.0);
