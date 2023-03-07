@@ -35,6 +35,11 @@ laser_range::laser_range() {
 
   // waypoint 0
   values_.push_back(15.5);
+
+  // extra data for laser measurement
+  for (int i{0}; i < 10; ++i) {
+    values_.push_back(15.0);
+  }
 #endif
 }
 
