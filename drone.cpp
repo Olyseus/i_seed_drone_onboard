@@ -488,11 +488,7 @@ void drone::action_job_internal() {
 }
 
 void drone::align_gimbal() {
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  constexpr double expected_gimbal_pitch{0.0}; // forward
-#else
   constexpr double expected_gimbal_pitch{-90.0}; // down
-#endif
 
   constexpr int time_ms{500};
   constexpr int time_wait_ms{3 * time_ms};
