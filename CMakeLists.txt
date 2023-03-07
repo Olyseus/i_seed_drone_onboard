@@ -72,6 +72,8 @@ add_library(
     boost_assert.cpp
     bounding_box.cpp
     bounding_box.h
+    converter.cpp
+    converter.h
     detection_result.h
     home_altitude.cpp
     home_altitude.h
@@ -114,6 +116,12 @@ target_link_libraries(i_seed_drone_onboard_core PUBLIC nlohmann_json::nlohmann_j
 
 find_package(JPEG REQUIRED)
 target_link_libraries(i_seed_drone_onboard_core PUBLIC JPEG::JPEG)
+
+find_package(GeographicLib CONFIG REQUIRED)
+target_link_libraries(i_seed_drone_onboard_core PUBLIC ${GeographicLib_LIBRARIES})
+
+find_package(Eigen3 CONFIG REQUIRED)
+target_link_libraries(i_seed_drone_onboard_core PUBLIC Eigen3::Eigen)
 
 target_compile_options(
     i_seed_drone_onboard_core PUBLIC -Wall -Werror -Wpedantic -Wextra -Wfatal-errors
@@ -381,6 +389,7 @@ endif()
 
 add_executable(
     i_seed_drone_onboard_core_ut
+    converter_ut.cpp
     home_altitude_ut.cpp
     i_seed_drone_onboard_core_ut.cpp
     magnetic_declination_ut.cpp

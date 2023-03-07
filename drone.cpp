@@ -433,13 +433,49 @@ void drone::action_job_internal() {
     BOOST_VERIFY(!d.pixels.empty());
 
     for (const detected_pixel& p : d.pixels) {
-      rotate_gimbal(p.x, p.y, drone_yaw_);
+      attitude pixel_gimbal_attitude{rotate_gimbal(p.x, p.y, drone_yaw_)};
+      pixel_gimbal_attitude.yaw -= drone_yaw_; // yaw relative to drone
 
       spdlog::info("drone latitude: {}, longitude: {}, altitude: {}", drone_latitude_, drone_longitude_, drone_altitude_);
       spdlog::info("drone roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_, drone_yaw_);
       spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch_, gimbal_roll_, gimbal_yaw_);
 
-      // FIXME (calc EFEC coordinates)
+      gps_coordinates gps;
+      gps.longitude = drone_longitude_;
+      gps.latitude = drone_latitude_;
+      gps.altitude = drone_altitude_;
+      gps.relative_altitude = 0.0; // not used
+
+      attitude drone_attitude;
+      drone_attitude.pitch = drone_pitch_;
+      drone_attitude.roll = drone_roll_;
+      drone_attitude.yaw = drone_yaw_;
+
+      attitude laser_gimbal_attitude;
+      laser_gimbal_attitude.pitch = gimbal_pitch_;
+      laser_gimbal_attitude.roll = gimbal_roll_;
+      laser_gimbal_attitude.yaw = gimbal_yaw_ - drone_yaw_; // yaw relative to drone
+
+      const converter_result pixel_result{converter::run(d.gps(), d.drone_attitude(), pixel_gimbal_attitude, 1.0)};
+      const converter_result laser_result{converter::run(gps, drone_attitude, laser_gimbal_attitude, laser_range_.latest())};
+
+      BOOST_VERIFY((pixel_result.p - laser_result.p).norm() < 5.0);
+      BOOST_VERIFY(std::abs(pixel_result.d.dot(laser_result.d) - 1.0) < 1e-3);
+
+      const Eigen::Vector3d p_laser_end{laser_result.p + laser_result.v};
+      spdlog::info("{} {} {} 255 165 0", p_laser_end(0), p_laser_end(1), p_laser_end(2)); // orange
+
+      const double k_num{laser_result.d.dot(laser_result.p - pixel_result.p + laser_result.v)};
+      const double k_denom{pixel_result.v.dot(laser_result.d)};
+      BOOST_VERIFY(k_denom > 1e-2);
+      const double k{k_num / k_denom};
+      BOOST_VERIFY(k > 1e-3);
+
+      const Eigen::Vector3d p_pixel_end{pixel_result.p + k * pixel_result.v};
+      spdlog::info("{} {} {} 0 255 0", p_pixel_end(0), p_pixel_end(1), p_pixel_end(2));
+      BOOST_VERIFY((p_pixel_end - p_laser_end).norm() < 10.0);
+
+      // FIXME (save to file)
     }
   }
 

@@ -60,7 +60,7 @@ auto gimbal_rotation_params(double x_pixel, double y_pixel, double drone_heading
   const double y_c{height_half - y_pixel};
 
   if (x_c * x_c + y_c * y_c < 1e-1) {
-    // 90 is north
+    // 90 is north (in standard quadrants orientation)
     return gimbal_rotation_params_with_heading_degree(90.0, 0.0, drone_heading_degree);
   }
 
