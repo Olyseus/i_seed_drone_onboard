@@ -3,7 +3,9 @@
 #include <boost/assert.hpp> // BOOST_VERIFY
 #include <spdlog/spdlog.h>
 
-#include "simulator.h"
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+# include "simulator.h"
+#endif
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
 laser_range::laser_range(simulator& s) : simulator_(s) {

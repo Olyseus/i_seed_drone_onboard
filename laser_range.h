@@ -42,7 +42,7 @@ class laser_range {
 
   using clock = std::chrono::high_resolution_clock;
   using time_point = clock::time_point;
-  constexpr time_point invalid_time_point{time_point::min()};
+  static constexpr time_point invalid_time_point{time_point::min()};
 
   time_point latest_time_point_{invalid_time_point};
   double latest_value_{0.0};
