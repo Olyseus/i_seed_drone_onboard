@@ -10,6 +10,7 @@ message command_type {
     MISSION_PAUSE = 3;
     MISSION_ABORT = 4;
     MISSION_FINISHED = 5;
+    LASER_RANGE = 6;
   }
 
   required command_t type = 1;
@@ -25,4 +26,8 @@ message drone_coordinates {
 message pin_coordinates {
   required double latitude = 1;
   required double longitude = 2;
+}
+
+message laser_range {
+  required double range = 1;
 }
