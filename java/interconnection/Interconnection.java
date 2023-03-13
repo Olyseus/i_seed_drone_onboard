@@ -149,6 +149,10 @@ public final class Interconnection {
        * <code>MISSION_FINISHED = 5;</code>
        */
       MISSION_FINISHED(5),
+      /**
+       * <code>LASER_RANGE = 6;</code>
+       */
+      LASER_RANGE(6),
       ;
 
       /**
@@ -175,6 +179,10 @@ public final class Interconnection {
        * <code>MISSION_FINISHED = 5;</code>
        */
       public static final int MISSION_FINISHED_VALUE = 5;
+      /**
+       * <code>LASER_RANGE = 6;</code>
+       */
+      public static final int LASER_RANGE_VALUE = 6;
 
 
       public final int getNumber() {
@@ -197,6 +205,7 @@ public final class Interconnection {
           case 3: return MISSION_PAUSE;
           case 4: return MISSION_ABORT;
           case 5: return MISSION_FINISHED;
+          case 6: return LASER_RANGE;
           default: return null;
         }
       }
@@ -1960,6 +1969,482 @@ public final class Interconnection {
 
   }
 
+  public interface laser_rangeOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:interconnection.laser_range)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>required double range = 1;</code>
+     */
+    boolean hasRange();
+    /**
+     * <code>required double range = 1;</code>
+     */
+    double getRange();
+  }
+  /**
+   * Protobuf type {@code interconnection.laser_range}
+   */
+  public  static final class laser_range extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:interconnection.laser_range)
+      laser_rangeOrBuilder {
+    // Use laser_range.newBuilder() to construct.
+    private laser_range(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private laser_range() {
+      range_ = 0D;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private laser_range(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 9: {
+              bitField0_ |= 0x00000001;
+              range_ = input.readDouble();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return interconnection.Interconnection.internal_static_interconnection_laser_range_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return interconnection.Interconnection.internal_static_interconnection_laser_range_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              interconnection.Interconnection.laser_range.class, interconnection.Interconnection.laser_range.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int RANGE_FIELD_NUMBER = 1;
+    private double range_;
+    /**
+     * <code>required double range = 1;</code>
+     */
+    public boolean hasRange() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required double range = 1;</code>
+     */
+    public double getRange() {
+      return range_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      if (!hasRange()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeDouble(1, range_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeDoubleSize(1, range_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof interconnection.Interconnection.laser_range)) {
+        return super.equals(obj);
+      }
+      interconnection.Interconnection.laser_range other = (interconnection.Interconnection.laser_range) obj;
+
+      boolean result = true;
+      result = result && (hasRange() == other.hasRange());
+      if (hasRange()) {
+        result = result && (
+            java.lang.Double.doubleToLongBits(getRange())
+            == java.lang.Double.doubleToLongBits(
+                other.getRange()));
+      }
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (hasRange()) {
+        hash = (37 * hash) + RANGE_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            java.lang.Double.doubleToLongBits(getRange()));
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static interconnection.Interconnection.laser_range parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.laser_range parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.laser_range parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.laser_range parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.laser_range parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.laser_range parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.laser_range parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.laser_range parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.laser_range parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.laser_range parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(interconnection.Interconnection.laser_range prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code interconnection.laser_range}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:interconnection.laser_range)
+        interconnection.Interconnection.laser_rangeOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return interconnection.Interconnection.internal_static_interconnection_laser_range_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return interconnection.Interconnection.internal_static_interconnection_laser_range_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                interconnection.Interconnection.laser_range.class, interconnection.Interconnection.laser_range.Builder.class);
+      }
+
+      // Construct using interconnection.Interconnection.laser_range.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        range_ = 0D;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return interconnection.Interconnection.internal_static_interconnection_laser_range_descriptor;
+      }
+
+      public interconnection.Interconnection.laser_range getDefaultInstanceForType() {
+        return interconnection.Interconnection.laser_range.getDefaultInstance();
+      }
+
+      public interconnection.Interconnection.laser_range build() {
+        interconnection.Interconnection.laser_range result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public interconnection.Interconnection.laser_range buildPartial() {
+        interconnection.Interconnection.laser_range result = new interconnection.Interconnection.laser_range(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.range_ = range_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof interconnection.Interconnection.laser_range) {
+          return mergeFrom((interconnection.Interconnection.laser_range)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(interconnection.Interconnection.laser_range other) {
+        if (other == interconnection.Interconnection.laser_range.getDefaultInstance()) return this;
+        if (other.hasRange()) {
+          setRange(other.getRange());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasRange()) {
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        interconnection.Interconnection.laser_range parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (interconnection.Interconnection.laser_range) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private double range_ ;
+      /**
+       * <code>required double range = 1;</code>
+       */
+      public boolean hasRange() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required double range = 1;</code>
+       */
+      public double getRange() {
+        return range_;
+      }
+      /**
+       * <code>required double range = 1;</code>
+       */
+      public Builder setRange(double value) {
+        bitField0_ |= 0x00000001;
+        range_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required double range = 1;</code>
+       */
+      public Builder clearRange() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        range_ = 0D;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:interconnection.laser_range)
+    }
+
+    // @@protoc_insertion_point(class_scope:interconnection.laser_range)
+    private static final interconnection.Interconnection.laser_range DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new interconnection.Interconnection.laser_range();
+    }
+
+    public static interconnection.Interconnection.laser_range getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<laser_range>
+        PARSER = new com.google.protobuf.AbstractParser<laser_range>() {
+      public laser_range parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new laser_range(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<laser_range> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<laser_range> getParserForType() {
+      return PARSER;
+    }
+
+    public interconnection.Interconnection.laser_range getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_interconnection_command_type_descriptor;
   private static final 
@@ -1975,6 +2460,11 @@ public final class Interconnection {
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_interconnection_pin_coordinates_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_interconnection_laser_range_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_interconnection_laser_range_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -1985,15 +2475,16 @@ public final class Interconnection {
   static {
     java.lang.String[] descriptorData = {
       "\n\025interconnection.proto\022\017interconnection" +
-      "\"\323\001\n\014command_type\0225\n\004type\030\001 \002(\0162\'.interc" +
+      "\"\345\001\n\014command_type\0225\n\004type\030\001 \002(\0162\'.interc" +
       "onnection.command_type.command_t\022\017\n\007vers" +
-      "ion\030\002 \002(\005\"{\n\tcommand_t\022\010\n\004PING\020\000\022\025\n\021DRON" +
-      "E_COORDINATES\020\001\022\021\n\rMISSION_START\020\002\022\021\n\rMI" +
-      "SSION_PAUSE\020\003\022\021\n\rMISSION_ABORT\020\004\022\024\n\020MISS" +
-      "ION_FINISHED\020\005\"I\n\021drone_coordinates\022\020\n\010l" +
-      "atitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\022\017\n\007head" +
-      "ing\030\003 \002(\002\"6\n\017pin_coordinates\022\020\n\010latitude" +
-      "\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001"
+      "ion\030\002 \002(\005\"\214\001\n\tcommand_t\022\010\n\004PING\020\000\022\025\n\021DRO" +
+      "NE_COORDINATES\020\001\022\021\n\rMISSION_START\020\002\022\021\n\rM" +
+      "ISSION_PAUSE\020\003\022\021\n\rMISSION_ABORT\020\004\022\024\n\020MIS" +
+      "SION_FINISHED\020\005\022\017\n\013LASER_RANGE\020\006\"I\n\021dron" +
+      "e_coordinates\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongi" +
+      "tude\030\002 \002(\001\022\017\n\007heading\030\003 \002(\002\"6\n\017pin_coord" +
+      "inates\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongitude\030\002 ",
+      "\002(\001\"\034\n\013laser_range\022\r\n\005range\030\001 \002(\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2025,6 +2516,12 @@ public final class Interconnection {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_pin_coordinates_descriptor,
         new java.lang.String[] { "Latitude", "Longitude", });
+    internal_static_interconnection_laser_range_descriptor =
+      getDescriptor().getMessageTypes().get(3);
+    internal_static_interconnection_laser_range_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_interconnection_laser_range_descriptor,
+        new java.lang.String[] { "Range", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
