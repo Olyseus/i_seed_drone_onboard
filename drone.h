@@ -34,7 +34,7 @@ class drone {
   void start();
 
   static constexpr int32_t protocol_version{
-      7};  // Keep it consistent with Mobile SDK
+      7};  // Keep it consistent with Mobile SDK (see 'protocolVersion')
 
   static constexpr E_DjiMountPosition m_pos{DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
 
@@ -97,6 +97,7 @@ class drone {
 
   uint32_t command_bytes_size_{0};
   uint32_t pin_coordinates_bytes_size_{0};
+  uint32_t laser_range_bytes_size_{0};
   std::atomic<bool> connection_closed_{false};
   std::atomic<bool> exception_caught_{false};
 

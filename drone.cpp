@@ -193,7 +193,11 @@ T_DjiReturnCode drone::homepoint_callback(const uint8_t* data, uint16_t data_siz
 
 drone::drone() :
     mission_(mission_state_),
-    camera_psdk_("/var/opt/i_seed_drone_onboard/best.engine", mission_) {
+    camera_psdk_("/var/opt/i_seed_drone_onboard/best.engine", mission_)
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+    , laser_range_(simulator_)
+#endif
+    {
   BOOST_VERIFY(sigint_received_.is_lock_free());
 
   constexpr E_DjiDataSubscriptionTopicFreq topic_freq{DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ};
@@ -261,6 +265,16 @@ drone::drone() :
   BOOST_VERIFY(ok);
   pin_coordinates_bytes_size_ = {static_cast<uint32_t>(buffer_2.size())};
   BOOST_VERIFY(pin_coordinates_bytes_size_ > 0);
+
+  {
+    interconnection::laser_range laser_range;
+    laser_range.set_range(0.0);
+    std::string buffer;
+    const bool ok{laser_range.SerializeToString(&buffer)};
+    BOOST_VERIFY(ok);
+    laser_range_bytes_size_ = static_cast<uint32_t>(buffer.size());
+    BOOST_VERIFY(laser_range_bytes_size_ > 0);
+  }
 
   std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 }
@@ -709,6 +723,17 @@ void drone::receive_data_job_internal() {
         }
         home_altitude_.mission_stop();
         // FIXME (verify mission state)
+      } break;
+      case interconnection::command_type::LASER_RANGE: {
+        std::string buffer;
+        buffer.resize(laser_range_bytes_size_);
+        receive_data(&buffer);
+
+        interconnection::laser_range laser_range;
+        const bool ok{laser_range.ParseFromString(buffer)};
+        BOOST_VERIFY(ok);
+
+        laser_range_.value_received(laser_range.range());
       } break;
       default:
         spdlog::error("Unexpected command type: {}", command.type());
