@@ -10,40 +10,33 @@
 simulator::simulator() = default;
 simulator::~simulator() = default;
 
-void simulator::gps_callback(double latitude, double longitude) {
-  const std::lock_guard<std::mutex> lock(m_);
-
-  latitude_ = latitude;
-  longitude_ = longitude;
-
-  verify_lat_lon();
-}
-
 api_code simulator::receive_data(std::string* buffer) {
-  const std::lock_guard<std::mutex> lock(m_);
-
   BOOST_VERIFY(buffer != nullptr);
   BOOST_VERIFY(buffer->size() > 0);
 
-  if (laser_range_.has_value()) {
-    if (laser_range_cmd_sent_) {
-      interconnection::laser_range laser_range;
-      laser_range.set_range(laser_range_.value());
-      const bool ok{laser_range.SerializeToString(buffer)};
+  {
+    const std::lock_guard<std::mutex> lock(m_);
+
+    if (laser_range_.has_value()) {
+      if (laser_range_cmd_sent_) {
+        interconnection::laser_range laser_range;
+        laser_range.set_range(laser_range_.value());
+        const bool ok{laser_range.SerializeToString(buffer)};
+        BOOST_VERIFY(ok);
+        laser_range_.reset();
+        laser_range_cmd_sent_ = false;
+        return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+      }
+
+      interconnection::command_type command;
+      command.set_type(interconnection::command_type::LASER_RANGE);
+      command.set_version(drone::protocol_version);
+      const bool ok{command.SerializeToString(buffer)};
       BOOST_VERIFY(ok);
-      laser_range_.reset();
-      laser_range_cmd_sent_ = false;
+
+      laser_range_cmd_sent_ = true;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
     }
-
-    interconnection::command_type command;
-    command.set_type(interconnection::command_type::LASER_RANGE);
-    command.set_version(drone::protocol_version);
-    const bool ok{command.SerializeToString(buffer)};
-    BOOST_VERIFY(ok);
-
-    laser_range_cmd_sent_ = true;
-    return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
   }
 
   verify_lat_lon();

@@ -1,6 +1,7 @@
 #ifndef SIMULATOR_H_
 #define SIMULATOR_H_
 
+#include <atomic>
 #include <cmath>  // M_PI
 #include <mutex>
 #include <optional>
@@ -20,8 +21,11 @@ class simulator {
   simulator& operator=(const simulator&) = delete;
   simulator& operator=(simulator&&) = delete;
 
-  // thread: callback
-  void gps_callback(double latitude, double longitude);
+  // Callback thread, do not block execution
+  void gps_callback(double latitude, double longitude) {
+    latitude_ = latitude;
+    longitude_ = longitude;
+  }
 
   // thread: receive_data
   api_code receive_data(std::string* buffer);
@@ -42,8 +46,8 @@ class simulator {
 
   state state_{begin};
 
-  double latitude_{0.0};
-  double longitude_{0.0};
+  std::atomic<double> latitude_{0.0};
+  std::atomic<double> longitude_{0.0};
 
   static constexpr double p1_lat_{48.90};
   static constexpr double p1_lon_{-9.40};
