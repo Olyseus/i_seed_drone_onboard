@@ -89,11 +89,13 @@ auto laser_range::latest() -> double {
         namespace ch = std::chrono;
         if (ch::duration_cast<ch::milliseconds>(elapsed).count() > window_ms) {
           spdlog::info("Laser data is outdated");
-          latest_time_point_ == invalid_time_point;
+          latest_time_point_ = invalid_time_point;
         } else {
           return latest_value_;
         }
       }
+
+      BOOST_VERIFY(latest_time_point_ == invalid_time_point);
     }
 
     // need to wait for a new value
