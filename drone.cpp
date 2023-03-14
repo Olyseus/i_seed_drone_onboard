@@ -383,7 +383,7 @@ void drone::action_job_internal() {
 
   std::size_t waypoint_index{0};
 
-  switch (mission_.waypoint_reached(laser_range_.latest(), &waypoint_index)) {
+  switch (mission_.waypoint_reached(laser_range_.latest(execute_commands_mutex_, execute_commands_), &waypoint_index)) {
     case waypoint_action::ok:
       break;
     case waypoint_action::abort:
@@ -474,7 +474,7 @@ void drone::action_job_internal() {
       laser_gimbal_attitude.yaw = gimbal_yaw_ - drone_yaw_; // yaw relative to drone
 
       const converter_result pixel_result{converter::run(d.gps, d.drone_attitude, pixel_gimbal_attitude, 1.0)};
-      const converter_result laser_result{converter::run(gps, drone_attitude, laser_gimbal_attitude, laser_range_.latest())};
+      const converter_result laser_result{converter::run(gps, drone_attitude, laser_gimbal_attitude, laser_range_.latest(execute_commands_mutex_, execute_commands_))};
 
       BOOST_VERIFY((pixel_result.p - laser_result.p).norm() < 5.0);
       BOOST_VERIFY(std::abs(pixel_result.d.dot(laser_result.d) - 1.0) < 1e-3);
@@ -823,6 +823,11 @@ void drone::send_data_job_internal() {
 
         spdlog::debug("Drone coordinates sent: lat:{}, lon:{}, head:{}",
                      drone_latitude_, drone_longitude_, drone_yaw_);
+        break;
+      }
+      case interconnection::command_type::LASER_RANGE: {
+        spdlog::info("Request laser range");
+        send_command(interconnection::command_type::LASER_RANGE);
         break;
       }
       default:

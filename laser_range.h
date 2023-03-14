@@ -6,6 +6,8 @@
 #include <list>
 #include <mutex>
 
+#include "interconnection.pb.h"
+
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
 class simulator;
 #endif
@@ -30,7 +32,8 @@ class laser_range {
   void value_received(double range);
 
   // thread: action
-  double latest();
+  double latest(std::mutex& m,
+                std::list<interconnection::command_type::command_t>& commands);
 
  private:
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)

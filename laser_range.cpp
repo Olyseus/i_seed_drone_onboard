@@ -66,7 +66,8 @@ void laser_range::value_received(double range) {
 }
 
 // thread: action
-auto laser_range::latest() -> double {
+auto laser_range::latest(std::mutex& m,
+                         std::list<interconnection::command_type::command_t>& commands) -> double {
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   {
     const std::lock_guard<std::mutex> lock(m_);
@@ -96,6 +97,11 @@ auto laser_range::latest() -> double {
       }
 
       BOOST_VERIFY(latest_time_point_ == invalid_time_point);
+    }
+
+    {
+      std::lock_guard<std::mutex> lock(m);
+      commands.push_back(interconnection::command_type::LASER_RANGE);
     }
 
     // need to wait for a new value
