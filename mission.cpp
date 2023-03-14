@@ -54,7 +54,7 @@ auto mission::waypoint_reached(double laser_range, std::size_t* waypoint_index) 
   return waypoint_action::ok;
 }
 
-void mission::upload_mission_and_start() {
+auto mission::upload_mission_and_start() -> bool {
   std::lock_guard<std::mutex> lock(m_);
 
   spdlog::info("Upload mission and start");
@@ -95,7 +95,9 @@ void mission::upload_mission_and_start() {
   }
 
   // FIXME (if nothing is detected, report to user)
-  BOOST_VERIFY(!waypoints_.empty());
+  if (waypoints_.empty()) {
+    return false;
+  }
 
   if (waypoints_.size() == 1) {
     // Duplicate the last and ignore it when reached
@@ -139,6 +141,8 @@ void mission::upload_mission_and_start() {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   mission_state_.start();
+
+  return true;
 }
 
 void mission::set_backward() {

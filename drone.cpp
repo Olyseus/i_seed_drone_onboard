@@ -395,11 +395,13 @@ void drone::action_job_internal() {
             interconnection::command_type::MISSION_FINISHED);
       }
       return;
-    case waypoint_action::restart:
+    case waypoint_action::restart: {
       BOOST_VERIFY(mission_.is_forward());
       abort_mission();
-      mission_.upload_mission_and_start();
+      const bool ok{mission_.upload_mission_and_start()};
+      BOOST_VERIFY(ok);
       return;
+    }
     default:
       BOOST_VERIFY(false);
   }
@@ -705,7 +707,8 @@ void drone::receive_data_job_internal() {
         BOOST_VERIFY(ok);
 
         mission_.init(pin_coordinates.latitude(), pin_coordinates.longitude());
-        mission_.upload_mission_and_start();
+        const bool start_ok{mission_.upload_mission_and_start()};
+        BOOST_VERIFY(start_ok);
 
         home_altitude_.mission_start();
         // FIXME (verify mission state)
@@ -793,7 +796,11 @@ void drone::send_data_job_internal() {
             std::this_thread::sleep_for(std::chrono::seconds{5});
           }
           mission_.set_backward();
-          mission_.upload_mission_and_start();
+          if (!mission_.upload_mission_and_start()) {
+            spdlog::info("Backward mission canceled: No objects detected");
+            home_altitude_.mission_stop();
+            send_command(interconnection::command_type::MISSION_FINISHED);
+          }
         }
         else {
           spdlog::info("Execute MISSION_FINISHED command");

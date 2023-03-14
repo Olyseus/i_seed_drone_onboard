@@ -28,7 +28,7 @@ class mission {
 
   void init(double lat, double lon);
   waypoint_action waypoint_reached(double laser_range, std::size_t* waypoint_index);
-  void upload_mission_and_start();
+  bool upload_mission_and_start();
 
   waypoint get_waypoint_copy(std::size_t index) const;
   void save_detection(std::size_t index, const detection_result&);
