@@ -85,7 +85,7 @@ auto laser_range::latest(std::mutex& m,
       if (latest_time_point_ == invalid_time_point) {
         spdlog::info("No laser data available");
       } else {
-        constexpr int64_t window_ms{500};
+        constexpr int64_t window_ms{2000};
         const auto elapsed{clock::now() - latest_time_point_};
         namespace ch = std::chrono;
         if (ch::duration_cast<ch::milliseconds>(elapsed).count() > window_ms) {
