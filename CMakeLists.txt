@@ -72,6 +72,8 @@ add_library(
     boost_assert.cpp
     bounding_box.cpp
     bounding_box.h
+    condition_flag.cpp
+    condition_flag.h
     converter.cpp
     converter.h
     detection_result.h
