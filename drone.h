@@ -2,18 +2,17 @@
 #define DRONE_H_
 
 #include <atomic>
-#include <condition_variable>
 #include <cstdint>  // uint16_t
 #include <list>
 #include <mutex>
 #include <signal.h>        // sig_atomic_t
 
 #include "camera_psdk.h"
+#include "condition_flag.h"
 #include "home_altitude.h"
 #include "interconnection.pb.h"
 #include "laser_range.h"
 #include "mission.h"
-#include "mission_state.h"
 #include "simulator.h"
 
 using T_DjiMopChannelHandle = void*;
@@ -60,7 +59,6 @@ class drone {
   static std::atomic<double> gimbal_roll_;
   static std::atomic<double> homepoint_altitude_;
   static std::atomic<int16_t> rc_mode_;
-  static mission_state mission_state_;
   static std::mutex execute_commands_mutex_;
   static std::list<interconnection::command_type::command_t> execute_commands_;
 
@@ -83,15 +81,15 @@ class drone {
   void send_command(interconnection::command_type::command_t);
   void receive_data(std::string* buffer);
   void send_data(std::string& buffer);
-  // Should be locked with 'action_mutex_'
-  void abort_mission();
+
+  void next_mission();
 
   static constexpr uint16_t channel_id{
       9745};  // Just a random number. Keep it consistent with Mobile SDK
   static constexpr int pkg_index{0};
   static constexpr int timeout{20};
 
-  mission mission_;
+  static mission mission_;
   T_DjiMopChannelHandle channel_handle_{nullptr};
   camera_psdk camera_psdk_;
 
@@ -105,9 +103,7 @@ class drone {
   static simulator simulator_;
 #endif
 
-  static std::mutex action_mutex_;
-  static std::condition_variable action_condition_variable_;
-  static bool run_action_;
+  static condition_flag action_flag_;
 
   static void sigint_handler(int);
   static std::atomic<bool> sigint_received_;

@@ -33,13 +33,10 @@ std::atomic<double> drone::gimbal_roll_;
 std::atomic<double> drone::homepoint_altitude_{invalid_homepoint_altitude_};
 std::atomic<int16_t> drone::rc_mode_{-1};
 
-mission_state drone::mission_state_;
 std::mutex drone::execute_commands_mutex_;
 std::list<interconnection::command_type::command_t> drone::execute_commands_;
 
-std::mutex drone::action_mutex_;
-std::condition_variable drone::action_condition_variable_;
-bool drone::run_action_{false};
+condition_flag drone::action_flag_;
 
 T_DjiReturnCode drone::quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
@@ -124,43 +121,22 @@ T_DjiReturnCode drone::gimbal_callback(const uint8_t* data, uint16_t data_size, 
 }
 
 T_DjiReturnCode drone::mission_event_callback(T_DjiWaypointV2MissionEventPush event_data) {
-  if (!mission_state_.is_started()) {
-    return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+  const bool notify{mission_.update(event_data)};
+  if (notify) {
+    action_flag_.notify();
   }
-
-  mission_state_.update(event_data);
-
-  if (!mission_state_.is_started()) {
-    std::lock_guard<std::mutex> lock(execute_commands_mutex_);
-    execute_commands_.push_back(
-        interconnection::command_type::MISSION_FINISHED);
-  }
-
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
 T_DjiReturnCode drone::mission_state_callback(T_DjiWaypointV2MissionStatePush state_data) {
-  if (!mission_state_.is_started()) {
+  auto [mission_started, notify] = mission_.update(state_data);
+
+  if (!mission_started) {
     return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
   }
 
-  const bool run_action{mission_state_.update(state_data)};
-
-  if (run_action) {
-    spdlog::info("RUN ACTION FOR WAYPOINT");
-    {
-      std::lock_guard lock(action_mutex_);
-      BOOST_VERIFY(!run_action_);
-      run_action_ = true;
-    }
-    action_condition_variable_.notify_one();
-  }
-
-  if (!mission_state_.is_started()) {
-    BOOST_VERIFY(!run_action);
-    std::lock_guard<std::mutex> lock(execute_commands_mutex_);
-    execute_commands_.push_back(
-        interconnection::command_type::MISSION_FINISHED);
+  if (notify) {
+    action_flag_.notify();
   }
 
   // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
@@ -192,7 +168,6 @@ T_DjiReturnCode drone::homepoint_callback(const uint8_t* data, uint16_t data_siz
 }
 
 drone::drone() :
-    mission_(mission_state_),
     camera_psdk_("/var/opt/i_seed_drone_onboard/best.engine", mission_)
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
     , laser_range_(simulator_)
@@ -204,6 +179,9 @@ drone::drone() :
 
   T_DjiReturnCode code{DjiFcSubscription_Init()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  // DjiFcSubscription_SubscribeTopic usage note:
+  //   avoid locks in callback, it should exit as soon as possible
 
   code = DjiFcSubscription_SubscribeTopic(
       DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, topic_freq,
@@ -330,11 +308,7 @@ void drone::start() {
   // The main loop is endless so we reach this point only in case of error
 
   // Wake up all the threads that can possible wait for been notified
-  {
-    std::lock_guard lock{action_mutex_};
-    run_action_ = true;
-  }
-  action_condition_variable_.notify_one();
+  action_flag_.notify();
   action_thread.join();
 
   // Wait for other threads to finish. No need to nofify
@@ -355,16 +329,13 @@ auto drone::interrupt_condition() const -> bool {
 void drone::action_job() {
   try {
     while (true) {
-      std::unique_lock lock{action_mutex_};
-      action_condition_variable_.wait(lock, [this]{
-          return run_action_;
-      });
-      BOOST_VERIFY(run_action_);
+      action_flag_.wait();
 
       if (interrupt_condition()) {
         spdlog::critical("Action job exit");
         return;
       }
+
       action_job_internal();
     }
   } catch (std::exception& e) {
@@ -374,6 +345,11 @@ void drone::action_job() {
 }
 
 void drone::action_job_internal() {
+  if (mission_.is_finishing()) {
+    next_mission();
+    return;
+  }
+
   spdlog::info("Pause mission");
   T_DjiReturnCode code{DjiWaypointV2_Pause()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
@@ -381,23 +357,20 @@ void drone::action_job_internal() {
   // Wait for drone to finish the movement
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-  std::size_t waypoint_index{0};
+  const auto [action, waypoint_index] = mission_.waypoint_reached(laser_range_.latest(execute_commands_mutex_, execute_commands_));
 
-  switch (mission_.waypoint_reached(laser_range_.latest(execute_commands_mutex_, execute_commands_), &waypoint_index)) {
+  switch (action) {
     case waypoint_action::ok:
       break;
     case waypoint_action::abort:
       spdlog::info("Abort mission on a last fake waypoint");
-      abort_mission();
-      {
-        std::lock_guard<std::mutex> lock(execute_commands_mutex_);
-        execute_commands_.push_back(
-            interconnection::command_type::MISSION_FINISHED);
-      }
+      mission_.abort_mission();
+      next_mission();
       return;
-    case waypoint_action::restart: {
+    case waypoint_action::restart: { // restart the mission for altitude tweak
+      // altitude tweak is only for forward mission
       BOOST_VERIFY(mission_.is_forward());
-      abort_mission();
+      mission_.abort_mission();
       const bool ok{mission_.upload_mission_and_start()};
       BOOST_VERIFY(ok);
       return;
@@ -499,9 +472,6 @@ void drone::action_job_internal() {
   spdlog::info("Resume mission");
   code = DjiWaypointV2_Resume();
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-
-  // mark as processed
-  run_action_ = false;
 }
 
 void drone::align_gimbal() {
@@ -695,19 +665,17 @@ void drone::receive_data_job_internal() {
         buffer.resize(pin_coordinates_bytes_size_);
         receive_data(&buffer);
 
-        if (mission_state_.is_started()) {
-          spdlog::info("Mission resume");
-          T_DjiReturnCode code{DjiWaypointV2_Resume()};
-          BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-          // FIXME (verify mission state)
-          continue;
-        }
-
         interconnection::pin_coordinates pin_coordinates;
         const bool ok{pin_coordinates.ParseFromString(buffer)};
         BOOST_VERIFY(ok);
 
-        mission_.init(pin_coordinates.latitude(), pin_coordinates.longitude());
+        if (!mission_.init(pin_coordinates.latitude(), pin_coordinates.longitude())) {
+          std::lock_guard<std::mutex> lock(execute_commands_mutex_);
+          execute_commands_.push_back(
+              interconnection::command_type::ERROR_MISSION_ALREADY_EXECUTING);
+          break;
+        }
+
         const bool start_ok{mission_.upload_mission_and_start()};
         BOOST_VERIFY(start_ok);
 
@@ -720,11 +688,15 @@ void drone::receive_data_job_internal() {
         BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
         // FIXME (verify mission state)
       } break;
-      case interconnection::command_type::MISSION_ABORT: {
-        {
-          std::lock_guard lock(action_mutex_);
-          abort_mission();
+      case interconnection::command_type::MISSION_CONTINUE: {
+        if (!mission_.resume()) {
+          std::lock_guard<std::mutex> lock(execute_commands_mutex_);
+          execute_commands_.push_back(
+              interconnection::command_type::ERROR_UNEXPECTED_COMMAND);
         }
+      } break;
+      case interconnection::command_type::MISSION_ABORT: {
+        mission_.abort_mission();
         home_altitude_.mission_stop();
         // FIXME (verify mission state)
       } break;
@@ -789,26 +761,6 @@ void drone::send_data_job_internal() {
         send_command(interconnection::command_type::PING);
         break;
       }
-      case interconnection::command_type::MISSION_FINISHED: {
-        if (mission_.is_forward()) {
-          // Forward mission is finished and we can run backward mission
-          while (!camera_psdk_.queue_is_empty()) {
-            spdlog::info("Wait for inference to finish...");
-            std::this_thread::sleep_for(std::chrono::seconds{5});
-          }
-          mission_.set_backward();
-          if (!mission_.upload_mission_and_start()) {
-            spdlog::info("Backward mission canceled: No objects detected");
-            home_altitude_.mission_stop();
-            send_command(interconnection::command_type::MISSION_FINISHED);
-          }
-        }
-        else {
-          spdlog::info("Execute MISSION_FINISHED command");
-          home_altitude_.mission_stop();
-          send_command(interconnection::command_type::MISSION_FINISHED);
-        }
-      } break;
       case interconnection::command_type::DRONE_COORDINATES: {
         send_command(interconnection::command_type::DRONE_COORDINATES);
 
@@ -816,14 +768,18 @@ void drone::send_data_job_internal() {
         dc.set_latitude(drone_latitude_);
         dc.set_longitude(drone_longitude_);
         dc.set_heading(drone_yaw_);
+
+        const interconnection::drone_coordinates::state_t state{mission_.get_state()};
+        dc.set_state(state);
+
         std::string buffer;
         const bool ok{dc.SerializeToString(&buffer)};
         BOOST_VERIFY(ok);
 
         send_data(buffer);
 
-        spdlog::debug("Drone coordinates sent: lat:{}, lon:{}, head:{}",
-                     drone_latitude_, drone_longitude_, drone_yaw_);
+        spdlog::debug("Drone coordinates sent: lat:{}, lon:{}, head:{}, state:{}",
+                     drone_latitude_, drone_longitude_, drone_yaw_, state);
         break;
       }
       case interconnection::command_type::LASER_RANGE: {
@@ -926,15 +882,24 @@ void drone::send_data(std::string& buffer) {
   }
 }
 
-void drone::abort_mission() {
-  // Avoid condition trigger
-  run_action_ = false;
+void drone::next_mission() {
+  if (!mission_.is_forward()) {
+    spdlog::info("MISSION FINISHED");
+    home_altitude_.mission_stop();
+    return;
+  }
 
-  spdlog::info("Mission ABORT");
+  // Forward mission is finished and we can run backward mission
+  while (!camera_psdk_.queue_is_empty()) {
+    spdlog::info("Wait for inference to finish...");
+    std::this_thread::sleep_for(std::chrono::seconds{5});
+  }
 
-  // Call it first to block the update callbacks
-  mission_state_.finish();
+  spdlog::info("Start backward mission");
 
-  T_DjiReturnCode code{DjiWaypointV2_Stop()};
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  mission_.set_backward();
+  if (!mission_.upload_mission_and_start()) {
+    spdlog::info("Backward mission canceled: No objects detected");
+    home_altitude_.mission_stop();
+  }
 }
