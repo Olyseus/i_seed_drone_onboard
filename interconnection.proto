@@ -8,9 +8,11 @@ message command_type {
     DRONE_COORDINATES = 1;
     MISSION_START = 2;
     MISSION_PAUSE = 3;
-    MISSION_ABORT = 4;
-    MISSION_FINISHED = 5;
+    MISSION_CONTINUE = 4;
+    MISSION_ABORT = 5;
     LASER_RANGE = 6;
+    ERROR_UNEXPECTED_COMMAND = 7;
+    ERROR_MISSION_ALREADY_EXECUTING = 8;
   }
 
   required command_t type = 1;
@@ -18,9 +20,17 @@ message command_type {
 }
 
 message drone_coordinates {
+  enum state_t {
+    READY = 0;
+    WAITING = 1;
+    PAUSED = 2;
+    EXECUTING = 3;
+  }
+
   required double latitude = 1;
   required double longitude = 2;
   required float heading = 3;
+  required state_t state = 4;
 }
 
 message pin_coordinates {
