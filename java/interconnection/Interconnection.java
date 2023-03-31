@@ -142,17 +142,25 @@ public final class Interconnection {
        */
       MISSION_PAUSE(3),
       /**
-       * <code>MISSION_ABORT = 4;</code>
+       * <code>MISSION_CONTINUE = 4;</code>
        */
-      MISSION_ABORT(4),
+      MISSION_CONTINUE(4),
       /**
-       * <code>MISSION_FINISHED = 5;</code>
+       * <code>MISSION_ABORT = 5;</code>
        */
-      MISSION_FINISHED(5),
+      MISSION_ABORT(5),
       /**
        * <code>LASER_RANGE = 6;</code>
        */
       LASER_RANGE(6),
+      /**
+       * <code>ERROR_UNEXPECTED_COMMAND = 7;</code>
+       */
+      ERROR_UNEXPECTED_COMMAND(7),
+      /**
+       * <code>ERROR_MISSION_ALREADY_EXECUTING = 8;</code>
+       */
+      ERROR_MISSION_ALREADY_EXECUTING(8),
       ;
 
       /**
@@ -172,17 +180,25 @@ public final class Interconnection {
        */
       public static final int MISSION_PAUSE_VALUE = 3;
       /**
-       * <code>MISSION_ABORT = 4;</code>
+       * <code>MISSION_CONTINUE = 4;</code>
        */
-      public static final int MISSION_ABORT_VALUE = 4;
+      public static final int MISSION_CONTINUE_VALUE = 4;
       /**
-       * <code>MISSION_FINISHED = 5;</code>
+       * <code>MISSION_ABORT = 5;</code>
        */
-      public static final int MISSION_FINISHED_VALUE = 5;
+      public static final int MISSION_ABORT_VALUE = 5;
       /**
        * <code>LASER_RANGE = 6;</code>
        */
       public static final int LASER_RANGE_VALUE = 6;
+      /**
+       * <code>ERROR_UNEXPECTED_COMMAND = 7;</code>
+       */
+      public static final int ERROR_UNEXPECTED_COMMAND_VALUE = 7;
+      /**
+       * <code>ERROR_MISSION_ALREADY_EXECUTING = 8;</code>
+       */
+      public static final int ERROR_MISSION_ALREADY_EXECUTING_VALUE = 8;
 
 
       public final int getNumber() {
@@ -203,9 +219,11 @@ public final class Interconnection {
           case 1: return DRONE_COORDINATES;
           case 2: return MISSION_START;
           case 3: return MISSION_PAUSE;
-          case 4: return MISSION_ABORT;
-          case 5: return MISSION_FINISHED;
+          case 4: return MISSION_CONTINUE;
+          case 5: return MISSION_ABORT;
           case 6: return LASER_RANGE;
+          case 7: return ERROR_UNEXPECTED_COMMAND;
+          case 8: return ERROR_MISSION_ALREADY_EXECUTING;
           default: return null;
         }
       }
@@ -756,6 +774,15 @@ public final class Interconnection {
      * <code>required float heading = 3;</code>
      */
     float getHeading();
+
+    /**
+     * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     */
+    boolean hasState();
+    /**
+     * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     */
+    interconnection.Interconnection.drone_coordinates.state_t getState();
   }
   /**
    * Protobuf type {@code interconnection.drone_coordinates}
@@ -772,6 +799,7 @@ public final class Interconnection {
       latitude_ = 0D;
       longitude_ = 0D;
       heading_ = 0F;
+      state_ = 0;
     }
 
     @java.lang.Override
@@ -817,6 +845,17 @@ public final class Interconnection {
               heading_ = input.readFloat();
               break;
             }
+            case 32: {
+              int rawValue = input.readEnum();
+              interconnection.Interconnection.drone_coordinates.state_t value = interconnection.Interconnection.drone_coordinates.state_t.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(4, rawValue);
+              } else {
+                bitField0_ |= 0x00000008;
+                state_ = rawValue;
+              }
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -839,6 +878,114 @@ public final class Interconnection {
       return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               interconnection.Interconnection.drone_coordinates.class, interconnection.Interconnection.drone_coordinates.Builder.class);
+    }
+
+    /**
+     * Protobuf enum {@code interconnection.drone_coordinates.state_t}
+     */
+    public enum state_t
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <code>READY = 0;</code>
+       */
+      READY(0),
+      /**
+       * <code>WAITING = 1;</code>
+       */
+      WAITING(1),
+      /**
+       * <code>PAUSED = 2;</code>
+       */
+      PAUSED(2),
+      /**
+       * <code>EXECUTING = 3;</code>
+       */
+      EXECUTING(3),
+      ;
+
+      /**
+       * <code>READY = 0;</code>
+       */
+      public static final int READY_VALUE = 0;
+      /**
+       * <code>WAITING = 1;</code>
+       */
+      public static final int WAITING_VALUE = 1;
+      /**
+       * <code>PAUSED = 2;</code>
+       */
+      public static final int PAUSED_VALUE = 2;
+      /**
+       * <code>EXECUTING = 3;</code>
+       */
+      public static final int EXECUTING_VALUE = 3;
+
+
+      public final int getNumber() {
+        return value;
+      }
+
+      /**
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
+      public static state_t valueOf(int value) {
+        return forNumber(value);
+      }
+
+      public static state_t forNumber(int value) {
+        switch (value) {
+          case 0: return READY;
+          case 1: return WAITING;
+          case 2: return PAUSED;
+          case 3: return EXECUTING;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<state_t>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static final com.google.protobuf.Internal.EnumLiteMap<
+          state_t> internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<state_t>() {
+              public state_t findValueByNumber(int number) {
+                return state_t.forNumber(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(ordinal());
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return interconnection.Interconnection.drone_coordinates.getDescriptor().getEnumTypes().get(0);
+      }
+
+      private static final state_t[] VALUES = values();
+
+      public static state_t valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int value;
+
+      private state_t(int value) {
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:interconnection.drone_coordinates.state_t)
     }
 
     private int bitField0_;
@@ -887,6 +1034,22 @@ public final class Interconnection {
       return heading_;
     }
 
+    public static final int STATE_FIELD_NUMBER = 4;
+    private int state_;
+    /**
+     * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     */
+    public boolean hasState() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     */
+    public interconnection.Interconnection.drone_coordinates.state_t getState() {
+      interconnection.Interconnection.drone_coordinates.state_t result = interconnection.Interconnection.drone_coordinates.state_t.valueOf(state_);
+      return result == null ? interconnection.Interconnection.drone_coordinates.state_t.READY : result;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -905,6 +1068,10 @@ public final class Interconnection {
         memoizedIsInitialized = 0;
         return false;
       }
+      if (!hasState()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -919,6 +1086,9 @@ public final class Interconnection {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeFloat(3, heading_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeEnum(4, state_);
       }
       unknownFields.writeTo(output);
     }
@@ -939,6 +1109,10 @@ public final class Interconnection {
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeFloatSize(3, heading_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(4, state_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -978,6 +1152,10 @@ public final class Interconnection {
             == java.lang.Float.floatToIntBits(
                 other.getHeading()));
       }
+      result = result && (hasState() == other.hasState());
+      if (hasState()) {
+        result = result && state_ == other.state_;
+      }
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -1003,6 +1181,10 @@ public final class Interconnection {
         hash = (37 * hash) + HEADING_FIELD_NUMBER;
         hash = (53 * hash) + java.lang.Float.floatToIntBits(
             getHeading());
+      }
+      if (hasState()) {
+        hash = (37 * hash) + STATE_FIELD_NUMBER;
+        hash = (53 * hash) + state_;
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -1128,6 +1310,8 @@ public final class Interconnection {
         bitField0_ = (bitField0_ & ~0x00000002);
         heading_ = 0F;
         bitField0_ = (bitField0_ & ~0x00000004);
+        state_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -1164,6 +1348,10 @@ public final class Interconnection {
           to_bitField0_ |= 0x00000004;
         }
         result.heading_ = heading_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.state_ = state_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1215,6 +1403,9 @@ public final class Interconnection {
         if (other.hasHeading()) {
           setHeading(other.getHeading());
         }
+        if (other.hasState()) {
+          setState(other.getState());
+        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -1228,6 +1419,9 @@ public final class Interconnection {
           return false;
         }
         if (!hasHeading()) {
+          return false;
+        }
+        if (!hasState()) {
           return false;
         }
         return true;
@@ -1344,6 +1538,42 @@ public final class Interconnection {
       public Builder clearHeading() {
         bitField0_ = (bitField0_ & ~0x00000004);
         heading_ = 0F;
+        onChanged();
+        return this;
+      }
+
+      private int state_ = 0;
+      /**
+       * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       */
+      public boolean hasState() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       */
+      public interconnection.Interconnection.drone_coordinates.state_t getState() {
+        interconnection.Interconnection.drone_coordinates.state_t result = interconnection.Interconnection.drone_coordinates.state_t.valueOf(state_);
+        return result == null ? interconnection.Interconnection.drone_coordinates.state_t.READY : result;
+      }
+      /**
+       * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       */
+      public Builder setState(interconnection.Interconnection.drone_coordinates.state_t value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000008;
+        state_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       */
+      public Builder clearState() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        state_ = 0;
         onChanged();
         return this;
       }
@@ -2475,16 +2705,21 @@ public final class Interconnection {
   static {
     java.lang.String[] descriptorData = {
       "\n\025interconnection.proto\022\017interconnection" +
-      "\"\345\001\n\014command_type\0225\n\004type\030\001 \002(\0162\'.interc" +
+      "\"\250\002\n\014command_type\0225\n\004type\030\001 \002(\0162\'.interc" +
       "onnection.command_type.command_t\022\017\n\007vers" +
-      "ion\030\002 \002(\005\"\214\001\n\tcommand_t\022\010\n\004PING\020\000\022\025\n\021DRO" +
+      "ion\030\002 \002(\005\"\317\001\n\tcommand_t\022\010\n\004PING\020\000\022\025\n\021DRO" +
       "NE_COORDINATES\020\001\022\021\n\rMISSION_START\020\002\022\021\n\rM" +
-      "ISSION_PAUSE\020\003\022\021\n\rMISSION_ABORT\020\004\022\024\n\020MIS" +
-      "SION_FINISHED\020\005\022\017\n\013LASER_RANGE\020\006\"I\n\021dron" +
-      "e_coordinates\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongi" +
-      "tude\030\002 \002(\001\022\017\n\007heading\030\003 \002(\002\"6\n\017pin_coord" +
-      "inates\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongitude\030\002 ",
-      "\002(\001\"\034\n\013laser_range\022\r\n\005range\030\001 \002(\001"
+      "ISSION_PAUSE\020\003\022\024\n\020MISSION_CONTINUE\020\004\022\021\n\r" +
+      "MISSION_ABORT\020\005\022\017\n\013LASER_RANGE\020\006\022\034\n\030ERRO" +
+      "R_UNEXPECTED_COMMAND\020\007\022#\n\037ERROR_MISSION_" +
+      "ALREADY_EXECUTING\020\010\"\302\001\n\021drone_coordinate" +
+      "s\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\022\017",
+      "\n\007heading\030\003 \002(\002\0229\n\005state\030\004 \002(\0162*.interco" +
+      "nnection.drone_coordinates.state_t\"<\n\007st" +
+      "ate_t\022\t\n\005READY\020\000\022\013\n\007WAITING\020\001\022\n\n\006PAUSED\020" +
+      "\002\022\r\n\tEXECUTING\020\003\"6\n\017pin_coordinates\022\020\n\010l" +
+      "atitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\"\034\n\013lase" +
+      "r_range\022\r\n\005range\030\001 \002(\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2509,7 +2744,7 @@ public final class Interconnection {
     internal_static_interconnection_drone_coordinates_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_drone_coordinates_descriptor,
-        new java.lang.String[] { "Latitude", "Longitude", "Heading", });
+        new java.lang.String[] { "Latitude", "Longitude", "Heading", "State", });
     internal_static_interconnection_pin_coordinates_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_interconnection_pin_coordinates_fieldAccessorTable = new
