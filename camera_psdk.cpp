@@ -215,6 +215,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const attitude& drone_
   }
 }
 
+// thread: inference
 auto camera_psdk::check_sdcard() -> bool {
   {
     std::lock_guard lock{queue_mutex_};
