@@ -7,6 +7,7 @@
 #include <CLI/Formatter.hpp>     // CLI::App (link)
 #include <boost/filesystem.hpp>  // boost::filesystem::path
 #include <iostream>              // std::cerr
+#include <opencv2/opencv.hpp> // cv::Mat
 
 #include "bounding_box.h"
 #include "inference.h"
@@ -52,6 +53,9 @@ auto run_main(int argc, char** argv) -> int {
       ->required()
       ->check(CLI::ExistingFile);
 
+  std::string bbimage;
+  app.add_option("--bbimage", bbimage, "Output image with bounding boxes");
+
   try {
     app.parse(argc, argv);
   } catch (const CLI::ParseError& e) {
@@ -64,12 +68,35 @@ auto run_main(int argc, char** argv) -> int {
     inference inf{model};
     const std::vector<bounding_box> bboxes{inf.run(image)};
 
-    for (const bounding_box& x : bboxes) {
-      x.print();
-    }
-
     if (bboxes.empty()) {
       spdlog::info("No objects detected");
+      return EXIT_SUCCESS;
+    }
+
+    for (const bounding_box& bb : bboxes) {
+      bb.print();
+    }
+
+    if (!bbimage.empty()) {
+      spdlog::info("Save bounding boxes to image: {}", bbimage);
+      cv::Mat cv_image{cv::imread(image.c_str())};
+      BOOST_VERIFY(cv_image.data != nullptr);
+
+      for (const bounding_box& bb : bboxes) {
+        constexpr int thickness{3};
+        cv::rectangle(cv_image, bb.pmin(), bb.pmax(), bb.class_color(), thickness);
+
+        cv::Point p_text{bb.pmin()};
+        p_text.y -= 12;
+
+        std::ostringstream ss;
+        ss << std::fixed << std::setprecision(2) << bb.confidence() * 100.0 << '%';
+
+        cv::putText(cv_image, ss.str(), p_text, cv::FONT_HERSHEY_SIMPLEX, 2.0, bb.class_color(), thickness);
+      }
+
+      const bool ok{cv::imwrite(bbimage, cv_image)};
+      BOOST_VERIFY(ok);
     }
 
     return EXIT_SUCCESS;

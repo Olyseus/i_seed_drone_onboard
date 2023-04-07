@@ -3,6 +3,8 @@
 
 #include <cstddef>  // std::size_t
 
+#include <opencv2/opencv.hpp> // cv::Point
+
 class bounding_box {
  public:
   bounding_box(float*, std::size_t x_shift, std::size_t y_shift);
@@ -14,6 +16,10 @@ class bounding_box {
 
   float mid_x() const { return (xmin_ + xmax_) / 2.0F; }
   float mid_y() const { return (ymin_ + ymax_) / 2.0F; }
+
+  cv::Point pmin() const;
+  cv::Point pmax() const;
+  cv::Scalar class_color() const;
 
  private:
   float xmin_{0.0};

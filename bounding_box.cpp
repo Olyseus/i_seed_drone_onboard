@@ -89,3 +89,25 @@ void bounding_box::print() const {
       "{:.6f}, class: {}, {}",
       xmin_, ymin_, xmax_, ymax_, confidence_, class_id_, class_name_);
 }
+
+auto bounding_box::pmin() const -> cv::Point {
+  return {static_cast<int>(xmin_), static_cast<int>(ymin_)};
+}
+
+auto bounding_box::pmax() const -> cv::Point {
+  return {static_cast<int>(xmax_), static_cast<int>(ymax_)};
+}
+
+auto bounding_box::class_color() const -> cv::Scalar {
+  switch (class_id_) {
+    case 0: // blue
+      return {255, 0, 0}; // BGR
+    case 1: // brown
+      return {42, 42, 165}; // BGR
+    case 2: // green
+      return {0, 255, 0}; // BGR
+    default:
+      BOOST_VERIFY(false);
+      return {0, 0, 0}; // BGR
+  }
+}

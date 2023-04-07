@@ -106,6 +106,9 @@ set_source_files_properties(
     "-Wno-deprecated-declarations;-Wno-unused-parameter"
 )
 
+find_package(OpenCV CONFIG REQUIRED)
+target_link_libraries(i_seed_drone_onboard_core PUBLIC ${OpenCV_LIBS})
+
 find_package(CUDAToolkit REQUIRED) # CUDA::cudart
 target_link_libraries(i_seed_drone_onboard_core PUBLIC CUDA::cudart)
 
