@@ -28,4 +28,4 @@ struct detection_result {
   std::vector<detected_pixel> pixels;
 };
 
-#endif // DETECTION_RESULT_H_
+#endif  // DETECTION_RESULT_H_

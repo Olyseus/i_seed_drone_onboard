@@ -1,9 +1,8 @@
-#include <gtest/gtest.h> // ::testing::Test
+#include <gtest/gtest.h>  // ::testing::Test
 
 #include "home_altitude.h"
 
-class home_altitude_test : public ::testing::Test {
-};
+class home_altitude_test : public ::testing::Test {};
 
 TEST_F(home_altitude_test, double_start) {
   home_altitude h;
@@ -55,7 +54,8 @@ TEST_F(home_altitude_test, bad_drone_altitude) {
   h.set_altitude(20.1, mission_altitude, home_altitude);
   h.set_altitude(20.2, mission_altitude, home_altitude);
 
-  ASSERT_THROW(h.set_altitude(21.5, mission_altitude, home_altitude), std::runtime_error);
+  ASSERT_THROW(h.set_altitude(21.5, mission_altitude, home_altitude),
+               std::runtime_error);
 }
 
 TEST_F(home_altitude_test, no_data) {

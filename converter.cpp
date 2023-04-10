@@ -1,27 +1,34 @@
 #include "converter.h"
 
-#include <GeographicLib/LocalCartesian.hpp>
-#include <boost/assert.hpp> // BOOST_VERIFY
 #include <spdlog/spdlog.h>
 
-#include "utils.h" // deg2rad
+#include <GeographicLib/LocalCartesian.hpp>
+#include <boost/assert.hpp>  // BOOST_VERIFY
+
+#include "utils.h"  // deg2rad
 
 auto converter::run(const gps_coordinates& gps, const attitude& drone_attitude,
-                    const attitude& gimbal_attitude, double length) -> converter_result {
+                    const attitude& gimbal_attitude, double length)
+    -> converter_result {
+  const Eigen::Vector3d drone_ned_v{
+      camera_to_drone_ned(gimbal_attitude, length)};
 
-  const Eigen::Vector3d drone_ned_v{camera_to_drone_ned(gimbal_attitude, length)};
-
-  // FIXME (real values: https://github.com/Olyseus/i_seed_drone_onboard/issues/10)
+  // FIXME (real values:
+  // https://github.com/Olyseus/i_seed_drone_onboard/issues/10)
   const Eigen::Vector3d drone_ned_p{0.4, 0.0, 0.1};
 
-  const Eigen::Vector3d local_ned_v{drone_ned_to_local_ned(drone_attitude, drone_ned_v)};
-  const Eigen::Vector3d local_ned_p{drone_ned_to_local_ned(drone_attitude, drone_ned_p)};
+  const Eigen::Vector3d local_ned_v{
+      drone_ned_to_local_ned(drone_attitude, drone_ned_v)};
+  const Eigen::Vector3d local_ned_p{
+      drone_ned_to_local_ned(drone_attitude, drone_ned_p)};
   const Eigen::Vector3d local_ned_down{0.0, 0.0, 1.0};
 
   BOOST_VERIFY(local_ned_down.dot(local_ned_v.normalized()) > 1e-3);
 
-  const GeographicLib::LocalCartesian local_cartesian(gps.latitude, gps.longitude, gps.altitude);
-  const Eigen::Vector3d drone{local_ned_to_ecef(local_cartesian, Eigen::Vector3d{0.0, 0.0, 0.0})};
+  const GeographicLib::LocalCartesian local_cartesian(
+      gps.latitude, gps.longitude, gps.altitude);
+  const Eigen::Vector3d drone{
+      local_ned_to_ecef(local_cartesian, Eigen::Vector3d{0.0, 0.0, 0.0})};
 
   converter_result result;
   result.p = local_ned_to_ecef(local_cartesian, local_ned_p);
@@ -42,8 +49,9 @@ auto converter::run(const gps_coordinates& gps, const attitude& drone_attitude,
   return result;
 }
 
-auto converter::local_ned_to_ecef(const GeographicLib::LocalCartesian& local_cartesian,
-                                  const Eigen::Vector3d& p) -> Eigen::Vector3d {
+auto converter::local_ned_to_ecef(
+    const GeographicLib::LocalCartesian& local_cartesian,
+    const Eigen::Vector3d& p) -> Eigen::Vector3d {
   // 'local_cartesian' is ENU East-North-Up, 'p' is NED North-East-Down
   // https://geographiclib.sourceforge.io/2009-03/classGeographicLib_1_1LocalCartesian.html
   // The z axis is normal to the ellipsoid
@@ -69,8 +77,8 @@ auto converter::local_ned_to_ecef(const GeographicLib::LocalCartesian& local_car
   return Eigen::Vector3d{x_ecef, y_ecef, z_ecef};
 }
 
-auto converter::camera_to_drone_ned(const attitude& gimbal_attitude, double length)
-    -> Eigen::Vector3d {
+auto converter::camera_to_drone_ned(const attitude& gimbal_attitude,
+                                    double length) -> Eigen::Vector3d {
   Eigen::Vector3d v{length, 0.0, 0.0};
 
   const double roll{gimbal_attitude.roll * deg2rad};
@@ -96,12 +104,13 @@ auto converter::camera_to_drone_ned(const attitude& gimbal_attitude, double leng
   // clang-format on
 
   // Order is yaw, roll, pitch:
-  // - https://www.dji.com/id/zenmuse-h20-series
-  // - https://dji-official-fe.djicdn.com/dps/2e876d4a9a58951ed2dd4680c025b002.png
+  // https://www.dji.com/id/zenmuse-h20-series
+  // https://dji-official-fe.djicdn.com/dps/2e876d4a9a58951ed2dd4680c025b002.png
   return rotate_yaw * rotate_roll * rotate_pitch * v;
 }
 
-auto converter::drone_ned_to_local_ned(const attitude& drone_attitude, const Eigen::Vector3d& v)
+auto converter::drone_ned_to_local_ned(const attitude& drone_attitude,
+                                       const Eigen::Vector3d& v)
     -> Eigen::Vector3d {
   const double roll{drone_attitude.roll * deg2rad};
   const double pitch{drone_attitude.pitch * deg2rad};

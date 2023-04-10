@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <boost/assert.hpp>       // BOOST_VERIFY
+#include <boost/assert.hpp>  // BOOST_VERIFY
 
 void mission_state::start() {
   std::lock_guard<std::mutex> lock(m_);
@@ -39,7 +39,7 @@ auto mission_state::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
   const unsigned event{event_data.event};
 
   // https://developer.dji.com/doc/payload-sdk-api-reference/en/practice/waypoint-v2-type.html#typedef-struct-t-djiwaypointv2missioneventpush
-  if (event == 0x03) { // finish, mission stop event
+  if (event == 0x03) {  // finish, mission stop event
     spdlog::info("Finish event received");
     BOOST_VERIFY(initial_update_received_);
     BOOST_VERIFY(is_started_);
@@ -55,8 +55,10 @@ auto mission_state::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
 }
 
 // @return auto [mission_started, notify, notify_finished]
-auto mission_state::update(T_DjiWaypointV2MissionStatePush state_data) -> std::tuple<bool, bool, bool> {
-  spdlog::debug("update: T_DjiWaypointV2MissionStatePush.state = {}", static_cast<unsigned>(state_data.state));
+auto mission_state::update(T_DjiWaypointV2MissionStatePush state_data)
+    -> std::tuple<bool, bool, bool> {
+  spdlog::debug("update: T_DjiWaypointV2MissionStatePush.state = {}",
+                static_cast<unsigned>(state_data.state));
   std::lock_guard<std::mutex> lock(m_);
 
   const bool mission_started{is_started_};
@@ -103,7 +105,8 @@ auto mission_state::update(T_DjiWaypointV2MissionStatePush state_data) -> std::t
   return {mission_started, notify, notify_finished};
 }
 
-auto mission_state::get_state() const -> interconnection::drone_coordinates::state_t {
+auto mission_state::get_state() const
+    -> interconnection::drone_coordinates::state_t {
   std::lock_guard<std::mutex> lock(m_);
 
   if (!is_started_) {

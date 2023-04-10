@@ -51,4 +51,4 @@ class laser_range {
   double latest_value_{0.0};
 };
 
-#endif // LASER_RANGE_H_
+#endif  // LASER_RANGE_H_

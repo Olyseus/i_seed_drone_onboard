@@ -38,11 +38,7 @@ class simulator {
 
   void verify_lat_lon();
 
-  enum state {
-    begin,
-    mission_start,
-    end
-  };
+  enum state { begin, mission_start, end };
 
   state state_{begin};
 
@@ -60,4 +56,4 @@ class simulator {
 };
 #endif
 
-#endif // SIMULATOR_H_
+#endif  // SIMULATOR_H_

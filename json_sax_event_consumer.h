@@ -6,7 +6,8 @@
 
 class json_sax_event_consumer : public nlohmann::json::json_sax_t {
  public:
-  json_sax_event_consumer(const boost::gregorian::date& date, double lat, double lon);
+  json_sax_event_consumer(const boost::gregorian::date& date, double lat,
+                          double lon);
   ~json_sax_event_consumer();
 
   json_sax_event_consumer(const json_sax_event_consumer&) = delete;
@@ -27,7 +28,8 @@ class json_sax_event_consumer : public nlohmann::json::json_sax_t {
   bool end_array() override;
   bool key(string_t& val) override;
   bool binary(nlohmann::json::binary_t& val) override;
-  bool parse_error(std::size_t position, const std::string& last_token, const nlohmann::json::exception& ex) override;
+  bool parse_error(std::size_t position, const std::string& last_token,
+                   const nlohmann::json::exception& ex) override;
 
   double declination() const;
 

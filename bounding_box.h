@@ -1,9 +1,8 @@
 #ifndef BOUNDING_BOX_H_
 #define BOUNDING_BOX_H_
 
-#include <cstddef>  // std::size_t
-
-#include <opencv2/opencv.hpp> // cv::Point
+#include <cstddef>             // std::size_t
+#include <opencv2/opencv.hpp>  // cv::Point
 
 class bounding_box {
  public:

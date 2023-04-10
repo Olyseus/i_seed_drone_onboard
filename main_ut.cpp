@@ -1,6 +1,6 @@
 #include "main_ut.h"  // gtest_project_top_directory
 
-#include <gtest/gtest.h> // testing::InitGoogleTest
+#include <gtest/gtest.h>  // testing::InitGoogleTest
 
 #include <iostream>  // std::cerr
 
@@ -14,7 +14,8 @@ auto main(int argc, char** argv) -> int {
   }
 
   gtest_project_top_directory = argv[1];
-  std::cout << "Project top directory: " << gtest_project_top_directory << std::endl;
+  std::cout << "Project top directory: " << gtest_project_top_directory
+            << std::endl;
 
   return RUN_ALL_TESTS();
 }

@@ -23,7 +23,7 @@ class waypoint {
   double lat() const { return latitude_; }
   double lon() const { return longitude_; }
 
-  static constexpr double expected_height{15.0}; // 15m
+  static constexpr double expected_height{15.0};  // 15m
 
   // Forward pass is ready
   void set_ready(bool is_forward);
@@ -44,4 +44,4 @@ class waypoint {
   std::optional<detection_result> detection_result_;
 };
 
-#endif // WAYPOINT_H_
+#endif  // WAYPOINT_H_

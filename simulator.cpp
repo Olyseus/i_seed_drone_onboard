@@ -1,7 +1,7 @@
 #include "simulator.h"
 
-#include <boost/assert.hpp> // BOOST_VERIFY
-#include <thread> // std::this_thread
+#include <boost/assert.hpp>  // BOOST_VERIFY
+#include <thread>            // std::this_thread
 
 #include "drone.h"
 
@@ -41,8 +41,10 @@ api_code simulator::receive_data(std::string* buffer) {
 
   verify_lat_lon();
 
-  const double p1_diff{std::abs(latitude_ - p1_lat_) + std::abs(longitude_ - p1_lon_)};
-  const double p2_diff{std::abs(latitude_ - p2_lat_) + std::abs(longitude_ - p2_lon_)};
+  const double p1_diff{std::abs(latitude_ - p1_lat_) +
+                       std::abs(longitude_ - p1_lon_)};
+  const double p2_diff{std::abs(latitude_ - p2_lat_) +
+                       std::abs(longitude_ - p2_lon_)};
 
   const double mission_lat{(p1_diff > p2_diff) ? p1_lat_ : p2_lat_};
   const double mission_lon{(p1_diff > p2_diff) ? p1_lon_ : p2_lon_};

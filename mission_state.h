@@ -1,10 +1,10 @@
 #ifndef MISSION_STATE_H_
 #define MISSION_STATE_H_
 
+#include <dji_waypoint_v2.h>  // T_DjiWaypointV2MissionEventPush
+
 #include <mutex>
 #include <set>
-
-#include <dji_waypoint_v2.h> // T_DjiWaypointV2MissionEventPush
 
 #include "interconnection.pb.h"
 
@@ -19,7 +19,8 @@ class mission_state {
   bool update(T_DjiWaypointV2MissionEventPush event_data);
 
   // @return auto [mission_started, notify, notify_finished]
-  std::tuple<bool, bool, bool> update(T_DjiWaypointV2MissionStatePush state_data);
+  std::tuple<bool, bool, bool> update(
+      T_DjiWaypointV2MissionStatePush state_data);
 
   interconnection::drone_coordinates::state_t get_state() const;
 
@@ -40,7 +41,8 @@ class mission_state {
     pause_state = 0x4,
     enter_mission_after_ending_pause = 0x5,
     exit_mission = 0x6,
-    end_of_waypoint_mission = 0x7 // https://sdk-forum.dji.net/hc/en-us/requests/76600
+    end_of_waypoint_mission =
+        0x7  // https://sdk-forum.dji.net/hc/en-us/requests/76600
   };
 
   std::set<uint16_t> already_executed_;

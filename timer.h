@@ -1,9 +1,8 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
+#include <boost/assert.hpp>  // BOOST_VERIFY
 #include <chrono>
-
-#include <boost/assert.hpp> // BOOST_VERIFY
 
 class timer {
  public:

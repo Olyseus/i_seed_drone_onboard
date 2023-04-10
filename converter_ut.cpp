@@ -8,15 +8,18 @@ class converter_test : public ::testing::Test {
 
   void camera_to_drone_ned(const attitude& gimbal_attitude, double length,
                            const Eigen::Vector3d& expected) {
-    const Eigen::Vector3d result{converter::camera_to_drone_ned(gimbal_attitude, length)};
+    const Eigen::Vector3d result{
+        converter::camera_to_drone_ned(gimbal_attitude, length)};
     ASSERT_NEAR(result(0), expected(0), eps);
     ASSERT_NEAR(result(1), expected(1), eps);
     ASSERT_NEAR(result(2), expected(2), eps);
   }
 
-  void drone_ned_to_local_ned(const attitude& drone_attitude, const Eigen::Vector3d& p,
-                           const Eigen::Vector3d& expected) {
-    const Eigen::Vector3d result{converter::drone_ned_to_local_ned(drone_attitude, p)};
+  void drone_ned_to_local_ned(const attitude& drone_attitude,
+                              const Eigen::Vector3d& p,
+                              const Eigen::Vector3d& expected) {
+    const Eigen::Vector3d result{
+        converter::drone_ned_to_local_ned(drone_attitude, p)};
     ASSERT_NEAR(result(0), expected(0), eps);
     ASSERT_NEAR(result(1), expected(1), eps);
     ASSERT_NEAR(result(2), expected(2), eps);

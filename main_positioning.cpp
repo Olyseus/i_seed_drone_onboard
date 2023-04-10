@@ -1,16 +1,15 @@
-#include <boost/assert.hpp>
-#include <boost/filesystem.hpp>  // boost::filesystem::path
-#include <dji_positioning.h> // DjiPositioning_Init
-#include <iostream>              // std::cerr
+#include <dji_positioning.h>                  // DjiPositioning_Init
 #include <spdlog/sinks/rotating_file_sink.h>  // spdlog::sinks::rotating_file_sink_mt
 #include <spdlog/sinks/stdout_sinks.h>        // spdlog::sinks::stdout_sink_mt
 #include <spdlog/spdlog.h>
-#include <spdlog/spdlog.h>
-#include <thread>  // std::this_thread
 
-#include "application.hpp" // Application
+#include <boost/assert.hpp>
+#include <boost/filesystem.hpp>  // boost::filesystem::path
+#include <iostream>              // std::cerr
+#include <thread>                // std::this_thread
 
 #include "api_code.h"
+#include "application.hpp"  // Application
 
 void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
@@ -80,7 +79,8 @@ auto run_main(int argc, char** argv) -> int {
     DjiPositioning_SetTaskIndex(task_index);
 
     /* FIXME (enable?)
-    code = DjiTimeSync_RegGetNewestPpsTriggerTimeCallback(get_newest_pps_callback);
+    code =
+    DjiTimeSync_RegGetNewestPpsTriggerTimeCallback(get_newest_pps_callback);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     */
 
@@ -92,8 +92,10 @@ auto run_main(int argc, char** argv) -> int {
 
     // FIXME uint64_t pps_newest_trigger_time_us{0};
     // FIXME constexpr uint64_t dji_test_time_interval_among_events_us{200000};
-    code = DjiTimeSync_TransferToAircraftTime(current_time_ms * 1000,
-        // FIXME (???) pps_newest_trigger_time_us - 1000000 - dji_test_time_interval_among_events_us,
+    code = DjiTimeSync_TransferToAircraftTime(
+        current_time_ms * 1000,
+        // FIXME (???) pps_newest_trigger_time_us - 1000000 -
+        // dji_test_time_interval_among_events_us,
         &aircraft_time);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
@@ -103,21 +105,29 @@ auto run_main(int argc, char** argv) -> int {
     event_info.eventTime = aircraft_time;
 
     T_DjiPositioningPositionInfo position_info;
-    code = DjiPositioning_GetPositionInformationSync(1, &event_info, &position_info);
+    code = DjiPositioning_GetPositionInformationSync(1, &event_info,
+                                                     &position_info);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-    spdlog::info("position solution property: {}", position_info.positionSolutionProperty);
-    spdlog::info("pitchAttitudeAngle: {}, rollAttitudeAngle: {}, yawAttitudeAngle: {}",
-        position_info.uavAttitude.pitch, position_info.uavAttitude.roll, position_info.uavAttitude.yaw);
-    spdlog::info("northPositionOffset: {}, earthPositionOffset: {}, downPositionOffset: {}",
+    spdlog::info("position solution property: {}",
+                 position_info.positionSolutionProperty);
+    spdlog::info(
+        "pitchAttitudeAngle: {}, rollAttitudeAngle: {}, yawAttitudeAngle: {}",
+        position_info.uavAttitude.pitch, position_info.uavAttitude.roll,
+        position_info.uavAttitude.yaw);
+    spdlog::info(
+        "northPositionOffset: {}, earthPositionOffset: {}, downPositionOffset: "
+        "{}",
         position_info.offsetBetweenMainAntennaAndTargetPoint.x,
         position_info.offsetBetweenMainAntennaAndTargetPoint.y,
         position_info.offsetBetweenMainAntennaAndTargetPoint.z);
     spdlog::info("longitude: {}, latitude: {}, height: {}",
-        position_info.targetPointPosition.longitude,
-        position_info.targetPointPosition.latitude,
-        position_info.targetPointPosition.height);
-    spdlog::info("longStandardDeviation: {}, latStandardDeviation: {}, hgtStandardDeviation: {}",
+                 position_info.targetPointPosition.longitude,
+                 position_info.targetPointPosition.latitude,
+                 position_info.targetPointPosition.height);
+    spdlog::info(
+        "longStandardDeviation: {}, latStandardDeviation: {}, "
+        "hgtStandardDeviation: {}",
         position_info.targetPointPositionStandardDeviation.longitude,
         position_info.targetPointPositionStandardDeviation.latitude,
         position_info.targetPointPositionStandardDeviation.height);

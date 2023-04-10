@@ -1,10 +1,11 @@
 #include "laser_range.h"
 
-#include <boost/assert.hpp> // BOOST_VERIFY
 #include <spdlog/spdlog.h>
 
+#include <boost/assert.hpp>  // BOOST_VERIFY
+
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-# include "simulator.h"
+#include "simulator.h"
 #endif
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
@@ -66,8 +67,9 @@ void laser_range::value_received(double range) {
 }
 
 // thread: action
-auto laser_range::latest(std::mutex& m,
-                         std::list<interconnection::command_type::command_t>& commands) -> double {
+auto laser_range::latest(
+    std::mutex& m,
+    std::list<interconnection::command_type::command_t>& commands) -> double {
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   {
     const std::lock_guard<std::mutex> lock(m_);
@@ -106,9 +108,8 @@ auto laser_range::latest(std::mutex& m,
 
     // need to wait for a new value
     std::unique_lock lock{m_};
-    condition_variable_.wait(lock, [this]{
-        return latest_time_point_ != invalid_time_point;
-    });
+    condition_variable_.wait(
+        lock, [this] { return latest_time_point_ != invalid_time_point; });
     BOOST_VERIFY(latest_time_point_ != invalid_time_point);
   }
 }

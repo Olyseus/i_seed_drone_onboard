@@ -1,9 +1,9 @@
 #include "home_altitude.h"
 
-#include <numeric> // std::accumulate
-
-#include <boost/assert.hpp> // BOOST_VERIFY
 #include <spdlog/spdlog.h>
+
+#include <boost/assert.hpp>  // BOOST_VERIFY
+#include <numeric>           // std::accumulate
 
 home_altitude::home_altitude() = default;
 home_altitude::~home_altitude() = default;
@@ -15,7 +15,8 @@ void home_altitude::mission_start() {
   in_progress_ = true;
 }
 
-void home_altitude::set_altitude(double drone_altitude, double mission_altitude, double home_altitude) {
+void home_altitude::set_altitude(double drone_altitude, double mission_altitude,
+                                 double home_altitude) {
   BOOST_VERIFY(in_progress_);
 
   if (home_altitude_.has_value()) {

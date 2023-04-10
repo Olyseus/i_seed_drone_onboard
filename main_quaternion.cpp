@@ -1,16 +1,15 @@
-#include <boost/assert.hpp>
-#include <boost/filesystem.hpp>  // boost::filesystem::path
-#include <dji_fc_subscription.h> // T_DjiFcSubscriptionQuaternion
-#include <iostream>              // std::cerr
+#include <dji_fc_subscription.h>              // T_DjiFcSubscriptionQuaternion
 #include <spdlog/sinks/rotating_file_sink.h>  // spdlog::sinks::rotating_file_sink_mt
 #include <spdlog/sinks/stdout_sinks.h>        // spdlog::sinks::stdout_sink_mt
 #include <spdlog/spdlog.h>
-#include <spdlog/spdlog.h>
-#include <thread>  // std::this_thread
 
-#include "application.hpp" // Application
+#include <boost/assert.hpp>
+#include <boost/filesystem.hpp>  // boost::filesystem::path
+#include <iostream>              // std::cerr
+#include <thread>                // std::this_thread
 
 #include "api_code.h"
+#include "application.hpp"  // Application
 
 void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
@@ -40,18 +39,22 @@ void setup_logging() {
   spdlog::info("Logging to file: {}", log_path.string());
 }
 
-T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size,
+                                    const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
-  const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};;
+  const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};
   (void)data_size;
   (void)timestamp;
 
   // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
   const double q2sqr{quaternion.q2 * quaternion.q2};
   const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
-  const double t1{+2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
-  double t2{-2.0 * (quaternion.q1 * quaternion.q3 - quaternion.q0 * quaternion.q2)};
-  const double t3{+2.0 * (quaternion.q2 * quaternion.q3 + quaternion.q0 * quaternion.q1)};
+  const double t1{
+      +2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
+  double t2{-2.0 *
+            (quaternion.q1 * quaternion.q3 - quaternion.q0 * quaternion.q2)};
+  const double t3{
+      +2.0 * (quaternion.q2 * quaternion.q3 + quaternion.q0 * quaternion.q1)};
   const double t4{-2.0 * (quaternion.q1 * quaternion.q1 + q2sqr) + 1.0};
 
   t2 = (t2 > 1.0) ? 1.0 : t2;
@@ -59,9 +62,9 @@ T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, con
 
   // https://sdk-forum.dji.net/hc/en-us/requests/74003
   // https://sdk-forum.dji.net/hc/en-us/articles/360023657273
-  const double roll{atan2(t3, t4) * 180.0 / M_PI}; // X
-  const double pitch{asin(t2) * 180.0 / M_PI}; // Y
-  const double yaw{atan2(t1, t0) * 180.0 / M_PI}; // Z
+  const double roll{atan2(t3, t4) * 180.0 / M_PI};  // X
+  const double pitch{asin(t2) * 180.0 / M_PI};      // Y
+  const double yaw{atan2(t1, t0) * 180.0 / M_PI};   // Z
 
   spdlog::info("roll: {}, pitch: {}, yaw: {}", roll, pitch, yaw);
 
@@ -75,13 +78,16 @@ T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, con
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-T_DjiReturnCode position_fused_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+T_DjiReturnCode position_fused_callback(const uint8_t* data, uint16_t data_size,
+                                        const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
   const auto position{*(const T_DjiFcSubscriptionPositionFused*)data};
   (void)data_size;
   (void)timestamp;
 
-  spdlog::info("latitude: {}, longitude: {}, altitude: {}", position.latitude * 180.0 / M_PI, position.longitude * 180.0 / M_PI, position.altitude);
+  spdlog::info("latitude: {}, longitude: {}, altitude: {}",
+               position.latitude * 180.0 / M_PI,
+               position.longitude * 180.0 / M_PI, position.altitude);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
@@ -109,8 +115,8 @@ auto run_main(int argc, char** argv) -> int {
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiFcSubscription_SubscribeTopic(
-        DJI_FC_SUBSCRIPTION_TOPIC_POSITION_FUSED, DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
-        position_fused_callback);
+        DJI_FC_SUBSCRIPTION_TOPIC_POSITION_FUSED,
+        DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ, position_fused_callback);
 
     while (true) {
       // Receive callbacks until interrupted
