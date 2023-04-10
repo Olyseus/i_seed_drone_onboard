@@ -1,23 +1,18 @@
 #ifndef MISSION_H_
 #define MISSION_H_
 
+#include <dji_waypoint_v2.h>  // T_DjiWaypointV2
+
 #include <mutex>
 #include <vector>
 
-#include <dji_waypoint_v2.h> // T_DjiWaypointV2
-
 #include "interconnection.pb.h"
-
 #include "mission_state.h"
 #include "waypoint.h"
 
 class home_altitude;
 
-enum class waypoint_action {
-  ok,
-  abort,
-  restart
-};
+enum class waypoint_action { ok, abort, restart };
 
 class mission {
  public:
@@ -67,13 +62,16 @@ class mission {
   std::pair<bool, bool> update(T_DjiWaypointV2MissionStatePush state_data);
 
   // - Abort mission on user request (thread: receive data)
-  // - Abort mission on fake waypoint, start backward mission if needed (thread: action)
-  // - Abort mission when altitude need to be tweaked, only forward (thread: action)
+  // - Abort mission on fake waypoint,
+  //   start backward mission if needed (thread: action)
+  // - Abort mission when altitude need to be tweaked,
+  //   only forward (thread: action)
   void abort_mission();
 
   // - Abort mission on user request (thread: receive data)
   // - Backward mission finished succesfully (thread: action)
-  // - Forward mission finished, but backward mission not started because no object detected (thread: action)
+  // - Forward mission finished, but backward mission not started because no
+  //   object detected (thread: action)
   void mission_stop(home_altitude& h);
 
   // When 'MISSION_CONTINUE' received from user
@@ -102,4 +100,4 @@ class mission {
   mission_state mission_state_;
 };
 
-#endif // MISSION_H_
+#endif  // MISSION_H_

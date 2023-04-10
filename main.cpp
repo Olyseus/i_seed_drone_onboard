@@ -4,9 +4,9 @@
 
 #include <boost/filesystem.hpp>  // boost::filesystem::path
 #include <iostream>              // std::cerr
-#include <thread> // std::this_thread
+#include <thread>                // std::this_thread
 
-#include "application.hpp" // Application
+#include "application.hpp"  // Application
 #include "drone.h"
 
 void setup_logging() {

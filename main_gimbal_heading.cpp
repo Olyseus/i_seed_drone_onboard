@@ -1,17 +1,16 @@
-#include <boost/assert.hpp>
-#include <boost/filesystem.hpp>  // boost::filesystem::path
-#include <dji_fc_subscription.h> // T_DjiFcSubscriptionQuaternion
-#include <dji_gimbal_manager.h> // DjiGimbalManager_Init
-#include <iostream>              // std::cerr
+#include <dji_fc_subscription.h>              // T_DjiFcSubscriptionQuaternion
+#include <dji_gimbal_manager.h>               // DjiGimbalManager_Init
 #include <spdlog/sinks/rotating_file_sink.h>  // spdlog::sinks::rotating_file_sink_mt
 #include <spdlog/sinks/stdout_sinks.h>        // spdlog::sinks::stdout_sink_mt
 #include <spdlog/spdlog.h>
-#include <spdlog/spdlog.h>
-#include <thread>  // std::this_thread
 
-#include "application.hpp" // Application
+#include <boost/assert.hpp>
+#include <boost/filesystem.hpp>  // boost::filesystem::path
+#include <iostream>              // std::cerr
+#include <thread>                // std::this_thread
 
 #include "api_code.h"
+#include "application.hpp"  // Application
 
 void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
@@ -19,7 +18,8 @@ void setup_logging() {
 
   namespace fs = boost::filesystem;
 
-  const fs::path log_path{fs::absolute("i_seed_drone_onboard_gimbal_heading.log")};
+  const fs::path log_path{
+      fs::absolute("i_seed_drone_onboard_gimbal_heading.log")};
   fs::remove(log_path);
 
   constexpr std::size_t max_file_size{10 * 1024 * 1024};
@@ -46,20 +46,22 @@ static std::atomic<double> gimbal_roll{0.0};
 static std::atomic<double> gimbal_pitch{0.0};
 static std::atomic<double> gimbal_yaw{0.0};
 
-T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size,
+                                    const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
-  const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};;
+  const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};
   (void)data_size;
   (void)timestamp;
 
   // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
   const double q2sqr{quaternion.q2 * quaternion.q2};
   const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
-  const double t1{+2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
+  const double t1{
+      +2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
 
   // https://sdk-forum.dji.net/hc/en-us/requests/74003
   // https://sdk-forum.dji.net/hc/en-us/articles/360023657273
-  drone_yaw = atan2(t1, t0) * 180.0 / M_PI; // Z
+  drone_yaw = atan2(t1, t0) * 180.0 / M_PI;  // Z
 
   spdlog::info("drone yaw: {}", drone_yaw);
 
@@ -69,7 +71,8 @@ T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, con
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size,
+                                const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
   const auto gimbal_three_data{(const T_DjiFcSubscriptionThreeGimbalData*)data};
   const GimbalSingleData d{gimbal_three_data->gbData[0]};
@@ -81,7 +84,8 @@ T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size, const T
   gimbal_pitch = d.pitch;
   gimbal_yaw = d.yaw;
 
-  spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch, gimbal_roll, gimbal_yaw);
+  spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch, gimbal_roll,
+               gimbal_yaw);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
@@ -110,8 +114,7 @@ auto run_main(int argc, char** argv) -> int {
 
     code = DjiFcSubscription_SubscribeTopic(
         DJI_FC_SUBSCRIPTION_TOPIC_THREE_GIMBAL_DATA,
-        DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
-        gimbal_callback);
+        DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ, gimbal_callback);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiGimbalManager_Init();
@@ -125,7 +128,7 @@ auto run_main(int argc, char** argv) -> int {
     while (true) {
       std::this_thread::sleep_for(std::chrono::seconds(1));
 
-      constexpr double expected_gimbal_pitch{0.0}; // -90.0: down, 0.0: forward
+      constexpr double expected_gimbal_pitch{0.0};  // -90.0: down, 0.0: forward
       constexpr double expected_gimbal_roll{0.0};
       const double expected_gimbal_yaw{drone_yaw};
 
@@ -145,7 +148,8 @@ auto run_main(int argc, char** argv) -> int {
         continue;
       }
 
-      spdlog::info("RUN GIMBAL ROTATION yaw: {}, roll: {}, pitch: {}", rotation.yaw, rotation.roll, rotation.pitch);
+      spdlog::info("RUN GIMBAL ROTATION yaw: {}, roll: {}, pitch: {}",
+                   rotation.yaw, rotation.roll, rotation.pitch);
 
       code = DjiGimbalManager_Rotate(m_pos, rotation);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);

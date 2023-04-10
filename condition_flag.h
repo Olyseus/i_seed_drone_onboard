@@ -26,4 +26,4 @@ class condition_flag {
   bool flag_{false};
 };
 
-#endif // CONDITION_FLAG_H_
+#endif  // CONDITION_FLAG_H_

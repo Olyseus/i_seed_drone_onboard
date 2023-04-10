@@ -1,7 +1,7 @@
 #ifndef API_CODE_H_
 #define API_CODE_H_
 
-#include <dji_typedef.h> // T_DjiReturnCode
+#include <dji_typedef.h>  // T_DjiReturnCode
 
 class api_code {
  public:

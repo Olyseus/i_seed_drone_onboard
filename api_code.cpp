@@ -2,8 +2,8 @@
 
 #include <spdlog/spdlog.h>
 
-#include <boost/assert.hpp>       // BOOST_VERIFY
-#include <thread>                 // std::this_thread
+#include <boost/assert.hpp>  // BOOST_VERIFY
+#include <thread>            // std::this_thread
 
 #include "server.h"  // pipeline_closed
 

@@ -1,15 +1,15 @@
-#include <boost/assert.hpp>
-#include <boost/filesystem.hpp>  // boost::filesystem::path
 #include <dji_camera_manager.h>  // DjiCameraManager_Init
 #include <dji_payload_camera.h>  // DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload
-#include <iostream>              // std::cerr
 #include <spdlog/sinks/rotating_file_sink.h>  // spdlog::sinks::rotating_file_sink_mt
 #include <spdlog/sinks/stdout_sinks.h>        // spdlog::sinks::stdout_sink_mt
 #include <spdlog/spdlog.h>
-#include <spdlog/spdlog.h>
-#include <thread>  // std::this_thread
 
-#include "application.hpp" // Application
+#include <boost/assert.hpp>
+#include <boost/filesystem.hpp>  // boost::filesystem::path
+#include <iostream>              // std::cerr
+#include <thread>                // std::this_thread
+
+#include "application.hpp"  // Application
 
 void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
@@ -17,7 +17,8 @@ void setup_logging() {
 
   namespace fs = boost::filesystem;
 
-  const fs::path log_path{fs::absolute("i_seed_drone_onboard_focal_length.log")};
+  const fs::path log_path{
+      fs::absolute("i_seed_drone_onboard_focal_length.log")};
   fs::remove(log_path);
 
   constexpr std::size_t max_file_size{10 * 1024 * 1024};
@@ -66,10 +67,10 @@ auto run_main(int argc, char** argv) -> int {
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     spdlog::info("Camera firmware version {:02d}.{:02d}.{:02d}.{:02d}",
-        firmware_version.firmware_version[0],
-        firmware_version.firmware_version[1],
-        firmware_version.firmware_version[2],
-        firmware_version.firmware_version[3]);
+                 firmware_version.firmware_version[0],
+                 firmware_version.firmware_version[1],
+                 firmware_version.firmware_version[2],
+                 firmware_version.firmware_version[3]);
 
     // https://developer.dji.com/document/b0776c88-399e-4cd7-8142-681182de3dbd
     // At least: Matrice 300 RTK：V03.00.01.01
@@ -78,14 +79,19 @@ auto run_main(int argc, char** argv) -> int {
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
     T_DjiCameraOpticalZoomSpec optical_zoom_spec;
-    code = DjiPayloadCamera_GetCameraOpticalZoomSpecOfPayload(m_pos, &optical_zoom_spec);
+    code = DjiPayloadCamera_GetCameraOpticalZoomSpecOfPayload(
+        m_pos, &optical_zoom_spec);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-    spdlog::info("focal length min: {}, max: {}, step: {}", optical_zoom_spec.minFocalLength, optical_zoom_spec.maxFocalLength, optical_zoom_spec.focalLengthStep);
+    spdlog::info("focal length min: {}, max: {}, step: {}",
+                 optical_zoom_spec.minFocalLength,
+                 optical_zoom_spec.maxFocalLength,
+                 optical_zoom_spec.focalLengthStep);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
     while (true) {
-      const E_DjiCameraManagerFocusMode expected_focus_mode{DJI_CAMERA_MANAGER_FOCUS_MODE_MANUAL};
+      const E_DjiCameraManagerFocusMode expected_focus_mode{
+          DJI_CAMERA_MANAGER_FOCUS_MODE_MANUAL};
 
       // If failed, check camera is ZOOM and the pause is long enough:
       // - https://sdk-forum.dji.net/hc/en-us/requests/73828
@@ -100,7 +106,8 @@ auto run_main(int argc, char** argv) -> int {
       }
 
       uint16_t focal_length{0};
-      code = DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload(m_pos, &focal_length);
+      code = DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload(
+          m_pos, &focal_length);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
       spdlog::info("Focal length: {}", focal_length);
 
@@ -108,12 +115,17 @@ auto run_main(int argc, char** argv) -> int {
         T_DjiCameraManagerOpticalZoomParam optical_zoom_param;
         code = DjiCameraManager_GetOpticalZoomParam(m_pos, &optical_zoom_param);
         BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-        spdlog::info("zoom param current: {}", optical_zoom_param.currentOpticalZoomFactor);
+        spdlog::info("zoom param current: {}",
+                     optical_zoom_param.currentOpticalZoomFactor);
 
-        code = DjiCameraManager_SetOpticalZoomParam(m_pos, DJI_CAMERA_ZOOM_DIRECTION_OUT, optical_zoom_param.currentOpticalZoomFactor * optical_zoom_spec.minFocalLength / focal_length);
+        code = DjiCameraManager_SetOpticalZoomParam(
+            m_pos, DJI_CAMERA_ZOOM_DIRECTION_OUT,
+            optical_zoom_param.currentOpticalZoomFactor *
+                optical_zoom_spec.minFocalLength / focal_length);
         BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-        code = DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload(m_pos, &focal_length);
+        code = DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload(
+            m_pos, &focal_length);
         BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
         BOOST_VERIFY(focal_length == optical_zoom_spec.minFocalLength);

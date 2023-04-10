@@ -1,11 +1,12 @@
-#include <boost/filesystem.hpp>   // boost::filesystem::path
-#include <dji_fc_subscription.h> // DjiFcSubscription_Init
+#include <dji_fc_subscription.h>              // DjiFcSubscription_Init
 #include <spdlog/sinks/rotating_file_sink.h>  // spdlog::sinks::rotating_file_sink_mt
 #include <spdlog/sinks/stdout_sinks.h>        // spdlog::sinks::stdout_sink_mt
 #include <spdlog/spdlog.h>
-#include <thread> // std::this_thread
 
-#include "application.hpp" // Application
+#include <boost/filesystem.hpp>  // boost::filesystem::path
+#include <thread>                // std::this_thread
+
+#include "application.hpp"  // Application
 
 void battery_info(const uint8_t* data, int index) {
   BOOST_VERIFY(data != nullptr);
@@ -16,7 +17,8 @@ void battery_info(const uint8_t* data, int index) {
                info.batteryTemperature / 10.0);
 }
 
-T_DjiReturnCode battery_callback_1(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+T_DjiReturnCode battery_callback_1(const uint8_t* data, uint16_t data_size,
+                                   const T_DjiDataTimestamp* timestamp) {
   (void)data_size;
   (void)timestamp;
 
@@ -25,7 +27,8 @@ T_DjiReturnCode battery_callback_1(const uint8_t* data, uint16_t data_size, cons
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-T_DjiReturnCode battery_callback_2(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
+T_DjiReturnCode battery_callback_2(const uint8_t* data, uint16_t data_size,
+                                   const T_DjiDataTimestamp* timestamp) {
   (void)data_size;
   (void)timestamp;
 
@@ -50,14 +53,12 @@ void battery_monitor(int argc, char** argv) {
 
   code = DjiFcSubscription_SubscribeTopic(
       DJI_FC_SUBSCRIPTION_TOPIC_BATTERY_SINGLE_INFO_INDEX1,
-      DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
-      battery_callback_1);
+      DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ, battery_callback_1);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiFcSubscription_SubscribeTopic(
       DJI_FC_SUBSCRIPTION_TOPIC_BATTERY_SINGLE_INFO_INDEX2,
-      DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
-      battery_callback_2);
+      DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ, battery_callback_2);
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   while (true) {

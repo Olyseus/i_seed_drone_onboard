@@ -26,7 +26,7 @@ class camera_psdk {
   camera_psdk& operator=(camera_psdk&&) = delete;
 
   void shoot_photo(const gps_coordinates&, const attitude& drone_attitude,
-      const attitude& gimbal_attitude, std::size_t waypoint_index);
+                   const attitude& gimbal_attitude, std::size_t waypoint_index);
 
   bool check_sdcard();
   bool queue_is_empty() const;
@@ -57,4 +57,4 @@ class camera_psdk {
   const std::regex jpeg_regex{".*_ZOOM\\.jpg"};
 };
 
-#endif // CAMERA_PSDK_H_
+#endif  // CAMERA_PSDK_H_

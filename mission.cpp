@@ -1,12 +1,13 @@
 #include "mission.h"
 
-#include <boost/assert.hpp> // BOOST_VERIFY
 #include <spdlog/spdlog.h>
-#include <thread> // std::this_thread
+
+#include <boost/assert.hpp>  // BOOST_VERIFY
+#include <thread>            // std::this_thread
 
 #include "home_altitude.h"
-#include "mission_state.h" // mission_state_
-#include "utils.h" // deg2rad
+#include "mission_state.h"  // mission_state_
+#include "utils.h"          // deg2rad
 
 mission::mission() = default;
 mission::~mission() = default;
@@ -45,7 +46,8 @@ auto mission::init(double lat, double lon) -> bool {
   return true;
 }
 
-auto mission::waypoint_reached(double laser_range) -> std::pair<waypoint_action, std::size_t> {
+auto mission::waypoint_reached(double laser_range)
+    -> std::pair<waypoint_action, std::size_t> {
   std::lock_guard<std::mutex> lock(m_);
 
   BOOST_VERIFY(in_progress_);
@@ -90,7 +92,8 @@ auto mission::upload_mission_and_start() -> bool {
   s.maxFlightSpeed = 10;
   s.autoFlightSpeed = 2;
   s.actionWhenRcLost = DJI_WAYPOINT_V2_MISSION_KEEP_EXECUTE_WAYPOINT_V2;
-  s.gotoFirstWaypointMode = DJI_WAYPOINT_V2_MISSION_GO_TO_FIRST_WAYPOINT_MODE_SAFELY;
+  s.gotoFirstWaypointMode =
+      DJI_WAYPOINT_V2_MISSION_GO_TO_FIRST_WAYPOINT_MODE_SAFELY;
   s.actionList.actions = nullptr;
   s.actionList.actionNum = 0;
 
@@ -104,9 +107,9 @@ auto mission::upload_mission_and_start() -> bool {
       }
       waypoints_.push_back(make_waypoint(w));
     }
-  }
-  else {
-    for (auto it{global_waypoints_.rbegin()}; it != global_waypoints_.rend(); ++it) {
+  } else {
+    for (auto it{global_waypoints_.rbegin()}; it != global_waypoints_.rend();
+         ++it) {
       const waypoint& w{*it};
       BOOST_VERIFY(w.is_forward_ready());
       BOOST_VERIFY(!w.is_backward_ready());
@@ -204,10 +207,12 @@ auto mission::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
 }
 
 // auto [mission_started, notify]
-auto mission::update(T_DjiWaypointV2MissionStatePush state_data) -> std::pair<bool, bool> {
+auto mission::update(T_DjiWaypointV2MissionStatePush state_data)
+    -> std::pair<bool, bool> {
   // Note: callback thread, avoid long locks
 
-  auto [mission_started, notify, notify_finished] = mission_state_.update(state_data);
+  auto [mission_started, notify, notify_finished] =
+      mission_state_.update(state_data);
 
   if (!mission_started) {
     BOOST_VERIFY(!notify);
@@ -254,7 +259,8 @@ auto mission::resume() -> bool {
     return false;
   }
 
-  if (mission_state_.get_state() != interconnection::drone_coordinates::PAUSED) {
+  if (mission_state_.get_state() !=
+      interconnection::drone_coordinates::PAUSED) {
     spdlog::error("Trying to resume mission that is not paused");
     return false;
   }
@@ -287,7 +293,8 @@ auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
   return global_waypoints_.at(index);
 }
 
-void mission::save_detection(std::size_t index, const detection_result& result) {
+void mission::save_detection(std::size_t index,
+                             const detection_result& result) {
   std::lock_guard<std::mutex> lock(m_);
   BOOST_VERIFY(index < global_waypoints_.size());
   global_waypoints_.at(index).save_detection(result);
@@ -307,14 +314,16 @@ T_DjiWaypointV2 mission::make_waypoint(const waypoint& w) {
     heading_str = std::to_string(heading);
   }
 
-  spdlog::info("Add waypoint lat({}), lon({}), height({}), heading({})", latitude, longitude, relative_height, heading_str);
+  spdlog::info("Add waypoint lat({}), lon({}), height({}), heading({})",
+               latitude, longitude, relative_height, heading_str);
   T_DjiWaypointV2 p;
 
   p.latitude = latitude * deg2rad;
   p.longitude = longitude * deg2rad;
   p.relativeHeight = relative_height;
 
-  p.waypointType = DJI_WAYPOINT_V2_FLIGHT_PATH_MODE_GO_TO_POINT_IN_STRAIGHT_AND_STOP;
+  p.waypointType =
+      DJI_WAYPOINT_V2_FLIGHT_PATH_MODE_GO_TO_POINT_IN_STRAIGHT_AND_STOP;
 
   if (is_forward_) {
     // Aircraft's heading will always be in the direction of flight
@@ -359,8 +368,7 @@ auto mission::current_waypoint_index() const -> std::optional<std::size_t> {
         result = i;
       }
     }
-  }
-  else {
+  } else {
     for (std::size_t i{global_waypoints_.size()}; i > 0; --i) {
       std::size_t index{i - 1};
       const waypoint& w{global_waypoints_[index]};

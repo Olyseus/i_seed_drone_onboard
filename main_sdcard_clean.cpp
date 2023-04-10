@@ -1,19 +1,19 @@
-#include <boost/assert.hpp> // BOOST_VERIFY
-#include <boost/filesystem.hpp>  // boost::filesystem::path
-#include <dji_camera_manager.h>  // DjiCameraManager_Init
-#include <iostream>              // std::cerr
+#include <dji_camera_manager.h>               // DjiCameraManager_Init
 #include <spdlog/sinks/rotating_file_sink.h>  // spdlog::sinks::rotating_file_sink_mt
 #include <spdlog/sinks/stdout_sinks.h>        // spdlog::sinks::stdout_sink_mt
 #include <spdlog/spdlog.h>
-#include <spdlog/spdlog.h>
 
-#include "application.hpp" // Application
+#include <boost/assert.hpp>      // BOOST_VERIFY
+#include <boost/filesystem.hpp>  // boost::filesystem::path
+#include <iostream>              // std::cerr
+
+#include "application.hpp"  // Application
 
 static std::string file_dst;
 static std::FILE* file;
 
-T_DjiReturnCode camera_callback(
-    T_DjiDownloadFilePacketInfo packetInfo, const uint8_t *data, uint16_t len) {
+T_DjiReturnCode camera_callback(T_DjiDownloadFilePacketInfo packetInfo,
+                                const uint8_t* data, uint16_t len) {
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_START) {
     BOOST_VERIFY(!file_dst.empty());
     file = fopen(file_dst.c_str(), "wb+");
@@ -76,8 +76,7 @@ auto run_main(int argc, char** argv) -> int {
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     constexpr E_DjiMountPosition m_pos{DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
-    code = DjiCameraManager_RegDownloadFileDataCallback(m_pos,
-        camera_callback);
+    code = DjiCameraManager_RegDownloadFileDataCallback(m_pos, camera_callback);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     spdlog::info("Downloading file list");
@@ -88,18 +87,14 @@ auto run_main(int argc, char** argv) -> int {
     std::vector<uint32_t> to_remove;
 
     for (int i = 0; i < media_file_list.totalCount; ++i) {
-      const T_DjiCameraManagerFileListInfo& info{media_file_list.fileListInfo[i]};
+      const T_DjiCameraManagerFileListInfo& info{
+          media_file_list.fileListInfo[i]};
 
       spdlog::info(
           "  Name: {}, index: {}, time:{}-{}-{}_{}:{}:{}, size: {:.2f} MB",
-          info.fileName,
-          info.fileIndex,
-          info.createTime.year,
-          info.createTime.month,
-          info.createTime.day,
-          info.createTime.hour,
-          info.createTime.minute,
-          info.createTime.second,
+          info.fileName, info.fileIndex, info.createTime.year,
+          info.createTime.month, info.createTime.day, info.createTime.hour,
+          info.createTime.minute, info.createTime.second,
           info.fileSize / (1024.0 * 1024.0));
 
       to_remove.push_back(info.fileIndex);
@@ -116,7 +111,8 @@ auto run_main(int argc, char** argv) -> int {
       BOOST_VERIFY(file_dst.empty());
       file_dst = dst_path.string();
       spdlog::info("Download file with index {} to {}", file_index, file_dst);
-      T_DjiReturnCode code{DjiCameraManager_DownloadFileByIndex(m_pos, file_index)};
+      T_DjiReturnCode code{
+          DjiCameraManager_DownloadFileByIndex(m_pos, file_index)};
       if (code != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
         spdlog::critical("Error code: {}", code);
       }

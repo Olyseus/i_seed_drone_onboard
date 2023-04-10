@@ -1,8 +1,9 @@
 #include "waypoint.h"
 
-#include <boost/assert.hpp> // BOOST_VERIFY
+#include <boost/assert.hpp>  // BOOST_VERIFY
 
-waypoint::waypoint(double latitude, double longitude) : latitude_(latitude), longitude_(longitude) {
+waypoint::waypoint(double latitude, double longitude)
+    : latitude_(latitude), longitude_(longitude) {
   BOOST_VERIFY(!mission_altitude_.has_value());
 }
 
@@ -38,21 +39,16 @@ void waypoint::set_ready(bool forward) {
     BOOST_VERIFY(!is_forward_ready());
     BOOST_VERIFY(!is_backward_ready());
     is_forward_ready_ = true;
-  }
-  else {
+  } else {
     BOOST_VERIFY(is_forward_ready());
     BOOST_VERIFY(!is_backward_ready());
     is_backward_ready_ = true;
   }
 }
 
-auto waypoint::is_forward_ready() const -> bool {
-  return is_forward_ready_;
-}
+auto waypoint::is_forward_ready() const -> bool { return is_forward_ready_; }
 
-auto waypoint::is_backward_ready() const -> bool {
-  return is_backward_ready_;
-}
+auto waypoint::is_backward_ready() const -> bool { return is_backward_ready_; }
 
 auto waypoint::has_detection() const -> bool {
   BOOST_VERIFY(is_forward_ready());
@@ -71,8 +67,10 @@ void waypoint::save_detection(const detection_result& result) {
   BOOST_VERIFY(!detection_result_.has_value());
   detection_result_ = result;
 
-  BOOST_VERIFY(std::abs(detection_result_.value().gps.latitude - latitude_) < 1e-4);
-  BOOST_VERIFY(std::abs(detection_result_.value().gps.longitude - longitude_) < 1e-4);
+  BOOST_VERIFY(std::abs(detection_result_.value().gps.latitude - latitude_) <
+               1e-4);
+  BOOST_VERIFY(std::abs(detection_result_.value().gps.longitude - longitude_) <
+               1e-4);
 
   BOOST_VERIFY(!detection_result_.value().pixels.empty());
 }

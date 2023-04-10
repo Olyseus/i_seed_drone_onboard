@@ -1,11 +1,14 @@
 #include "utils.h"
 
-#include <boost/assert.hpp> // BOOST_VERIFY
+#include <boost/assert.hpp>  // BOOST_VERIFY
 
 #include "inference.h"
 
 // return: yaw degree, pitch degree
-auto gimbal_rotation_params_with_heading_degree(double yaw_x_degree, double pitch_z_degree, double drone_heading_degree) -> std::pair<float, float> {
+auto gimbal_rotation_params_with_heading_degree(double yaw_x_degree,
+                                                double pitch_z_degree,
+                                                double drone_heading_degree)
+    -> std::pair<float, float> {
   // standard quadrants orientation to rotation relative to North
   double yaw_result{90.0 - yaw_x_degree};
 
@@ -28,7 +31,9 @@ auto gimbal_rotation_params_with_heading_degree(double yaw_x_degree, double pitc
 }
 
 // return: yaw degree, pitch degree
-auto gimbal_rotation_params(double x_pixel, double y_pixel, double drone_heading_degree) -> std::pair<float, float> {
+auto gimbal_rotation_params(double x_pixel, double y_pixel,
+                            double drone_heading_degree)
+    -> std::pair<float, float> {
   // https://github.com/Olyseus/i_seed_drone_onboard/issues/13#issuecomment-1253192301
   // https://github.com/Olyseus/i_seed_drone_onboard/issues/13#issuecomment-1281932707
   // https://sdk-forum.dji.net/hc/en-us/articles/11606411050265
@@ -61,13 +66,15 @@ auto gimbal_rotation_params(double x_pixel, double y_pixel, double drone_heading
 
   if (x_c * x_c + y_c * y_c < 1e-1) {
     // 90 is north (in standard quadrants orientation)
-    return gimbal_rotation_params_with_heading_degree(90.0, 0.0, drone_heading_degree);
+    return gimbal_rotation_params_with_heading_degree(90.0, 0.0,
+                                                      drone_heading_degree);
   }
 
   const double yaw_x_rad{std::atan2(y_c, x_c)};
 
   const double pixel_to_m{sensor_size_width_m / h20_img_width};
-  BOOST_VERIFY(std::abs(pixel_to_m - sensor_size_height_m / h20_img_height) < 1e-8);
+  BOOST_VERIFY(std::abs(pixel_to_m - sensor_size_height_m / h20_img_height) <
+               1e-8);
 
   const double x_m{x_c * pixel_to_m};
   const double y_m{y_c * pixel_to_m};

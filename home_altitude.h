@@ -18,7 +18,8 @@ class home_altitude {
 
   void mission_start();
 
-  void set_altitude(double drone_altitude, double mission_altitude, double home_altitude);
+  void set_altitude(double drone_altitude, double mission_altitude,
+                    double home_altitude);
   double get_home_altitude() const;
 
   void mission_stop();
@@ -28,4 +29,4 @@ class home_altitude {
   std::optional<double> home_altitude_;
 };
 
-#endif // HOME_ALTITUDE_H_
+#endif  // HOME_ALTITUDE_H_

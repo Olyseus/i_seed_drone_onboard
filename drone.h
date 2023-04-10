@@ -1,11 +1,12 @@
 #ifndef DRONE_H_
 #define DRONE_H_
 
+#include <signal.h>  // sig_atomic_t
+
 #include <atomic>
 #include <cstdint>  // uint16_t
 #include <list>
 #include <mutex>
-#include <signal.h>        // sig_atomic_t
 
 #include "camera_psdk.h"
 #include "condition_flag.h"
@@ -35,18 +36,31 @@ class drone {
   static constexpr int32_t protocol_version{
       8};  // Keep it consistent with Mobile SDK (see 'protocolVersion')
 
-  static constexpr E_DjiMountPosition m_pos{DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
+  static constexpr E_DjiMountPosition m_pos{
+      DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
 
  private:
-  static T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
-  static T_DjiReturnCode rc_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
-  static T_DjiReturnCode position_fused_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
-  static T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
-  static T_DjiReturnCode mission_event_callback(T_DjiWaypointV2MissionEventPush event_data);
-  static T_DjiReturnCode mission_state_callback(T_DjiWaypointV2MissionStatePush state_data);
-  static T_DjiReturnCode homepoint_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp);
+  static T_DjiReturnCode quaternion_callback(
+      const uint8_t* data, uint16_t data_size,
+      const T_DjiDataTimestamp* timestamp);
+  static T_DjiReturnCode rc_callback(const uint8_t* data, uint16_t data_size,
+                                     const T_DjiDataTimestamp* timestamp);
+  static T_DjiReturnCode position_fused_callback(
+      const uint8_t* data, uint16_t data_size,
+      const T_DjiDataTimestamp* timestamp);
+  static T_DjiReturnCode gimbal_callback(const uint8_t* data,
+                                         uint16_t data_size,
+                                         const T_DjiDataTimestamp* timestamp);
+  static T_DjiReturnCode mission_event_callback(
+      T_DjiWaypointV2MissionEventPush event_data);
+  static T_DjiReturnCode mission_state_callback(
+      T_DjiWaypointV2MissionStatePush state_data);
+  static T_DjiReturnCode homepoint_callback(
+      const uint8_t* data, uint16_t data_size,
+      const T_DjiDataTimestamp* timestamp);
 
-  static constexpr double invalid_homepoint_altitude_{std::numeric_limits<double>::lowest()};
+  static constexpr double invalid_homepoint_altitude_{
+      std::numeric_limits<double>::lowest()};
 
   static std::atomic<double> drone_yaw_;
   static std::atomic<double> drone_pitch_;

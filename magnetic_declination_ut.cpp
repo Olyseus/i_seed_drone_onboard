@@ -3,7 +3,7 @@
 #include <boost/filesystem.hpp>
 
 #include "magnetic_declination.h"
-#include "main_ut.h" // gtest_project_top_directory
+#include "main_ut.h"  // gtest_project_top_directory
 
 class magnetic_declination_test : public ::testing::Test {
  public:
@@ -18,15 +18,17 @@ class magnetic_declination_test : public ::testing::Test {
 };
 
 TEST_F(magnetic_declination_test, simple) {
-  magnetic_declination m{boost::gregorian::day_clock::local_day(), json_path(), 0.0, 0.0};
+  magnetic_declination m{boost::gregorian::day_clock::local_day(), json_path(),
+                         0.0, 0.0};
 }
 
 TEST_F(magnetic_declination_test, unreliable) {
-  magnetic_declination m{boost::gregorian::day_clock::local_day(), json_path(), 90.0, 180.0};
+  magnetic_declination m{boost::gregorian::day_clock::local_day(), json_path(),
+                         90.0, 180.0};
 }
 
 TEST_F(magnetic_declination_test, cyprus) {
-  const double lat{34.0 + 40.0 / 60.0  + 30.0 / 3600.0};
+  const double lat{34.0 + 40.0 / 60.0 + 30.0 / 3600.0};
   const double lon{33.0 + 1.0 / 60.0 + 60.0 / 3600.0};
 
   boost::gregorian::date d_2022{2022, boost::gregorian::Dec, 31};
@@ -43,7 +45,7 @@ TEST_F(magnetic_declination_test, cyprus) {
 }
 
 TEST_F(magnetic_declination_test, bali) {
-  const double lat{-1.0 * (8.0 + 39.0 / 60.0  + 0.0 / 3600.0)};
+  const double lat{-1.0 * (8.0 + 39.0 / 60.0 + 0.0 / 3600.0)};
   const double lon{115.0 + 13.0 / 60.0 + 0.0 / 3600.0};
 
   boost::gregorian::date d_2022{2022, boost::gregorian::Dec, 31};

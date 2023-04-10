@@ -1,13 +1,13 @@
-#include <boost/assert.hpp>
-#include <boost/filesystem.hpp>  // boost::filesystem::path
-#include <iostream>              // std::cerr
 #include <spdlog/sinks/rotating_file_sink.h>  // spdlog::sinks::rotating_file_sink_mt
 #include <spdlog/sinks/stdout_sinks.h>        // spdlog::sinks::stdout_sink_mt
 #include <spdlog/spdlog.h>
-#include <spdlog/spdlog.h>
-#include <thread>  // std::this_thread
 
-#include "application.hpp" // Application
+#include <boost/assert.hpp>
+#include <boost/filesystem.hpp>  // boost::filesystem::path
+#include <iostream>              // std::cerr
+#include <thread>                // std::this_thread
+
+#include "application.hpp"  // Application
 #include "camera_psdk.h"
 #include "mission.h"
 #include "mission_state.h"

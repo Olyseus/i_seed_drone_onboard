@@ -100,14 +100,14 @@ auto bounding_box::pmax() const -> cv::Point {
 
 auto bounding_box::class_color() const -> cv::Scalar {
   switch (class_id_) {
-    case 0: // blue
-      return {255, 0, 0}; // BGR
-    case 1: // brown
-      return {42, 42, 165}; // BGR
-    case 2: // green
-      return {0, 255, 0}; // BGR
+    case 0:                  // blue
+      return {255, 0, 0};    // BGR
+    case 1:                  // brown
+      return {42, 42, 165};  // BGR
+    case 2:                  // green
+      return {0, 255, 0};    // BGR
     default:
       BOOST_VERIFY(false);
-      return {0, 0, 0}; // BGR
+      return {0, 0, 0};  // BGR
   }
 }

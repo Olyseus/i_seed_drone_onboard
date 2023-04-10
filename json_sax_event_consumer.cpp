@@ -1,10 +1,14 @@
 #include "json_sax_event_consumer.h"
 
-#include <boost/assert.hpp>  // BOOST_VERIFY
 #include <spdlog/spdlog.h>
 
-json_sax_event_consumer::json_sax_event_consumer(const boost::gregorian::date& date, double lat, double lon) : date_(date_to_double(date)), lat_(lat), lon_(lon) {
-  spdlog::info("JSON parser for lat: {}, lon: {}, date (float): {}", lat_, lon_, date_);
+#include <boost/assert.hpp>  // BOOST_VERIFY
+
+json_sax_event_consumer::json_sax_event_consumer(
+    const boost::gregorian::date& date, double lat, double lon)
+    : date_(date_to_double(date)), lat_(lat), lon_(lon) {
+  spdlog::info("JSON parser for lat: {}, lon: {}, date (float): {}", lat_, lon_,
+               date_);
 }
 
 json_sax_event_consumer::~json_sax_event_consumer() = default;
@@ -27,7 +31,8 @@ auto json_sax_event_consumer::number_unsigned(number_unsigned_t val) -> bool {
   return json_sax_event_consumer::number_float(static_cast<double>(val), "");
 }
 
-auto json_sax_event_consumer::number_float(number_float_t val, const string_t& s) -> bool {
+auto json_sax_event_consumer::number_float(number_float_t val,
+                                           const string_t& s) -> bool {
   switch (state_) {
     case state::reading_date:
       BOOST_VERIFY(current_.has_value());
@@ -116,11 +121,14 @@ auto json_sax_event_consumer::end_object() -> bool {
         BOOST_VERIFY(best_->declination.has_value());
         BOOST_VERIFY(best_->latitude.has_value());
         BOOST_VERIFY(best_->longitude.has_value());
-        if (std::abs(best_->date.value() - date_) > std::abs(current_->date.value() - date_)) {
+        if (std::abs(best_->date.value() - date_) >
+            std::abs(current_->date.value() - date_)) {
           best_ = current_;
-        } else if (std::abs(best_->latitude.value() - lat_) > std::abs(current_->latitude.value() - lat_)) {
+        } else if (std::abs(best_->latitude.value() - lat_) >
+                   std::abs(current_->latitude.value() - lat_)) {
           best_ = current_;
-        } else if (std::abs(best_->longitude.value() - lon_) > std::abs(current_->longitude.value() - lon_)) {
+        } else if (std::abs(best_->longitude.value() - lon_) >
+                   std::abs(current_->longitude.value() - lon_)) {
           best_ = current_;
         }
       } else {
@@ -163,7 +171,9 @@ auto json_sax_event_consumer::end_array() -> bool {
       if (best_->warning) {
         spdlog::warn("Unreliable magnetic declination");
       }
-      spdlog::info("Best cell lat({}) lon({}) date({})", best_->latitude.value(), best_->longitude.value(), best_->date.value());
+      spdlog::info("Best cell lat({}) lon({}) date({})",
+                   best_->latitude.value(), best_->longitude.value(),
+                   best_->date.value());
       return true;
     default:
       spdlog::info("end_array");
@@ -217,7 +227,10 @@ auto json_sax_event_consumer::binary(nlohmann::json::binary_t& val) -> bool {
   return false;
 }
 
-auto json_sax_event_consumer::parse_error(std::size_t position, const std::string& last_token, const nlohmann::json::exception& ex) -> bool {
+auto json_sax_event_consumer::parse_error(std::size_t position,
+                                          const std::string& last_token,
+                                          const nlohmann::json::exception& ex)
+    -> bool {
   spdlog::error("parse_error: {}, {}, {}", position, last_token, ex.what());
   return false;
 }
@@ -228,9 +241,11 @@ auto json_sax_event_consumer::declination() const -> double {
   return best_->declination.value();
 }
 
-auto json_sax_event_consumer::date_to_double(const boost::gregorian::date& date) -> double {
+auto json_sax_event_consumer::date_to_double(const boost::gregorian::date& date)
+    -> double {
   const boost::gregorian::partial_date jan_1{1, boost::gregorian::Jan};
-  const long int number_of_days_in_year{(jan_1(date.year() + 1) - jan_1(date.year())).days()};
+  const long int number_of_days_in_year{
+      (jan_1(date.year() + 1) - jan_1(date.year())).days()};
   BOOST_VERIFY(number_of_days_in_year <= 366);
   BOOST_VERIFY(number_of_days_in_year >= 365);
 
