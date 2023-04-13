@@ -6,7 +6,7 @@
 
 class bounding_box {
  public:
-  bounding_box(float*, std::size_t x_shift, std::size_t y_shift);
+  bounding_box(const float*, std::size_t x_shift, std::size_t y_shift);
   ~bounding_box();
 
   bool intersect(const bounding_box&) const;

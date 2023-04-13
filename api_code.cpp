@@ -34,6 +34,7 @@ api_code::api_code(const T_DjiReturnCode code) {
 }
 
 void api_code::make_retry() {
-  std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  constexpr int wait_ms{200};
+  std::this_thread::sleep_for(std::chrono::milliseconds(wait_ms));
   code_ = code::retry;
 }

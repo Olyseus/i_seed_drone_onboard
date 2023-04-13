@@ -29,7 +29,7 @@ void home_altitude::set_altitude(double drone_altitude, double mission_altitude,
   BOOST_VERIFY(std::abs(diff) < 1.0);
 }
 
-double home_altitude::get_home_altitude() const {
+auto home_altitude::get_home_altitude() const -> double {
   BOOST_VERIFY(in_progress_);
   BOOST_VERIFY(home_altitude_.has_value());
 

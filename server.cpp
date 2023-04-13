@@ -40,7 +40,7 @@ server::~server() {
 #endif
 }
 
-T_DjiMopChannelHandle server::handle() const {
+auto server::handle() const -> T_DjiMopChannelHandle {
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   BOOST_VERIFY(out_channel_handle_ == nullptr);
 #else

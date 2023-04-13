@@ -5,35 +5,45 @@
 #include <algorithm>         // std::max
 #include <boost/assert.hpp>  // BOOST_VERIFY
 
-bounding_box::bounding_box(float* p, std::size_t x_shift, std::size_t y_shift) {
+bounding_box::bounding_box(const float* p, std::size_t x_shift, std::size_t y_shift) {
   // https://github.com/ultralytics/yolov5/issues/1277#issuecomment-1081657025
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float x{p[0] + x_shift};
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float y{p[1] + y_shift};
 
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float w{p[2]};
   BOOST_VERIFY(w >= 0.0);
 
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float h{p[3]};
   BOOST_VERIFY(h >= 0.0);
 
-  xmax_ = x + w / 2.0F;
-  xmin_ = x - w / 2.0F;
+  constexpr float half{1.0F / 2.0F};
 
-  ymax_ = y + h / 2.0F;
-  ymin_ = y - h / 2.0F;
+  xmax_ = x + w * half;
+  xmin_ = x - w * half;
 
+  ymax_ = y + h * half;
+  ymin_ = y - h * half;
+
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   confidence_ = p[4];
   BOOST_VERIFY(confidence_ >= 0.0);
   BOOST_VERIFY(confidence_ <= 1.0);
 
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float iseed_blue{p[5]};
   BOOST_VERIFY(iseed_blue >= 0.0);
   BOOST_VERIFY(iseed_blue <= 1.0);
 
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float iseed_brown{p[6]};
   BOOST_VERIFY(iseed_brown >= 0.0);
   BOOST_VERIFY(iseed_brown <= 1.0);
 
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float iseed_green{p[7]};
   BOOST_VERIFY(iseed_green >= 0.0);
   BOOST_VERIFY(iseed_green <= 1.0);
@@ -55,7 +65,7 @@ bounding_box::bounding_box(float* p, std::size_t x_shift, std::size_t y_shift) {
 
 bounding_box::~bounding_box() = default;
 
-bool bounding_box::intersect(const bounding_box& other) const {
+auto bounding_box::intersect(const bounding_box& other) const -> bool {
   if (other.xmin_ >= xmin_) {
     if (other.xmin_ > xmax_) {
       return false;
@@ -101,10 +111,13 @@ auto bounding_box::pmax() const -> cv::Point {
 auto bounding_box::class_color() const -> cv::Scalar {
   switch (class_id_) {
     case 0:                  // blue
+      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
       return {255, 0, 0};    // BGR
     case 1:                  // brown
+      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
       return {42, 42, 165};  // BGR
     case 2:                  // green
+      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
       return {0, 255, 0};    // BGR
     default:
       BOOST_VERIFY(false);

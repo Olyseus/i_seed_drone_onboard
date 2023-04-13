@@ -18,7 +18,7 @@
 
 using T_DjiMopChannelHandle = void*;
 
-class job_interrupted_event {};
+class job_interrupted_event : public std::exception {};
 
 class drone {
  public:
@@ -81,8 +81,8 @@ class drone {
   void action_job();
   void action_job_internal();
 
-  void align_gimbal();
-  attitude rotate_gimbal(float x, float y, double drone_heading_degree);
+  static void align_gimbal();
+  static attitude rotate_gimbal(float x, float y, double drone_heading_degree);
 
   void inference_job();
 

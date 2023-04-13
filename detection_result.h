@@ -7,13 +7,13 @@ struct gps_coordinates {
   double longitude;
   double latitude;
   float altitude;
-  float relative_altitude;
+  // FIXME (???) float relative_altitude;
 };
 
 struct attitude {
-  float pitch;
-  float roll;
-  float yaw;
+  double pitch;
+  double roll;
+  double yaw;
 };
 
 struct detected_pixel {

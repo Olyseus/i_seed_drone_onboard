@@ -182,11 +182,14 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
        ++batch_height_index) {
     for (std::size_t batch_width_index{0}; batch_width_index < n_batch_width;
          ++batch_width_index) {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
       float* input{input_data_.data() +
                    (batch_height_index * n_batch_width + batch_width_index) *
                        stride};
       float* input_r{input};
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
       float* input_g{input_r + inference_img_width * inference_img_height};
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
       float* input_b{input_g + inference_img_width * inference_img_height};
       const std::size_t x_shift{batch_width_index * inference_img_width +
                                 width_crop_size};
@@ -195,17 +198,22 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
       for (std::size_t y{0}; y < inference_img_height; ++y) {
         auto y_it{image_view.row_begin(y + y_shift)};
         for (std::size_t x{0}; x < inference_img_width; ++x) {
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
           const boost::gil::rgb8c_pixel_t& p{y_it[x + x_shift]};
           const uint8_t r_int{boost::gil::get_color(p, boost::gil::red_t())};
           const uint8_t g_int{boost::gil::get_color(p, boost::gil::green_t())};
           const uint8_t b_int{boost::gil::get_color(p, boost::gil::blue_t())};
 
-          *input_r = r_int / 255.0F;
-          *input_g = g_int / 255.0F;
-          *input_b = b_int / 255.0F;
+          constexpr float rgb_max{255.0F};
+          *input_r = static_cast<float>(r_int) / rgb_max;
+          *input_g = static_cast<float>(g_int) / rgb_max;
+          *input_b = static_cast<float>(b_int) / rgb_max;
 
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
           ++input_r;
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
           ++input_g;
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
           ++input_b;
         }
       }
@@ -226,10 +234,8 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
 
   t.start();
 
-  void* exe_ptr[2];
-  exe_ptr[0] = dev_input_ptr_;
-  exe_ptr[1] = dev_output_ptr_;
-  const bool ok{exe_context_->execute(n_batch, exe_ptr)};
+  std::array<void*, 2> exe_ptr{dev_input_ptr_, dev_output_ptr_};
+  const bool ok{exe_context_->execute(n_batch, exe_ptr.data())};
   BOOST_VERIFY(ok);
 
   spdlog::info("Inference done in {}ms", t.elapsed_ms());
@@ -255,12 +261,15 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
                               width_crop_size};
     const std::size_t y_shift{batch_height_index * inference_img_height +
                               height_crop_size};
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     float* data{output_data_.data() +
                 batch_index * n_output_entries * output_entry_len};
     for (std::size_t i{0}; i < n_output_entries; ++i) {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
       float* p = data + output_entry_len * i;
       bounding_box box{p, x_shift, y_shift};
-      if (box.confidence() <= 0.25) {
+      constexpr double confidence_threshold{0.25};
+      if (box.confidence() <= confidence_threshold) {
         continue;
       }
 

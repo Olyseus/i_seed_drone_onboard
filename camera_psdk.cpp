@@ -18,11 +18,12 @@
 static std::string camera_psdk_file_dst;
 static std::FILE* camera_psdk_file;
 
-T_DjiReturnCode camera_psdk_data_callback(
-    T_DjiDownloadFilePacketInfo packetInfo, const uint8_t* data, uint16_t len) {
+auto camera_psdk_data_callback(
+    T_DjiDownloadFilePacketInfo packetInfo, const uint8_t* data, uint16_t len) -> T_DjiReturnCode {
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_START) {
     BOOST_VERIFY(!camera_psdk_file_dst.empty());
-    camera_psdk_file = fopen(camera_psdk_file_dst.c_str(), "wb+");
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
+    camera_psdk_file = fopen(camera_psdk_file_dst.c_str(), "wb+e");
     camera_psdk_file_dst.clear();
   }
 
@@ -31,6 +32,7 @@ T_DjiReturnCode camera_psdk_data_callback(
   BOOST_VERIFY(res == len);
 
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_END) {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     int res{fclose(camera_psdk_file)};
     BOOST_VERIFY(res == 0);
     camera_psdk_file = nullptr;
@@ -50,7 +52,8 @@ camera_psdk::camera_psdk(const std::string& model_file, mission& m)
   E_DjiCameraType camera_type;
 
   // Workaround for failed DjiCameraManager_GetCameraType
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  constexpr int wait_ms{500};
+  std::this_thread::sleep_for(std::chrono::milliseconds(wait_ms));
 
   constexpr E_DjiMountPosition m_pos{drone::m_pos};
   code = DjiCameraManager_GetCameraType(m_pos, &camera_type);
@@ -95,15 +98,18 @@ camera_psdk::camera_psdk(const std::string& model_file, mission& m)
 
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   for (int i = 0; i < media_file_list.totalCount; ++i) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     const T_DjiCameraManagerFileListInfo& info{media_file_list.fileListInfo[i]};
 
     // FIXME (remove)
+    constexpr double KB{1024.0};
+    constexpr double MB{1024.0 * KB};
     spdlog::info(
         "  Name: {}, index: {}, time:{}-{}-{}_{}:{}:{}, size: {:.2f} MB",
         info.fileName, info.fileIndex, info.createTime.year,
         info.createTime.month, info.createTime.day, info.createTime.hour,
         info.createTime.minute, info.createTime.second,
-        info.fileSize / (1024.0 * 1024.0));
+        info.fileSize / MB);
     if (!std::regex_match(info.fileName, jpeg_regex)) {
       continue;
     }
@@ -182,6 +188,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps,
         m_pos, DJI_CAMERA_MANAGER_EXPOSURE_MODE_PROGRAM_AUTO);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
+    // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     if (false) {  // FIXME (upstream issue)
       code = DjiCameraManager_SetISO(m_pos, DJI_CAMERA_MANAGER_ISO_100);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
@@ -201,6 +208,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps,
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     spdlog::debug("DjiCameraManager_StartShootPhoto OK");
 
+    // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     if (false) {  // FIXME (upstream issue)
       E_DjiCameraManagerISO iso;
       code = DjiCameraManager_GetISO(m_pos, &iso);
@@ -252,15 +260,18 @@ auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
   std::set<uint32_t> new_indexes;
 
   for (int i = 0; i < media_file_list.totalCount; ++i) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     const T_DjiCameraManagerFileListInfo& info{media_file_list.fileListInfo[i]};
 
     // FIXME (remove)
+    constexpr double KB{1024.0};
+    constexpr double MB{1024.0 * KB};
     spdlog::debug(
         "  Name: {}, index: {}, time:{}-{}-{}_{}:{}:{}, size: {:.2f} MB",
         info.fileName, info.fileIndex, info.createTime.year,
         info.createTime.month, info.createTime.day, info.createTime.hour,
         info.createTime.minute, info.createTime.second,
-        info.fileSize / (1024.0 * 1024.0));
+        info.fileSize / MB);
 
     if (!std::regex_match(info.fileName, jpeg_regex)) {
       continue;
@@ -335,7 +346,7 @@ auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
     code = DjiCameraManager_DeleteFileByIndex(m_pos, file_index);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-    queue_entry queue_head;
+    queue_entry queue_head{};
     {
       std::lock_guard lock{queue_mutex_};
       BOOST_VERIFY(!queue_.empty());

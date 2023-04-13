@@ -9,7 +9,7 @@
 #include "mission_state.h"  // mission_state_
 #include "utils.h"          // deg2rad
 
-mission::mission() = default;
+mission::mission() noexcept = default;
 mission::~mission() = default;
 
 auto mission::init(double lat, double lon) -> bool {
@@ -83,13 +83,16 @@ auto mission::upload_mission_and_start() -> bool {
 
   spdlog::info("Upload mission and start");
 
+  // NOLINTNEXTLINE(cert-msc51-cpp, cert-msc32-c)
   srand(time(nullptr));
 
   T_DjiWayPointV2MissionSettings s;
+  // NOLINTNEXTLINE(cert-msc30-c, cert-msc50-cpp)
   s.missionID = rand();  // Just a random number
   s.repeatTimes = 0;     // execute just once and go home
   s.finishedAction = DJI_WAYPOINT_V2_FINISHED_NO_ACTION;
-  s.maxFlightSpeed = 10;
+  constexpr int max_speed{10};
+  s.maxFlightSpeed = max_speed;
   s.autoFlightSpeed = 2;
   s.actionWhenRcLost = DJI_WAYPOINT_V2_MISSION_KEEP_EXECUTE_WAYPOINT_V2;
   s.gotoFirstWaypointMode =
@@ -127,7 +130,8 @@ auto mission::upload_mission_and_start() -> bool {
     // Duplicate the last and ignore it when reached
     // Tweak the height to avoid "points are too close" error
     T_DjiWaypointV2 w{waypoints_.back()};
-    w.relativeHeight += 5.0;
+    constexpr double dummy_height{5.0};
+    w.relativeHeight += dummy_height;
     waypoints_.push_back(w);
   }
   s.mission = waypoints_.data();
@@ -159,7 +163,8 @@ auto mission::upload_mission_and_start() -> bool {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   // If DjiWaypointV2_Start failed
-  std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+  constexpr int wait_ms{1500};
+  std::this_thread::sleep_for(std::chrono::milliseconds(wait_ms));
 
   code = DjiWaypointV2_Start();
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
@@ -300,7 +305,7 @@ void mission::save_detection(std::size_t index,
   global_waypoints_.at(index).save_detection(result);
 }
 
-T_DjiWaypointV2 mission::make_waypoint(const waypoint& w) {
+auto mission::make_waypoint(const waypoint& w) -> T_DjiWaypointV2 {
   const double latitude{w.lat()};
   const double longitude{w.lon()};
   const double relative_height{w.altitude()};
@@ -337,7 +342,8 @@ T_DjiWaypointV2 mission::make_waypoint(const waypoint& w) {
   p.config.useLocalCruiseVel = 0;  // set local waypoint's cruise speed
   p.config.useLocalMaxVel = 0;     // set local waypoint's max speed
 
-  p.dampingDistance = 40;  // cm
+  constexpr int damping_dist{40};  // cm
+  p.dampingDistance = damping_dist;
 
   p.turnMode = DJI_WAYPOINT_V2_TURN_MODE_CLOCK_WISE;
 
@@ -346,8 +352,11 @@ T_DjiWaypointV2 mission::make_waypoint(const waypoint& w) {
   p.pointOfInterest.positionY = 0.0F;
   p.pointOfInterest.positionZ = 0.0F;
 
-  p.maxFlightSpeed = 10.0F;
-  p.autoFlightSpeed = 2.0F;
+  constexpr float max_speed{10.0F};
+  constexpr float auto_speed{2.0F};
+
+  p.maxFlightSpeed = max_speed;
+  p.autoFlightSpeed = auto_speed;
 
   return p;
 }

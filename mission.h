@@ -16,7 +16,7 @@ enum class waypoint_action { ok, abort, restart };
 
 class mission {
  public:
-  mission();
+  mission() noexcept;
   ~mission();
 
   mission(const mission&) = delete;
