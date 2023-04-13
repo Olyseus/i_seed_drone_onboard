@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 #include <thread> // std::this_thread
 
+#include "home_altitude.h"
 #include "mission_state.h" // mission_state_
 #include "utils.h" // deg2rad
 
@@ -206,7 +207,7 @@ auto mission::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
 auto mission::update(T_DjiWaypointV2MissionStatePush state_data) -> std::pair<bool, bool> {
   // Note: callback thread, avoid long locks
 
-  auto [mission_started, notify, notify_finished] = mission_state_.update(event_data);
+  auto [mission_started, notify, notify_finished] = mission_state_.update(state_data);
 
   if (!mission_started) {
     BOOST_VERIFY(!notify);
@@ -253,7 +254,7 @@ auto mission::resume() -> bool {
     return false;
   }
 
-  if (mission_state_.get_state() != interconnection::drone_coordinates::PAUSE) {
+  if (mission_state_.get_state() != interconnection::drone_coordinates::PAUSED) {
     spdlog::error("Trying to resume mission that is not paused");
     return false;
   }

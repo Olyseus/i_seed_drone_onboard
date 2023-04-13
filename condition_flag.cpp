@@ -1,6 +1,6 @@
 #include "condition_flag.h"
 
-#include <boost/assert.h> // BOOST_VERIFY
+#include <boost/assert.hpp> // BOOST_VERIFY
 
 condition_flag::condition_flag() = default;
 condition_flag::~condition_flag() = default;

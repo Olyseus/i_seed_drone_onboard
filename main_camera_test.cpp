@@ -48,8 +48,7 @@ auto run_main(int argc, char** argv) -> int {
     BOOST_VERIFY(argv != nullptr);
     auto app{std::make_unique<Application>()};
 
-    mission_state s;
-    mission m{s};
+    mission m;
     camera_psdk c{"/var/opt/i_seed_drone_onboard/best.engine", m};
 
     gps_coordinates gps;
