@@ -177,13 +177,34 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       mission.h
       mission.cpp
   )
-  set_source_files_properties(
-      third_party/psdk/application.cpp
-      PROPERTIES
-      COMPILE_OPTIONS
-      # ISO C++11 requires at least one argument for the "..." in a variadic macro
-      "-Wno-pedantic;-Wno-unused-but-set-variable"
-  )
+
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set_source_files_properties(
+        camera_psdk.cpp
+        PROPERTIES
+        COMPILE_OPTIONS
+        "-Wno-nested-anon-types"
+    )
+  endif()
+
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set_source_files_properties(
+        third_party/psdk/application.cpp
+        PROPERTIES
+        COMPILE_OPTIONS
+        # ISO C++11 requires at least one argument for the "..." in a variadic macro
+        "-Wno-pedantic;-Wno-unused-but-set-variable"
+    )
+  else()
+    set_source_files_properties(
+        third_party/psdk/application.cpp
+        PROPERTIES
+        COMPILE_OPTIONS
+        # ISO C++11 requires at least one argument for the "..." in a variadic macro
+        "-Wno-pedantic"
+    )
+  endif()
+
   set_source_files_properties(
       server.cpp
       PROPERTIES
@@ -303,6 +324,15 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       i_seed_drone_sdcard_clean
       main_sdcard_clean.cpp
   )
+
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set_source_files_properties(
+        main_sdcard_clean.cpp
+        PROPERTIES
+        COMPILE_OPTIONS
+        "-Wno-nested-anon-types"
+    )
+  endif()
 
   target_link_libraries(
       i_seed_drone_sdcard_clean PRIVATE i_seed_drone_onboard_core
