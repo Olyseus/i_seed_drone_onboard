@@ -5,7 +5,7 @@
 
 using T_DjiMopChannelHandle = void*;
 
-class pipeline_closed {};
+class pipeline_closed : public std::exception {};
 
 class server {
  public:

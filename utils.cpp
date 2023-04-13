@@ -9,25 +9,30 @@ auto gimbal_rotation_params_with_heading_degree(double yaw_x_degree,
                                                 double pitch_z_degree,
                                                 double drone_heading_degree)
     -> std::pair<float, float> {
+
+  constexpr double right_angle{90.0};
+  constexpr double straight_angle{180.0};
+  constexpr double full_angle{360.0};
+
   // standard quadrants orientation to rotation relative to North
-  double yaw_result{90.0 - yaw_x_degree};
+  double yaw_result{right_angle - yaw_x_degree};
 
   // gimbal rotation is relative to North, not drone heading
   yaw_result += drone_heading_degree;
 
-  if (yaw_result > 180.0) {
-    yaw_result -= 360.0;
+  if (yaw_result > straight_angle) {
+    yaw_result -= full_angle;
   }
-  if (yaw_result < -180.0) {
-    yaw_result += 360.0;
+  if (yaw_result < -straight_angle) {
+    yaw_result += full_angle;
   }
-  BOOST_VERIFY(yaw_result >= -180.0);
-  BOOST_VERIFY(yaw_result <= 180.0);
+  BOOST_VERIFY(yaw_result >= -straight_angle);
+  BOOST_VERIFY(yaw_result <= straight_angle);
 
   BOOST_VERIFY(pitch_z_degree >= 0.0);
-  BOOST_VERIFY(pitch_z_degree < 90.0);
+  BOOST_VERIFY(pitch_z_degree < right_angle);
 
-  return {yaw_result, pitch_z_degree - 90.0};
+  return {yaw_result, pitch_z_degree - right_angle};
 }
 
 // return: yaw degree, pitch degree
@@ -64,17 +69,20 @@ auto gimbal_rotation_params(double x_pixel, double y_pixel,
   const double x_c{x_pixel - width_half};
   const double y_c{height_half - y_pixel};
 
-  if (x_c * x_c + y_c * y_c < 1e-1) {
+  constexpr double threshold{1e-1};
+  if (x_c * x_c + y_c * y_c < threshold) {
     // 90 is north (in standard quadrants orientation)
-    return gimbal_rotation_params_with_heading_degree(90.0, 0.0,
+    constexpr double north{90.0};
+    return gimbal_rotation_params_with_heading_degree(north, 0.0,
                                                       drone_heading_degree);
   }
 
   const double yaw_x_rad{std::atan2(y_c, x_c)};
 
   const double pixel_to_m{sensor_size_width_m / h20_img_width};
+  constexpr double eps{1e-8};
   BOOST_VERIFY(std::abs(pixel_to_m - sensor_size_height_m / h20_img_height) <
-               1e-8);
+               eps);
 
   const double x_m{x_c * pixel_to_m};
   const double y_m{y_c * pixel_to_m};

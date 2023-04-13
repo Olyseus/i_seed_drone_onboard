@@ -8,7 +8,13 @@ waypoint::waypoint(double latitude, double longitude)
 }
 
 waypoint::~waypoint() = default;
-waypoint::waypoint(waypoint&&) = default;
+
+// FIXME:
+// https://stackoverflow.com/questions/72035989
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
+waypoint::waypoint(waypoint&&) noexcept = default;
+
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 waypoint::waypoint(const waypoint&) = default;
 
 auto waypoint::is_default_altitude() const -> bool {
@@ -67,10 +73,11 @@ void waypoint::save_detection(const detection_result& result) {
   BOOST_VERIFY(!detection_result_.has_value());
   detection_result_ = result;
 
+  constexpr double eps{1e-4};
   BOOST_VERIFY(std::abs(detection_result_.value().gps.latitude - latitude_) <
-               1e-4);
+               eps);
   BOOST_VERIFY(std::abs(detection_result_.value().gps.longitude - longitude_) <
-               1e-4);
+               eps);
 
   BOOST_VERIFY(!detection_result_.value().pixels.empty());
 }

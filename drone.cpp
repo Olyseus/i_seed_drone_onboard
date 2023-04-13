@@ -10,6 +10,7 @@
 
 #include "api_code.h"
 #include "converter.h"
+#include "olyseus_verify.h" // OLYSEUS_VERIFY
 #include "server.h"
 #include "utils.h"  // rad2deg
 
@@ -38,23 +39,29 @@ std::list<interconnection::command_type::command_t> drone::execute_commands_;
 
 condition_flag drone::action_flag_;
 
-T_DjiReturnCode drone::quaternion_callback(
+auto drone::quaternion_callback(
     const uint8_t* data, uint16_t data_size,
-    const T_DjiDataTimestamp* timestamp) {
+    const T_DjiDataTimestamp* timestamp) -> T_DjiReturnCode {
   BOOST_VERIFY(data != nullptr);
-  const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  const auto quaternion{*reinterpret_cast<const T_DjiFcSubscriptionQuaternion*>(data)};
   (void)data_size;
   (void)timestamp;
 
   // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
   const double q2sqr{quaternion.q2 * quaternion.q2};
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
   const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
   const double t1{
+      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
       +2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
   double t2{-2.0 *
             (quaternion.q1 * quaternion.q3 - quaternion.q0 * quaternion.q2)};
   const double t3{
+      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
       +2.0 * (quaternion.q2 * quaternion.q3 + quaternion.q0 * quaternion.q1)};
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
   const double t4{-2.0 * (quaternion.q1 * quaternion.q1 + q2sqr) + 1.0};
 
   t2 = (t2 > 1.0) ? 1.0 : t2;
@@ -69,20 +76,25 @@ T_DjiReturnCode drone::quaternion_callback(
   spdlog::debug("roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_,
                 drone_yaw_);
 
-  BOOST_VERIFY(drone_yaw_ >= -180.0);
-  BOOST_VERIFY(drone_yaw_ <= 180.0);
-  BOOST_VERIFY(drone_pitch_ > -90.0);
-  BOOST_VERIFY(drone_pitch_ < 90.0);
-  BOOST_VERIFY(drone_roll_ > -90.0);
-  BOOST_VERIFY(drone_roll_ < 90.0);
+
+  constexpr double right_angle{90.0};
+  constexpr double straight_angle{180.0};
+
+  BOOST_VERIFY(drone_yaw_ >= -straight_angle);
+  BOOST_VERIFY(drone_yaw_ <= straight_angle);
+  BOOST_VERIFY(drone_pitch_ > -right_angle);
+  BOOST_VERIFY(drone_pitch_ < right_angle);
+  BOOST_VERIFY(drone_roll_ > -right_angle);
+  BOOST_VERIFY(drone_roll_ < right_angle);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-T_DjiReturnCode drone::rc_callback(const uint8_t* data, uint16_t data_size,
-                                   const T_DjiDataTimestamp* timestamp) {
+auto drone::rc_callback(const uint8_t* data, uint16_t data_size,
+                                   const T_DjiDataTimestamp* timestamp) -> T_DjiReturnCode {
   BOOST_VERIFY(data != nullptr);
-  const auto rc{*(const T_DjiFcSubscriptionRC*)data};
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  const auto rc{*reinterpret_cast<const T_DjiFcSubscriptionRC*>(data)};
   (void)data_size;
   (void)timestamp;
 
@@ -91,11 +103,12 @@ T_DjiReturnCode drone::rc_callback(const uint8_t* data, uint16_t data_size,
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-T_DjiReturnCode drone::position_fused_callback(
+auto drone::position_fused_callback(
     const uint8_t* data, uint16_t data_size,
-    const T_DjiDataTimestamp* timestamp) {
+    const T_DjiDataTimestamp* timestamp) -> T_DjiReturnCode {
   BOOST_VERIFY(data != nullptr);
-  const auto position{*(const T_DjiFcSubscriptionPositionFused*)data};
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  const auto position{*reinterpret_cast<const T_DjiFcSubscriptionPositionFused*>(data)};
   (void)data_size;
   (void)timestamp;
 
@@ -113,10 +126,11 @@ T_DjiReturnCode drone::position_fused_callback(
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-T_DjiReturnCode drone::gimbal_callback(const uint8_t* data, uint16_t data_size,
-                                       const T_DjiDataTimestamp* timestamp) {
-  BOOST_VERIFY(data != nullptr);
-  const auto gimbal_three_data{(const T_DjiFcSubscriptionThreeGimbalData*)data};
+auto drone::gimbal_callback(const uint8_t* data, uint16_t data_size,
+                                       const T_DjiDataTimestamp* timestamp) -> T_DjiReturnCode {
+  OLYSEUS_VERIFY(data != nullptr);
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  const auto gimbal_three_data{reinterpret_cast<const T_DjiFcSubscriptionThreeGimbalData*>(data)};
   const GimbalSingleData d{gimbal_three_data->gbData[0]};
 
   (void)data_size;
@@ -132,8 +146,8 @@ T_DjiReturnCode drone::gimbal_callback(const uint8_t* data, uint16_t data_size,
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-T_DjiReturnCode drone::mission_event_callback(
-    T_DjiWaypointV2MissionEventPush event_data) {
+auto drone::mission_event_callback(
+    T_DjiWaypointV2MissionEventPush event_data) -> T_DjiReturnCode {
   const bool notify{mission_.update(event_data)};
   if (notify) {
     action_flag_.notify();
@@ -141,8 +155,8 @@ T_DjiReturnCode drone::mission_event_callback(
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-T_DjiReturnCode drone::mission_state_callback(
-    T_DjiWaypointV2MissionStatePush state_data) {
+auto drone::mission_state_callback(
+    T_DjiWaypointV2MissionStatePush state_data) -> T_DjiReturnCode {
   auto [mission_started, notify] = mission_.update(state_data);
 
   if (!mission_started) {
@@ -154,9 +168,11 @@ T_DjiReturnCode drone::mission_state_callback(
   }
 
   // https://developer.dji.com/onboard-api-reference/structDJI_1_1OSDK_1_1Telemetry_1_1RC.html#a9e69e1b32599986319ad3312ca5723de
-  if (rc_mode_ != 8000) {
+  constexpr int16_t expected_rc_mode{8000};
+  if (rc_mode_ != expected_rc_mode) {
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-    BOOST_VERIFY(rc_mode_ == -8000);
+    constexpr int16_t expected_sim_rc_mode{-8000};
+    BOOST_VERIFY(rc_mode_ == expected_sim_rc_mode);
 #else
     // Value received while running tests on simulator
     spdlog::error("Unexpected RC mode: {}", rc_mode_);
@@ -167,11 +183,12 @@ T_DjiReturnCode drone::mission_state_callback(
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-T_DjiReturnCode drone::homepoint_callback(const uint8_t* data,
+auto drone::homepoint_callback(const uint8_t* data,
                                           uint16_t data_size,
-                                          const T_DjiDataTimestamp* timestamp) {
+                                          const T_DjiDataTimestamp* timestamp) -> T_DjiReturnCode {
   BOOST_VERIFY(data != nullptr);
-  const auto altitude{*(const T_DjiFcSubscriptionAltitudeOfHomePoint*)data};
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  const auto altitude{*reinterpret_cast<const T_DjiFcSubscriptionAltitudeOfHomePoint*>(data)};
   (void)data_size;
   (void)timestamp;
 
@@ -267,7 +284,8 @@ drone::drone()
     BOOST_VERIFY(laser_range_bytes_size_ > 0);
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+  constexpr int sleep_ms{2000};
+  std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms));
 }
 
 void drone::sigint_handler(int signal) {
@@ -299,6 +317,7 @@ void drone::start() {
   std::thread inference_thread{&drone::inference_job, this};
 
   while (!interrupt_condition()) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     BOOST_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
     server server{channel_id};
     channel_handle_ = server.handle();
@@ -307,6 +326,7 @@ void drone::start() {
 #else
     BOOST_VERIFY(channel_handle_ != nullptr);
 #endif
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     BOOST_VERIFY(signal(SIGINT, sigint_handler) != SIG_ERR);
 
     connection_closed_ = false;
@@ -368,7 +388,8 @@ void drone::action_job_internal() {
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   // Wait for drone to finish the movement
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  constexpr int sleep_ms{1000};
+  std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms));
 
   const auto [action, waypoint_index] = mission_.waypoint_reached(
       laser_range_.latest(execute_commands_mutex_, execute_commands_));
@@ -406,33 +427,35 @@ void drone::action_job_internal() {
 
   waypoint w{mission_.get_waypoint_copy(waypoint_index)};
 
-  BOOST_VERIFY(std::abs(w.lat() - drone_latitude_) < 1e-4);
-  BOOST_VERIFY(std::abs(w.lon() - drone_longitude_) < 1e-4);
+  constexpr double eps{1e-4};
+  BOOST_VERIFY(std::abs(w.lat() - drone_latitude_) < eps);
+  BOOST_VERIFY(std::abs(w.lon() - drone_longitude_) < eps);
 
   BOOST_VERIFY(homepoint_altitude_ > invalid_homepoint_altitude_);
   home_altitude_.set_altitude(drone_altitude_, w.altitude(),
                               homepoint_altitude_);
 
   if (mission_.is_forward()) {
-    gps_coordinates gps;
-    gps.longitude = drone_longitude_;
-    gps.latitude = drone_latitude_;
-    gps.altitude = drone_altitude_;
-    gps.relative_altitude = w.altitude();
+    gps_coordinates gps{
+        .longitude = drone_longitude_,
+        .latitude = drone_latitude_,
+        .altitude = drone_altitude_};
+    // FIXME (???) gps.relative_altitude = w.altitude();
 
-    attitude drone_attitude;
-    drone_attitude.pitch = drone_pitch_;
-    drone_attitude.roll = drone_roll_;
-    drone_attitude.yaw = drone_yaw_;
+    attitude drone_attitude{
+        .pitch = drone_pitch_,
+        .roll = drone_roll_,
+        .yaw = drone_yaw_};
 
-    attitude gimbal_attitude;
-    gimbal_attitude.pitch = gimbal_pitch_;
-    gimbal_attitude.roll = gimbal_roll_;
-    gimbal_attitude.yaw = gimbal_yaw_;
+    attitude gimbal_attitude{
+        .pitch = gimbal_pitch_,
+        .roll = gimbal_roll_,
+        .yaw = gimbal_yaw_};
 
     const double yaw_diff{std::abs(drone_yaw_ - gimbal_yaw_)};
     spdlog::info("Gimbal/drone yaw diff: {}", yaw_diff);
-    BOOST_VERIFY(yaw_diff < 0.7);
+    constexpr double max_diff{0.7};
+    BOOST_VERIFY(yaw_diff < max_diff);
     camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude,
                              waypoint_index);
   } else {
@@ -451,22 +474,22 @@ void drone::action_job_internal() {
       spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch_,
                    gimbal_roll_, gimbal_yaw_);
 
-      gps_coordinates gps;
-      gps.longitude = drone_longitude_;
-      gps.latitude = drone_latitude_;
-      gps.altitude = drone_altitude_;
-      gps.relative_altitude = 0.0;  // not used
+      gps_coordinates gps{
+          .longitude = drone_longitude_,
+          .latitude = drone_latitude_,
+          .altitude = drone_altitude_
+      };
+      // FIXME (???) gps.relative_altitude = 0.0;  // not used
 
-      attitude drone_attitude;
-      drone_attitude.pitch = drone_pitch_;
-      drone_attitude.roll = drone_roll_;
-      drone_attitude.yaw = drone_yaw_;
+      attitude drone_attitude{
+          .pitch = drone_pitch_,
+          .roll = drone_roll_,
+          .yaw = drone_yaw_};
 
-      attitude laser_gimbal_attitude;
-      laser_gimbal_attitude.pitch = gimbal_pitch_;
-      laser_gimbal_attitude.roll = gimbal_roll_;
-      laser_gimbal_attitude.yaw =
-          gimbal_yaw_ - drone_yaw_;  // yaw relative to drone
+      attitude laser_gimbal_attitude{
+          .pitch = gimbal_pitch_,
+          .roll = gimbal_roll_,
+          .yaw = gimbal_yaw_ - drone_yaw_}; // yaw relative to drone
 
       const converter_result pixel_result{
           converter::run(d.gps, d.drone_attitude, pixel_gimbal_attitude, 1.0)};
@@ -474,8 +497,11 @@ void drone::action_job_internal() {
           gps, drone_attitude, laser_gimbal_attitude,
           laser_range_.latest(execute_commands_mutex_, execute_commands_))};
 
-      BOOST_VERIFY((pixel_result.p - laser_result.p).norm() < 5.0);
-      BOOST_VERIFY(std::abs(pixel_result.d.dot(laser_result.d) - 1.0) < 1e-3);
+      constexpr double eps{1e-3};
+      constexpr double max_dist{5.0};
+
+      BOOST_VERIFY((pixel_result.p - laser_result.p).norm() < max_dist);
+      BOOST_VERIFY(std::abs(pixel_result.d.dot(laser_result.d) - 1.0) < eps);
 
       const Eigen::Vector3d p_laser_end{laser_result.p + laser_result.v};
       spdlog::info("{} {} {} 255 165 0", p_laser_end(0), p_laser_end(1),
@@ -484,14 +510,16 @@ void drone::action_job_internal() {
       const double k_num{
           laser_result.d.dot(laser_result.p - pixel_result.p + laser_result.v)};
       const double k_denom{pixel_result.v.dot(laser_result.d)};
+      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
       BOOST_VERIFY(k_denom > 1e-2);
       const double k{k_num / k_denom};
-      BOOST_VERIFY(k > 1e-3);
+      BOOST_VERIFY(k > eps);
 
       const Eigen::Vector3d p_pixel_end{pixel_result.p + k * pixel_result.v};
       spdlog::info("{} {} {} 0 255 0", p_pixel_end(0), p_pixel_end(1),
                    p_pixel_end(2));
-      BOOST_VERIFY((p_pixel_end - p_laser_end).norm() < 10.0);
+      constexpr double sanity_dist{10.0};
+      BOOST_VERIFY((p_pixel_end - p_laser_end).norm() < sanity_dist);
 
       // FIXME (save to file)
     }
@@ -507,6 +535,7 @@ void drone::align_gimbal() {
 
   constexpr int time_ms{500};
   constexpr int time_wait_ms{3 * time_ms};
+  constexpr double ms{1.0 / 1000.0};
 
   constexpr double expected_gimbal_roll{0.0};
   const double expected_gimbal_yaw{drone_yaw_};
@@ -516,7 +545,7 @@ void drone::align_gimbal() {
   rotation.pitch = expected_gimbal_pitch - gimbal_pitch_;
   rotation.roll = expected_gimbal_roll - gimbal_roll_;
   rotation.yaw = expected_gimbal_yaw - gimbal_yaw_;
-  rotation.time = time_ms / 1000.0;
+  rotation.time = time_ms * ms;
 
   constexpr float eps{1e-3};
   constexpr float rough_eps{0.1 + eps};
@@ -543,13 +572,14 @@ void drone::align_gimbal() {
   if (std::abs(d_yaw_2) > expected_eps) {
     spdlog::info("Gimbal rotation failed, trying another direction, diff: {}",
                  d_yaw_2);
+    constexpr double rotate{178.0};
 
     T_DjiGimbalManagerRotation rotation;
     rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_RELATIVE_ANGLE;
     rotation.pitch = 0.0;
     rotation.roll = 0.0;
-    rotation.yaw = (d_yaw_2 > 0.0) ? -178.0 : 178.0;
-    rotation.time = time_ms / 1000.0;
+    rotation.yaw = (d_yaw_2 > 0.0) ? -rotate : rotate;
+    rotation.time = time_ms * ms;
 
     spdlog::info("Current gimbal yaw: {}", gimbal_yaw_);
     spdlog::info("Run gimbal rotation, yaw: {}, roll: {}, pitch: {}",
@@ -566,7 +596,7 @@ void drone::align_gimbal() {
     rotation.pitch = expected_gimbal_pitch - gimbal_pitch_;
     rotation.roll = expected_gimbal_roll - gimbal_roll_;
     rotation.yaw = expected_gimbal_yaw - gimbal_yaw_;
-    rotation.time = time_ms / 1000.0;
+    rotation.time = time_ms * ms;
 
     spdlog::info("Current gimbal yaw: {}", gimbal_yaw_);
     spdlog::info("Run gimbal rotation, yaw: {}, roll: {}, pitch: {}",
@@ -583,20 +613,20 @@ auto drone::rotate_gimbal(float x, float y, double drone_heading_degree)
     -> attitude {
   spdlog::info("Gimbal rotate to pixel {}, {}", x, y);
 
-  attitude expected;
-  expected.roll = 0.0;
+  attitude expected{.pitch = 0.0, .roll = 0.0, .yaw = 0.0};
   std::tie(expected.yaw, expected.pitch) =
       gimbal_rotation_params(x, y, drone_heading_degree);
 
   constexpr int time_ms{500};
   constexpr int time_wait_ms{3 * time_ms};
+  constexpr double ms{1.0 / 1000.0};
 
   T_DjiGimbalManagerRotation rotation;
   rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_RELATIVE_ANGLE;
   rotation.pitch = expected.pitch - gimbal_pitch_;
   rotation.roll = expected.roll - gimbal_roll_;
   rotation.yaw = expected.yaw - gimbal_yaw_;
-  rotation.time = time_ms / 1000.0;
+  rotation.time = time_ms * ms;
 
   spdlog::info("Run gimbal rotation, yaw: {}, roll: {}, pitch: {}",
                rotation.yaw, rotation.roll, rotation.pitch);
@@ -618,12 +648,15 @@ auto drone::rotate_gimbal(float x, float y, double drone_heading_degree)
         "pitch: {}, yaw: {}",
         d_roll, d_pitch, d_yaw);
 
+    constexpr double ms{1.0 / 1000.0};
+    constexpr double rotate{178.0};
+
     T_DjiGimbalManagerRotation rotation;
     rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_RELATIVE_ANGLE;
     rotation.pitch = 0.0;
     rotation.roll = 0.0;
-    rotation.yaw = (d_yaw > 0.0) ? -178.0 : 178.0;
-    rotation.time = time_ms / 1000.0;
+    rotation.yaw = (d_yaw > 0.0) ? -rotate : rotate;
+    rotation.time = time_ms * ms;
 
     spdlog::info("Current gimbal yaw: {}", gimbal_yaw_);
     spdlog::info("Run gimbal rotation, yaw: {}, roll: {}, pitch: {}",
@@ -638,7 +671,7 @@ auto drone::rotate_gimbal(float x, float y, double drone_heading_degree)
     rotation.pitch = expected.pitch - gimbal_pitch_;
     rotation.roll = expected.roll - gimbal_roll_;
     rotation.yaw = expected.yaw - gimbal_yaw_;
-    rotation.time = time_ms / 1000.0;
+    rotation.time = time_ms * ms;
 
     spdlog::info("Run gimbal rotation, yaw: {}, roll: {}, pitch: {}",
                  rotation.yaw, rotation.roll, rotation.pitch);
@@ -790,7 +823,8 @@ void drone::send_data_job_internal() {
     }
 
     if (!command.has_value()) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      constexpr int wait_ms{200};
+      std::this_thread::sleep_for(std::chrono::milliseconds(wait_ms));
       std::lock_guard<std::mutex> lock(execute_commands_mutex_);
       execute_commands_.push_back(
           interconnection::command_type::DRONE_COORDINATES);
@@ -858,7 +892,7 @@ void drone::send_command(
 
 void drone::receive_data(std::string* buffer) {
   BOOST_VERIFY(buffer != nullptr);
-  BOOST_VERIFY(buffer->size() > 0);
+  BOOST_VERIFY(!buffer->empty());
 
   while (true) {
     if (interrupt_condition()) {
@@ -877,6 +911,7 @@ void drone::receive_data(std::string* buffer) {
 #else
     char* char_buffer{buffer->data()};
     static_assert(sizeof(char) == sizeof(uint8_t));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     uint8_t* recv_buf{reinterpret_cast<uint8_t*>(char_buffer)};
 
     BOOST_VERIFY(channel_handle_ != nullptr);
@@ -895,7 +930,7 @@ void drone::receive_data(std::string* buffer) {
 }
 
 void drone::send_data(std::string& buffer) {
-  BOOST_VERIFY(buffer.size() > 0);
+  BOOST_VERIFY(!buffer.empty());
 
   while (true) {
     if (interrupt_condition()) {
@@ -911,6 +946,7 @@ void drone::send_data(std::string& buffer) {
 #else
     char* char_buffer{buffer.data()};
     static_assert(sizeof(char) == sizeof(uint8_t));
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buffer)};
 
     uint32_t real_len{0};
@@ -938,7 +974,8 @@ void drone::next_mission() {
   // Forward mission is finished and we can run backward mission
   while (!camera_psdk_.queue_is_empty()) {
     spdlog::info("Wait for inference to finish...");
-    std::this_thread::sleep_for(std::chrono::seconds{5});
+    constexpr int sleep_sec{5};
+    std::this_thread::sleep_for(std::chrono::seconds{sleep_sec});
   }
 
   spdlog::info("Start backward mission");

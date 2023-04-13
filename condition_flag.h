@@ -6,7 +6,7 @@
 
 class condition_flag {
  public:
-  condition_flag();
+  condition_flag() noexcept;
   ~condition_flag();
 
   condition_flag(const condition_flag&) = delete;

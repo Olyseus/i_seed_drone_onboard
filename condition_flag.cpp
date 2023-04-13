@@ -2,7 +2,7 @@
 
 #include <boost/assert.hpp>  // BOOST_VERIFY
 
-condition_flag::condition_flag() = default;
+condition_flag::condition_flag() noexcept = default;
 condition_flag::~condition_flag() = default;
 
 void condition_flag::wait() {

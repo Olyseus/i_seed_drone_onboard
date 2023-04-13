@@ -24,7 +24,7 @@ void mission_state::finish() {
   is_started_ = false;
 }
 
-bool mission_state::is_started() const {
+auto mission_state::is_started() const -> bool {
   std::lock_guard<std::mutex> lock(m_);
   return is_started_;
 }
@@ -120,18 +120,13 @@ auto mission_state::get_state() const
   switch (state_) {
     case ground_station_not_start:
       return interconnection::drone_coordinates::WAITING;
-    case mission_prepared:
-      return interconnection::drone_coordinates::EXECUTING;
-    case enter_mission:
-      return interconnection::drone_coordinates::EXECUTING;
-    case execute_flying_route_mission:
-      return interconnection::drone_coordinates::EXECUTING;
     case pause_state:
       return interconnection::drone_coordinates::PAUSED;
+    case mission_prepared:
+    case enter_mission:
+    case execute_flying_route_mission:
     case enter_mission_after_ending_pause:
-      return interconnection::drone_coordinates::EXECUTING;
     case exit_mission:
-      return interconnection::drone_coordinates::EXECUTING;
     case end_of_waypoint_mission:
       return interconnection::drone_coordinates::EXECUTING;
     default:
@@ -141,7 +136,7 @@ auto mission_state::get_state() const
   }
 }
 
-const char* mission_state::state_name() const {
+auto mission_state::state_name() const -> const char* {
   switch (state_) {
     case ground_station_not_start:
       return "ground station not start";

@@ -11,7 +11,7 @@ class waypoint {
   ~waypoint();
 
   waypoint(const waypoint&);
-  waypoint(waypoint&&);
+  waypoint(waypoint&&) noexcept;
 
   waypoint& operator=(const waypoint&) = delete;
   waypoint& operator=(waypoint&&) = delete;
