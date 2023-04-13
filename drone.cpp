@@ -15,6 +15,8 @@
 #include "server.h"
 #include "utils.h" // rad2deg
 
+mission drone::mission_;
+
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
 simulator drone::simulator_;
 #endif

@@ -124,7 +124,7 @@ auto mission_state::get_state() const -> interconnection::drone_coordinates::sta
     case execute_flying_route_mission:
       return interconnection::drone_coordinates::EXECUTING;
     case pause_state:
-      return interconnection::drone_coordinates::PAUSE;
+      return interconnection::drone_coordinates::PAUSED;
     case enter_mission_after_ending_pause:
       return interconnection::drone_coordinates::EXECUTING;
     case exit_mission:
