@@ -35,7 +35,7 @@ class mission {
   bool upload_mission_and_start();
 
   // thread: action
-  std::pair<waypoint_action, std::size_t> waypoint_reached(double laser_range);
+  std::pair<waypoint_action, std::size_t> waypoint_reached(float laser_range);
 
   // thread: action
   waypoint get_waypoint_copy(std::size_t index) const;

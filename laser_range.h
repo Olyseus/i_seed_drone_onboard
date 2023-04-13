@@ -29,16 +29,16 @@ class laser_range {
   laser_range& operator=(laser_range&&) = delete;
 
   // thread: receive_data
-  void value_received(double range);
+  void value_received(float range);
 
   // thread: action
-  double latest(std::mutex& m,
+  float latest(std::mutex& m,
                 std::list<interconnection::command_type::command_t>& commands);
 
  private:
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   simulator& simulator_;
-  std::list<double> values_;
+  std::list<float> values_;
 #endif
   std::mutex m_;
   std::condition_variable condition_variable_;
@@ -48,7 +48,7 @@ class laser_range {
   static constexpr time_point invalid_time_point{time_point::min()};
 
   time_point latest_time_point_{invalid_time_point};
-  double latest_value_{0.0};
+  float latest_value_{0.0};
 };
 
 #endif  // LASER_RANGE_H_

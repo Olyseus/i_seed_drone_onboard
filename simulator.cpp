@@ -77,7 +77,7 @@ api_code simulator::receive_data(std::string* buffer) {
   }
 }
 
-void simulator::laser_range(double range) {
+void simulator::laser_range(float range) {
   const std::lock_guard<std::mutex> lock(m_);
 
   BOOST_VERIFY(!laser_range_.has_value());

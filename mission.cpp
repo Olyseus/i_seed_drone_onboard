@@ -46,7 +46,7 @@ auto mission::init(double lat, double lon) -> bool {
   return true;
 }
 
-auto mission::waypoint_reached(double laser_range)
+auto mission::waypoint_reached(float laser_range)
     -> std::pair<waypoint_action, std::size_t> {
   std::lock_guard<std::mutex> lock(m_);
 
@@ -62,7 +62,7 @@ auto mission::waypoint_reached(double laser_range)
 
   waypoint& w{global_waypoints_.at(index.value())};
 
-  if (std::abs(laser_range - waypoint::expected_height) > 1.0) {
+  if (std::abs(laser_range - waypoint::expected_height) > 1.0F) {
     spdlog::info("Bad laser range, waypoint altitude tweak");
     BOOST_VERIFY(is_forward_);
     BOOST_VERIFY(w.is_default_altitude());
@@ -308,7 +308,7 @@ void mission::save_detection(std::size_t index,
 auto mission::make_waypoint(const waypoint& w) -> T_DjiWaypointV2 {
   const double latitude{w.lat()};
   const double longitude{w.lon()};
-  const double relative_height{w.altitude()};
+  const float relative_height{w.altitude()};
 
   double heading{0.0};
   std::string heading_str{"auto"};

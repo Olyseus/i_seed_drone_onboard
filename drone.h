@@ -59,19 +59,31 @@ class drone {
       const uint8_t* data, uint16_t data_size,
       const T_DjiDataTimestamp* timestamp);
 
-  static constexpr double invalid_homepoint_altitude_{
-      std::numeric_limits<double>::lowest()};
+  static constexpr float invalid_homepoint_altitude_{
+      std::numeric_limits<float>::lowest()};
 
   static std::atomic<double> drone_yaw_;
   static std::atomic<double> drone_pitch_;
   static std::atomic<double> drone_roll_;
+
+  // https://developer.dji.com/doc/payload-sdk-api-reference/en/module/fc-subscription.html#typedef-struct-t-djifcsubscriptionpositionfused
+  // Read from 'T_DjiFcSubscriptionPositionFused':
+  // - dji_f64_t longitude
+  // - dji_f64_t latitude
+  // - dji_f32_t altitude
   static std::atomic<double> drone_longitude_;
   static std::atomic<double> drone_latitude_;
-  static std::atomic<double> drone_altitude_;
+  static std::atomic<float> drone_altitude_;
+
   static std::atomic<double> gimbal_yaw_;
   static std::atomic<double> gimbal_pitch_;
   static std::atomic<double> gimbal_roll_;
-  static std::atomic<double> homepoint_altitude_;
+
+  // https://developer.dji.com/doc/payload-sdk-api-reference/en/module/fc-subscription.html#definition-enum-and-struct
+  // Read from 'T_DjiFcSubscriptionAltitudeOfHomePoint':
+  // - dji_f32_t altitude
+  static std::atomic<float> homepoint_altitude_;
+
   static std::atomic<int16_t> rc_mode_;
   static std::mutex execute_commands_mutex_;
   static std::list<interconnection::command_type::command_t> execute_commands_;

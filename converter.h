@@ -17,7 +17,7 @@ class converter {
   // Gimbal yaw is relative to drone
   static converter_result run(const gps_coordinates&,
                               const attitude& drone_attitude,
-                              const attitude& gimbal_attitude, double length);
+                              const attitude& gimbal_attitude, float length);
 
  private:
   friend class converter_test;
@@ -25,7 +25,7 @@ class converter {
   static Eigen::Vector3d local_ned_to_ecef(const GeographicLib::LocalCartesian&,
                                            const Eigen::Vector3d& p);
   static Eigen::Vector3d camera_to_drone_ned(const attitude& gimbal_attitude,
-                                             double length);
+                                             float length);
   static Eigen::Vector3d drone_ned_to_local_ned(const attitude& drone_attitude,
                                                 const Eigen::Vector3d& v);
 };
