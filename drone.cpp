@@ -27,11 +27,11 @@ std::atomic<double> drone::drone_pitch_{0.0};
 std::atomic<double> drone::drone_roll_{0.0};
 std::atomic<double> drone::drone_longitude_{0.0};
 std::atomic<double> drone::drone_latitude_{0.0};
-std::atomic<double> drone::drone_altitude_{0.0};
+std::atomic<float> drone::drone_altitude_{0.0};
 std::atomic<double> drone::gimbal_yaw_;
 std::atomic<double> drone::gimbal_pitch_;
 std::atomic<double> drone::gimbal_roll_;
-std::atomic<double> drone::homepoint_altitude_{invalid_homepoint_altitude_};
+std::atomic<float> drone::homepoint_altitude_{invalid_homepoint_altitude_};
 std::atomic<int16_t> drone::rc_mode_{-1};
 
 std::mutex drone::execute_commands_mutex_;
@@ -492,7 +492,7 @@ void drone::action_job_internal() {
           .yaw = gimbal_yaw_ - drone_yaw_}; // yaw relative to drone
 
       const converter_result pixel_result{
-          converter::run(d.gps, d.drone_attitude, pixel_gimbal_attitude, 1.0)};
+          converter::run(d.gps, d.drone_attitude, pixel_gimbal_attitude, 1.0F)};
       const converter_result laser_result{converter::run(
           gps, drone_attitude, laser_gimbal_attitude,
           laser_range_.latest(execute_commands_mutex_, execute_commands_))};

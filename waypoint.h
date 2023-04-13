@@ -17,13 +17,13 @@ class waypoint {
   waypoint& operator=(waypoint&&) = delete;
 
   bool is_default_altitude() const;
-  void set_custom_altitude(double laser_range);
-  double altitude() const;
+  void set_custom_altitude(float laser_range);
+  float altitude() const;
 
   double lat() const { return latitude_; }
   double lon() const { return longitude_; }
 
-  static constexpr double expected_height{15.0};  // 15m
+  static constexpr float expected_height{15.0F};  // 15m
 
   // Forward pass is ready
   void set_ready(bool is_forward);
@@ -38,7 +38,7 @@ class waypoint {
  private:
   const double latitude_;
   const double longitude_;
-  std::optional<double> mission_altitude_;
+  std::optional<float> mission_altitude_;
   bool is_forward_ready_{false};
   bool is_backward_ready_{false};
   std::optional<detection_result> detection_result_;

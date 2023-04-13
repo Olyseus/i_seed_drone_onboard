@@ -8,7 +8,7 @@
 #include "utils.h"  // deg2rad
 
 auto converter::run(const gps_coordinates& gps, const attitude& drone_attitude,
-                    const attitude& gimbal_attitude, double length)
+                    const attitude& gimbal_attitude, float length)
     -> converter_result {
   const Eigen::Vector3d drone_ned_v{
       camera_to_drone_ned(gimbal_attitude, length)};
@@ -81,8 +81,8 @@ auto converter::local_ned_to_ecef(
 }
 
 auto converter::camera_to_drone_ned(const attitude& gimbal_attitude,
-                                    double length) -> Eigen::Vector3d {
-  Eigen::Vector3d v{length, 0.0, 0.0};
+                                    float length) -> Eigen::Vector3d {
+  Eigen::Vector3d v{1.0 * length, 0.0, 0.0};
 
   const double roll{gimbal_attitude.roll * deg2rad};
   const double pitch{gimbal_attitude.pitch * deg2rad};

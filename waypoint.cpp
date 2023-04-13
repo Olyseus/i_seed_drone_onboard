@@ -21,7 +21,7 @@ auto waypoint::is_default_altitude() const -> bool {
   return !mission_altitude_.has_value();
 }
 
-void waypoint::set_custom_altitude(double laser_range) {
+void waypoint::set_custom_altitude(float laser_range) {
   BOOST_VERIFY(!is_forward_ready());
   BOOST_VERIFY(!mission_altitude_.has_value());
 
@@ -33,10 +33,11 @@ void waypoint::set_custom_altitude(double laser_range) {
   // we should be 'expected_height' higher, i.e. two 'expected_height'.
   // Bigger laser range means we need use lower mission altitude than before.
   // Smaller laser range means we need use higher mission altitude than before.
-  mission_altitude_ = 2 * expected_height - laser_range;
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+  mission_altitude_ = 2.0F * expected_height - laser_range;
 }
 
-auto waypoint::altitude() const -> double {
+auto waypoint::altitude() const -> float {
   return mission_altitude_.value_or(expected_height);
 }
 

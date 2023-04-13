@@ -31,7 +31,7 @@ class simulator {
   api_code receive_data(std::string* buffer);
 
   // thread: action
-  void laser_range(double range);
+  void laser_range(float range);
 
  private:
   std::mutex m_;
@@ -51,7 +51,7 @@ class simulator {
   static constexpr double p2_lat_{48.90};
   static constexpr double p2_lon_{-9.4003};
 
-  std::optional<double> laser_range_;
+  std::optional<float> laser_range_;
   bool laser_range_cmd_sent_{false};
 };
 #endif

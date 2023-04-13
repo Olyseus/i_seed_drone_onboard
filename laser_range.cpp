@@ -11,39 +11,39 @@
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
 laser_range::laser_range(simulator& s) : simulator_(s) {
   // waypoint 0, bad
-  values_.push_back(13.2);
-  values_.push_back(15.0);
+  values_.push_back(13.2F);
+  values_.push_back(15.0F);
 
   // waypoint 1, good
-  values_.push_back(15.2);
+  values_.push_back(15.2F);
 
   // waypoint 2, good
-  values_.push_back(14.9);
+  values_.push_back(14.9F);
 
   // waypoint 3, bad
-  values_.push_back(17.8);
-  values_.push_back(15.0);
+  values_.push_back(17.8F);
+  values_.push_back(15.0F);
 
   // fake waypoint
-  values_.push_back(15.0);
+  values_.push_back(15.0F);
 
   // backward
 
   // waypoint 3
-  values_.push_back(15.2);
+  values_.push_back(15.2F);
 
   // waypoint 2
-  values_.push_back(14.8);
+  values_.push_back(14.8F);
 
   // waypoint 1
-  values_.push_back(15.1);
+  values_.push_back(15.1F);
 
   // waypoint 0
-  values_.push_back(15.5);
+  values_.push_back(15.5F);
 
   // extra data for laser measurement
   for (int i{0}; i < 10; ++i) {
-    values_.push_back(15.0);
+    values_.push_back(15.0F);
   }
 }
 #else
@@ -53,7 +53,7 @@ laser_range::laser_range() = default;
 laser_range::~laser_range() = default;
 
 // thread: receive_data
-void laser_range::value_received(double range) {
+void laser_range::value_received(float range) {
   {
     const std::lock_guard<std::mutex> lock(m_);
 
@@ -69,12 +69,12 @@ void laser_range::value_received(double range) {
 // thread: action
 auto laser_range::latest(
     std::mutex& m,
-    std::list<interconnection::command_type::command_t>& commands) -> double {
+    std::list<interconnection::command_type::command_t>& commands) -> float {
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   {
     const std::lock_guard<std::mutex> lock(m_);
     BOOST_VERIFY(!values_.empty());
-    const double simulated_range{values_.front()};
+    const float simulated_range{values_.front()};
     values_.pop_front();
     spdlog::info("Simulating laser range: {}", simulated_range);
     simulator_.laser_range(simulated_range);
