@@ -87,6 +87,8 @@ add_library(
     laser_range.h
     magnetic_declination.cpp
     magnetic_declination.h
+    olyseus_verify.cpp
+    olyseus_verify.h
     timer.h
     utils.cpp
     utils.h
