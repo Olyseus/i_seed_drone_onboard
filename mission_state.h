@@ -6,6 +6,8 @@
 
 #include <dji_waypoint_v2.h> // T_DjiWaypointV2MissionEventPush
 
+#include "interconnection.pb.h"
+
 class mission_state {
  public:
   void start();
@@ -13,8 +15,13 @@ class mission_state {
 
   bool is_started() const;
 
-  void update(T_DjiWaypointV2MissionEventPush event_data);
-  bool update(T_DjiWaypointV2MissionStatePush state_data);
+  // @return notify_finished
+  bool update(T_DjiWaypointV2MissionEventPush event_data);
+
+  // @return auto [mission_started, notify, notify_finished]
+  std::tuple<bool, bool, bool> update(T_DjiWaypointV2MissionStatePush state_data);
+
+  interconnection::drone_coordinates::state_t get_state() const;
 
  private:
   const char* state_name() const;

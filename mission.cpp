@@ -7,13 +7,18 @@
 #include "mission_state.h" // mission_state_
 #include "utils.h" // deg2rad
 
-mission::mission(mission_state& m) : mission_state_(m) {}
+mission::mission() = default;
 mission::~mission() = default;
 
-void mission::init(double lat, double lon) {
+auto mission::init(double lat, double lon) -> bool {
   std::lock_guard<std::mutex> lock(m_);
 
   spdlog::info("Mission parameters: lat({}), lon({})", lat, lon);
+
+  if (in_progress_) {
+    spdlog::error("Mission already in progress");
+    return false;
+  }
 
   // FIXME (points from polygons)
   // FIXME (action at waypoint?)
@@ -28,20 +33,29 @@ void mission::init(double lat, double lon) {
   global_waypoints_.emplace_back(lat, lon);
 #endif
 
+  in_progress_ = true;
   is_forward_ = true;
+
+  {
+    std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    is_finishing_ = false;
+  }
+
+  return true;
 }
 
-auto mission::waypoint_reached(double laser_range, std::size_t* waypoint_index) -> waypoint_action {
+auto mission::waypoint_reached(double laser_range) -> std::pair<waypoint_action, std::size_t> {
   std::lock_guard<std::mutex> lock(m_);
+
+  BOOST_VERIFY(in_progress_);
+
+  constexpr auto unused_index{std::numeric_limits<std::size_t>::max()};
 
   std::optional<std::size_t> index{current_waypoint_index()};
 
   if (!index.has_value()) {
-    return waypoint_action::abort;
+    return {waypoint_action::abort, unused_index};
   }
-
-  BOOST_VERIFY(waypoint_index != nullptr);
-  *waypoint_index = index.value();
 
   waypoint& w{global_waypoints_.at(index.value())};
 
@@ -51,16 +65,18 @@ auto mission::waypoint_reached(double laser_range, std::size_t* waypoint_index) 
     BOOST_VERIFY(w.is_default_altitude());
     w.set_custom_altitude(laser_range);
     BOOST_VERIFY(!w.is_default_altitude());
-    return waypoint_action::restart;
+    return {waypoint_action::restart, unused_index};
   }
 
   w.set_ready(is_forward_);
 
-  return waypoint_action::ok;
+  return {waypoint_action::ok, index.value()};
 }
 
 auto mission::upload_mission_and_start() -> bool {
   std::lock_guard<std::mutex> lock(m_);
+
+  BOOST_VERIFY(in_progress_);
 
   spdlog::info("Upload mission and start");
 
@@ -99,7 +115,6 @@ auto mission::upload_mission_and_start() -> bool {
     }
   }
 
-  // FIXME (if nothing is detected, report to user)
   if (waypoints_.empty()) {
     return false;
   }
@@ -152,17 +167,121 @@ auto mission::upload_mission_and_start() -> bool {
 
 void mission::set_backward() {
   std::lock_guard<std::mutex> lock(m_);
+  BOOST_VERIFY(in_progress_);
+  {
+    std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    is_finishing_ = false;
+  }
   BOOST_VERIFY(is_forward_);
   is_forward_ = false;
 }
 
 auto mission::is_forward() const -> bool {
   std::lock_guard<std::mutex> lock(m_);
+  BOOST_VERIFY(in_progress_);
   return is_forward_;
+}
+
+auto mission::is_finishing() const -> bool {
+  std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+  return is_finishing_;
+}
+
+auto mission::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
+  // Note: callback thread, avoid long locks
+
+  const bool notify_finished{mission_state_.update(event_data)};
+
+  if (notify_finished) {
+    std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    BOOST_VERIFY(!is_finishing_);
+    is_finishing_ = true;
+    return true;
+  }
+
+  return false;
+}
+
+// auto [mission_started, notify]
+auto mission::update(T_DjiWaypointV2MissionStatePush state_data) -> std::pair<bool, bool> {
+  // Note: callback thread, avoid long locks
+
+  auto [mission_started, notify, notify_finished] = mission_state_.update(event_data);
+
+  if (!mission_started) {
+    BOOST_VERIFY(!notify);
+    BOOST_VERIFY(!notify_finished);
+    return {mission_started, notify};
+  }
+
+  if (notify_finished) {
+    std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    BOOST_VERIFY(notify);
+    BOOST_VERIFY(!is_finishing_);
+    is_finishing_ = true;
+  }
+
+  return {mission_started, notify};
+}
+
+void mission::abort_mission() {
+  spdlog::info("Mission ABORT");
+
+  // Call it first to block the update callbacks
+  mission_state_.finish();
+
+  {
+    std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    is_finishing_ = false;
+  }
+
+  T_DjiReturnCode code{DjiWaypointV2_Stop()};
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+}
+
+void mission::mission_stop(home_altitude& h) {
+  h.mission_stop();
+
+  std::lock_guard<std::mutex> lock(m_);
+  BOOST_VERIFY(in_progress_);
+  in_progress_ = false;
+}
+
+auto mission::resume() -> bool {
+  if (!mission_state_.is_started()) {
+    spdlog::error("Trying to resume mission that is not started");
+    return false;
+  }
+
+  if (mission_state_.get_state() != interconnection::drone_coordinates::PAUSE) {
+    spdlog::error("Trying to resume mission that is not paused");
+    return false;
+  }
+
+  spdlog::info("Mission resume");
+  T_DjiReturnCode code{DjiWaypointV2_Resume()};
+  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  return true;
+}
+
+auto mission::get_state() const -> interconnection::drone_coordinates::state_t {
+  std::lock_guard<std::mutex> lock(m_);
+
+  if (!in_progress_) {
+    return interconnection::drone_coordinates::READY;
+  }
+
+  const auto state{mission_state_.get_state()};
+  if (state == interconnection::drone_coordinates::READY) {
+    // local mission is finished, but globally we are still in progress
+    return interconnection::drone_coordinates::WAITING;
+  }
+  return state;
 }
 
 auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
   std::lock_guard<std::mutex> lock(m_);
+  BOOST_VERIFY(in_progress_);
   BOOST_VERIFY(index < global_waypoints_.size());
   return global_waypoints_.at(index);
 }

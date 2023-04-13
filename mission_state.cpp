@@ -29,8 +29,12 @@ bool mission_state::is_started() const {
   return is_started_;
 }
 
-void mission_state::update(T_DjiWaypointV2MissionEventPush event_data) {
+auto mission_state::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
   std::lock_guard<std::mutex> lock(m_);
+
+  if (!is_started_) {
+    return false;
+  }
 
   const unsigned event{event_data.event};
 
@@ -43,12 +47,25 @@ void mission_state::update(T_DjiWaypointV2MissionEventPush event_data) {
     BOOST_VERIFY(state_ != exit_mission);
     state_ = exit_mission;
     spdlog::info("Updated state: {}", state_name());
+
+    return true;
   }
+
+  return false;
 }
 
-bool mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
+// @return auto [mission_started, notify, notify_finished]
+auto mission_state::update(T_DjiWaypointV2MissionStatePush state_data) -> std::tuple<bool, bool, bool> {
   spdlog::debug("update: T_DjiWaypointV2MissionStatePush.state = {}", static_cast<unsigned>(state_data.state));
   std::lock_guard<std::mutex> lock(m_);
+
+  const bool mission_started{is_started_};
+  bool notify{false};
+  bool notify_finished{false};
+
+  if (!mission_started) {
+    return {mission_started, notify, notify_finished};
+  }
 
   const uint16_t waypoint_index{state_data.curWaypointIndex};
 
@@ -59,10 +76,8 @@ bool mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
     waypoint_index_ = waypoint_index;
     spdlog::info("Starting state: {}, waypoint #{}", state_name(),
                  waypoint_index_);
-    return false;
+    return {mission_started, notify, notify_finished};
   }
-
-  bool run_action{false};
 
   if (state_ != state_data.state || waypoint_index_ != waypoint_index) {
     state_ = state_data.state;
@@ -72,17 +87,55 @@ bool mission_state::update(T_DjiWaypointV2MissionStatePush state_data) {
       auto [it, inserted] = already_executed_.insert(waypoint_index_);
       BOOST_VERIFY(it != already_executed_.end());
       BOOST_VERIFY(*it == waypoint_index_);
-      run_action = inserted;
+      notify = inserted;
     }
   }
 
   if (state_ == exit_mission) {
-    BOOST_VERIFY(!run_action);
+    BOOST_VERIFY(!notify);
+    notify = true;
     BOOST_VERIFY(is_started_);
     is_started_ = false;
+    notify_finished = true;
+    return {mission_started, notify, notify_finished};
   }
 
-  return run_action;
+  return {mission_started, notify, notify_finished};
+}
+
+auto mission_state::get_state() const -> interconnection::drone_coordinates::state_t {
+  std::lock_guard<std::mutex> lock(m_);
+
+  if (!is_started_) {
+    return interconnection::drone_coordinates::READY;
+  }
+
+  if (!initial_update_received_) {
+    return interconnection::drone_coordinates::WAITING;
+  }
+
+  switch (state_) {
+    case ground_station_not_start:
+      return interconnection::drone_coordinates::WAITING;
+    case mission_prepared:
+      return interconnection::drone_coordinates::EXECUTING;
+    case enter_mission:
+      return interconnection::drone_coordinates::EXECUTING;
+    case execute_flying_route_mission:
+      return interconnection::drone_coordinates::EXECUTING;
+    case pause_state:
+      return interconnection::drone_coordinates::PAUSE;
+    case enter_mission_after_ending_pause:
+      return interconnection::drone_coordinates::EXECUTING;
+    case exit_mission:
+      return interconnection::drone_coordinates::EXECUTING;
+    case end_of_waypoint_mission:
+      return interconnection::drone_coordinates::EXECUTING;
+    default:
+      spdlog::error("Unknown state: {}", static_cast<unsigned>(state_));
+      BOOST_VERIFY(false);
+      return interconnection::drone_coordinates::EXECUTING;
+  }
 }
 
 const char* mission_state::state_name() const {
