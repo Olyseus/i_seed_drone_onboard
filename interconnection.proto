@@ -39,5 +39,5 @@ message pin_coordinates {
 }
 
 message laser_range {
-  required double range = 1;
+  required float range = 1;
 }
