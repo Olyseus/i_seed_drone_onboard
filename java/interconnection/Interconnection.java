@@ -2204,13 +2204,13 @@ public final class Interconnection {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>required double range = 1;</code>
+     * <code>required float range = 1;</code>
      */
     boolean hasRange();
     /**
-     * <code>required double range = 1;</code>
+     * <code>required float range = 1;</code>
      */
-    double getRange();
+    float getRange();
   }
   /**
    * Protobuf type {@code interconnection.laser_range}
@@ -2224,7 +2224,7 @@ public final class Interconnection {
       super(builder);
     }
     private laser_range() {
-      range_ = 0D;
+      range_ = 0F;
     }
 
     @java.lang.Override
@@ -2255,9 +2255,9 @@ public final class Interconnection {
               }
               break;
             }
-            case 9: {
+            case 13: {
               bitField0_ |= 0x00000001;
-              range_ = input.readDouble();
+              range_ = input.readFloat();
               break;
             }
           }
@@ -2286,17 +2286,17 @@ public final class Interconnection {
 
     private int bitField0_;
     public static final int RANGE_FIELD_NUMBER = 1;
-    private double range_;
+    private float range_;
     /**
-     * <code>required double range = 1;</code>
+     * <code>required float range = 1;</code>
      */
     public boolean hasRange() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required double range = 1;</code>
+     * <code>required float range = 1;</code>
      */
-    public double getRange() {
+    public float getRange() {
       return range_;
     }
 
@@ -2317,7 +2317,7 @@ public final class Interconnection {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeDouble(1, range_);
+        output.writeFloat(1, range_);
       }
       unknownFields.writeTo(output);
     }
@@ -2329,7 +2329,7 @@ public final class Interconnection {
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(1, range_);
+          .computeFloatSize(1, range_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -2351,8 +2351,8 @@ public final class Interconnection {
       result = result && (hasRange() == other.hasRange());
       if (hasRange()) {
         result = result && (
-            java.lang.Double.doubleToLongBits(getRange())
-            == java.lang.Double.doubleToLongBits(
+            java.lang.Float.floatToIntBits(getRange())
+            == java.lang.Float.floatToIntBits(
                 other.getRange()));
       }
       result = result && unknownFields.equals(other.unknownFields);
@@ -2368,8 +2368,8 @@ public final class Interconnection {
       hash = (19 * hash) + getDescriptorForType().hashCode();
       if (hasRange()) {
         hash = (37 * hash) + RANGE_FIELD_NUMBER;
-        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-            java.lang.Double.doubleToLongBits(getRange()));
+        hash = (53 * hash) + java.lang.Float.floatToIntBits(
+            getRange());
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -2489,7 +2489,7 @@ public final class Interconnection {
       }
       public Builder clear() {
         super.clear();
-        range_ = 0D;
+        range_ = 0F;
         bitField0_ = (bitField0_ & ~0x00000001);
         return this;
       }
@@ -2595,34 +2595,34 @@ public final class Interconnection {
       }
       private int bitField0_;
 
-      private double range_ ;
+      private float range_ ;
       /**
-       * <code>required double range = 1;</code>
+       * <code>required float range = 1;</code>
        */
       public boolean hasRange() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
-       * <code>required double range = 1;</code>
+       * <code>required float range = 1;</code>
        */
-      public double getRange() {
+      public float getRange() {
         return range_;
       }
       /**
-       * <code>required double range = 1;</code>
+       * <code>required float range = 1;</code>
        */
-      public Builder setRange(double value) {
+      public Builder setRange(float value) {
         bitField0_ |= 0x00000001;
         range_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required double range = 1;</code>
+       * <code>required float range = 1;</code>
        */
       public Builder clearRange() {
         bitField0_ = (bitField0_ & ~0x00000001);
-        range_ = 0D;
+        range_ = 0F;
         onChanged();
         return this;
       }
@@ -2719,7 +2719,7 @@ public final class Interconnection {
       "ate_t\022\t\n\005READY\020\000\022\013\n\007WAITING\020\001\022\n\n\006PAUSED\020" +
       "\002\022\r\n\tEXECUTING\020\003\"6\n\017pin_coordinates\022\020\n\010l" +
       "atitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\"\034\n\013lase" +
-      "r_range\022\r\n\005range\030\001 \002(\001"
+      "r_range\022\r\n\005range\030\001 \002(\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
