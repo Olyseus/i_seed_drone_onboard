@@ -1,4 +1,4 @@
 ---
-Checks: '*,-fuchsia-default-arguments,-fuchsia-trailing-return,-fuchsia-virtual-inheritance,-fuchsia-default-arguments-calls,-clang-diagnostic-padded,-fuchsia-multiple-inheritance,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,-fuchsia-overloaded-operator'
+Checks: '*,-fuchsia-default-arguments,-fuchsia-trailing-return,-fuchsia-virtual-inheritance,-fuchsia-default-arguments-calls,-clang-diagnostic-padded,-fuchsia-multiple-inheritance,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,-fuchsia-overloaded-operator,-fuchsia-statically-constructed-objects'
 WarningsAsErrors: '*'
 FormatStyle: google
