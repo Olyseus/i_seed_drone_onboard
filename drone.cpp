@@ -696,7 +696,7 @@ void drone::receive_data_job_internal() {
       } break;
       case interconnection::command_type::MISSION_ABORT: {
         mission_.abort_mission();
-        home_altitude_.mission_stop();
+        mission_.mission_stop(home_altitude_);
         // FIXME (verify mission state)
       } break;
       case interconnection::command_type::LASER_RANGE: {
@@ -884,7 +884,7 @@ void drone::send_data(std::string& buffer) {
 void drone::next_mission() {
   if (!mission_.is_forward()) {
     spdlog::info("MISSION FINISHED");
-    home_altitude_.mission_stop();
+    mission_.mission_stop(home_altitude_);
     return;
   }
 
@@ -899,6 +899,6 @@ void drone::next_mission() {
   mission_.set_backward();
   if (!mission_.upload_mission_and_start()) {
     spdlog::info("Backward mission canceled: No objects detected");
-    home_altitude_.mission_stop();
+    mission_.mission_stop(home_altitude_);
   }
 }
