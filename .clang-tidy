@@ -1,4 +1,6 @@
 ---
-Checks: '*,-fuchsia-default-arguments,-fuchsia-trailing-return,-fuchsia-virtual-inheritance,-fuchsia-default-arguments-calls,-clang-diagnostic-padded,-fuchsia-multiple-inheritance,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,-fuchsia-overloaded-operator,-fuchsia-statically-constructed-objects'
+Checks: '*,-fuchsia-default-arguments,-fuchsia-trailing-return,-fuchsia-virtual-inheritance,-fuchsia-default-arguments-calls,-clang-diagnostic-padded,-fuchsia-multiple-inheritance,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-hicpp-no-array-decay,-fuchsia-overloaded-operator,-fuchsia-statically-constructed-objects,-llvmlibc-restrict-system-libc-headers,-llvmlibc-callee-namespace,-llvmlibc-implementation-in-namespace,-bugprone-easily-swappable-parameters,-readability-identifier-length,-altera-unroll-loops,-bugprone-unchecked-optional-access'
 WarningsAsErrors: '*'
 FormatStyle: google
+CheckOptions:
+  readability-function-cognitive-complexity.IgnoreMacros: true
