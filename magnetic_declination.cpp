@@ -26,8 +26,6 @@ magnetic_declination::magnetic_declination(const boost::gregorian::date& date,
   declination_ = s.declination();
 }
 
-magnetic_declination::~magnetic_declination() = default;
-
 auto magnetic_declination::declination() const -> double {
   return declination_;
 }

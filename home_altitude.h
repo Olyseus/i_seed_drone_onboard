@@ -14,7 +14,7 @@ class home_altitude {
   home_altitude& operator=(const home_altitude&) = delete;
   home_altitude& operator=(home_altitude&&) = delete;
 
-  ~home_altitude();
+  ~home_altitude() = default;
 
   void mission_start();
 

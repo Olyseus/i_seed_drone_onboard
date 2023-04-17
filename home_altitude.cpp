@@ -6,7 +6,6 @@
 #include <numeric>           // std::accumulate
 
 home_altitude::home_altitude() = default;
-home_altitude::~home_altitude() = default;
 
 void home_altitude::mission_start() {
   BOOST_VERIFY(!in_progress_);
@@ -33,7 +32,8 @@ auto home_altitude::get_home_altitude() const -> float {
   BOOST_VERIFY(in_progress_);
   BOOST_VERIFY(home_altitude_.has_value());
 
-  return home_altitude_.value();
+  // https://github.com/llvm/llvm-project/issues/60661
+  return home_altitude_.value();  // NOLINT (bugprone-unchecked-optional-access)
 }
 
 void home_altitude::mission_stop() {

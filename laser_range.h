@@ -33,7 +33,7 @@ class laser_range {
 
   // thread: action
   float latest(std::mutex& m,
-                std::list<interconnection::command_type::command_t>& commands);
+               std::list<interconnection::command_type::command_t>& commands);
 
  private:
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)

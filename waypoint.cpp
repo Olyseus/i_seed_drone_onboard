@@ -33,7 +33,7 @@ void waypoint::set_custom_altitude(float laser_range) {
   // we should be 'expected_height' higher, i.e. two 'expected_height'.
   // Bigger laser range means we need use lower mission altitude than before.
   // Smaller laser range means we need use higher mission altitude than before.
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+  // NOLINTNEXTLINE(*-magic-numbers)
   mission_altitude_ = 2.0F * expected_height - laser_range;
 }
 

@@ -5,12 +5,13 @@
 #include <algorithm>         // std::max
 #include <boost/assert.hpp>  // BOOST_VERIFY
 
-bounding_box::bounding_box(const float* p, std::size_t x_shift, std::size_t y_shift) {
+bounding_box::bounding_box(const float* p, std::size_t x_shift,
+                           std::size_t y_shift) {
   // https://github.com/ultralytics/yolov5/issues/1277#issuecomment-1081657025
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-  const float x{p[0] + x_shift};
+  const float x{p[0] + static_cast<float>(x_shift)};
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-  const float y{p[1] + y_shift};
+  const float y{p[1] + static_cast<float>(y_shift)};
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float w{p[2]};
@@ -63,8 +64,6 @@ bounding_box::bounding_box(const float* p, std::size_t x_shift, std::size_t y_sh
   }
 }
 
-bounding_box::~bounding_box() = default;
-
 auto bounding_box::intersect(const bounding_box& other) const -> bool {
   if (other.xmin_ >= xmin_) {
     if (other.xmin_ > xmax_) {
@@ -109,18 +108,19 @@ auto bounding_box::pmax() const -> cv::Point {
 }
 
 auto bounding_box::class_color() const -> cv::Scalar {
+  // Return format is BGR
   switch (class_id_) {
-    case 0:                  // blue
-      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-      return {255, 0, 0};    // BGR
-    case 1:                  // brown
-      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-      return {42, 42, 165};  // BGR
-    case 2:                  // green
-      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-      return {0, 255, 0};    // BGR
+    case 0:
+      // blue
+      return {255, 0, 0};  // NOLINT(*-magic-numbers)
+    case 1:
+      // brown
+      return {42, 42, 165};  // NOLINT(*-magic-numbers)
+    case 2:
+      // green
+      return {0, 255, 0};  // NOLINT(*-magic-numbers)
     default:
       BOOST_VERIFY(false);
-      return {0, 0, 0};  // BGR
+      return {0, 0, 0};
   }
 }

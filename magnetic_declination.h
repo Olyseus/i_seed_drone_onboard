@@ -8,7 +8,7 @@ class magnetic_declination {
  public:
   magnetic_declination(const boost::gregorian::date& date,
                        const std::string& filename, double lat, double lon);
-  ~magnetic_declination();
+  ~magnetic_declination() = default;
 
   double declination() const;
 

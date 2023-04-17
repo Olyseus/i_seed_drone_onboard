@@ -65,15 +65,15 @@ auto converter::local_ned_to_ecef(
   const double y{p(0)};
   const double z{-p(2)};
 
-  double lat;
-  double lon;
-  double alt;
+  double lat{0.0};
+  double lon{0.0};
+  double alt{0.0};
   local_cartesian.Reverse(x, y, z, lat, lon, alt);
 
   using real = GeographicLib::Math::real;
-  real x_ecef;
-  real y_ecef;
-  real z_ecef;
+  real x_ecef{0.0};
+  real y_ecef{0.0};
+  real z_ecef{0.0};
   GeographicLib::Geocentric::WGS84().Forward(lat, lon, alt, x_ecef, y_ecef,
                                              z_ecef);
 
@@ -82,7 +82,7 @@ auto converter::local_ned_to_ecef(
 
 auto converter::camera_to_drone_ned(const attitude& gimbal_attitude,
                                     float length) -> Eigen::Vector3d {
-  Eigen::Vector3d v{1.0 * length, 0.0, 0.0};
+  const Eigen::Vector3d v{1.0 * length, 0.0, 0.0};
 
   const double roll{gimbal_attitude.roll * deg2rad};
   const double pitch{gimbal_attitude.pitch * deg2rad};
