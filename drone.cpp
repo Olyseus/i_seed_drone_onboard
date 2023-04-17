@@ -10,7 +10,7 @@
 
 #include "api_code.h"
 #include "converter.h"
-#include "olyseus_verify.h" // OLYSEUS_VERIFY
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
 #include "server.h"
 #include "utils.h"  // rad2deg
 
@@ -39,30 +39,32 @@ std::list<interconnection::command_type::command_t> drone::execute_commands_;
 
 condition_flag drone::action_flag_;
 
-auto drone::quaternion_callback(
-    const uint8_t* data, uint16_t data_size,
-    const T_DjiDataTimestamp* timestamp) -> T_DjiReturnCode {
+auto drone::quaternion_callback(const uint8_t* data, uint16_t data_size,
+                                const T_DjiDataTimestamp* timestamp)
+    -> T_DjiReturnCode {
   BOOST_VERIFY(data != nullptr);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  const auto quaternion{*reinterpret_cast<const T_DjiFcSubscriptionQuaternion*>(data)};
+  const auto quaternion{
+      *reinterpret_cast<const T_DjiFcSubscriptionQuaternion*>(data)};
   (void)data_size;
   (void)timestamp;
 
+  // NOLINTBEGIN (cppcoreguidelines-avoid-magic-numbers)
+  // NOLINTBEGIN (readability-magic-numbers)
+
   // https://github.com/dji-sdk/Onboard-SDK/blob/2c38de17f7aad0064056f27eaa219d4ed30ab82a/sample/platform/STM32/OnBoardSDK_STM32/User/FlightControlSample.cpp#L800-L824
   const double q2sqr{quaternion.q2 * quaternion.q2};
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
   const double t0{-2.0 * (q2sqr + quaternion.q3 * quaternion.q3) + 1.0};
   const double t1{
-      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
       +2.0 * (quaternion.q1 * quaternion.q2 + quaternion.q0 * quaternion.q3)};
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
   double t2{-2.0 *
             (quaternion.q1 * quaternion.q3 - quaternion.q0 * quaternion.q2)};
   const double t3{
-      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
       +2.0 * (quaternion.q2 * quaternion.q3 + quaternion.q0 * quaternion.q1)};
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
   const double t4{-2.0 * (quaternion.q1 * quaternion.q1 + q2sqr) + 1.0};
+
+  // NOLINTEND (cppcoreguidelines-avoid-magic-numbers)
+  // NOLINTEND (readability-magic-numbers)
 
   t2 = (t2 > 1.0) ? 1.0 : t2;
   t2 = (t2 < -1.0) ? -1.0 : t2;
@@ -75,7 +77,6 @@ auto drone::quaternion_callback(
 
   spdlog::debug("roll: {}, pitch: {}, yaw: {}", drone_roll_, drone_pitch_,
                 drone_yaw_);
-
 
   constexpr double right_angle{90.0};
   constexpr double straight_angle{180.0};
@@ -91,7 +92,8 @@ auto drone::quaternion_callback(
 }
 
 auto drone::rc_callback(const uint8_t* data, uint16_t data_size,
-                                   const T_DjiDataTimestamp* timestamp) -> T_DjiReturnCode {
+                        const T_DjiDataTimestamp* timestamp)
+    -> T_DjiReturnCode {
   BOOST_VERIFY(data != nullptr);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   const auto rc{*reinterpret_cast<const T_DjiFcSubscriptionRC*>(data)};
@@ -103,12 +105,13 @@ auto drone::rc_callback(const uint8_t* data, uint16_t data_size,
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-auto drone::position_fused_callback(
-    const uint8_t* data, uint16_t data_size,
-    const T_DjiDataTimestamp* timestamp) -> T_DjiReturnCode {
+auto drone::position_fused_callback(const uint8_t* data, uint16_t data_size,
+                                    const T_DjiDataTimestamp* timestamp)
+    -> T_DjiReturnCode {
   BOOST_VERIFY(data != nullptr);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  const auto position{*reinterpret_cast<const T_DjiFcSubscriptionPositionFused*>(data)};
+  const auto position{
+      *reinterpret_cast<const T_DjiFcSubscriptionPositionFused*>(data)};
   (void)data_size;
   (void)timestamp;
 
@@ -127,10 +130,12 @@ auto drone::position_fused_callback(
 }
 
 auto drone::gimbal_callback(const uint8_t* data, uint16_t data_size,
-                                       const T_DjiDataTimestamp* timestamp) -> T_DjiReturnCode {
+                            const T_DjiDataTimestamp* timestamp)
+    -> T_DjiReturnCode {
   OLYSEUS_VERIFY(data != nullptr);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  const auto gimbal_three_data{reinterpret_cast<const T_DjiFcSubscriptionThreeGimbalData*>(data)};
+  const auto gimbal_three_data{
+      reinterpret_cast<const T_DjiFcSubscriptionThreeGimbalData*>(data)};
   const GimbalSingleData d{gimbal_three_data->anglesData[0]};
 
   (void)data_size;
@@ -146,8 +151,8 @@ auto drone::gimbal_callback(const uint8_t* data, uint16_t data_size,
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-auto drone::mission_event_callback(
-    T_DjiWaypointV2MissionEventPush event_data) -> T_DjiReturnCode {
+auto drone::mission_event_callback(T_DjiWaypointV2MissionEventPush event_data)
+    -> T_DjiReturnCode {
   const bool notify{mission_.update(event_data)};
   if (notify) {
     action_flag_.notify();
@@ -155,8 +160,8 @@ auto drone::mission_event_callback(
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-auto drone::mission_state_callback(
-    T_DjiWaypointV2MissionStatePush state_data) -> T_DjiReturnCode {
+auto drone::mission_state_callback(T_DjiWaypointV2MissionStatePush state_data)
+    -> T_DjiReturnCode {
   auto [mission_started, notify] = mission_.update(state_data);
 
   if (!mission_started) {
@@ -183,12 +188,13 @@ auto drone::mission_state_callback(
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-auto drone::homepoint_callback(const uint8_t* data,
-                                          uint16_t data_size,
-                                          const T_DjiDataTimestamp* timestamp) -> T_DjiReturnCode {
+auto drone::homepoint_callback(const uint8_t* data, uint16_t data_size,
+                               const T_DjiDataTimestamp* timestamp)
+    -> T_DjiReturnCode {
   BOOST_VERIFY(data != nullptr);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  const auto altitude{*reinterpret_cast<const T_DjiFcSubscriptionAltitudeOfHomePoint*>(data)};
+  const auto altitude{
+      *reinterpret_cast<const T_DjiFcSubscriptionAltitudeOfHomePoint*>(data)};
   (void)data_size;
   (void)timestamp;
 
@@ -436,21 +442,16 @@ void drone::action_job_internal() {
                               homepoint_altitude_);
 
   if (mission_.is_forward()) {
-    gps_coordinates gps{
-        .longitude = drone_longitude_,
-        .latitude = drone_latitude_,
-        .altitude = drone_altitude_};
+    gps_coordinates gps{.longitude = drone_longitude_,
+                        .latitude = drone_latitude_,
+                        .altitude = drone_altitude_};
     // FIXME (???) gps.relative_altitude = w.altitude();
 
     attitude drone_attitude{
-        .pitch = drone_pitch_,
-        .roll = drone_roll_,
-        .yaw = drone_yaw_};
+        .pitch = drone_pitch_, .roll = drone_roll_, .yaw = drone_yaw_};
 
     attitude gimbal_attitude{
-        .pitch = gimbal_pitch_,
-        .roll = gimbal_roll_,
-        .yaw = gimbal_yaw_};
+        .pitch = gimbal_pitch_, .roll = gimbal_roll_, .yaw = gimbal_yaw_};
 
     const double yaw_diff{std::abs(drone_yaw_ - gimbal_yaw_)};
     spdlog::info("Gimbal/drone yaw diff: {}", yaw_diff);
@@ -474,22 +475,18 @@ void drone::action_job_internal() {
       spdlog::info("gimbal pitch: {}, roll: {}, yaw: {}", gimbal_pitch_,
                    gimbal_roll_, gimbal_yaw_);
 
-      gps_coordinates gps{
-          .longitude = drone_longitude_,
-          .latitude = drone_latitude_,
-          .altitude = drone_altitude_
-      };
+      gps_coordinates gps{.longitude = drone_longitude_,
+                          .latitude = drone_latitude_,
+                          .altitude = drone_altitude_};
       // FIXME (???) gps.relative_altitude = 0.0;  // not used
 
       attitude drone_attitude{
-          .pitch = drone_pitch_,
-          .roll = drone_roll_,
-          .yaw = drone_yaw_};
+          .pitch = drone_pitch_, .roll = drone_roll_, .yaw = drone_yaw_};
 
       attitude laser_gimbal_attitude{
           .pitch = gimbal_pitch_,
           .roll = gimbal_roll_,
-          .yaw = gimbal_yaw_ - drone_yaw_}; // yaw relative to drone
+          .yaw = gimbal_yaw_ - drone_yaw_};  // yaw relative to drone
 
       const converter_result pixel_result{
           converter::run(d.gps, d.drone_attitude, pixel_gimbal_attitude, 1.0F)};
@@ -510,8 +507,7 @@ void drone::action_job_internal() {
       const double k_num{
           laser_result.d.dot(laser_result.p - pixel_result.p + laser_result.v)};
       const double k_denom{pixel_result.v.dot(laser_result.d)};
-      // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-      BOOST_VERIFY(k_denom > 1e-2);
+      BOOST_VERIFY(k_denom > 1e-2);  // NOLINT(*-magic-numbers)
       const double k{k_num / k_denom};
       BOOST_VERIFY(k > eps);
 

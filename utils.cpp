@@ -9,7 +9,6 @@ auto gimbal_rotation_params_with_heading_degree(double yaw_x_degree,
                                                 double pitch_z_degree,
                                                 double drone_heading_degree)
     -> std::pair<float, float> {
-
   constexpr double right_angle{90.0};
   constexpr double straight_angle{180.0};
   constexpr double full_angle{360.0};

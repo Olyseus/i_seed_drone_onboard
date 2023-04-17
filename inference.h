@@ -7,6 +7,12 @@
 #include <string>
 #include <vector>
 
+#if BOOST_VERSION >= 107200  // 1.72.0
+#include <boost/gil/extension/io/jpeg.hpp>
+#else
+#include <boost/gil/extension/io/jpeg_io.hpp>
+#endif
+
 class bounding_box;
 
 class inference {
@@ -42,6 +48,13 @@ class inference {
   static constexpr std::size_t n_batch{n_batch_width * n_batch_height};
 
  private:
+  void init_input_data(
+      const boost::gil::rgb8_image_t::const_view_t& image_view);
+  std::vector<bounding_box> analyze_bboxes();
+  static void analyze_entries(float* data, std::size_t x_shift,
+                              std::size_t y_shift,
+                              std::vector<bounding_box>& bboxes);
+
   static constexpr std::size_t height_crop_size{
       (h20_img_height - n_batch_height * inference_img_height) / 2};
   static_assert(h20_img_height - 2 * height_crop_size ==

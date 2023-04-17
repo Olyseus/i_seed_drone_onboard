@@ -17,7 +17,7 @@ void condition_flag::wait() {
 
 void condition_flag::notify() {
   {
-    std::lock_guard lock(m_);
+    const std::lock_guard lock(m_);
     BOOST_VERIFY(!flag_);
     flag_ = true;
   }

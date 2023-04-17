@@ -7,7 +7,7 @@
 class bounding_box {
  public:
   bounding_box(const float*, std::size_t x_shift, std::size_t y_shift);
-  ~bounding_box();
+  ~bounding_box() = default;
 
   bool intersect(const bounding_box&) const;
   float confidence() const { return confidence_; }

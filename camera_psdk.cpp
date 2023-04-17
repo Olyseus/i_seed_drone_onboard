@@ -18,8 +18,9 @@
 static std::string camera_psdk_file_dst;
 static std::FILE* camera_psdk_file;
 
-auto camera_psdk_data_callback(
-    T_DjiDownloadFilePacketInfo packetInfo, const uint8_t* data, uint16_t len) -> T_DjiReturnCode {
+auto camera_psdk_data_callback(T_DjiDownloadFilePacketInfo packetInfo,
+                               const uint8_t* data, uint16_t len)
+    -> T_DjiReturnCode {
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_START) {
     BOOST_VERIFY(!camera_psdk_file_dst.empty());
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
@@ -108,8 +109,7 @@ camera_psdk::camera_psdk(const std::string& model_file, mission& m)
         "  Name: {}, index: {}, time:{}-{}-{}_{}:{}:{}, size: {:.2f} MB",
         info.fileName, info.fileIndex, info.createTime.year,
         info.createTime.month, info.createTime.day, info.createTime.hour,
-        info.createTime.minute, info.createTime.second,
-        info.fileSize / MB);
+        info.createTime.minute, info.createTime.second, info.fileSize / MB);
     if (!std::regex_match(info.fileName, jpeg_regex)) {
       continue;
     }
@@ -270,8 +270,7 @@ auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
         "  Name: {}, index: {}, time:{}-{}-{}_{}:{}:{}, size: {:.2f} MB",
         info.fileName, info.fileIndex, info.createTime.year,
         info.createTime.month, info.createTime.day, info.createTime.hour,
-        info.createTime.minute, info.createTime.second,
-        info.fileSize / MB);
+        info.createTime.minute, info.createTime.second, info.fileSize / MB);
 
     if (!std::regex_match(info.fileName, jpeg_regex)) {
       continue;

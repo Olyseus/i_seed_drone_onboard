@@ -121,9 +121,12 @@ auto json_sax_event_consumer::end_object() -> bool {
         BOOST_VERIFY(best_->declination.has_value());
         BOOST_VERIFY(best_->latitude.has_value());
         BOOST_VERIFY(best_->longitude.has_value());
-        const bool date_is_best{std::abs(best_->date.value() - date_) > std::abs(current_->date.value() - date_)};
-        const bool lat_is_best{std::abs(best_->latitude.value() - lat_) > std::abs(current_->latitude.value() - lat_)};
-        const bool lon_is_best{std::abs(best_->longitude.value() - lon_) > std::abs(current_->longitude.value() - lon_)};
+        const bool date_is_best{std::abs(best_->date.value() - date_) >
+                                std::abs(current_->date.value() - date_)};
+        const bool lat_is_best{std::abs(best_->latitude.value() - lat_) >
+                               std::abs(current_->latitude.value() - lat_)};
+        const bool lon_is_best{std::abs(best_->longitude.value() - lon_) >
+                               std::abs(current_->longitude.value() - lon_)};
 
         if (date_is_best || lat_is_best || lon_is_best) {
           best_ = current_;
@@ -250,5 +253,6 @@ auto json_sax_event_consumer::date_to_double(const boost::gregorian::date& date)
   BOOST_VERIFY(day_of_year >= 1);
   BOOST_VERIFY(day_of_year <= number_of_days_in_year);
 
-  return date.year() + (day_of_year - 1.0) / static_cast<double>(number_of_days_in_year);
+  return date.year() +
+         (day_of_year - 1.0) / static_cast<double>(number_of_days_in_year);
 }

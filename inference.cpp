@@ -6,12 +6,6 @@
 #include <boost/assert.hpp>  // BOOST_VERIFY_MSG
 #include <fstream>           // std::ifstream
 
-#if BOOST_VERSION >= 107200  // 1.72.0
-#include <boost/gil/extension/io/jpeg.hpp>
-#else
-#include <boost/gil/extension/io/jpeg_io.hpp>
-#endif
-
 #include "bounding_box.h"
 #include "timer.h"
 
@@ -89,14 +83,16 @@ inference::inference(const std::string& model_file) {
   BOOST_VERIFY(engine_->getBindingDataType(bind_output) ==
                nvinfer1::DataType::kFLOAT);
 
-  nvinfer1::Dims input_dims{exe_context_->getBindingDimensions(bind_input)};
+  const nvinfer1::Dims input_dims{
+      exe_context_->getBindingDimensions(bind_input)};
   BOOST_VERIFY(input_dims.nbDims == 4);
   BOOST_VERIFY(input_dims.d[0] == n_batch);
   BOOST_VERIFY(input_dims.d[1] == rgb_size);
   BOOST_VERIFY(input_dims.d[2] == inference_img_height);
   BOOST_VERIFY(input_dims.d[3] == inference_img_width);
 
-  nvinfer1::Dims output_dims{exe_context_->getBindingDimensions(bind_output)};
+  const nvinfer1::Dims output_dims{
+      exe_context_->getBindingDimensions(bind_output)};
   BOOST_VERIFY(output_dims.nbDims == 3);
   BOOST_VERIFY(output_dims.d[0] == n_batch);
   BOOST_VERIFY(output_dims.d[1] == n_output_entries);
@@ -172,54 +168,7 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
   spdlog::info("Image uint8 read from disk in {}ms", t.elapsed_ms());
 
   t.start();
-
-  input_data_.resize(n_batch * inference_img_height * inference_img_width *
-                     rgb_size);
-
-  constexpr std::size_t stride{inference_img_width * inference_img_height *
-                               rgb_size};
-  for (std::size_t batch_height_index{0}; batch_height_index < n_batch_height;
-       ++batch_height_index) {
-    for (std::size_t batch_width_index{0}; batch_width_index < n_batch_width;
-         ++batch_width_index) {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-      float* input{input_data_.data() +
-                   (batch_height_index * n_batch_width + batch_width_index) *
-                       stride};
-      float* input_r{input};
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-      float* input_g{input_r + inference_img_width * inference_img_height};
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-      float* input_b{input_g + inference_img_width * inference_img_height};
-      const std::size_t x_shift{batch_width_index * inference_img_width +
-                                width_crop_size};
-      const std::size_t y_shift{batch_height_index * inference_img_height +
-                                height_crop_size};
-      for (std::size_t y{0}; y < inference_img_height; ++y) {
-        auto y_it{image_view.row_begin(y + y_shift)};
-        for (std::size_t x{0}; x < inference_img_width; ++x) {
-          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-          const boost::gil::rgb8c_pixel_t& p{y_it[x + x_shift]};
-          const uint8_t r_int{boost::gil::get_color(p, boost::gil::red_t())};
-          const uint8_t g_int{boost::gil::get_color(p, boost::gil::green_t())};
-          const uint8_t b_int{boost::gil::get_color(p, boost::gil::blue_t())};
-
-          constexpr float rgb_max{255.0F};
-          *input_r = static_cast<float>(r_int) / rgb_max;
-          *input_g = static_cast<float>(g_int) / rgb_max;
-          *input_b = static_cast<float>(b_int) / rgb_max;
-
-          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-          ++input_r;
-          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-          ++input_g;
-          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-          ++input_b;
-        }
-      }
-    }
-  }
-
+  init_input_data(image_view);
   spdlog::info("Image float conversion and memory layout change in {}ms",
                t.elapsed_ms());
 
@@ -249,6 +198,62 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
 
   spdlog::info("Output data fetched from GPU in {}ms", t.elapsed_ms());
 
+  return analyze_bboxes();
+}
+
+void inference::init_input_data(
+    const boost::gil::rgb8_image_t::const_view_t& image_view) {
+  input_data_.resize(n_batch * inference_img_height * inference_img_width *
+                     rgb_size);
+
+  constexpr std::size_t stride{inference_img_width * inference_img_height *
+                               rgb_size};
+  for (std::size_t batch_height_index{0}; batch_height_index < n_batch_height;
+       ++batch_height_index) {
+    for (std::size_t batch_width_index{0}; batch_width_index < n_batch_width;
+         ++batch_width_index) {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      float* input{input_data_.data() +
+                   (batch_height_index * n_batch_width + batch_width_index) *
+                       stride};
+      float* input_r{input};
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      float* input_g{input_r + inference_img_width * inference_img_height};
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+      float* input_b{input_g + inference_img_width * inference_img_height};
+      const std::size_t x_shift{batch_width_index * inference_img_width +
+                                width_crop_size};
+      const std::size_t y_shift{batch_height_index * inference_img_height +
+                                height_crop_size};
+      for (std::size_t y{0}; y < inference_img_height; ++y) {
+        // NOLINTNEXTLINE(*-narrowing-conversions)
+        const auto* y_it{image_view.row_begin(y + y_shift)};
+        for (std::size_t x{0}; x < inference_img_width; ++x) {
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+          const boost::gil::rgb8c_pixel_t& p{y_it[x + x_shift]};
+          const uint8_t r_int{boost::gil::get_color(p, boost::gil::red_t())};
+          const uint8_t g_int{boost::gil::get_color(p, boost::gil::green_t())};
+          const uint8_t b_int{boost::gil::get_color(p, boost::gil::blue_t())};
+
+          constexpr float rgb_max{255.0F};
+          *input_r = static_cast<float>(r_int) / rgb_max;
+          *input_g = static_cast<float>(g_int) / rgb_max;
+          *input_b = static_cast<float>(b_int) / rgb_max;
+
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+          ++input_r;
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+          ++input_g;
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+          ++input_b;
+        }
+      }
+    }
+  }
+}
+
+auto inference::analyze_bboxes() -> std::vector<bounding_box> {
+  timer t;
   t.start();
 
   std::vector<bounding_box> bboxes;
@@ -264,45 +269,51 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     float* data{output_data_.data() +
                 batch_index * n_output_entries * output_entry_len};
-    for (std::size_t i{0}; i < n_output_entries; ++i) {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-      float* p = data + output_entry_len * i;
-      bounding_box box{p, x_shift, y_shift};
-      constexpr double confidence_threshold{0.25};
-      if (box.confidence() <= confidence_threshold) {
-        continue;
-      }
-
-      bool keep{true};
-
-      for (const bounding_box& x : bboxes) {
-        if (!x.intersect(box)) {
-          continue;
-        }
-        if (x.confidence() > box.confidence()) {
-          keep = false;
-          break;
-        }
-      }
-
-      if (!keep) {
-        continue;
-      }
-
-      for (auto it{bboxes.begin()}; it != bboxes.end();) {
-        if (!it->intersect(box)) {
-          ++it;
-          continue;
-        }
-        BOOST_VERIFY(box.confidence() >= it->confidence());
-        it = bboxes.erase(it);
-      }
-
-      bboxes.push_back(box);
-    }
+    analyze_entries(data, x_shift, y_shift, bboxes);
   }
 
   spdlog::info("Bounding boxes analyzed in {}ms", t.elapsed_ms());
-
   return bboxes;
+}
+
+void inference::analyze_entries(float* data, std::size_t x_shift,
+                                std::size_t y_shift,
+                                std::vector<bounding_box>& bboxes) {
+  for (std::size_t i{0}; i < n_output_entries; ++i) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    float* p{data + output_entry_len * i};
+    const bounding_box box{p, x_shift, y_shift};
+    constexpr double confidence_threshold{0.25};
+    if (box.confidence() <= confidence_threshold) {
+      continue;
+    }
+
+    bool keep{true};
+
+    for (const bounding_box& x : bboxes) {
+      if (!x.intersect(box)) {
+        continue;
+      }
+      if (x.confidence() > box.confidence()) {
+        keep = false;
+        break;
+      }
+    }
+
+    if (!keep) {
+      continue;
+    }
+
+    // NOLINTNEXTLINE(altera-id-dependent-backward-branch)
+    for (auto it{bboxes.begin()}; it != bboxes.end();) {
+      if (!it->intersect(box)) {
+        ++it;
+        continue;
+      }
+      BOOST_VERIFY(box.confidence() >= it->confidence());
+      it = bboxes.erase(it);
+    }
+
+    bboxes.push_back(box);
+  }
 }

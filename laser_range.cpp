@@ -102,7 +102,7 @@ auto laser_range::latest(
     }
 
     {
-      std::lock_guard<std::mutex> lock(m);
+      const std::lock_guard<std::mutex> lock(m);
       commands.push_back(interconnection::command_type::LASER_RANGE);
     }
 
