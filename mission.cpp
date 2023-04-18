@@ -13,7 +13,7 @@ mission::mission() noexcept = default;
 mission::~mission() = default;
 
 auto mission::init(double lat, double lon) -> bool {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
 
   spdlog::info("Mission parameters: lat({}), lon({})", lat, lon);
 
@@ -39,7 +39,7 @@ auto mission::init(double lat, double lon) -> bool {
   is_forward_ = true;
 
   {
-    std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
     is_finishing_ = false;
   }
 
@@ -48,7 +48,7 @@ auto mission::init(double lat, double lon) -> bool {
 
 auto mission::waypoint_reached(float laser_range)
     -> std::pair<waypoint_action, std::size_t> {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
 
   BOOST_VERIFY(in_progress_);
 
@@ -77,7 +77,7 @@ auto mission::waypoint_reached(float laser_range)
 }
 
 auto mission::upload_mission_and_start() -> bool {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
 
   BOOST_VERIFY(in_progress_);
 
@@ -87,9 +87,12 @@ auto mission::upload_mission_and_start() -> bool {
   srand(time(nullptr));
 
   T_DjiWayPointV2MissionSettings s;
+
+  // Just a random number
   // NOLINTNEXTLINE(cert-msc30-c, cert-msc50-cpp)
-  s.missionID = rand();  // Just a random number
-  s.repeatTimes = 0;     // execute just once and go home
+  s.missionID = rand();  // NOLINT(concurrency-mt-unsafe)
+
+  s.repeatTimes = 0;  // execute just once and go home
   s.finishedAction = DJI_WAYPOINT_V2_FINISHED_NO_ACTION;
   constexpr int max_speed{10};
   s.maxFlightSpeed = max_speed;
@@ -111,6 +114,7 @@ auto mission::upload_mission_and_start() -> bool {
       waypoints_.push_back(make_waypoint(w));
     }
   } else {
+    // NOLINTNEXTLINE(altera-id-dependent-backward-branch)
     for (auto it{global_waypoints_.rbegin()}; it != global_waypoints_.rend();
          ++it) {
       const waypoint& w{*it};
@@ -175,10 +179,10 @@ auto mission::upload_mission_and_start() -> bool {
 }
 
 void mission::set_backward() {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
   BOOST_VERIFY(in_progress_);
   {
-    std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
     is_finishing_ = false;
   }
   BOOST_VERIFY(is_forward_);
@@ -186,13 +190,13 @@ void mission::set_backward() {
 }
 
 auto mission::is_forward() const -> bool {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
   BOOST_VERIFY(in_progress_);
   return is_forward_;
 }
 
 auto mission::is_finishing() const -> bool {
-  std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+  const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
   return is_finishing_;
 }
 
@@ -202,7 +206,7 @@ auto mission::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
   const bool notify_finished{mission_state_.update(event_data)};
 
   if (notify_finished) {
-    std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
     BOOST_VERIFY(!is_finishing_);
     is_finishing_ = true;
     return true;
@@ -226,7 +230,7 @@ auto mission::update(T_DjiWaypointV2MissionStatePush state_data)
   }
 
   if (notify_finished) {
-    std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
     BOOST_VERIFY(notify);
     BOOST_VERIFY(!is_finishing_);
     is_finishing_ = true;
@@ -242,18 +246,18 @@ void mission::abort_mission() {
   mission_state_.finish();
 
   {
-    std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
     is_finishing_ = false;
   }
 
-  T_DjiReturnCode code{DjiWaypointV2_Stop()};
+  const T_DjiReturnCode code{DjiWaypointV2_Stop()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
 void mission::mission_stop(home_altitude& h) {
   h.mission_stop();
 
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
   BOOST_VERIFY(in_progress_);
   in_progress_ = false;
 }
@@ -271,13 +275,13 @@ auto mission::resume() -> bool {
   }
 
   spdlog::info("Mission resume");
-  T_DjiReturnCode code{DjiWaypointV2_Resume()};
+  const T_DjiReturnCode code{DjiWaypointV2_Resume()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   return true;
 }
 
 auto mission::get_state() const -> interconnection::drone_coordinates::state_t {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
 
   if (!in_progress_) {
     return interconnection::drone_coordinates::READY;
@@ -292,7 +296,7 @@ auto mission::get_state() const -> interconnection::drone_coordinates::state_t {
 }
 
 auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
   BOOST_VERIFY(in_progress_);
   BOOST_VERIFY(index < global_waypoints_.size());
   return global_waypoints_.at(index);
@@ -300,17 +304,17 @@ auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
 
 void mission::save_detection(std::size_t index,
                              const detection_result& result) {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
   BOOST_VERIFY(index < global_waypoints_.size());
   global_waypoints_.at(index).save_detection(result);
 }
 
-auto mission::make_waypoint(const waypoint& w) -> T_DjiWaypointV2 {
+auto mission::make_waypoint(const waypoint& w) const -> T_DjiWaypointV2 {
   const double latitude{w.lat()};
   const double longitude{w.lon()};
   const float relative_height{w.altitude()};
 
-  double heading{0.0};
+  float heading{0.0F};
   std::string heading_str{"auto"};
 
   if (!is_forward_) {
@@ -378,8 +382,9 @@ auto mission::current_waypoint_index() const -> std::optional<std::size_t> {
       }
     }
   } else {
+    // NOLINTNEXTLINE(altera-id-dependent-backward-branch)
     for (std::size_t i{global_waypoints_.size()}; i > 0; --i) {
-      std::size_t index{i - 1};
+      const std::size_t index{i - 1};
       const waypoint& w{global_waypoints_[index]};
       if (result.has_value()) {
         BOOST_VERIFY(!w.is_backward_ready());

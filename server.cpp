@@ -8,7 +8,7 @@
 server::server(uint16_t channel_id) {
   spdlog::info("Creating channel {}", channel_id);
 
-  T_DjiMopChannelHandle channel_handle;
+  T_DjiMopChannelHandle channel_handle{nullptr};
 
   T_DjiReturnCode code{
       DjiMopChannel_Create(&channel_handle, DJI_MOP_CHANNEL_TRANS_RELIABLE)};

@@ -30,7 +30,7 @@ class waypoint {
   bool is_forward_ready() const;
   bool is_backward_ready() const;
   bool has_detection() const;
-  double heading() const;
+  float heading() const;
 
   void save_detection(const detection_result&);
   detection_result get_detection() const;

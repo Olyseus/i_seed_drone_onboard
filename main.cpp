@@ -21,7 +21,7 @@ void setup_logging() {
   const fs::path log_path_debug{fs::absolute("i_seed_drone_onboard_debug.log")};
   fs::remove(log_path_debug);
 
-  constexpr std::size_t max_file_size{10 * 1024 * 1024};
+  constexpr std::size_t max_file_size{10ULL * 1024ULL * 1024ULL};
   constexpr std::size_t max_file_num{3};
   constexpr bool rotate_on_open{true};
 

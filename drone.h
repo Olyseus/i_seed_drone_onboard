@@ -62,9 +62,15 @@ class drone {
   static constexpr float invalid_homepoint_altitude_{
       std::numeric_limits<float>::lowest()};
 
-  static std::atomic<double> drone_yaw_;
-  static std::atomic<double> drone_pitch_;
-  static std::atomic<double> drone_roll_;
+  // https://developer.dji.com/doc/payload-sdk-api-reference/en/module/fc-subscription.html#typedef-struct-t-djifcsubscriptionquaternion
+  // Read from 'T_DjiFcSubscriptionQuaternion':
+  // - dji_f32_t q0
+  // - dji_f32_t q1
+  // - dji_f32_t q2
+  // - dji_f32_t q3
+  static std::atomic<float> drone_yaw_;
+  static std::atomic<float> drone_pitch_;
+  static std::atomic<float> drone_roll_;
 
   // https://developer.dji.com/doc/payload-sdk-api-reference/en/module/fc-subscription.html#typedef-struct-t-djifcsubscriptionpositionfused
   // Read from 'T_DjiFcSubscriptionPositionFused':
@@ -75,9 +81,14 @@ class drone {
   static std::atomic<double> drone_latitude_;
   static std::atomic<float> drone_altitude_;
 
-  static std::atomic<double> gimbal_yaw_;
-  static std::atomic<double> gimbal_pitch_;
-  static std::atomic<double> gimbal_roll_;
+  // https://developer.dji.com/doc/payload-sdk-api-reference/en/module/fc-subscription.html#34
+  // Read from 'GimbalSingleData':
+  // - dji_f32_t pitch
+  // - dji_f32_t roll
+  // - dji_f32_t yaw
+  static std::atomic<float> gimbal_yaw_;
+  static std::atomic<float> gimbal_pitch_;
+  static std::atomic<float> gimbal_roll_;
 
   // https://developer.dji.com/doc/payload-sdk-api-reference/en/module/fc-subscription.html#definition-enum-and-struct
   // Read from 'T_DjiFcSubscriptionAltitudeOfHomePoint':

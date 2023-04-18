@@ -1,6 +1,8 @@
 #ifndef CAMERA_PSDK_H_
 #define CAMERA_PSDK_H_
 
+#include <dji_camera_manager.h>  // T_DjiCameraManagerFileCreateTime
+
 #include <list>
 #include <memory>  // std::unique_ptr
 #include <mutex>
@@ -32,6 +34,10 @@ class camera_psdk {
   bool queue_is_empty() const;
 
  private:
+  void process_inference_files(
+      const std::vector<std::pair<uint32_t, T_DjiCameraManagerFileCreateTime>>&
+          inference_files);
+
   inference inference_;
   mission& mission_;
 
