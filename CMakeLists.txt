@@ -185,6 +185,13 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
         COMPILE_OPTIONS
         "-Wno-nested-anon-types"
     )
+
+    set_source_files_properties(
+        simulator.cpp
+        PROPERTIES
+        COMPILE_OPTIONS
+        "-Wno-nested-anon-types"
+    )
   endif()
 
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -306,6 +313,15 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       i_seed_drone_onboard
       main.cpp
   )
+
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set_source_files_properties(
+        main.cpp
+        PROPERTIES
+        COMPILE_OPTIONS
+        "-Wno-nested-anon-types"
+    )
+  endif()
 
   add_executable(
       i_seed_drone_camera_test
