@@ -5,7 +5,7 @@
 #include <boost/assert.hpp>  // BOOST_VERIFY
 
 void mission_state::start() {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
 
   BOOST_VERIFY(!is_started_);
   is_started_ = true;
@@ -18,19 +18,19 @@ void mission_state::start() {
 }
 
 void mission_state::finish() {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
 
   BOOST_VERIFY(is_started_);
   is_started_ = false;
 }
 
 auto mission_state::is_started() const -> bool {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
   return is_started_;
 }
 
 auto mission_state::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
 
   if (!is_started_) {
     return false;
@@ -59,7 +59,7 @@ auto mission_state::update(T_DjiWaypointV2MissionStatePush state_data)
     -> std::tuple<bool, bool, bool> {
   spdlog::debug("update: T_DjiWaypointV2MissionStatePush.state = {}",
                 static_cast<unsigned>(state_data.state));
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
 
   const bool mission_started{is_started_};
   bool notify{false};
@@ -107,7 +107,7 @@ auto mission_state::update(T_DjiWaypointV2MissionStatePush state_data)
 
 auto mission_state::get_state() const
     -> interconnection::drone_coordinates::state_t {
-  std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard<std::mutex> lock(m_);
 
   if (!is_started_) {
     return interconnection::drone_coordinates::READY;

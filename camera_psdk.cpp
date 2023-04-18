@@ -15,8 +15,12 @@
 #include "drone.h"
 #include "mission.h"
 
-static std::string camera_psdk_file_dst;
-static std::FILE* camera_psdk_file;
+namespace {
+
+std::string camera_psdk_file_dst;
+std::FILE* camera_psdk_file;
+
+}  // namespace
 
 auto camera_psdk_data_callback(T_DjiDownloadFilePacketInfo packetInfo,
                                const uint8_t* data, uint16_t len)
@@ -29,12 +33,12 @@ auto camera_psdk_data_callback(T_DjiDownloadFilePacketInfo packetInfo,
   }
 
   BOOST_VERIFY(camera_psdk_file);
-  std::size_t res{fwrite(data, 1, len, camera_psdk_file)};
+  const std::size_t res{fwrite(data, 1, len, camera_psdk_file)};
   BOOST_VERIFY(res == len);
 
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_END) {
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    int res{fclose(camera_psdk_file)};
+    const int res{fclose(camera_psdk_file)};
     BOOST_VERIFY(res == 0);
     camera_psdk_file = nullptr;
   }
@@ -50,7 +54,7 @@ camera_psdk::camera_psdk(const std::string& model_file, mission& m)
   T_DjiReturnCode code{DjiCameraManager_Init()};
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-  E_DjiCameraType camera_type;
+  E_DjiCameraType camera_type{DJI_CAMERA_TYPE_UNKNOWN};
 
   // Workaround for failed DjiCameraManager_GetCameraType
   constexpr int wait_ms{500};
@@ -129,7 +133,7 @@ camera_psdk::~camera_psdk() {
   */
 
   spdlog::info("Deinit camera");  // FIXME (remove)
-  T_DjiReturnCode code = DjiCameraManager_DeInit();
+  const T_DjiReturnCode code = DjiCameraManager_DeInit();
   spdlog::info("Deinit camera: DONE");  // FIXME (remove)
   BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
@@ -139,13 +143,13 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps,
                               const attitude& gimbal_attitude,
                               std::size_t waypoint_index) {
   {
-    std::lock_guard lock{queue_mutex_};
+    const std::lock_guard lock{queue_mutex_};
     queue_.push_back({gps, drone_attitude, gimbal_attitude, waypoint_index});
     file_waiting_timer_.start();
   }
 
   {
-    std::lock_guard lock{api_call_mutex_};
+    const std::lock_guard lock{api_call_mutex_};
     spdlog::info("Shoot photo request");
 
     constexpr E_DjiMountPosition m_pos{drone::m_pos};
@@ -164,7 +168,8 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps,
 
     // If failed, check camera is ZOOM and the pause is long enough:
     // - https://sdk-forum.dji.net/hc/en-us/requests/73828
-    E_DjiCameraManagerFocusMode focus_mode;
+    E_DjiCameraManagerFocusMode focus_mode{
+        DJI_CAMERA_MANAGER_FOCUS_MODE_UNKNOWN};
     code = DjiCameraManager_GetFocusMode(m_pos, &focus_mode);
     BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
@@ -210,22 +215,25 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps,
 
     // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     if (false) {  // FIXME (upstream issue)
-      E_DjiCameraManagerISO iso;
+      E_DjiCameraManagerISO iso{DJI_CAMERA_MANAGER_ISO_FIXED};
       code = DjiCameraManager_GetISO(m_pos, &iso);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
       spdlog::info("ISO: {}", iso_name(iso));
 
-      E_DjiCameraManagerAperture aperture;
+      E_DjiCameraManagerAperture aperture{
+          DJI_CAMERA_MANAGER_APERTURE_F_UNKNOWN};
       code = DjiCameraManager_GetAperture(m_pos, &aperture);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
       spdlog::info("aperture: {}", aperture_name(aperture));
 
-      E_DjiCameraManagerShutterSpeed shutter_speed;
+      E_DjiCameraManagerShutterSpeed shutter_speed{
+          DJI_CAMERA_MANAGER_SHUTTER_SPEED_UNKNOWN};
       code = DjiCameraManager_GetShutterSpeed(m_pos, &shutter_speed);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
       spdlog::info("shutter speed: {}", shutter_speed_name(shutter_speed));
 
-      E_DjiCameraManagerExposureCompensation compensation;
+      E_DjiCameraManagerExposureCompensation compensation{
+          DJI_CAMERA_MANAGER_EXPOSURE_COMPENSATION_FIXED};
       code = DjiCameraManager_GetExposureCompensation(m_pos, &compensation);
       BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
       spdlog::info("exposure compensation: {}",
@@ -237,8 +245,8 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps,
 // thread: inference
 auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
   {
-    std::lock_guard lock{queue_mutex_};
-    constexpr int64_t wait_ms{20 * 1000};  // 20 sec
+    const std::lock_guard lock{queue_mutex_};
+    constexpr int64_t wait_ms{20L * 1000L};  // 20 sec
     if (!queue_.empty() && file_waiting_timer_.elapsed_ms() > wait_ms) {
       throw std::runtime_error("Waiting for a file too long. SD Card is full?");
     }
@@ -246,7 +254,7 @@ auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
 
   T_DjiCameraManagerFileList media_file_list;
   {
-    std::lock_guard lock{api_call_mutex_};
+    const std::lock_guard lock{api_call_mutex_};
     constexpr E_DjiMountPosition m_pos{drone::m_pos};
     spdlog::debug("Downloading file list");  // FIXME (remove)
     const T_DjiReturnCode code{
@@ -305,9 +313,21 @@ auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
 
   spdlog::info("{} files to process", inference_files.size());
 
+  process_inference_files(inference_files);
+  return true;
+}
+
+auto camera_psdk::queue_is_empty() const -> bool {
+  const std::lock_guard lock{queue_mutex_};
+  return queue_.empty();
+}
+
+void camera_psdk::process_inference_files(
+    const std::vector<std::pair<uint32_t, T_DjiCameraManagerFileCreateTime>>&
+        inference_files) {
   namespace fs = boost::filesystem;
 
-  fs::path top_dir{"/var/opt/i_seed_drone_onboard"};
+  const fs::path top_dir{"/var/opt/i_seed_drone_onboard"};
   fs::create_directories(top_dir);
   BOOST_VERIFY(fs::is_directory(top_dir));
 
@@ -347,12 +367,12 @@ auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
 
     queue_entry queue_head{};
     {
-      std::lock_guard lock{queue_mutex_};
+      const std::lock_guard lock{queue_mutex_};
       BOOST_VERIFY(!queue_.empty());
       queue_head = queue_.front();
     }
 
-    std::vector<bounding_box> bb{inference_.run(dst_path.string())};
+    const std::vector<bounding_box> bb{inference_.run(dst_path.string())};
     if (bb.empty()) {
       spdlog::info("No objects found");
     } else {
@@ -400,18 +420,11 @@ auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
     // Remove entry only after result saved in mission
     // Backward mission will only start when queue is empty
     {
-      std::lock_guard lock{queue_mutex_};
+      const std::lock_guard lock{queue_mutex_};
       BOOST_VERIFY(!queue_.empty());
       queue_.pop_front();
     }
   }
-
-  return true;
-}
-
-auto camera_psdk::queue_is_empty() const -> bool {
-  std::lock_guard lock{queue_mutex_};
-  return queue_.empty();
 }
 
 auto camera_psdk::iso_name(int value) -> const char* {

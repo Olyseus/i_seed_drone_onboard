@@ -62,7 +62,7 @@ auto waypoint::has_detection() const -> bool {
   return detection_result_.has_value();
 }
 
-auto waypoint::heading() const -> double {
+auto waypoint::heading() const -> float {
   BOOST_VERIFY(has_detection());
   return detection_result_.value().drone_attitude.yaw;
 }

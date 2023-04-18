@@ -83,7 +83,7 @@ class mission {
   interconnection::drone_coordinates::state_t get_state() const;
 
  private:
-  T_DjiWaypointV2 make_waypoint(const waypoint& w);
+  T_DjiWaypointV2 make_waypoint(const waypoint& w) const;
   std::optional<std::size_t> current_waypoint_index() const;
 
   mutable std::mutex m_;

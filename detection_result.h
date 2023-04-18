@@ -11,9 +11,9 @@ struct gps_coordinates {
 };
 
 struct attitude {
-  double pitch;
-  double roll;
-  double yaw;
+  float pitch;
+  float roll;
+  float yaw;
 };
 
 struct detected_pixel {
