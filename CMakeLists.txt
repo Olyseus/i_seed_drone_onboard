@@ -81,8 +81,6 @@ add_library(
     home_altitude.h
     inference.cpp
     inference.h
-    json_sax_event_consumer.cpp
-    json_sax_event_consumer.h
     laser_range.cpp
     laser_range.h
     olyseus_verify.cpp
