@@ -85,8 +85,6 @@ add_library(
     json_sax_event_consumer.h
     laser_range.cpp
     laser_range.h
-    magnetic_declination.cpp
-    magnetic_declination.h
     olyseus_verify.cpp
     olyseus_verify.h
     timer.h
@@ -445,7 +443,6 @@ add_executable(
     converter_ut.cpp
     home_altitude_ut.cpp
     i_seed_drone_onboard_core_ut.cpp
-    magnetic_declination_ut.cpp
     main_ut.cpp
     main_ut.h
     utils_ut.cpp
