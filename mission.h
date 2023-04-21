@@ -12,74 +12,116 @@
 
 class home_altitude;
 
-enum class waypoint_action { ok, abort, restart };
+/// \brief Action to take when waypoint reached
+enum class waypoint_action {
+  /// \brief Process waypoint
+  ok,
 
+  /// \brief Abort mission on last fake waypoint
+  abort,
+
+  /// \brief Tweak altitude and restart mission
+  restart
+};
+
+/// \brief Drone's mission control
+/// \note Class is thread-safe
 class mission {
  public:
   mission() noexcept;
   ~mission();
 
+  /// \cond private
   mission(const mission&) = delete;
   mission(mission&&) = delete;
   mission& operator=(const mission&) = delete;
   mission& operator=(mission&&) = delete;
+  /// \endcond
 
-  // Apply user coordinates received from 'MISSION_START'
-  // thread: receive data
+  /// \brief Apply user coordinates received from 'MISSION_START'
+  /// \param[in] lat Mission latitude
+  /// \param[in] lon Mission longitude
+  /// \return true If mission succesfully started
+  /// \return false If mission is already in progress
+  /// \note Thread: receive data
   bool init(double lat, double lon);
 
-  // - Upload initial mission (thread: receive data)
-  // - Upload forward mission with tweaked altitude (thread: action)
-  // - Upload backward mission, after 'set_backward' (thread: action)
-  // @return false if no waypoints left to visit
+  /// \brief Upload and start mission
+  /// \details
+  ///   - Upload initial mission (thread: receive data)
+  ///   - Upload forward mission with tweaked altitude (thread: action)
+  ///   - Upload backward mission, after \ref set_backward (thread: action)
+  /// \return false if no waypoints left to visit
   bool upload_mission_and_start();
 
-  // thread: action
+  /// \brief Ask for an action when waypoint reached
+  /// \param[in] laser_range Use the laser range to determine the real drone
+  ///     height
+  /// \return [\ref waypoint_action, waypoint index]
+  /// \note Thread: action
   std::pair<waypoint_action, std::size_t> waypoint_reached(float laser_range);
 
-  // thread: action
+  /// \brief Waypoint copy by index
+  /// \return \ref waypoint
+  /// \note Thread: action
   waypoint get_waypoint_copy(std::size_t index) const;
 
-  // thread: inference
-  void save_detection(std::size_t index, const detection_result&);
+  /// \brief Save the detected objects to waypoint data
+  /// \param[in] index Waypoint index
+  /// \param[in] result Detection result
+  /// \note Thread: inference
+  void save_detection(std::size_t index, const detection_result& result);
 
-  // thread: action (called from 'drone::next_mission')
+  /// \brief The forward mission is finished,
+  ///   now set the current mission status to backward
+  /// \note Thread: action (called from \ref drone \::next_mission)
   void set_backward();
 
-  // thread: action
+  /// \brief Check if mission is forward
+  /// \note Thread: action
   bool is_forward() const;
 
-  // first flag to check after the action thread notified
-  // thread: action
+  /// \brief Flag to indicate that mission is in process of finishing
+  /// \note This is a first flag that is checked when then action thread
+  ///     is notified
+  /// \note Thread: action
   bool is_finishing() const;
 
-  // thread: PSDK callback
-  // @return true if action thread need to be notified
+  /// \brief Process mission event received from Payload SDK
+  /// \note Thread: Payload SDK callback
+  /// \return true if action thread need to be notified
   bool update(T_DjiWaypointV2MissionEventPush event_data);
 
-  // thread: PSDK callback
-  // auto [mission_started, notify]
+  /// \brief Process state update event received from Payload SDK
+  /// \note Thread: Payload SDK callback
+  /// \return [mission_started, notify]
   std::pair<bool, bool> update(T_DjiWaypointV2MissionStatePush state_data);
 
-  // - Abort mission on user request (thread: receive data)
-  // - Abort mission on fake waypoint,
-  //   start backward mission if needed (thread: action)
-  // - Abort mission when altitude need to be tweaked,
-  //   only forward (thread: action)
+  /// \brief Abort the mission
+  /// \details
+  ///   - Abort mission on user request (thread: receive data)
+  ///   - Abort mission on fake waypoint,
+  ///     start backward mission if needed (thread: action)
+  ///   - Abort mission when altitude need to be tweaked,
+  ///     only forward (thread: action)
   void abort_mission();
 
-  // - Abort mission on user request (thread: receive data)
-  // - Backward mission finished succesfully (thread: action)
-  // - Forward mission finished, but backward mission not started because no
-  //   object detected (thread: action)
+  /// \brief Stop the mission
+  /// \details
+  ///   - Abort mission on user request (thread: receive data)
+  ///   - Backward mission finished succesfully (thread: action)
+  ///   - Forward mission finished, but backward mission not started because no
+  ///     object detected (thread: action)
   void mission_stop(home_altitude& h);
 
-  // When 'MISSION_CONTINUE' received from user
-  // thread: receive data
+  /// \brief Resume the mission
+  /// \details Triggered when 'MISSION_CONTINUE' received from user
+  /// \note Thread: receive data
   bool resume();
 
-  // Send current state periodically
-  // thread: send data
+  /// \brief Periodically send the current state to the drone control Android
+  ///     application
+  /// \note Thread: send data
   interconnection::drone_coordinates::state_t get_state() const;
 
  private:

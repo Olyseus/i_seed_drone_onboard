@@ -28,6 +28,49 @@ endif()
 
 option(I_SEED_DRONE_ONBOARD_PEDANTIC "Enable pedantic checks" OFF)
 option(I_SEED_DRONE_ONBOARD_SIMULATOR "Run on simulator" OFF)
+option(I_SEED_DRONE_ONBOARD_DOC "Build Doxygen documentation" OFF)
+
+if(I_SEED_DRONE_ONBOARD_DOC)
+  # Trailing return type issue: https://github.com/doxygen/doxygen/issues/5492
+  find_package(Doxygen REQUIRED dot)
+
+  set(DOXYGEN_CALL_GRAPH YES)
+  set(DOXYGEN_CALLER_GRAPH YES)
+  set(DOXYGEN_WARN_AS_ERROR YES)
+  set(DOXYGEN_SOURCE_BROWSER YES)
+  set(DOXYGEN_EXTRACT_ALL YES)
+  set(DOXYGEN_SORT_MEMBER_DOCS NO)
+  set(DOXYGEN_FILE_PATTERNS *.cpp *.h)
+
+  # FIXME (document all)
+  set(DOXYGEN_EXCLUDE_PATTERNS *.cpp *.h */_builds/* */third_party/* *_ut.cpp)
+
+  set(
+      DOXYGEN_EXCLUDE
+      battery_monitor_main.cpp
+      boost_assert.cpp
+      convert_main.cpp
+      inference_main.cpp
+      main_camera_test.cpp
+      main_focal_length.cpp
+      main_gimbal_heading.cpp
+      main_positioning.cpp
+      main_quaternion.cpp
+      main_sdcard_clean.cpp
+      main_ut.h
+      olyseus_verify.cpp
+      olyseus_verify.h
+  )
+
+  doxygen_add_docs(
+      doxygen_doc
+      mission.cpp
+      mission.h
+      ALL
+      ${CMAKE_CURRENT_LIST_DIR}
+      COMMENT "Generate doxygen documentation"
+  )
+endif()
 
 # * CMAKE_INSTALL_LIBDIR
 # * CMAKE_INSTALL_BINDIR
