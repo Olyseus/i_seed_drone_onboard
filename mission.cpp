@@ -6,7 +6,6 @@
 #include <thread>            // std::this_thread
 
 #include "home_altitude.h"
-#include "mission_state.h"  // mission_state_
 #include "utils.h"          // deg2rad
 
 mission::mission() noexcept = default;
