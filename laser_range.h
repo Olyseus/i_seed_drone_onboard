@@ -12,6 +12,7 @@
 class simulator;
 #endif
 
+/// \brief Information about the laser range measurement
 class laser_range {
  public:
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
@@ -22,16 +23,22 @@ class laser_range {
 
   ~laser_range();
 
+  /// \cond private
   laser_range(const laser_range&) = delete;
   laser_range(laser_range&&) = delete;
 
   laser_range& operator=(const laser_range&) = delete;
   laser_range& operator=(laser_range&&) = delete;
+  /// \endcond
 
-  // thread: receive_data
+  /// \brief Save the received laser range value
+  /// \note Thread: receive_data
   void value_received(float range);
 
-  // thread: action
+  /// \brief Request the laser range measurement
+  /// \param[in] m Mutex for locking the commands list
+  /// \param[in] commands List of commands where to put the laser request
+  /// \note Thread: action
   float latest(std::mutex& m,
                std::list<interconnection::command_type::command_t>& commands);
 

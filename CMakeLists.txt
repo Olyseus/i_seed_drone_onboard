@@ -67,6 +67,8 @@ if(I_SEED_DRONE_ONBOARD_DOC)
   doxygen_add_docs(
       doxygen_doc
       detection_result.h
+      laser_range.cpp
+      laser_range.h
       mission.cpp
       mission.h
       waypoint.cpp
