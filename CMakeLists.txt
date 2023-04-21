@@ -67,6 +67,8 @@ if(I_SEED_DRONE_ONBOARD_DOC)
       detection_result.h
       mission.cpp
       mission.h
+      waypoint.cpp
+      waypoint.h
       ALL
       ${CMAKE_CURRENT_LIST_DIR}
       COMMENT "Generate doxygen documentation"
