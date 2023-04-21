@@ -64,6 +64,7 @@ if(I_SEED_DRONE_ONBOARD_DOC)
 
   doxygen_add_docs(
       doxygen_doc
+      detection_result.h
       mission.cpp
       mission.h
       ALL
