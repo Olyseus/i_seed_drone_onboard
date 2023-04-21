@@ -60,6 +60,8 @@ if(I_SEED_DRONE_ONBOARD_DOC)
       main_ut.h
       olyseus_verify.cpp
       olyseus_verify.h
+      simulator.cpp
+      simulator.h
   )
 
   doxygen_add_docs(
