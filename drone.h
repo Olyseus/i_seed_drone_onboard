@@ -20,17 +20,22 @@ using T_DjiMopChannelHandle = void*;
 
 class job_interrupted_event : public std::exception {};
 
+/// \brief High level drone control
 class drone {
  public:
+  /// \brief Create drone object
   drone();
   ~drone();
 
+  /// \cond private
   drone(const drone&) = delete;
   drone(drone&&) = delete;
 
   drone& operator=(const drone&) = delete;
   drone& operator=(drone&&) = delete;
+  /// \endcond
 
+  /// \brief Start the drone work
   void start();
 
   static constexpr int32_t protocol_version{
@@ -119,6 +124,7 @@ class drone {
   void receive_data(std::string* buffer);
   void send_data(std::string& buffer);
 
+  /// \anchor drone's next_mission
   void next_mission();
 
   static constexpr uint16_t channel_id{
