@@ -3,7 +3,6 @@
 #include <cuda_runtime_api.h>  // cudaError_t
 #include <spdlog/spdlog.h>
 
-#include <boost/assert.hpp>  // BOOST_VERIFY_MSG
 #include <fstream>           // std::ifstream
 
 #include "bounding_box.h"

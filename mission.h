@@ -1,12 +1,6 @@
 #ifndef MISSION_H_
 #define MISSION_H_
 
-#include <dji_waypoint_v2.h>  // T_DjiWaypointV2
-
-#include <mutex>
-#include <vector>
-
-#include "interconnection.pb.h"
 #include "mission_state.h"
 #include "waypoint.h"
 

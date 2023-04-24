@@ -4,11 +4,9 @@
 #include <dji_camera_manager.h>  // T_DjiCameraManagerFileCreateTime
 
 #include <list>
-#include <memory>  // std::unique_ptr
 #include <mutex>
 #include <regex>
 #include <set>
-#include <vector>
 
 #include "detection_result.h"
 #include "inference.h"

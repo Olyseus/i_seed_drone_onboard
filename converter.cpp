@@ -2,7 +2,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include <GeographicLib/LocalCartesian.hpp>
 #include <boost/assert.hpp>  // BOOST_VERIFY
 
 #include "utils.h"  // deg2rad

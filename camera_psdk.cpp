@@ -1,11 +1,9 @@
 #include "camera_psdk.h"
 
-#include <dji_camera_manager.h>  // DjiCameraManager_Init
 #include <dji_liveview.h>        // DjiLiveview_Init
 #include <dji_payload_camera.h>  // DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload
 #include <spdlog/spdlog.h>
 
-#include <boost/assert.hpp>  // BOOST_VERIFY
 #include <boost/filesystem.hpp>
 #include <sstream>  // std::ostringstream
 #include <thread>   // std::this_thread
@@ -13,7 +11,6 @@
 #include "application.hpp"
 #include "bounding_box.h"
 #include "drone.h"
-#include "mission.h"
 
 namespace {
 
