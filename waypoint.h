@@ -11,15 +11,15 @@ class waypoint {
   waypoint(double latitude, double longitude);
   ~waypoint();
 
+  /// \cond private
   waypoint(const waypoint&);
   waypoint(waypoint&&) noexcept;
 
-  /// \cond private
   waypoint& operator=(const waypoint&) = delete;
   waypoint& operator=(waypoint&&) = delete;
   /// \endcond
 
-  /// \return true if the current waypoint's altitude has a default value
+  /// \return \b true if the current waypoint's altitude has a default value
   bool is_default_altitude() const;
 
   /// \param[in] laser_range
@@ -39,17 +39,17 @@ class waypoint {
   static constexpr float expected_height{15.0F};  // 15m
 
   /// \brief Mark waypoint as ready
-  /// \param[in] is_forward true - forward mission is ready, false - backward
-  ///     mission is ready
+  /// \param[in] is_forward \b true - forward mission is ready,
+  ///     \b false - backward mission is ready
   void set_ready(bool is_forward);
 
-  /// \return true If forward mission is ready
+  /// \return \b true If forward mission is ready
   bool is_forward_ready() const;
 
-  /// \return true If backward mission is ready
+  /// \return \b true If backward mission is ready
   bool is_backward_ready() const;
 
-  /// \return true If some objects were detected
+  /// \return \b true If some objects were detected
   bool has_detection() const;
 
   /// \return Expected drone's heading in this waypoint
@@ -62,6 +62,7 @@ class waypoint {
   void save_detection(const detection_result&);
 
   /// \brief Retrieve the detection results of the waypoint
+  /// \return detection_result
   detection_result get_detection() const;
 
  private:

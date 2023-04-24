@@ -2,6 +2,7 @@
 
 #include <exception>  // std::runtime_error
 
+/// \cond private
 namespace boost {
 
 void assertion_failed(const char* expr, const char* function, const char* file,
@@ -20,3 +21,4 @@ void assertion_failed_msg(const char* expr, const char* msg,
 }
 
 }  // namespace boost
+/// \endcond

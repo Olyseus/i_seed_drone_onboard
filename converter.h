@@ -34,7 +34,9 @@ class converter {
                               const attitude& gimbal_attitude, float length);
 
  private:
+  /// \cond private
   friend class converter_test;
+  /// \endcond
 
   static Eigen::Vector3d local_ned_to_ecef(const GeographicLib::LocalCartesian&,
                                            const Eigen::Vector3d& p);
