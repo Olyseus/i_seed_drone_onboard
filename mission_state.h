@@ -8,20 +8,30 @@
 
 #include "interconnection.pb.h"
 
+/// \brief Class to watch the mission state that will be sent over
+///   interconnection
 class mission_state {
  public:
+  /// \brief Start mission. Update events can be processed
   void start();
+
+  /// \brief Finish mission. Ignore update events
   void finish();
 
+  /// \brief Mission is started
   bool is_started() const;
 
-  // @return notify_finished
+  /// \brief Process mission event received from Payload SDK
+  /// \return notify_finished
   bool update(T_DjiWaypointV2MissionEventPush event_data);
 
-  // @return auto [mission_started, notify, notify_finished]
+  /// \brief Process state update event received from Payload SDK
+  /// \return auto [mission_started, notify, notify_finished]
   std::tuple<bool, bool, bool> update(
       T_DjiWaypointV2MissionStatePush state_data);
 
+  /// \brief Current drone's state to sent to the drone control Android
+  ///     application
   interconnection::drone_coordinates::state_t get_state() const;
 
  private:

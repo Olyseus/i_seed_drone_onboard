@@ -12,6 +12,7 @@ namespace olyseus {
 
 [[noreturn]] void assertion_failed(const char* expr, const char* function,
                                    const char* file, uint64_t line);
+
 [[noreturn]] void assertion_failed_msg(const char* expr, const char* msg,
                                        const char* function, const char* file,
                                        uint64_t line);
