@@ -68,6 +68,8 @@ if(I_SEED_DRONE_ONBOARD_DOC)
       doxygen_doc
       api_code.cpp
       api_code.h
+      bounding_box.cpp
+      bounding_box.h
       camera_psdk.cpp
       camera_psdk.h
       condition_flag.cpp
