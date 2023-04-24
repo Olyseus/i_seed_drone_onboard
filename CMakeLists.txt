@@ -77,6 +77,7 @@ if(I_SEED_DRONE_ONBOARD_DOC)
       laser_range.h
       mission.cpp
       mission.h
+      timer.h
       waypoint.cpp
       waypoint.h
       ALL
