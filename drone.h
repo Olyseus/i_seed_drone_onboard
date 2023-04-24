@@ -5,13 +5,10 @@
 
 #include <atomic>
 #include <cstdint>  // uint16_t
-#include <list>
-#include <mutex>
 
 #include "camera_psdk.h"
 #include "condition_flag.h"
 #include "home_altitude.h"
-#include "interconnection.pb.h"
 #include "laser_range.h"
 #include "mission.h"
 #include "simulator.h"

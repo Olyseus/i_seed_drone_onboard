@@ -5,7 +5,6 @@
 #include <dji_mop_channel.h>      // DjiMopChannel_Init
 #include <spdlog/spdlog.h>
 
-#include <boost/assert.hpp>
 #include <future>
 
 #include "api_code.h"
