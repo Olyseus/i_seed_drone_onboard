@@ -16,21 +16,37 @@
 
 class mission;
 
+/// \brief Wrapper for a
+///     <a href="https://developer.dji.com/doc/payload-sdk-api-reference/en/module/camera-manager.html">camera management</a>
+///     Payload SDK functions
 class camera_psdk {
  public:
   camera_psdk(const std::string& model_file, mission&);
   ~camera_psdk();
 
+  /// \cond private
   camera_psdk(const camera_psdk&) = delete;
   camera_psdk(camera_psdk&&) = delete;
 
   camera_psdk& operator=(const camera_psdk&) = delete;
   camera_psdk& operator=(camera_psdk&&) = delete;
+  /// \endcond
 
-  void shoot_photo(const gps_coordinates&, const attitude& drone_attitude,
+  /// \brief Start shooting a photo
+  /// \param[in] gps Drone's GPS coordinates
+  /// \param[in] drone_attitude Drone's yaw/roll/pitch
+  /// \param[in] gimbal_attitude Camera gimbal's yaw/roll/pitch
+  /// \param[in] waypoint_index Waypoint index where result should be saved
+  void shoot_photo(const gps_coordinates& gps, const attitude& drone_attitude,
                    const attitude& gimbal_attitude, std::size_t waypoint_index);
 
+  /// \brief Check SDCard for new shot photos
+  /// \return \b true New photos were found, and the inference was run
+  /// \return \b false No new files found yet
   bool check_sdcard();
+
+  /// \brief Check if processing queue is empty
+  /// \return \b true There are no files left to process
   bool queue_is_empty() const;
 
  private:
