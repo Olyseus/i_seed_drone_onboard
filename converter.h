@@ -6,16 +6,30 @@
 
 #include "detection_result.h"  // gps_coordinates
 
+/// \brief ECEF ray based on laser range measurement and drone's coordinates
 struct converter_result {
-  Eigen::Vector3d p;  // start of the ray
-  Eigen::Vector3d v;  // direction of the ray (with length)
-  Eigen::Vector3d d;  // down direction
+  /// \brief Start of the ray
+  Eigen::Vector3d p;
+
+  /// \brief Direction of the ray (with lenght)
+  Eigen::Vector3d v;
+
+  /// \brief Drone's down direction
+  Eigen::Vector3d d;
 };
 
+/// \brief Conversion from geodetic lat/lon to geocentric x/y/z
 class converter {
  public:
-  // Gimbal yaw is relative to drone
-  static converter_result run(const gps_coordinates&,
+  /// \brief Run conversion
+  /// \param[in] gps Drone's GPS coordinates
+  /// \param[in] drone_attitude Drone's roll/pitch/yaw
+  /// \param[in] gimbal_attitude Camera gimbal's roll/pitch/yaw.
+  ///     Yaw is relative to drone
+  /// \param[in] length The length of ray from camera.
+  ///     The value of laser range measurement
+  /// \return \ref converter_result
+  static converter_result run(const gps_coordinates& gps,
                               const attitude& drone_attitude,
                               const attitude& gimbal_attitude, float length);
 
