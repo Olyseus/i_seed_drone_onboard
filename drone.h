@@ -18,6 +18,7 @@
 
 using T_DjiMopChannelHandle = void*;
 
+/// \brief Stop the process because of interruption event: exception or SIGINT
 class job_interrupted_event : public std::exception {};
 
 /// \brief High level drone control
