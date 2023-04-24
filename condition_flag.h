@@ -4,20 +4,26 @@
 #include <condition_variable>
 #include <mutex>
 
+/// \brief Wrapper for a
+///     <a href="https://en.cppreference.com/w/cpp/thread/condition_variable">std::condition_variable</a>
 class condition_flag {
  public:
   condition_flag() noexcept;
   ~condition_flag();
 
+  /// \cond private
   condition_flag(const condition_flag&) = delete;
   condition_flag(condition_flag&&) = delete;
   condition_flag& operator=(const condition_flag&) = delete;
   condition_flag& operator=(condition_flag&&) = delete;
+  /// \endcond
 
-  // thread: action
+  /// \brief Wait for a notification
+  /// \note Thread: action
   void wait();
 
-  // thread: Payload SDK callback, main (on error)
+  /// \brief Notify waiting thread
+  /// \note Thread: Payload SDK callback, main (on error)
   void notify();
 
  private:
