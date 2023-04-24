@@ -66,6 +66,8 @@ if(I_SEED_DRONE_ONBOARD_DOC)
 
   doxygen_add_docs(
       doxygen_doc
+      api_code.cpp
+      api_code.h
       detection_result.h
       home_altitude.cpp
       home_altitude.h
