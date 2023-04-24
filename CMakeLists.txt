@@ -42,8 +42,7 @@ if(I_SEED_DRONE_ONBOARD_DOC)
   set(DOXYGEN_SORT_MEMBER_DOCS NO)
   set(DOXYGEN_FILE_PATTERNS *.cpp *.h)
 
-  # FIXME (document all)
-  set(DOXYGEN_EXCLUDE_PATTERNS *.cpp *.h */_builds/* */third_party/* *_ut.cpp)
+  set(DOXYGEN_EXCLUDE_PATTERNS */_builds/* */third_party/* *_ut.cpp)
 
   set(
       DOXYGEN_EXCLUDE
@@ -66,28 +65,6 @@ if(I_SEED_DRONE_ONBOARD_DOC)
 
   doxygen_add_docs(
       doxygen_doc
-      api_code.cpp
-      api_code.h
-      bounding_box.cpp
-      bounding_box.h
-      camera_psdk.cpp
-      camera_psdk.h
-      condition_flag.cpp
-      condition_flag.h
-      detection_result.h
-      drone.cpp
-      drone.h
-      home_altitude.cpp
-      home_altitude.h
-      inference.cpp
-      inference.h
-      laser_range.cpp
-      laser_range.h
-      mission.cpp
-      mission.h
-      timer.h
-      waypoint.cpp
-      waypoint.h
       ALL
       ${CMAKE_CURRENT_LIST_DIR}
       COMMENT "Generate doxygen documentation"
