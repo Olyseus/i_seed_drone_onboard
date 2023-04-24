@@ -73,6 +73,8 @@ if(I_SEED_DRONE_ONBOARD_DOC)
       detection_result.h
       home_altitude.cpp
       home_altitude.h
+      inference.cpp
+      inference.h
       laser_range.cpp
       laser_range.h
       mission.cpp

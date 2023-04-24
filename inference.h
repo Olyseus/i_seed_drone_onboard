@@ -15,17 +15,23 @@
 
 class bounding_box;
 
+/// \brief Run inference for images
 class inference {
  public:
+  /// \brief Load model from file
   inference(const std::string& model_file);
   ~inference();
 
-  inference(const inference&);
-  inference(inference&&);
+  /// \cond private
+  inference(const inference&) = delete;
+  inference(inference&&) = delete;
 
-  inference& operator=(const inference&);
-  inference& operator=(inference&&);
+  inference& operator=(const inference&) = delete;
+  inference& operator=(inference&&) = delete;
+  /// \endcond
 
+  /// \brief Start inference on image
+  /// \return Vector of \ref bounding_box objects
   std::vector<bounding_box> run(const std::string& image);
 
   static constexpr std::size_t h20_img_width{5184};
