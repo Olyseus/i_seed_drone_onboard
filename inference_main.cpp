@@ -11,6 +11,7 @@
 
 #include "bounding_box.h"
 #include "inference.h"
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 void setup_logging() {
   auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();

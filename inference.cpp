@@ -23,7 +23,7 @@ void inference::logger::log(severity severity, asciichar const* msg) noexcept {
       spdlog::debug(msg);
       break;
     default:
-      BOOST_VERIFY_MSG(false, "unreachable");
+      OLYSEUS_UNREACHABLE;
       break;
   }
 }
