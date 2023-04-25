@@ -6,7 +6,8 @@
 #include <boost/filesystem.hpp>  // boost::filesystem::path
 #include <thread>                // std::this_thread
 
-#include "application.hpp"  // Application
+#include "application.hpp"   // Application
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 void battery_info(const uint8_t* data, int index) {
   OLYSEUS_VERIFY(data != nullptr);
