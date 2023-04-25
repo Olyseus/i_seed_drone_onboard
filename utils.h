@@ -11,6 +11,9 @@ static constexpr float pi_degree_f{180.0F};
 static constexpr float rad2deg_f{pi_degree_f / M_PI};
 static constexpr float deg2rad_f{M_PI / pi_degree_f};
 
+static constexpr std::size_t h20_img_width{5184};
+static constexpr std::size_t h20_img_height{3888};
+
 // return: yaw degree, pitch degree
 std::pair<float, float> gimbal_rotation_params_with_heading_degree(
     double yaw_x_degree, double pitch_z_degree, double drone_heading_degree);

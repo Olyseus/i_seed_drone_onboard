@@ -13,6 +13,8 @@
 #include <boost/gil/extension/io/jpeg_io.hpp>
 #endif
 
+#include "utils.h" // h20_img_width
+
 class bounding_box;
 
 /// \brief Run inference for images
@@ -33,9 +35,6 @@ class inference {
   /// \brief Start inference on image
   /// \return Vector of \ref bounding_box objects
   std::vector<bounding_box> run(const std::string& image);
-
-  static constexpr std::size_t h20_img_width{5184};
-  static constexpr std::size_t h20_img_height{3888};
 
   static constexpr std::size_t inference_img_width{768};
   static constexpr std::size_t inference_img_height{768};
