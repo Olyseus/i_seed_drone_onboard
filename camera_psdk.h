@@ -14,9 +14,11 @@
 
 class mission;
 
+// clang-format off
 /// \brief Wrapper for a
 ///     <a href="https://developer.dji.com/doc/payload-sdk-api-reference/en/module/camera-manager.html">camera management</a>
 ///     Payload SDK functions
+// clang-format on
 class camera_psdk {
  public:
   camera_psdk(const std::string& model_file, mission&);

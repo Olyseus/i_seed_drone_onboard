@@ -4,8 +4,10 @@
 #include <condition_variable>
 #include <mutex>
 
+// clang-format off
 /// \brief Wrapper for a
 ///     <a href="https://en.cppreference.com/w/cpp/thread/condition_variable">std::condition_variable</a>
+// clang-format on
 class condition_flag {
  public:
   condition_flag() noexcept;

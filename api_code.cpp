@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <thread>            // std::this_thread
+#include <thread>  // std::this_thread
 
 #include "server.h"  // pipeline_closed
 

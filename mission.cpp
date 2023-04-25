@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <thread>            // std::this_thread
+#include <thread>  // std::this_thread
 
 #include "home_altitude.h"
 #include "olyseus_verify.h"  // OLYSEUS_VERIFY

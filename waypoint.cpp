@@ -76,9 +76,9 @@ void waypoint::save_detection(const detection_result& result) {
 
   constexpr double eps{1e-4};
   OLYSEUS_VERIFY(std::abs(detection_result_.value().gps.latitude - latitude_) <
-               eps);
-  OLYSEUS_VERIFY(std::abs(detection_result_.value().gps.longitude - longitude_) <
-               eps);
+                 eps);
+  OLYSEUS_VERIFY(
+      std::abs(detection_result_.value().gps.longitude - longitude_) < eps);
 
   OLYSEUS_VERIFY(!detection_result_.value().pixels.empty());
 }

@@ -3,7 +3,7 @@
 #include <cuda_runtime_api.h>  // cudaError_t
 #include <spdlog/spdlog.h>
 
-#include <fstream>           // std::ifstream
+#include <fstream>  // std::ifstream
 
 #include "bounding_box.h"
 #include "timer.h"
@@ -78,9 +78,9 @@ inference::inference(const std::string& model_file) {
   // 32 bit floating points
   static_assert(sizeof(float) == 4);
   OLYSEUS_VERIFY(engine_->getBindingDataType(bind_input) ==
-               nvinfer1::DataType::kFLOAT);
+                 nvinfer1::DataType::kFLOAT);
   OLYSEUS_VERIFY(engine_->getBindingDataType(bind_output) ==
-               nvinfer1::DataType::kFLOAT);
+                 nvinfer1::DataType::kFLOAT);
 
   const nvinfer1::Dims input_dims{
       exe_context_->getBindingDimensions(bind_input)};
@@ -100,12 +100,13 @@ inference::inference(const std::string& model_file) {
   const nvinfer1::Dims strides{exe_context_->getStrides(bind_input)};
   OLYSEUS_VERIFY(strides.nbDims == 4);  // same as binding dimensions
   OLYSEUS_VERIFY(strides.d[0] == inference_img_height * inference_img_width *
-                                   rgb_size);  // stride between images
-  OLYSEUS_VERIFY(strides.d[1] ==
-               inference_img_height *
-                   inference_img_width);  // stride between RGB color components
+                                     rgb_size);  // stride between images
+  OLYSEUS_VERIFY(
+      strides.d[1] ==
+      inference_img_height *
+          inference_img_width);  // stride between RGB color components
   OLYSEUS_VERIFY(strides.d[2] ==
-               inference_img_width);  // stride between image rows
+                 inference_img_width);  // stride between image rows
   OLYSEUS_VERIFY(strides.d[3] == 1);    // color components have no padding
 
   const nvinfer1::Dims output_strides{exe_context_->getStrides(bind_output)};
@@ -115,13 +116,13 @@ inference::inference(const std::string& model_file) {
   OLYSEUS_VERIFY(output_strides.d[2] == 1);  // no padding
 
   OLYSEUS_VERIFY(engine_->getBindingVectorizedDim(bind_input) ==
-               -1);  // Not vectorized
+                 -1);  // Not vectorized
   OLYSEUS_VERIFY(engine_->getBindingComponentsPerElement(bind_input) ==
-               -1);  // Since not vectorized
+                 -1);  // Since not vectorized
   OLYSEUS_VERIFY(engine_->getBindingVectorizedDim(bind_output) ==
-               -1);  // Not vectorized
+                 -1);  // Not vectorized
   OLYSEUS_VERIFY(engine_->getBindingComponentsPerElement(bind_output) ==
-               -1);  // Since not vectorized
+                 -1);  // Since not vectorized
 
   t.start();
 
