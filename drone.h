@@ -43,6 +43,9 @@ class drone {
       DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
 
  private:
+  template <class T>
+  const T& cast_dji(const uint8_t* data, uint16_t data_size);
+
   static T_DjiReturnCode quaternion_callback(
       const uint8_t* data, uint16_t data_size,
       const T_DjiDataTimestamp* timestamp);
