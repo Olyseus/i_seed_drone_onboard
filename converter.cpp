@@ -2,9 +2,8 @@
 
 #include <spdlog/spdlog.h>
 
-#include <boost/assert.hpp>  // BOOST_VERIFY
-
-#include "utils.h"  // deg2rad
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
+#include "utils.h"           // deg2rad
 
 auto converter::run(const gps_coordinates& gps, const attitude& drone_attitude,
                     const attitude& gimbal_attitude, float length)
@@ -23,7 +22,7 @@ auto converter::run(const gps_coordinates& gps, const attitude& drone_attitude,
   const Eigen::Vector3d local_ned_down{0.0, 0.0, 1.0};
 
   constexpr double eps{1e-3};
-  BOOST_VERIFY(local_ned_down.dot(local_ned_v.normalized()) > eps);
+  OLYSEUS_VERIFY(local_ned_down.dot(local_ned_v.normalized()) > eps);
 
   const GeographicLib::LocalCartesian local_cartesian(
       gps.latitude, gps.longitude, gps.altitude);
@@ -37,10 +36,10 @@ auto converter::run(const gps_coordinates& gps, const attitude& drone_attitude,
 
   constexpr double sanity_dist{500.0};
   constexpr double sanity_norm{2.0};
-  BOOST_VERIFY(std::abs(result.d.norm() - 1.0) < eps);
-  BOOST_VERIFY(result.v.norm() < sanity_dist);
-  BOOST_VERIFY(result.d.dot(result.v.normalized()) > eps);
-  BOOST_VERIFY((drone - result.p).norm() < sanity_norm);
+  OLYSEUS_VERIFY(std::abs(result.d.norm() - 1.0) < eps);
+  OLYSEUS_VERIFY(result.v.norm() < sanity_dist);
+  OLYSEUS_VERIFY(result.d.dot(result.v.normalized()) > eps);
+  OLYSEUS_VERIFY((drone - result.p).norm() < sanity_norm);
 
   const Eigen::Vector3d p_down(result.p + result.d);
 

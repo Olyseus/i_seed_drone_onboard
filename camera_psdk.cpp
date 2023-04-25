@@ -24,20 +24,20 @@ auto camera_psdk_data_callback(T_DjiDownloadFilePacketInfo packetInfo,
                                const uint8_t* data, uint16_t len)
     -> T_DjiReturnCode {
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_START) {
-    BOOST_VERIFY(!camera_psdk_file_dst.empty());
+    OLYSEUS_VERIFY(!camera_psdk_file_dst.empty());
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     camera_psdk_file = fopen(camera_psdk_file_dst.c_str(), "wb+e");
     camera_psdk_file_dst.clear();
   }
 
-  BOOST_VERIFY(camera_psdk_file);
+  OLYSEUS_VERIFY(camera_psdk_file);
   const std::size_t res{fwrite(data, 1, len, camera_psdk_file)};
-  BOOST_VERIFY(res == len);
+  OLYSEUS_VERIFY(res == len);
 
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_END) {
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     const int res{fclose(camera_psdk_file)};
-    BOOST_VERIFY(res == 0);
+    OLYSEUS_VERIFY(res == 0);
     camera_psdk_file = nullptr;
   }
 
@@ -47,10 +47,10 @@ auto camera_psdk_data_callback(T_DjiDownloadFilePacketInfo packetInfo,
 camera_psdk::camera_psdk(const std::string& model_file, mission& m)
     : inference_(model_file), mission_(m) {
   T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
-  BOOST_VERIFY(osal);
+  OLYSEUS_VERIFY(osal);
 
   T_DjiReturnCode code{DjiCameraManager_Init()};
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   E_DjiCameraType camera_type{DJI_CAMERA_TYPE_UNKNOWN};
 
@@ -60,33 +60,33 @@ camera_psdk::camera_psdk(const std::string& model_file, mission& m)
 
   constexpr E_DjiMountPosition m_pos{drone::m_pos};
   code = DjiCameraManager_GetCameraType(m_pos, &camera_type);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-  BOOST_VERIFY(camera_type == DJI_CAMERA_TYPE_H20);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(camera_type == DJI_CAMERA_TYPE_H20);
 
   T_DjiCameraManagerFirmwareVersion firmware_version;
 
   code = DjiCameraManager_GetFirmwareVersion(m_pos, &firmware_version);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   // https://developer.dji.com/document/b0776c88-399e-4cd7-8142-681182de3dbd
   // At least: Matrice 300 RTK：V03.00.01.01
-  BOOST_VERIFY(firmware_version.firmware_version[0] >= 4);
+  OLYSEUS_VERIFY(firmware_version.firmware_version[0] >= 4);
 
   code =
       DjiCameraManager_SetMode(m_pos, DJI_CAMERA_MANAGER_WORK_MODE_SHOOT_PHOTO);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiCameraManager_SetShootPhotoMode(
       m_pos, DJI_CAMERA_MANAGER_SHOOT_PHOTO_MODE_SINGLE);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiCameraManager_RegDownloadFileDataCallback(
       m_pos, camera_psdk_data_callback);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   /* FIXME (remove)
   code = DjiLiveview_Init();
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   */
 
   T_DjiCameraManagerFileList media_file_list;
@@ -99,7 +99,7 @@ camera_psdk::camera_psdk(const std::string& model_file, mission& m)
   // &media_file_list);
   spdlog::info("Downloading file list: DONE");  // FIXME (remove)
 
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   for (int i = 0; i < media_file_list.totalCount; ++i) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     const T_DjiCameraManagerFileListInfo& info{media_file_list.fileListInfo[i]};
@@ -117,7 +117,7 @@ camera_psdk::camera_psdk(const std::string& model_file, mission& m)
     }
 
     auto res{already_present_indexes_.insert(info.fileIndex)};
-    BOOST_VERIFY(res.second);
+    OLYSEUS_VERIFY(res.second);
   }
 
   spdlog::info("Number of JPEG files on SD card: {}",
@@ -127,13 +127,13 @@ camera_psdk::camera_psdk(const std::string& model_file, mission& m)
 camera_psdk::~camera_psdk() {
   /* FIXME (remove)
   T_DjiReturnCode code{DjiLiveview_Init()};
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   */
 
   spdlog::info("Deinit camera");  // FIXME (remove)
   const T_DjiReturnCode code = DjiCameraManager_DeInit();
   spdlog::info("Deinit camera: DONE");  // FIXME (remove)
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
 void camera_psdk::shoot_photo(const gps_coordinates& gps,
@@ -155,7 +155,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps,
     T_DjiCameraOpticalZoomSpec optical_zoom_spec;
     T_DjiReturnCode code{DjiPayloadCamera_GetCameraOpticalZoomSpecOfPayload(
         m_pos, &optical_zoom_spec)};
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     spdlog::debug("focal length min: {}, max: {}, step: {}",
                   optical_zoom_spec.minFocalLength,
                   optical_zoom_spec.maxFocalLength,
@@ -169,71 +169,71 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps,
     E_DjiCameraManagerFocusMode focus_mode{
         DJI_CAMERA_MANAGER_FOCUS_MODE_UNKNOWN};
     code = DjiCameraManager_GetFocusMode(m_pos, &focus_mode);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     if (focus_mode != expected_focus_mode) {
       spdlog::debug("Changing focus mode to MF");
       code = DjiCameraManager_SetFocusMode(m_pos, expected_focus_mode);
-      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     }
 
     uint16_t focal_length{0};
     code = DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload(
         m_pos, &focal_length);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     spdlog::debug("Focal length: {}", focal_length);
-    BOOST_VERIFY(focal_length == optical_zoom_spec.minFocalLength);
+    OLYSEUS_VERIFY(focal_length == optical_zoom_spec.minFocalLength);
 
     // FIXME, try:
     // DJI_CAMERA_MANAGER_EXPOSURE_MODE_PROGRAM_AUTO
     // DJI_CAMERA_MANAGER_EXPOSURE_MODE_EXPOSURE_MANUAL
     code = DjiCameraManager_SetExposureMode(
         m_pos, DJI_CAMERA_MANAGER_EXPOSURE_MODE_PROGRAM_AUTO);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     if (false) {  // FIXME (upstream issue)
       code = DjiCameraManager_SetISO(m_pos, DJI_CAMERA_MANAGER_ISO_100);
-      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
       code = DjiCameraManager_SetAperture(
           m_pos, DJI_CAMERA_MANAGER_APERTURE_F_1_DOT_7);
-      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
       code = DjiCameraManager_SetShutterSpeed(
           m_pos, DJI_CAMERA_MANAGER_SHUTTER_SPEED_1_8000);
-      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     }
 
     spdlog::debug("Call DjiCameraManager_StartShootPhoto");
     code = DjiCameraManager_StartShootPhoto(
         m_pos, DJI_CAMERA_MANAGER_SHOOT_PHOTO_MODE_SINGLE);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     spdlog::debug("DjiCameraManager_StartShootPhoto OK");
 
     // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     if (false) {  // FIXME (upstream issue)
       E_DjiCameraManagerISO iso{DJI_CAMERA_MANAGER_ISO_FIXED};
       code = DjiCameraManager_GetISO(m_pos, &iso);
-      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
       spdlog::info("ISO: {}", iso_name(iso));
 
       E_DjiCameraManagerAperture aperture{
           DJI_CAMERA_MANAGER_APERTURE_F_UNKNOWN};
       code = DjiCameraManager_GetAperture(m_pos, &aperture);
-      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
       spdlog::info("aperture: {}", aperture_name(aperture));
 
       E_DjiCameraManagerShutterSpeed shutter_speed{
           DJI_CAMERA_MANAGER_SHUTTER_SPEED_UNKNOWN};
       code = DjiCameraManager_GetShutterSpeed(m_pos, &shutter_speed);
-      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
       spdlog::info("shutter speed: {}", shutter_speed_name(shutter_speed));
 
       E_DjiCameraManagerExposureCompensation compensation{
           DJI_CAMERA_MANAGER_EXPOSURE_COMPENSATION_FIXED};
       code = DjiCameraManager_GetExposureCompensation(m_pos, &compensation);
-      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
       spdlog::info("exposure compensation: {}",
                    compensation_name(compensation));
     }
@@ -258,7 +258,7 @@ auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
     const T_DjiReturnCode code{
         DjiCameraManager_DownloadFileList(m_pos, &media_file_list)};
     spdlog::debug("Downloading file list: DONE");  // FIXME (remove)
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   }
 
   std::vector<std::pair<uint32_t, T_DjiCameraManagerFileCreateTime>>
@@ -281,10 +281,10 @@ auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
     if (!std::regex_match(info.fileName, jpeg_regex)) {
       continue;
     }
-    BOOST_VERIFY(info.type == DJI_CAMERA_FILE_TYPE_JPEG);
+    OLYSEUS_VERIFY(info.type == DJI_CAMERA_FILE_TYPE_JPEG);
 
     auto res{new_indexes.insert(info.fileIndex)};
-    BOOST_VERIFY(res.second);
+    OLYSEUS_VERIFY(res.second);
 
     if (already_present_indexes_.find(info.fileIndex) ==
         already_present_indexes_.end()) {
@@ -327,7 +327,7 @@ void camera_psdk::process_inference_files(
 
   const fs::path top_dir{"/var/opt/i_seed_drone_onboard"};
   fs::create_directories(top_dir);
-  BOOST_VERIFY(fs::is_directory(top_dir));
+  OLYSEUS_VERIFY(fs::is_directory(top_dir));
 
   for (const auto& x : inference_files) {
     const uint32_t file_index{x.first};
@@ -341,7 +341,7 @@ void camera_psdk::process_inference_files(
              << static_cast<unsigned>(t.second) << ".jpg";
 
     const fs::path dst_path{top_dir / file_dst.str()};
-    BOOST_VERIFY(camera_psdk_file_dst.empty());
+    OLYSEUS_VERIFY(camera_psdk_file_dst.empty());
     camera_psdk_file_dst = dst_path.string();
     spdlog::info("Download file with index {} to {}", file_index,
                  camera_psdk_file_dst);
@@ -351,22 +351,22 @@ void camera_psdk::process_inference_files(
     if (code != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
       spdlog::critical("Error code: {}", code);
     }
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     // global variable should be cleared in callbacks for future use
-    BOOST_VERIFY(camera_psdk_file_dst.empty());
+    OLYSEUS_VERIFY(camera_psdk_file_dst.empty());
 
     // check file is created at this point
-    BOOST_VERIFY(fs::is_regular_file(dst_path));
+    OLYSEUS_VERIFY(fs::is_regular_file(dst_path));
 
     // The file can be deleted only after a download from sd card
     code = DjiCameraManager_DeleteFileByIndex(m_pos, file_index);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     queue_entry queue_head{};
     {
       const std::lock_guard lock{queue_mutex_};
-      BOOST_VERIFY(!queue_.empty());
+      OLYSEUS_VERIFY(!queue_.empty());
       queue_head = queue_.front();
     }
 
@@ -419,7 +419,7 @@ void camera_psdk::process_inference_files(
     // Backward mission will only start when queue is empty
     {
       const std::lock_guard lock{queue_mutex_};
-      BOOST_VERIFY(!queue_.empty());
+      OLYSEUS_VERIFY(!queue_.empty());
       queue_.pop_front();
     }
   }

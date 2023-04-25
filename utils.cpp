@@ -1,6 +1,6 @@
 #include "utils.h"
 
-#include <boost/assert.hpp>  // BOOST_VERIFY
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 #include "inference.h"
 
@@ -25,11 +25,11 @@ auto gimbal_rotation_params_with_heading_degree(double yaw_x_degree,
   if (yaw_result < -straight_angle) {
     yaw_result += full_angle;
   }
-  BOOST_VERIFY(yaw_result >= -straight_angle);
-  BOOST_VERIFY(yaw_result <= straight_angle);
+  OLYSEUS_VERIFY(yaw_result >= -straight_angle);
+  OLYSEUS_VERIFY(yaw_result <= straight_angle);
 
-  BOOST_VERIFY(pitch_z_degree >= 0.0);
-  BOOST_VERIFY(pitch_z_degree < right_angle);
+  OLYSEUS_VERIFY(pitch_z_degree >= 0.0);
+  OLYSEUS_VERIFY(pitch_z_degree < right_angle);
 
   return {yaw_result, pitch_z_degree - right_angle};
 }
@@ -57,10 +57,10 @@ auto gimbal_rotation_params(double x_pixel, double y_pixel,
   constexpr std::size_t h20_img_width{inference::h20_img_width};
   constexpr std::size_t h20_img_height{inference::h20_img_height};
 
-  BOOST_VERIFY(x_pixel >= 0.0);
-  BOOST_VERIFY(y_pixel >= 0.0);
-  BOOST_VERIFY(x_pixel <= h20_img_width);
-  BOOST_VERIFY(y_pixel <= h20_img_height);
+  OLYSEUS_VERIFY(x_pixel >= 0.0);
+  OLYSEUS_VERIFY(y_pixel >= 0.0);
+  OLYSEUS_VERIFY(x_pixel <= h20_img_width);
+  OLYSEUS_VERIFY(y_pixel <= h20_img_height);
 
   static constexpr std::size_t width_half{h20_img_width / 2};
   static constexpr std::size_t height_half{h20_img_height / 2};
@@ -80,7 +80,7 @@ auto gimbal_rotation_params(double x_pixel, double y_pixel,
 
   const double pixel_to_m{sensor_size_width_m / h20_img_width};
   constexpr double eps{1e-8};
-  BOOST_VERIFY(std::abs(pixel_to_m - sensor_size_height_m / h20_img_height) <
+  OLYSEUS_VERIFY(std::abs(pixel_to_m - sensor_size_height_m / h20_img_height) <
                eps);
 
   const double x_m{x_c * pixel_to_m};

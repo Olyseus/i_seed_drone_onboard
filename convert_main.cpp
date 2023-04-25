@@ -12,6 +12,7 @@
 #include <iostream>              // std::cerr
 
 #include "inference.h"
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 class logger : public nvinfer1::ILogger {
  public:
@@ -92,7 +93,7 @@ auto run_main(int argc, char** argv) -> int {
 
     std::unique_ptr<nvinfer1::IBuilder> builder{
         nvinfer1::createInferBuilder(infer_logger)};
-    BOOST_VERIFY(builder);
+    OLYSEUS_VERIFY(builder);
     builder->setMaxBatchSize(inference::n_batch);
 
     constexpr uint32_t builder_flags{
@@ -100,30 +101,30 @@ auto run_main(int argc, char** argv) -> int {
             nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH)};
     std::unique_ptr<nvinfer1::INetworkDefinition> network{
         builder->createNetworkV2(builder_flags)};
-    BOOST_VERIFY(network);
+    OLYSEUS_VERIFY(network);
 
     std::unique_ptr<nvonnxparser::IParser> parser{
         nvonnxparser::createParser(*network, infer_logger)};
-    BOOST_VERIFY(parser);
+    OLYSEUS_VERIFY(parser);
 
     const bool parse_ok{parser->parseFromFile(
         onnx.c_str(), static_cast<int>(nvinfer1::ILogger::Severity::kINFO))};
-    BOOST_VERIFY(parse_ok);
+    OLYSEUS_VERIFY(parse_ok);
 
     std::unique_ptr<nvinfer1::IBuilderConfig> config{
         builder->createBuilderConfig()};
-    BOOST_VERIFY(config);
+    OLYSEUS_VERIFY(config);
 
     std::unique_ptr<nvinfer1::IHostMemory> serialized{
         builder->buildSerializedNetwork(*network, *config)};
-    BOOST_VERIFY(serialized);
+    OLYSEUS_VERIFY(serialized);
 
     std::ofstream engine_file(engine, std::ios::binary);
-    BOOST_VERIFY(engine_file);
+    OLYSEUS_VERIFY(engine_file);
 
     engine_file.write(static_cast<char*>(serialized->data()),
                       serialized->size());
-    BOOST_VERIFY(!engine_file.fail());
+    OLYSEUS_VERIFY(!engine_file.fail());
 
     return EXIT_SUCCESS;
   } catch (const std::system_error& exc) {

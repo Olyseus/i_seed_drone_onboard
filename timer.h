@@ -1,8 +1,9 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
-#include <boost/assert.hpp>  // BOOST_VERIFY
 #include <chrono>
+
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 /// \brief Simple timer
 class timer {
@@ -13,7 +14,7 @@ class timer {
   /// \brief Show elapsed time in milliseconds
   int64_t elapsed_ms() const {
     namespace ch = std::chrono;
-    BOOST_VERIFY(start_ != time_point::min());
+    OLYSEUS_VERIFY(start_ != time_point::min());
     const auto elapsed{clock::now() - start_};
     return ch::duration_cast<ch::milliseconds>(elapsed).count();
   }

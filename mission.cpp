@@ -2,11 +2,11 @@
 
 #include <spdlog/spdlog.h>
 
-#include <boost/assert.hpp>  // BOOST_VERIFY
 #include <thread>            // std::this_thread
 
 #include "home_altitude.h"
-#include "utils.h"          // deg2rad
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
+#include "utils.h"           // deg2rad
 
 mission::mission() noexcept = default;
 mission::~mission() = default;
@@ -49,7 +49,7 @@ auto mission::waypoint_reached(float laser_range)
     -> std::pair<waypoint_action, std::size_t> {
   const std::lock_guard lock{m_};
 
-  BOOST_VERIFY(in_progress_);
+  OLYSEUS_VERIFY(in_progress_);
 
   constexpr auto unused_index{std::numeric_limits<std::size_t>::max()};
 
@@ -63,10 +63,10 @@ auto mission::waypoint_reached(float laser_range)
 
   if (std::abs(laser_range - waypoint::expected_height) > 1.0F) {
     spdlog::info("Bad laser range, waypoint altitude tweak");
-    BOOST_VERIFY(is_forward_);
-    BOOST_VERIFY(w.is_default_altitude());
+    OLYSEUS_VERIFY(is_forward_);
+    OLYSEUS_VERIFY(w.is_default_altitude());
     w.set_custom_altitude(laser_range);
-    BOOST_VERIFY(!w.is_default_altitude());
+    OLYSEUS_VERIFY(!w.is_default_altitude());
     return {waypoint_action::restart, unused_index};
   }
 
@@ -78,7 +78,7 @@ auto mission::waypoint_reached(float laser_range)
 auto mission::upload_mission_and_start() -> bool {
   const std::lock_guard lock{m_};
 
-  BOOST_VERIFY(in_progress_);
+  OLYSEUS_VERIFY(in_progress_);
 
   spdlog::info("Upload mission and start");
 
@@ -107,7 +107,7 @@ auto mission::upload_mission_and_start() -> bool {
   if (is_forward_) {
     for (const waypoint& w : global_waypoints_) {
       if (w.is_forward_ready()) {
-        BOOST_VERIFY(waypoints_.empty());
+        OLYSEUS_VERIFY(waypoints_.empty());
         continue;
       }
       waypoints_.push_back(make_waypoint(w));
@@ -117,8 +117,8 @@ auto mission::upload_mission_and_start() -> bool {
     for (auto it{global_waypoints_.rbegin()}; it != global_waypoints_.rend();
          ++it) {
       const waypoint& w{*it};
-      BOOST_VERIFY(w.is_forward_ready());
-      BOOST_VERIFY(!w.is_backward_ready());
+      OLYSEUS_VERIFY(w.is_forward_ready());
+      OLYSEUS_VERIFY(!w.is_backward_ready());
       if (w.has_detection()) {
         waypoints_.push_back(make_waypoint(w));
       }
@@ -140,8 +140,8 @@ auto mission::upload_mission_and_start() -> bool {
   s.mission = waypoints_.data();
 
   s.missTotalLen = waypoints_.size();
-  BOOST_VERIFY(s.missTotalLen >= 2);
-  BOOST_VERIFY(s.missTotalLen <= 65535);
+  OLYSEUS_VERIFY(s.missTotalLen >= 2);
+  OLYSEUS_VERIFY(s.missTotalLen <= 65535);
 
   spdlog::info("Mission start, ID {}", s.missionID);
 
@@ -151,7 +151,7 @@ auto mission::upload_mission_and_start() -> bool {
     // Assuming that mission can't be uploaded because it's paused
     spdlog::critical("Resume previous mission (?)");
     code = DjiWaypointV2_Resume();
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     while (true) {
       code = DjiWaypointV2_UploadMission(&s);
@@ -163,14 +163,14 @@ auto mission::upload_mission_and_start() -> bool {
     }
   }
 #endif
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   // If DjiWaypointV2_Start failed
   constexpr int wait_ms{1500};
   std::this_thread::sleep_for(std::chrono::milliseconds(wait_ms));
 
   code = DjiWaypointV2_Start();
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   mission_state_.start();
 
@@ -179,18 +179,18 @@ auto mission::upload_mission_and_start() -> bool {
 
 void mission::set_backward() {
   const std::lock_guard lock{m_};
-  BOOST_VERIFY(in_progress_);
+  OLYSEUS_VERIFY(in_progress_);
   {
     const std::lock_guard lock{is_finishing_mutex_};
     is_finishing_ = false;
   }
-  BOOST_VERIFY(is_forward_);
+  OLYSEUS_VERIFY(is_forward_);
   is_forward_ = false;
 }
 
 auto mission::is_forward() const -> bool {
   const std::lock_guard lock{m_};
-  BOOST_VERIFY(in_progress_);
+  OLYSEUS_VERIFY(in_progress_);
   return is_forward_;
 }
 
@@ -206,7 +206,7 @@ auto mission::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
 
   if (notify_finished) {
     const std::lock_guard lock{is_finishing_mutex_};
-    BOOST_VERIFY(!is_finishing_);
+    OLYSEUS_VERIFY(!is_finishing_);
     is_finishing_ = true;
     return true;
   }
@@ -223,15 +223,15 @@ auto mission::update(T_DjiWaypointV2MissionStatePush state_data)
       mission_state_.update(state_data);
 
   if (!mission_started) {
-    BOOST_VERIFY(!notify);
-    BOOST_VERIFY(!notify_finished);
+    OLYSEUS_VERIFY(!notify);
+    OLYSEUS_VERIFY(!notify_finished);
     return {mission_started, notify};
   }
 
   if (notify_finished) {
     const std::lock_guard lock{is_finishing_mutex_};
-    BOOST_VERIFY(notify);
-    BOOST_VERIFY(!is_finishing_);
+    OLYSEUS_VERIFY(notify);
+    OLYSEUS_VERIFY(!is_finishing_);
     is_finishing_ = true;
   }
 
@@ -250,14 +250,14 @@ void mission::abort_mission() {
   }
 
   const T_DjiReturnCode code{DjiWaypointV2_Stop()};
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
 void mission::mission_stop(home_altitude& h) {
   h.mission_stop();
 
   const std::lock_guard lock{m_};
-  BOOST_VERIFY(in_progress_);
+  OLYSEUS_VERIFY(in_progress_);
   in_progress_ = false;
 }
 
@@ -275,7 +275,7 @@ auto mission::resume() -> bool {
 
   spdlog::info("Mission resume");
   const T_DjiReturnCode code{DjiWaypointV2_Resume()};
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   return true;
 }
 
@@ -296,15 +296,15 @@ auto mission::get_state() const -> interconnection::drone_coordinates::state_t {
 
 auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
   const std::lock_guard lock{m_};
-  BOOST_VERIFY(in_progress_);
-  BOOST_VERIFY(index < global_waypoints_.size());
+  OLYSEUS_VERIFY(in_progress_);
+  OLYSEUS_VERIFY(index < global_waypoints_.size());
   return global_waypoints_.at(index);
 }
 
 void mission::save_detection(std::size_t index,
                              const detection_result& result) {
   const std::lock_guard lock{m_};
-  BOOST_VERIFY(index < global_waypoints_.size());
+  OLYSEUS_VERIFY(index < global_waypoints_.size());
   global_waypoints_.at(index).save_detection(result);
 }
 
@@ -317,7 +317,7 @@ auto mission::make_waypoint(const waypoint& w) const -> T_DjiWaypointV2 {
   std::string heading_str{"auto"};
 
   if (!is_forward_) {
-    BOOST_VERIFY(w.has_detection());
+    OLYSEUS_VERIFY(w.has_detection());
     heading = w.heading();
     heading_str = std::to_string(heading);
   }
@@ -371,7 +371,7 @@ auto mission::current_waypoint_index() const -> std::optional<std::size_t> {
     for (std::size_t i{0}; i < global_waypoints_.size(); ++i) {
       const waypoint& w{global_waypoints_[i]};
       if (result.has_value()) {
-        BOOST_VERIFY(!w.is_forward_ready());
+        OLYSEUS_VERIFY(!w.is_forward_ready());
         continue;
       }
 
@@ -386,7 +386,7 @@ auto mission::current_waypoint_index() const -> std::optional<std::size_t> {
       const std::size_t index{i - 1};
       const waypoint& w{global_waypoints_[index]};
       if (result.has_value()) {
-        BOOST_VERIFY(!w.is_backward_ready());
+        OLYSEUS_VERIFY(!w.is_backward_ready());
         continue;
       }
 

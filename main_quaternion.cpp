@@ -41,7 +41,7 @@ void setup_logging() {
 
 T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size,
                                     const T_DjiDataTimestamp* timestamp) {
-  BOOST_VERIFY(data != nullptr);
+  OLYSEUS_VERIFY(data != nullptr);
   const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};
   (void)data_size;
   (void)timestamp;
@@ -68,19 +68,19 @@ T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size,
 
   spdlog::info("roll: {}, pitch: {}, yaw: {}", roll, pitch, yaw);
 
-  BOOST_VERIFY(yaw >= -180.0);
-  BOOST_VERIFY(yaw <= 180.0);
-  BOOST_VERIFY(pitch > -90.0);
-  BOOST_VERIFY(pitch < 90.0);
-  BOOST_VERIFY(roll > -90.0);
-  BOOST_VERIFY(roll < 90.0);
+  OLYSEUS_VERIFY(yaw >= -180.0);
+  OLYSEUS_VERIFY(yaw <= 180.0);
+  OLYSEUS_VERIFY(pitch > -90.0);
+  OLYSEUS_VERIFY(pitch < 90.0);
+  OLYSEUS_VERIFY(roll > -90.0);
+  OLYSEUS_VERIFY(roll < 90.0);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
 T_DjiReturnCode position_fused_callback(const uint8_t* data, uint16_t data_size,
                                         const T_DjiDataTimestamp* timestamp) {
-  BOOST_VERIFY(data != nullptr);
+  OLYSEUS_VERIFY(data != nullptr);
   const auto position{*(const T_DjiFcSubscriptionPositionFused*)data};
   (void)data_size;
   (void)timestamp;
@@ -96,23 +96,23 @@ auto run_main(int argc, char** argv) -> int {
   setup_logging();
 
   try {
-    BOOST_VERIFY(argc == 1);
-    BOOST_VERIFY(argv != nullptr);
+    OLYSEUS_VERIFY(argc == 1);
+    OLYSEUS_VERIFY(argv != nullptr);
     auto app{std::make_unique<Application>()};
 
     T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
-    BOOST_VERIFY(osal);
+    OLYSEUS_VERIFY(osal);
 
     // Wait for SDK to start
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     T_DjiReturnCode code{DjiFcSubscription_Init()};
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiFcSubscription_SubscribeTopic(
         DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
         quaternion_callback);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiFcSubscription_SubscribeTopic(
         DJI_FC_SUBSCRIPTION_TOPIC_POSITION_FUSED,
@@ -124,7 +124,7 @@ auto run_main(int argc, char** argv) -> int {
     }
 
     code = DjiFcSubscription_DeInit();
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     return EXIT_SUCCESS;
   } catch (const std::system_error& exc) {

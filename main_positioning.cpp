@@ -40,7 +40,7 @@ void setup_logging() {
 }
 
 T_DjiReturnCode get_newest_pps_callback(uint64_t* local_time_us) {
-  BOOST_VERIFY(local_time_us != nullptr);
+  OLYSEUS_VERIFY(local_time_us != nullptr);
 
   /* FIXME (implement?)
   if (s_ppsNewestTriggerLocalTimeMs == 0) {
@@ -58,22 +58,22 @@ auto run_main(int argc, char** argv) -> int {
   setup_logging();
 
   try {
-    BOOST_VERIFY(argc == 1);
-    BOOST_VERIFY(argv != nullptr);
+    OLYSEUS_VERIFY(argc == 1);
+    OLYSEUS_VERIFY(argv != nullptr);
     auto app{std::make_unique<Application>()};
 
     T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
-    BOOST_VERIFY(osal);
+    OLYSEUS_VERIFY(osal);
 
     // Wait for SDK to start
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     // Will not work: https://sdk-forum.dji.net/hc/en-us/requests/75138
     T_DjiReturnCode code{DjiPositioning_Init()};
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiTimeSync_Init();
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     constexpr uint8_t task_index{0};
     DjiPositioning_SetTaskIndex(task_index);
@@ -81,14 +81,14 @@ auto run_main(int argc, char** argv) -> int {
     /* FIXME (enable?)
     code =
     DjiTimeSync_RegGetNewestPpsTriggerTimeCallback(get_newest_pps_callback);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     */
 
     T_DjiTimeSyncAircraftTime aircraft_time;
 
     uint32_t current_time_ms{0};
     code = osal->GetTimeMs(&current_time_ms);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     // FIXME uint64_t pps_newest_trigger_time_us{0};
     // FIXME constexpr uint64_t dji_test_time_interval_among_events_us{200000};
@@ -97,7 +97,7 @@ auto run_main(int argc, char** argv) -> int {
         // FIXME (???) pps_newest_trigger_time_us - 1000000 -
         // dji_test_time_interval_among_events_us,
         &aircraft_time);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     T_DjiPositioningEventInfo event_info;
     event_info.eventSetIndex = 0;
@@ -107,7 +107,7 @@ auto run_main(int argc, char** argv) -> int {
     T_DjiPositioningPositionInfo position_info;
     code = DjiPositioning_GetPositionInformationSync(1, &event_info,
                                                      &position_info);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     spdlog::info("position solution property: {}",
                  position_info.positionSolutionProperty);

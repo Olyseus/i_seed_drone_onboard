@@ -2,14 +2,12 @@
 
 #include <spdlog/spdlog.h>
 
-#include <boost/assert.hpp>  // BOOST_VERIFY
-
-#include "olyseus_verify.h"  // OLYSEUS_UNREACHABLE
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 void mission_state::start() {
   const std::lock_guard lock{m_};
 
-  BOOST_VERIFY(!is_started_);
+  OLYSEUS_VERIFY(!is_started_);
   is_started_ = true;
 
   initial_update_received_ = false;
@@ -22,7 +20,7 @@ void mission_state::start() {
 void mission_state::finish() {
   const std::lock_guard lock{m_};
 
-  BOOST_VERIFY(is_started_);
+  OLYSEUS_VERIFY(is_started_);
   is_started_ = false;
 }
 
@@ -43,10 +41,10 @@ auto mission_state::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
   // https://developer.dji.com/doc/payload-sdk-api-reference/en/practice/waypoint-v2-type.html#typedef-struct-t-djiwaypointv2missioneventpush
   if (event == 0x03) {  // finish, mission stop event
     spdlog::info("Finish event received");
-    BOOST_VERIFY(initial_update_received_);
-    BOOST_VERIFY(is_started_);
+    OLYSEUS_VERIFY(initial_update_received_);
+    OLYSEUS_VERIFY(is_started_);
     is_started_ = false;
-    BOOST_VERIFY(state_ != exit_mission);
+    OLYSEUS_VERIFY(state_ != exit_mission);
     state_ = exit_mission;
     spdlog::info("Updated state: {}", state_name());
 
@@ -76,7 +74,7 @@ auto mission_state::update(T_DjiWaypointV2MissionStatePush state_data)
   if (!initial_update_received_) {
     initial_update_received_ = true;
     state_ = state_data.state;
-    BOOST_VERIFY(state_ != exit_mission);
+    OLYSEUS_VERIFY(state_ != exit_mission);
     waypoint_index_ = waypoint_index;
     spdlog::info("Starting state: {}, waypoint #{}", state_name(),
                  waypoint_index_);
@@ -89,16 +87,16 @@ auto mission_state::update(T_DjiWaypointV2MissionStatePush state_data)
     spdlog::info("State: {}, waypoint #{}", state_name(), waypoint_index_);
     if (state_ == execute_flying_route_mission) {
       auto [it, inserted] = already_executed_.insert(waypoint_index_);
-      BOOST_VERIFY(it != already_executed_.end());
-      BOOST_VERIFY(*it == waypoint_index_);
+      OLYSEUS_VERIFY(it != already_executed_.end());
+      OLYSEUS_VERIFY(*it == waypoint_index_);
       notify = inserted;
     }
   }
 
   if (state_ == exit_mission) {
-    BOOST_VERIFY(!notify);
+    OLYSEUS_VERIFY(!notify);
     notify = true;
-    BOOST_VERIFY(is_started_);
+    OLYSEUS_VERIFY(is_started_);
     is_started_ = false;
     notify_finished = true;
     return {mission_started, notify, notify_finished};

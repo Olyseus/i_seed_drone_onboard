@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <boost/assert.hpp>  // BOOST_VERIFY
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
 #include "simulator.h"
@@ -58,7 +58,7 @@ void laser_range::value_received(float range) {
     const std::lock_guard lock{m_};
 
     latest_time_point_ = clock::now();
-    BOOST_VERIFY(latest_time_point_ != invalid_time_point);
+    OLYSEUS_VERIFY(latest_time_point_ != invalid_time_point);
 
     latest_value_ = range;
     spdlog::info("Received laser range: {}", latest_value_);
@@ -73,7 +73,7 @@ auto laser_range::latest(
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   {
     const std::lock_guard lock{m_};
-    BOOST_VERIFY(!values_.empty());
+    OLYSEUS_VERIFY(!values_.empty());
     const float simulated_range{values_.front()};
     values_.pop_front();
     spdlog::info("Simulating laser range: {}", simulated_range);
@@ -98,7 +98,7 @@ auto laser_range::latest(
         }
       }
 
-      BOOST_VERIFY(latest_time_point_ == invalid_time_point);
+      OLYSEUS_VERIFY(latest_time_point_ == invalid_time_point);
     }
 
     {
@@ -110,6 +110,6 @@ auto laser_range::latest(
     std::unique_lock lock{m_};
     condition_variable_.wait(
         lock, [this] { return latest_time_point_ != invalid_time_point; });
-    BOOST_VERIFY(latest_time_point_ != invalid_time_point);
+    OLYSEUS_VERIFY(latest_time_point_ != invalid_time_point);
   }
 }

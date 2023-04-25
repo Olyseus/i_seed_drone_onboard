@@ -41,14 +41,14 @@ inference::inference(const std::string& model_file) {
   t.start();
 
   std::ifstream engine_file(model_file, std::ios::binary);
-  BOOST_VERIFY(engine_file.good());
+  OLYSEUS_VERIFY(engine_file.good());
   engine_file.seekg(0, std::ifstream::end);
   const int64_t fsize{engine_file.tellg()};
   engine_file.seekg(0, std::ifstream::beg);
 
   std::vector<char> engine_data(fsize);
   engine_file.read(engine_data.data(), fsize);
-  BOOST_VERIFY(engine_file.good());
+  OLYSEUS_VERIFY(engine_file.good());
 
   spdlog::info("File read in {}ms", t.elapsed_ms());
 
@@ -59,68 +59,68 @@ inference::inference(const std::string& model_file) {
   // recorder)
   engine_.reset(
       runtime_->deserializeCudaEngine(engine_data.data(), fsize, nullptr));
-  BOOST_VERIFY(engine_);
+  OLYSEUS_VERIFY(engine_);
 
   spdlog::info("Engine loaded in {}ms", t.elapsed_ms());
 
   exe_context_.reset(engine_->createExecutionContext());
-  BOOST_VERIFY(exe_context_);
+  OLYSEUS_VERIFY(exe_context_);
 
-  BOOST_VERIFY(engine_->getNbOptimizationProfiles() == 1);
-  BOOST_VERIFY(engine_->getNbBindings() == 2);  // input + output
+  OLYSEUS_VERIFY(engine_->getNbOptimizationProfiles() == 1);
+  OLYSEUS_VERIFY(engine_->getNbBindings() == 2);  // input + output
 
   const int32_t bind_input{0};
   const int32_t bind_output{1};
 
-  BOOST_VERIFY(engine_->bindingIsInput(bind_input));
-  BOOST_VERIFY(!engine_->bindingIsInput(bind_output));
+  OLYSEUS_VERIFY(engine_->bindingIsInput(bind_input));
+  OLYSEUS_VERIFY(!engine_->bindingIsInput(bind_output));
 
   // 32 bit floating points
   static_assert(sizeof(float) == 4);
-  BOOST_VERIFY(engine_->getBindingDataType(bind_input) ==
+  OLYSEUS_VERIFY(engine_->getBindingDataType(bind_input) ==
                nvinfer1::DataType::kFLOAT);
-  BOOST_VERIFY(engine_->getBindingDataType(bind_output) ==
+  OLYSEUS_VERIFY(engine_->getBindingDataType(bind_output) ==
                nvinfer1::DataType::kFLOAT);
 
   const nvinfer1::Dims input_dims{
       exe_context_->getBindingDimensions(bind_input)};
-  BOOST_VERIFY(input_dims.nbDims == 4);
-  BOOST_VERIFY(input_dims.d[0] == n_batch);
-  BOOST_VERIFY(input_dims.d[1] == rgb_size);
-  BOOST_VERIFY(input_dims.d[2] == inference_img_height);
-  BOOST_VERIFY(input_dims.d[3] == inference_img_width);
+  OLYSEUS_VERIFY(input_dims.nbDims == 4);
+  OLYSEUS_VERIFY(input_dims.d[0] == n_batch);
+  OLYSEUS_VERIFY(input_dims.d[1] == rgb_size);
+  OLYSEUS_VERIFY(input_dims.d[2] == inference_img_height);
+  OLYSEUS_VERIFY(input_dims.d[3] == inference_img_width);
 
   const nvinfer1::Dims output_dims{
       exe_context_->getBindingDimensions(bind_output)};
-  BOOST_VERIFY(output_dims.nbDims == 3);
-  BOOST_VERIFY(output_dims.d[0] == n_batch);
-  BOOST_VERIFY(output_dims.d[1] == n_output_entries);
-  BOOST_VERIFY(output_dims.d[2] == output_entry_len);
+  OLYSEUS_VERIFY(output_dims.nbDims == 3);
+  OLYSEUS_VERIFY(output_dims.d[0] == n_batch);
+  OLYSEUS_VERIFY(output_dims.d[1] == n_output_entries);
+  OLYSEUS_VERIFY(output_dims.d[2] == output_entry_len);
 
   const nvinfer1::Dims strides{exe_context_->getStrides(bind_input)};
-  BOOST_VERIFY(strides.nbDims == 4);  // same as binding dimensions
-  BOOST_VERIFY(strides.d[0] == inference_img_height * inference_img_width *
+  OLYSEUS_VERIFY(strides.nbDims == 4);  // same as binding dimensions
+  OLYSEUS_VERIFY(strides.d[0] == inference_img_height * inference_img_width *
                                    rgb_size);  // stride between images
-  BOOST_VERIFY(strides.d[1] ==
+  OLYSEUS_VERIFY(strides.d[1] ==
                inference_img_height *
                    inference_img_width);  // stride between RGB color components
-  BOOST_VERIFY(strides.d[2] ==
+  OLYSEUS_VERIFY(strides.d[2] ==
                inference_img_width);  // stride between image rows
-  BOOST_VERIFY(strides.d[3] == 1);    // color components have no padding
+  OLYSEUS_VERIFY(strides.d[3] == 1);    // color components have no padding
 
   const nvinfer1::Dims output_strides{exe_context_->getStrides(bind_output)};
-  BOOST_VERIFY(output_strides.nbDims == 3);  // same as binding dimensions
-  BOOST_VERIFY(output_strides.d[0] == n_output_entries * output_entry_len);
-  BOOST_VERIFY(output_strides.d[1] == output_entry_len);
-  BOOST_VERIFY(output_strides.d[2] == 1);  // no padding
+  OLYSEUS_VERIFY(output_strides.nbDims == 3);  // same as binding dimensions
+  OLYSEUS_VERIFY(output_strides.d[0] == n_output_entries * output_entry_len);
+  OLYSEUS_VERIFY(output_strides.d[1] == output_entry_len);
+  OLYSEUS_VERIFY(output_strides.d[2] == 1);  // no padding
 
-  BOOST_VERIFY(engine_->getBindingVectorizedDim(bind_input) ==
+  OLYSEUS_VERIFY(engine_->getBindingVectorizedDim(bind_input) ==
                -1);  // Not vectorized
-  BOOST_VERIFY(engine_->getBindingComponentsPerElement(bind_input) ==
+  OLYSEUS_VERIFY(engine_->getBindingComponentsPerElement(bind_input) ==
                -1);  // Since not vectorized
-  BOOST_VERIFY(engine_->getBindingVectorizedDim(bind_output) ==
+  OLYSEUS_VERIFY(engine_->getBindingVectorizedDim(bind_output) ==
                -1);  // Not vectorized
-  BOOST_VERIFY(engine_->getBindingComponentsPerElement(bind_output) ==
+  OLYSEUS_VERIFY(engine_->getBindingComponentsPerElement(bind_output) ==
                -1);  // Since not vectorized
 
   t.start();
@@ -128,13 +128,13 @@ inference::inference(const std::string& model_file) {
   cudaError_t err{cudaMalloc(&dev_input_ptr_, n_batch * inference_img_height *
                                                   inference_img_width *
                                                   rgb_size * sizeof(float))};
-  BOOST_VERIFY(dev_input_ptr_);
-  BOOST_VERIFY(err == cudaSuccess);
+  OLYSEUS_VERIFY(dev_input_ptr_);
+  OLYSEUS_VERIFY(err == cudaSuccess);
 
   err = cudaMalloc(&dev_output_ptr_, n_batch * n_output_entries *
                                          output_entry_len * sizeof(float));
-  BOOST_VERIFY(dev_output_ptr_);
-  BOOST_VERIFY(err == cudaSuccess);
+  OLYSEUS_VERIFY(dev_output_ptr_);
+  OLYSEUS_VERIFY(err == cudaSuccess);
 
   output_data_.reserve(n_batch * n_output_entries * output_entry_len);
   input_data_.reserve(n_batch * inference_img_height * inference_img_width *
@@ -145,10 +145,10 @@ inference::inference(const std::string& model_file) {
 
 inference::~inference() {
   cudaError_t err = cudaFree(dev_input_ptr_);
-  BOOST_VERIFY(err == cudaSuccess);
+  OLYSEUS_VERIFY(err == cudaSuccess);
 
   err = cudaFree(dev_output_ptr_);
-  BOOST_VERIFY(err == cudaSuccess);
+  OLYSEUS_VERIFY(err == cudaSuccess);
 }
 
 auto inference::run(const std::string& image) -> std::vector<bounding_box> {
@@ -161,8 +161,8 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
   boost::gil::rgb8_image_t input_image;
   boost::gil::jpeg_read_image(image, input_image);
   const auto image_view{boost::gil::const_view(input_image)};
-  BOOST_VERIFY(input_image.height() == h20_img_height);
-  BOOST_VERIFY(input_image.width() == h20_img_width);
+  OLYSEUS_VERIFY(input_image.height() == h20_img_height);
+  OLYSEUS_VERIFY(input_image.width() == h20_img_width);
 
   spdlog::info("Image uint8 read from disk in {}ms", t.elapsed_ms());
 
@@ -176,7 +176,7 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
   cudaError_t err =
       cudaMemcpy(dev_input_ptr_, input_data_.data(),
                  input_data_.size() * sizeof(float), cudaMemcpyHostToDevice);
-  BOOST_VERIFY(err == cudaSuccess);
+  OLYSEUS_VERIFY(err == cudaSuccess);
 
   spdlog::info("Input data pushed to GPU in {}ms", t.elapsed_ms());
 
@@ -184,7 +184,7 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
 
   std::array<void*, 2> exe_ptr{dev_input_ptr_, dev_output_ptr_};
   const bool ok{exe_context_->execute(n_batch, exe_ptr.data())};
-  BOOST_VERIFY(ok);
+  OLYSEUS_VERIFY(ok);
 
   spdlog::info("Inference done in {}ms", t.elapsed_ms());
 
@@ -193,7 +193,7 @@ auto inference::run(const std::string& image) -> std::vector<bounding_box> {
   output_data_.resize(n_batch * n_output_entries * output_entry_len);
   err = cudaMemcpy(output_data_.data(), dev_output_ptr_,
                    output_data_.size() * sizeof(float), cudaMemcpyDeviceToHost);
-  BOOST_VERIFY(err == cudaSuccess);
+  OLYSEUS_VERIFY(err == cudaSuccess);
 
   spdlog::info("Output data fetched from GPU in {}ms", t.elapsed_ms());
 
@@ -309,7 +309,7 @@ void inference::analyze_entries(float* data, std::size_t x_shift,
         ++it;
         continue;
       }
-      BOOST_VERIFY(box.confidence() >= it->confidence());
+      OLYSEUS_VERIFY(box.confidence() >= it->confidence());
       it = bboxes.erase(it);
     }
 
