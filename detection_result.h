@@ -9,7 +9,6 @@ struct gps_coordinates {
   double longitude;
   double latitude;
   float altitude;
-  // FIXME (???) float relative_altitude;
 };
 
 /// \brief Drone and gimbal attitude

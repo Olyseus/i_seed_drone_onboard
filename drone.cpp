@@ -445,7 +445,6 @@ void drone::action_job_internal() {
     const gps_coordinates gps{.longitude = drone_longitude_,
                               .latitude = drone_latitude_,
                               .altitude = drone_altitude_};
-    // FIXME (???) gps.relative_altitude = w.altitude();
 
     const attitude drone_attitude{
         .pitch = drone_pitch_, .roll = drone_roll_, .yaw = drone_yaw_};
@@ -478,7 +477,6 @@ void drone::action_job_internal() {
       const gps_coordinates gps{.longitude = drone_longitude_,
                                 .latitude = drone_latitude_,
                                 .altitude = drone_altitude_};
-      // FIXME (???) gps.relative_altitude = 0.0;  // not used
 
       const attitude drone_attitude{
           .pitch = drone_pitch_, .roll = drone_roll_, .yaw = drone_yaw_};
