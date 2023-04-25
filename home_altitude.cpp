@@ -2,7 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <numeric>           // std::accumulate
+#include <numeric>  // std::accumulate
 
 #include "olyseus_verify.h"  // OLYSEUS_VERIFY
 

@@ -2,13 +2,14 @@
 
 #include <spdlog/spdlog.h>
 
-#include <algorithm>         // std::max
+#include <algorithm>  // std::max
 
 #include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 bounding_box::bounding_box(const float* p, std::size_t x_shift,
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-                           std::size_t y_shift) : confidence_(p[4]) {
+                           std::size_t y_shift)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    : confidence_(p[4]) {
   // https://github.com/ultralytics/yolov5/issues/1277#issuecomment-1081657025
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float x{p[0] + static_cast<float>(x_shift)};

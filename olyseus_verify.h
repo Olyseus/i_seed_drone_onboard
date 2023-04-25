@@ -31,6 +31,7 @@ namespace olyseus {
        : ::olyseus::assertion_failed_msg(#expr, msg, BOOST_CURRENT_FUNCTION, \
                                          __FILE__, __LINE__))
 
-#define OLYSEUS_UNREACHABLE OLYSEUS_VERIFY_MSG(false, "Unreachable code reached")
+#define OLYSEUS_UNREACHABLE \
+  OLYSEUS_VERIFY_MSG(false, "Unreachable code reached")
 
 #endif  // OLYSEUS_VERIFY_H_

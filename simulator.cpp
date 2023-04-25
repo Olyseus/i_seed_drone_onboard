@@ -1,6 +1,6 @@
 #include "simulator.h"
 
-#include <thread>            // std::this_thread
+#include <thread>  // std::this_thread
 
 #include "drone.h"
 #include "olyseus_verify.h"  // OLYSEUS_VERIFY

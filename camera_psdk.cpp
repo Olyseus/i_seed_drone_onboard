@@ -1,6 +1,6 @@
 #include "camera_psdk.h"
 
-#include <dji_liveview.h>        // DjiLiveview_Init
+#include <dji_liveview.h>  // DjiLiveview_Init
 #include <dji_payload_camera.h>  // DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload
 #include <spdlog/spdlog.h>
 

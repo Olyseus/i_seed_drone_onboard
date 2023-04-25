@@ -3,9 +3,11 @@
 
 #include <dji_typedef.h>  // T_DjiReturnCode
 
+// clang-format off
 /// \brief Wrapper for the
 ///     <a href="https://developer.dji.com/doc/payload-sdk-api-reference/en/core/dji-error.html">T_DjiReturnCode</a>
 ///     from Payload SDK
+// clang-format on
 class api_code {
  public:
   /// \throw pipeline_closed
