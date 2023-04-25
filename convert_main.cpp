@@ -34,7 +34,7 @@ class logger : public nvinfer1::ILogger {
         spdlog::debug(msg);
         break;
       default:
-        BOOST_VERIFY_MSG(false, "unreachable");
+        OLYSEUS_UNREACHABLE;
         break;
     }
   }
