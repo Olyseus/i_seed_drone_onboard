@@ -1,0 +1,141 @@
+name: CMake
+
+on:
+  push:
+    branches-ignore:
+    - 'wip.*'
+    - 'pr.*'
+    tags:
+    - 'v*'
+  release:
+    types: [published, created, released]
+  pull_request:
+    branches:
+    - '*'
+
+jobs:
+  build:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#github-hosted-runners
+        include:
+          - os: ubuntu-18.04
+            build_type: Release
+            clang_checks: false
+          - os: ubuntu-18.04
+            build_type: Release
+            clang_checks: true
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ssh-key: ${{ secrets.OLYSEUS_BOT_SSH_PRIVATE_KEY }}
+        submodules: true
+
+    - name: Install system dependencies
+      run: |
+        sudo apt -y update
+        sudo apt install -y libboost-all-dev
+
+    - name: Install Doxygen
+      run: |
+        sudo apt -y install doxygen
+        sudo apt -y install graphviz
+        sudo apt -y install libjs-mathjax
+
+    - name: Install Ninja
+      run: sudo apt -y install ninja-build
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{github.workspace}}/_builds /home/runner/opt ${{github.workspace}}/_deps
+
+    - name: Cache Clang
+      id: cache_clang
+      uses: actions/cache@v1
+      if: ${{matrix.clang_checks}}
+      with:
+        path: '/home/runner/opt/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04/'
+        key: '${{runner.os}}_clang_9_0_0_ubuntu_18_04'
+
+    - name: Install Clang
+      if: ${{matrix.clang_checks && steps.cache_clang.outputs.cache-hit != 'true'}}
+      working-directory: /home/runner/opt
+      run: |
+        wget https://releases.llvm.org/9.0.0/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
+        tar xf clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
+
+    - name: Add Clang to PATH
+      if: ${{matrix.clang_checks}}
+      run: echo "/home/runner/opt/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04/bin/" >> $GITHUB_PATH
+
+    # googletest {
+    - name: cache_googletest
+      id: cache_googletest
+      uses: actions/cache@v1
+      with:
+        path: '${{github.workspace}}/_deps/googletest'
+        key: '${{runner.os}}_googletest_1_11_0_${{matrix.build_type}}_cache'
+
+    - name: install_googletest
+      if: ${{ steps.cache_googletest.outputs.cache-hit != 'true' }}
+      run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_googletest.cmake
+    # }
+
+    # spdlog {
+    - name: cache_spdlog
+      id: cache_spdlog
+      uses: actions/cache@v1
+      with:
+        path: '${{github.workspace}}/_deps/spdlog'
+        key: '${{runner.os}}_spdlog_1_9_0_${{matrix.build_type}}_cache'
+
+    - name: install_spdlog
+      if: ${{ steps.cache_spdlog.outputs.cache-hit != 'true' }}
+      run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_spdlog.cmake
+    # }
+
+    # cli11 {
+    - name: cache_cli11
+      id: cache_cli11
+      uses: actions/cache@v1
+      with:
+        path: '${{github.workspace}}/_deps/cli11'
+        key: '${{runner.os}}_cli11_1_9_1_${{matrix.build_type}}_cache'
+
+    - name: install_cli11
+      if: ${{ steps.cache_cli11.outputs.cache-hit != 'true' }}
+      run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_cli11.cmake
+    # }
+
+    - name: Check format
+      working-directory: ${{github.workspace}}
+      if: ${{matrix.clang_checks}}
+      run: /bin/bash ./check_format.sh
+
+    - name: Configure
+      working-directory: ${{github.workspace}}/_builds
+      env:
+        cxx_compiler: ${{matrix.clang_checks && '-DCMAKE_CXX_COMPILER=clang++' || ''}}
+        c_compiler: ${{matrix.clang_checks && '-DCMAKE_C_COMPILER=clang' || ''}}
+        pedantic: ${{matrix.clang_checks && 'ON' || 'OFF'}}
+        prefix_path: ${{ format('-DCMAKE_PREFIX_PATH={0}/_deps/cli11/;{0}/_deps/spdlog/;{0}/_deps/googletest/', github.workspace) }}
+      run: >
+        cmake ${{github.workspace}}
+        -Wno-dev
+        ${{env.cxx_compiler}}
+        ${{env.c_compiler}}
+        '-GNinja'
+        -DI_SEED_DRONE_ONBOARD_PEDANTIC=${{env.pedantic}}
+        "${{env.prefix_path}}"
+        -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
+        -DCMAKE_VERBOSE_MAKEFILE=ON
+        -DI_SEED_DRONE_ONBOARD_DOC=ON
+
+    - name: Build
+      working-directory: ${{github.workspace}}/_builds
+      run: cmake --build . --config ${{matrix.build_type}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/_builds
+      run: ctest -VV -C ${{matrix.build_type}}
