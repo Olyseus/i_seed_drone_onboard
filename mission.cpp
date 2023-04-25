@@ -12,7 +12,7 @@ mission::mission() noexcept = default;
 mission::~mission() = default;
 
 auto mission::init(double lat, double lon) -> bool {
-  const std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard lock{m_};
 
   spdlog::info("Mission parameters: lat({}), lon({})", lat, lon);
 
@@ -38,7 +38,7 @@ auto mission::init(double lat, double lon) -> bool {
   is_forward_ = true;
 
   {
-    const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    const std::lock_guard lock{is_finishing_mutex_};
     is_finishing_ = false;
   }
 
@@ -47,7 +47,7 @@ auto mission::init(double lat, double lon) -> bool {
 
 auto mission::waypoint_reached(float laser_range)
     -> std::pair<waypoint_action, std::size_t> {
-  const std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard lock{m_};
 
   BOOST_VERIFY(in_progress_);
 
@@ -76,7 +76,7 @@ auto mission::waypoint_reached(float laser_range)
 }
 
 auto mission::upload_mission_and_start() -> bool {
-  const std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard lock{m_};
 
   BOOST_VERIFY(in_progress_);
 
@@ -178,10 +178,10 @@ auto mission::upload_mission_and_start() -> bool {
 }
 
 void mission::set_backward() {
-  const std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard lock{m_};
   BOOST_VERIFY(in_progress_);
   {
-    const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    const std::lock_guard lock{is_finishing_mutex_};
     is_finishing_ = false;
   }
   BOOST_VERIFY(is_forward_);
@@ -189,13 +189,13 @@ void mission::set_backward() {
 }
 
 auto mission::is_forward() const -> bool {
-  const std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard lock{m_};
   BOOST_VERIFY(in_progress_);
   return is_forward_;
 }
 
 auto mission::is_finishing() const -> bool {
-  const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+  const std::lock_guard lock{is_finishing_mutex_};
   return is_finishing_;
 }
 
@@ -205,7 +205,7 @@ auto mission::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
   const bool notify_finished{mission_state_.update(event_data)};
 
   if (notify_finished) {
-    const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    const std::lock_guard lock{is_finishing_mutex_};
     BOOST_VERIFY(!is_finishing_);
     is_finishing_ = true;
     return true;
@@ -229,7 +229,7 @@ auto mission::update(T_DjiWaypointV2MissionStatePush state_data)
   }
 
   if (notify_finished) {
-    const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    const std::lock_guard lock{is_finishing_mutex_};
     BOOST_VERIFY(notify);
     BOOST_VERIFY(!is_finishing_);
     is_finishing_ = true;
@@ -245,7 +245,7 @@ void mission::abort_mission() {
   mission_state_.finish();
 
   {
-    const std::lock_guard<std::mutex> lock(is_finishing_mutex_);
+    const std::lock_guard lock{is_finishing_mutex_};
     is_finishing_ = false;
   }
 
@@ -256,7 +256,7 @@ void mission::abort_mission() {
 void mission::mission_stop(home_altitude& h) {
   h.mission_stop();
 
-  const std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard lock{m_};
   BOOST_VERIFY(in_progress_);
   in_progress_ = false;
 }
@@ -280,7 +280,7 @@ auto mission::resume() -> bool {
 }
 
 auto mission::get_state() const -> interconnection::drone_coordinates::state_t {
-  const std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard lock{m_};
 
   if (!in_progress_) {
     return interconnection::drone_coordinates::READY;
@@ -295,7 +295,7 @@ auto mission::get_state() const -> interconnection::drone_coordinates::state_t {
 }
 
 auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
-  const std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard lock{m_};
   BOOST_VERIFY(in_progress_);
   BOOST_VERIFY(index < global_waypoints_.size());
   return global_waypoints_.at(index);
@@ -303,7 +303,7 @@ auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
 
 void mission::save_detection(std::size_t index,
                              const detection_result& result) {
-  const std::lock_guard<std::mutex> lock(m_);
+  const std::lock_guard lock{m_};
   BOOST_VERIFY(index < global_waypoints_.size());
   global_waypoints_.at(index).save_detection(result);
 }

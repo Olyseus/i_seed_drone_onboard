@@ -55,7 +55,7 @@ laser_range::~laser_range() = default;
 // thread: receive_data
 void laser_range::value_received(float range) {
   {
-    const std::lock_guard<std::mutex> lock(m_);
+    const std::lock_guard lock{m_};
 
     latest_time_point_ = clock::now();
     BOOST_VERIFY(latest_time_point_ != invalid_time_point);
@@ -72,7 +72,7 @@ auto laser_range::latest(
     std::list<interconnection::command_type::command_t>& commands) -> float {
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   {
-    const std::lock_guard<std::mutex> lock(m_);
+    const std::lock_guard lock{m_};
     BOOST_VERIFY(!values_.empty());
     const float simulated_range{values_.front()};
     values_.pop_front();
@@ -83,7 +83,7 @@ auto laser_range::latest(
 
   while (true) {
     {
-      const std::lock_guard<std::mutex> lock(m_);
+      const std::lock_guard lock{m_};
       if (latest_time_point_ == invalid_time_point) {
         spdlog::info("No laser data available");
       } else {
@@ -102,7 +102,7 @@ auto laser_range::latest(
     }
 
     {
-      const std::lock_guard<std::mutex> lock(m);
+      const std::lock_guard lock{m};
       commands.push_back(interconnection::command_type::LASER_RANGE);
     }
 
