@@ -4,6 +4,8 @@
 
 #include <boost/assert.hpp>  // BOOST_VERIFY
 
+#include "olyseus_verify.h"  // OLYSEUS_UNREACHABLE
+
 void mission_state::start() {
   const std::lock_guard lock{m_};
 
@@ -131,7 +133,7 @@ auto mission_state::get_state() const
       return interconnection::drone_coordinates::EXECUTING;
     default:
       spdlog::error("Unknown state: {}", static_cast<unsigned>(state_));
-      BOOST_VERIFY(false);
+      OLYSEUS_UNREACHABLE;
       return interconnection::drone_coordinates::EXECUTING;
   }
 }
@@ -156,7 +158,7 @@ auto mission_state::state_name() const -> const char* {
       return "end of waypoint mission";
     default:
       spdlog::error("Unknown state: {}", static_cast<unsigned>(state_));
-      BOOST_VERIFY(false);
+      OLYSEUS_UNREACHABLE;
       return "";
   }
 }

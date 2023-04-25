@@ -183,7 +183,7 @@ auto drone::mission_state_callback(T_DjiWaypointV2MissionStatePush state_data)
 #else
     // Value received while running tests on simulator
     spdlog::error("Unexpected RC mode: {}", rc_mode_);
-    BOOST_VERIFY(false);
+    OLYSEUS_UNREACHABLE;
 #endif
   }
 
@@ -419,7 +419,7 @@ void drone::action_job_internal() {
       return;
     }
     default:
-      BOOST_VERIFY(false);
+      OLYSEUS_UNREACHABLE;
   }
 
   if (mission_.is_forward()) {
@@ -787,7 +787,7 @@ void drone::receive_data_job_internal() {
       } break;
       default:
         spdlog::error("Unexpected command type: {}", command.type());
-        BOOST_VERIFY(false);
+        OLYSEUS_UNREACHABLE;
     }
   }
 }
@@ -866,7 +866,7 @@ void drone::send_data_job_internal() {
       }
       default:
         spdlog::error("Unexpected command: {}", command.value());
-        BOOST_VERIFY(false);
+        OLYSEUS_UNREACHABLE;
     }
 
     {
