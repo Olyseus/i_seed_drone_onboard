@@ -9,7 +9,7 @@
 #include "application.hpp"  // Application
 
 void battery_info(const uint8_t* data, int index) {
-  BOOST_VERIFY(data != nullptr);
+  OLYSEUS_VERIFY(data != nullptr);
   const auto info{*(const T_DjiFcSubscriptionSingleBatteryInfo*)data};
 
   spdlog::info("Battery {}: {}%, {}V, {:.1f}C degrees", index,
@@ -38,28 +38,28 @@ T_DjiReturnCode battery_callback_2(const uint8_t* data, uint16_t data_size,
 }
 
 void battery_monitor(int argc, char** argv) {
-  BOOST_VERIFY(argc == 1);
-  BOOST_VERIFY(argv != nullptr);
+  OLYSEUS_VERIFY(argc == 1);
+  OLYSEUS_VERIFY(argv != nullptr);
   auto app{std::make_unique<Application>()};
 
   T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
-  BOOST_VERIFY(osal);
+  OLYSEUS_VERIFY(osal);
 
   // Wait for SDK to start
   std::this_thread::sleep_for(std::chrono::seconds(2));
 
   T_DjiReturnCode code{DjiFcSubscription_Init()};
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiFcSubscription_SubscribeTopic(
       DJI_FC_SUBSCRIPTION_TOPIC_BATTERY_SINGLE_INFO_INDEX1,
       DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ, battery_callback_1);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiFcSubscription_SubscribeTopic(
       DJI_FC_SUBSCRIPTION_TOPIC_BATTERY_SINGLE_INFO_INDEX2,
       DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ, battery_callback_2);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   while (true) {
     // Keep receiving callbacks
@@ -67,7 +67,7 @@ void battery_monitor(int argc, char** argv) {
   }
 
   code = DjiFcSubscription_DeInit();
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
 void setup_logging() {

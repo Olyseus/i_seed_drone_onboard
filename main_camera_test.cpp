@@ -44,8 +44,8 @@ auto run_main(int argc, char** argv) -> int {
   setup_logging();
 
   try {
-    BOOST_VERIFY(argc == 1);
-    BOOST_VERIFY(argv != nullptr);
+    OLYSEUS_VERIFY(argc == 1);
+    OLYSEUS_VERIFY(argv != nullptr);
     auto app{std::make_unique<Application>()};
 
     mission m;

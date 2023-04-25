@@ -1,6 +1,6 @@
 #include "condition_flag.h"
 
-#include <boost/assert.hpp>  // BOOST_VERIFY
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 condition_flag::condition_flag() noexcept = default;
 condition_flag::~condition_flag() = default;
@@ -8,7 +8,7 @@ condition_flag::~condition_flag() = default;
 void condition_flag::wait() {
   std::unique_lock lock{m_};
   condition_.wait(lock, [this] { return flag_; });
-  BOOST_VERIFY(flag_);
+  OLYSEUS_VERIFY(flag_);
 
   // unset the flag and release lock
   // (we should avoid locks in Payload SDK callback)
@@ -18,7 +18,7 @@ void condition_flag::wait() {
 void condition_flag::notify() {
   {
     const std::lock_guard lock{m_};
-    BOOST_VERIFY(!flag_);
+    OLYSEUS_VERIFY(!flag_);
     flag_ = true;
   }
   condition_.notify_one();

@@ -3,9 +3,8 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>         // std::max
-#include <boost/assert.hpp>  // BOOST_VERIFY
 
-#include "olyseus_verify.h"  // OLYSEUS_UNREACHABLE
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 bounding_box::bounding_box(const float* p, std::size_t x_shift,
                            std::size_t y_shift) {
@@ -17,11 +16,11 @@ bounding_box::bounding_box(const float* p, std::size_t x_shift,
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float w{p[2]};
-  BOOST_VERIFY(w >= 0.0);
+  OLYSEUS_VERIFY(w >= 0.0);
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float h{p[3]};
-  BOOST_VERIFY(h >= 0.0);
+  OLYSEUS_VERIFY(h >= 0.0);
 
   constexpr float half{1.0F / 2.0F};
 
@@ -33,23 +32,23 @@ bounding_box::bounding_box(const float* p, std::size_t x_shift,
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   confidence_ = p[4];
-  BOOST_VERIFY(confidence_ >= 0.0);
-  BOOST_VERIFY(confidence_ <= 1.0);
+  OLYSEUS_VERIFY(confidence_ >= 0.0);
+  OLYSEUS_VERIFY(confidence_ <= 1.0);
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float iseed_blue{p[5]};
-  BOOST_VERIFY(iseed_blue >= 0.0);
-  BOOST_VERIFY(iseed_blue <= 1.0);
+  OLYSEUS_VERIFY(iseed_blue >= 0.0);
+  OLYSEUS_VERIFY(iseed_blue <= 1.0);
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float iseed_brown{p[6]};
-  BOOST_VERIFY(iseed_brown >= 0.0);
-  BOOST_VERIFY(iseed_brown <= 1.0);
+  OLYSEUS_VERIFY(iseed_brown >= 0.0);
+  OLYSEUS_VERIFY(iseed_brown <= 1.0);
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
   const float iseed_green{p[7]};
-  BOOST_VERIFY(iseed_green >= 0.0);
-  BOOST_VERIFY(iseed_green <= 1.0);
+  OLYSEUS_VERIFY(iseed_green >= 0.0);
+  OLYSEUS_VERIFY(iseed_green <= 1.0);
 
   if (iseed_blue > std::max(iseed_brown, iseed_green)) {
     class_id_ = 0;

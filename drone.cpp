@@ -44,7 +44,7 @@ condition_flag drone::action_flag_;
 auto drone::quaternion_callback(const uint8_t* data, uint16_t data_size,
                                 const T_DjiDataTimestamp* timestamp)
     -> T_DjiReturnCode {
-  BOOST_VERIFY(data != nullptr);
+  OLYSEUS_VERIFY(data != nullptr);
   const auto quaternion{
       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       *reinterpret_cast<const T_DjiFcSubscriptionQuaternion*>(data)};
@@ -83,12 +83,12 @@ auto drone::quaternion_callback(const uint8_t* data, uint16_t data_size,
   constexpr float right_angle{90.0F};
   constexpr float straight_angle{180.0F};
 
-  BOOST_VERIFY(drone_yaw_ >= -straight_angle);
-  BOOST_VERIFY(drone_yaw_ <= straight_angle);
-  BOOST_VERIFY(drone_pitch_ > -right_angle);
-  BOOST_VERIFY(drone_pitch_ < right_angle);
-  BOOST_VERIFY(drone_roll_ > -right_angle);
-  BOOST_VERIFY(drone_roll_ < right_angle);
+  OLYSEUS_VERIFY(drone_yaw_ >= -straight_angle);
+  OLYSEUS_VERIFY(drone_yaw_ <= straight_angle);
+  OLYSEUS_VERIFY(drone_pitch_ > -right_angle);
+  OLYSEUS_VERIFY(drone_pitch_ < right_angle);
+  OLYSEUS_VERIFY(drone_roll_ > -right_angle);
+  OLYSEUS_VERIFY(drone_roll_ < right_angle);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
@@ -96,7 +96,7 @@ auto drone::quaternion_callback(const uint8_t* data, uint16_t data_size,
 auto drone::rc_callback(const uint8_t* data, uint16_t data_size,
                         const T_DjiDataTimestamp* timestamp)
     -> T_DjiReturnCode {
-  BOOST_VERIFY(data != nullptr);
+  OLYSEUS_VERIFY(data != nullptr);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   const auto rc{*reinterpret_cast<const T_DjiFcSubscriptionRC*>(data)};
   (void)data_size;
@@ -110,7 +110,7 @@ auto drone::rc_callback(const uint8_t* data, uint16_t data_size,
 auto drone::position_fused_callback(const uint8_t* data, uint16_t data_size,
                                     const T_DjiDataTimestamp* timestamp)
     -> T_DjiReturnCode {
-  BOOST_VERIFY(data != nullptr);
+  OLYSEUS_VERIFY(data != nullptr);
   const auto position{
       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       *reinterpret_cast<const T_DjiFcSubscriptionPositionFused*>(data)};
@@ -179,7 +179,7 @@ auto drone::mission_state_callback(T_DjiWaypointV2MissionStatePush state_data)
   if (rc_mode_ != expected_rc_mode) {
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
     constexpr int16_t expected_sim_rc_mode{-8000};
-    BOOST_VERIFY(rc_mode_ == expected_sim_rc_mode);
+    OLYSEUS_VERIFY(rc_mode_ == expected_sim_rc_mode);
 #else
     // Value received while running tests on simulator
     spdlog::error("Unexpected RC mode: {}", rc_mode_);
@@ -193,7 +193,7 @@ auto drone::mission_state_callback(T_DjiWaypointV2MissionStatePush state_data)
 auto drone::homepoint_callback(const uint8_t* data, uint16_t data_size,
                                const T_DjiDataTimestamp* timestamp)
     -> T_DjiReturnCode {
-  BOOST_VERIFY(data != nullptr);
+  OLYSEUS_VERIFY(data != nullptr);
   const auto altitude{
       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
       *reinterpret_cast<const T_DjiFcSubscriptionAltitudeOfHomePoint*>(data)};
@@ -201,7 +201,7 @@ auto drone::homepoint_callback(const uint8_t* data, uint16_t data_size,
   (void)timestamp;
 
   homepoint_altitude_ = altitude;
-  BOOST_VERIFY(homepoint_altitude_ > invalid_homepoint_altitude_);
+  OLYSEUS_VERIFY(homepoint_altitude_ > invalid_homepoint_altitude_);
 
   spdlog::debug("home altitude: {}", homepoint_altitude_);
 
@@ -215,81 +215,81 @@ drone::drone()
       laser_range_(simulator_)
 #endif
 {
-  BOOST_VERIFY(sigint_received_.is_lock_free());
+  OLYSEUS_VERIFY(sigint_received_.is_lock_free());
 
   constexpr E_DjiDataSubscriptionTopicFreq topic_freq{
       DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ};
 
   T_DjiReturnCode code{DjiFcSubscription_Init()};
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   // DjiFcSubscription_SubscribeTopic usage note:
   //   avoid locks in callback, it should exit as soon as possible
 
   code = DjiFcSubscription_SubscribeTopic(DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION,
                                           topic_freq, quaternion_callback);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiFcSubscription_SubscribeTopic(DJI_FC_SUBSCRIPTION_TOPIC_RC,
                                           topic_freq, rc_callback);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code =
       DjiFcSubscription_SubscribeTopic(DJI_FC_SUBSCRIPTION_TOPIC_POSITION_FUSED,
                                        topic_freq, position_fused_callback);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiFcSubscription_SubscribeTopic(
       DJI_FC_SUBSCRIPTION_TOPIC_THREE_GIMBAL_DATA, topic_freq, gimbal_callback);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   // https://sdk-forum.dji.net/hc/en-us/requests/76593
   code = DjiFcSubscription_SubscribeTopic(
       DJI_FC_SUBSCRIPTION_TOPIC_ALTITUDE_OF_HOMEPOINT,
       DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ, homepoint_callback);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiGimbalManager_Init();
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiGimbalManager_SetMode(m_pos, DJI_GIMBAL_MODE_FREE);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiWaypointV2_Init();
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiWaypointV2_RegisterMissionEventCallback(mission_event_callback);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiWaypointV2_RegisterMissionStateCallback(mission_state_callback);
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   interconnection::command_type command;
   command.set_type(interconnection::command_type::PING);
   command.set_version(protocol_version);
   std::string buffer_1;
   bool ok{command.SerializeToString(&buffer_1)};
-  BOOST_VERIFY(ok);
+  OLYSEUS_VERIFY(ok);
   command_bytes_size_ = {static_cast<uint32_t>(buffer_1.size())};
-  BOOST_VERIFY(command_bytes_size_ > 0);
+  OLYSEUS_VERIFY(command_bytes_size_ > 0);
 
   interconnection::pin_coordinates pin_coordinates;
   pin_coordinates.set_latitude(0.0);
   pin_coordinates.set_longitude(0.0);
   std::string buffer_2;
   ok = pin_coordinates.SerializeToString(&buffer_2);
-  BOOST_VERIFY(ok);
+  OLYSEUS_VERIFY(ok);
   pin_coordinates_bytes_size_ = {static_cast<uint32_t>(buffer_2.size())};
-  BOOST_VERIFY(pin_coordinates_bytes_size_ > 0);
+  OLYSEUS_VERIFY(pin_coordinates_bytes_size_ > 0);
 
   {
     interconnection::laser_range laser_range;
     laser_range.set_range(0.0);
     std::string buffer;
     const bool ok{laser_range.SerializeToString(&buffer)};
-    BOOST_VERIFY(ok);
+    OLYSEUS_VERIFY(ok);
     laser_range_bytes_size_ = static_cast<uint32_t>(buffer.size());
-    BOOST_VERIFY(laser_range_bytes_size_ > 0);
+    OLYSEUS_VERIFY(laser_range_bytes_size_ > 0);
   }
 
   constexpr int sleep_ms{2000};
@@ -304,10 +304,10 @@ void drone::sigint_handler(int signal) {
 
 drone::~drone() {
   T_DjiReturnCode code{DjiFcSubscription_DeInit()};
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiWaypointV2_Deinit();
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
 void drone::start() {
@@ -319,23 +319,23 @@ void drone::start() {
 #endif
 
   const T_DjiReturnCode code = DjiMopChannel_Init();
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   std::thread action_thread{&drone::action_job, this};
   std::thread inference_thread{&drone::inference_job, this};
 
   while (!interrupt_condition()) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
-    BOOST_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
+    OLYSEUS_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
     const server server{channel_id};
     channel_handle_ = server.handle();
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-    BOOST_VERIFY(channel_handle_ == nullptr);
+    OLYSEUS_VERIFY(channel_handle_ == nullptr);
 #else
-    BOOST_VERIFY(channel_handle_ != nullptr);
+    OLYSEUS_VERIFY(channel_handle_ != nullptr);
 #endif
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
-    BOOST_VERIFY(signal(SIGINT, sigint_handler) != SIG_ERR);
+    OLYSEUS_VERIFY(signal(SIGINT, sigint_handler) != SIG_ERR);
 
     connection_closed_ = false;
 
@@ -359,7 +359,7 @@ void drone::start() {
     throw std::runtime_error("SIGINT received");
   }
 
-  BOOST_VERIFY(exception_caught_);
+  OLYSEUS_VERIFY(exception_caught_);
   throw std::runtime_error("Exception in thread");
 }
 
@@ -393,7 +393,7 @@ void drone::action_job_internal() {
 
   spdlog::info("Pause mission");
   T_DjiReturnCode code{DjiWaypointV2_Pause()};
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   // Wait for drone to finish the movement
   constexpr int sleep_ms{1000};
@@ -412,10 +412,10 @@ void drone::action_job_internal() {
       return;
     case waypoint_action::restart: {  // restart the mission for altitude tweak
       // altitude tweak is only for forward mission
-      BOOST_VERIFY(mission_.is_forward());
+      OLYSEUS_VERIFY(mission_.is_forward());
       mission_.abort_mission();
       const bool ok{mission_.upload_mission_and_start()};
-      BOOST_VERIFY(ok);
+      OLYSEUS_VERIFY(ok);
       return;
     }
     default:
@@ -436,10 +436,10 @@ void drone::action_job_internal() {
   const waypoint w{mission_.get_waypoint_copy(waypoint_index)};
 
   constexpr double eps{1e-4};
-  BOOST_VERIFY(std::abs(w.lat() - drone_latitude_) < eps);
-  BOOST_VERIFY(std::abs(w.lon() - drone_longitude_) < eps);
+  OLYSEUS_VERIFY(std::abs(w.lat() - drone_latitude_) < eps);
+  OLYSEUS_VERIFY(std::abs(w.lon() - drone_longitude_) < eps);
 
-  BOOST_VERIFY(homepoint_altitude_ > invalid_homepoint_altitude_);
+  OLYSEUS_VERIFY(homepoint_altitude_ > invalid_homepoint_altitude_);
   home_altitude_.set_altitude(drone_altitude_, w.altitude(),
                               homepoint_altitude_);
 
@@ -458,13 +458,13 @@ void drone::action_job_internal() {
     const double yaw_diff{std::abs(drone_yaw_ - gimbal_yaw_)};
     spdlog::info("Gimbal/drone yaw diff: {}", yaw_diff);
     constexpr double max_diff{0.7};
-    BOOST_VERIFY(yaw_diff < max_diff);
+    OLYSEUS_VERIFY(yaw_diff < max_diff);
     camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude,
                              waypoint_index);
   } else {
-    BOOST_VERIFY(w.has_detection());
+    OLYSEUS_VERIFY(w.has_detection());
     const detection_result d{w.get_detection()};
-    BOOST_VERIFY(!d.pixels.empty());
+    OLYSEUS_VERIFY(!d.pixels.empty());
 
     for (const detected_pixel& p : d.pixels) {
       attitude pixel_gimbal_attitude{rotate_gimbal(p.x, p.y, drone_yaw_)};
@@ -499,8 +499,8 @@ void drone::action_job_internal() {
       constexpr double eps{1e-3};
       constexpr double max_dist{5.0};
 
-      BOOST_VERIFY((pixel_result.p - laser_result.p).norm() < max_dist);
-      BOOST_VERIFY(std::abs(pixel_result.d.dot(laser_result.d) - 1.0) < eps);
+      OLYSEUS_VERIFY((pixel_result.p - laser_result.p).norm() < max_dist);
+      OLYSEUS_VERIFY(std::abs(pixel_result.d.dot(laser_result.d) - 1.0) < eps);
 
       const Eigen::Vector3d p_laser_end{laser_result.p + laser_result.v};
       spdlog::info("{} {} {} 255 165 0", p_laser_end(0), p_laser_end(1),
@@ -509,15 +509,15 @@ void drone::action_job_internal() {
       const double k_num{
           laser_result.d.dot(laser_result.p - pixel_result.p + laser_result.v)};
       const double k_denom{pixel_result.v.dot(laser_result.d)};
-      BOOST_VERIFY(k_denom > 1e-2);  // NOLINT(*-magic-numbers)
+      OLYSEUS_VERIFY(k_denom > 1e-2);  // NOLINT(*-magic-numbers)
       const double k{k_num / k_denom};
-      BOOST_VERIFY(k > eps);
+      OLYSEUS_VERIFY(k > eps);
 
       const Eigen::Vector3d p_pixel_end{pixel_result.p + k * pixel_result.v};
       spdlog::info("{} {} {} 0 255 0", p_pixel_end(0), p_pixel_end(1),
                    p_pixel_end(2));
       constexpr double sanity_dist{10.0};
-      BOOST_VERIFY((p_pixel_end - p_laser_end).norm() < sanity_dist);
+      OLYSEUS_VERIFY((p_pixel_end - p_laser_end).norm() < sanity_dist);
 
       // FIXME (save to file)
     }
@@ -525,7 +525,7 @@ void drone::action_job_internal() {
 
   spdlog::info("Resume mission");
   code = DjiWaypointV2_Resume();
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
 void drone::align_gimbal() {
@@ -560,7 +560,7 @@ void drone::align_gimbal() {
                rotation.yaw, rotation.roll, rotation.pitch);
 
   const T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos, rotation)};
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
 
@@ -584,7 +584,7 @@ void drone::align_gimbal() {
                  rotation.yaw, rotation.roll, rotation.pitch);
 
     T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos, rotation)};
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
 
@@ -601,7 +601,7 @@ void drone::align_gimbal() {
                  rotation.yaw, rotation.roll, rotation.pitch);
 
     code = DjiGimbalManager_Rotate(m_pos, rotation);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
   }
@@ -630,7 +630,7 @@ auto drone::rotate_gimbal(float x, float y, double drone_heading_degree)
                rotation.yaw, rotation.roll, rotation.pitch);
 
   const T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos, rotation)};
-  BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
 
@@ -661,7 +661,7 @@ auto drone::rotate_gimbal(float x, float y, double drone_heading_degree)
                  rotation.yaw, rotation.roll, rotation.pitch);
 
     T_DjiReturnCode code{DjiGimbalManager_Rotate(m_pos, rotation)};
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
 
@@ -675,7 +675,7 @@ auto drone::rotate_gimbal(float x, float y, double drone_heading_degree)
                  rotation.yaw, rotation.roll, rotation.pitch);
 
     code = DjiGimbalManager_Rotate(m_pos, rotation);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(time_wait_ms));
   }
@@ -703,13 +703,13 @@ void drone::receive_data_job() {
   try {
     receive_data_job_internal();
   } catch (job_interrupted_event&) {
-    BOOST_VERIFY(interrupt_condition());
+    OLYSEUS_VERIFY(interrupt_condition());
   } catch (pipeline_closed&) {
     connection_closed_ = true;
   } catch (std::exception& e) {
     exception_caught_ = true;
     spdlog::critical("Exception: {}", e.what());
-    BOOST_VERIFY(interrupt_condition());
+    OLYSEUS_VERIFY(interrupt_condition());
   }
 }
 
@@ -720,12 +720,12 @@ void drone::receive_data_job_internal() {
   buffer.resize(command_bytes_size_);
 
   while (true) {
-    BOOST_VERIFY(command_bytes_size_ == buffer.size());
+    OLYSEUS_VERIFY(command_bytes_size_ == buffer.size());
     receive_data(&buffer);
 
     interconnection::command_type command;
     const bool ok{command.ParseFromString(buffer)};
-    BOOST_VERIFY(ok);
+    OLYSEUS_VERIFY(ok);
 
     switch (command.type()) {
       case interconnection::command_type::PING: {
@@ -739,7 +739,7 @@ void drone::receive_data_job_internal() {
 
         interconnection::pin_coordinates pin_coordinates;
         const bool ok{pin_coordinates.ParseFromString(buffer)};
-        BOOST_VERIFY(ok);
+        OLYSEUS_VERIFY(ok);
 
         if (!mission_.init(pin_coordinates.latitude(),
                            pin_coordinates.longitude())) {
@@ -750,7 +750,7 @@ void drone::receive_data_job_internal() {
         }
 
         const bool start_ok{mission_.upload_mission_and_start()};
-        BOOST_VERIFY(start_ok);
+        OLYSEUS_VERIFY(start_ok);
 
         home_altitude_.mission_start();
         // FIXME (verify mission state)
@@ -758,7 +758,7 @@ void drone::receive_data_job_internal() {
       case interconnection::command_type::MISSION_PAUSE: {
         spdlog::info("Mission pause");
         const T_DjiReturnCode code{DjiWaypointV2_Pause()};
-        BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+        OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
         // FIXME (verify mission state)
       } break;
       case interconnection::command_type::MISSION_CONTINUE: {
@@ -780,7 +780,7 @@ void drone::receive_data_job_internal() {
 
         interconnection::laser_range laser_range;
         const bool ok{laser_range.ParseFromString(buffer)};
-        BOOST_VERIFY(ok);
+        OLYSEUS_VERIFY(ok);
 
         laser_range_.value_received(laser_range.range());
       } break;
@@ -795,13 +795,13 @@ void drone::send_data_job() {
   try {
     send_data_job_internal();
   } catch (job_interrupted_event&) {
-    BOOST_VERIFY(interrupt_condition());
+    OLYSEUS_VERIFY(interrupt_condition());
   } catch (pipeline_closed&) {
     connection_closed_ = true;
   } catch (std::exception& e) {
     exception_caught_ = true;
     spdlog::critical("Exception: {}", e.what());
-    BOOST_VERIFY(interrupt_condition());
+    OLYSEUS_VERIFY(interrupt_condition());
   }
 }
 
@@ -849,7 +849,7 @@ void drone::send_data_job_internal() {
 
         std::string buffer;
         const bool ok{dc.SerializeToString(&buffer)};
-        BOOST_VERIFY(ok);
+        OLYSEUS_VERIFY(ok);
 
         send_data(buffer);
 
@@ -882,15 +882,15 @@ void drone::send_command(
   command.set_version(protocol_version);
   std::string buffer;
   const bool ok{command.SerializeToString(&buffer)};
-  BOOST_VERIFY(ok);
-  BOOST_VERIFY(buffer.size() == command_bytes_size_);
+  OLYSEUS_VERIFY(ok);
+  OLYSEUS_VERIFY(buffer.size() == command_bytes_size_);
 
   send_data(buffer);
 }
 
 void drone::receive_data(std::string* buffer) {
-  BOOST_VERIFY(buffer != nullptr);
-  BOOST_VERIFY(!buffer->empty());
+  OLYSEUS_VERIFY(buffer != nullptr);
+  OLYSEUS_VERIFY(!buffer->empty());
 
   while (true) {
     if (interrupt_condition()) {
@@ -903,7 +903,7 @@ void drone::receive_data(std::string* buffer) {
     uint32_t real_len{0};
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-    BOOST_VERIFY(channel_handle_ == nullptr);
+    OLYSEUS_VERIFY(channel_handle_ == nullptr);
     const api_code code{simulator_.receive_data(buffer)};
     real_len = buffer->size();
 #else
@@ -912,7 +912,7 @@ void drone::receive_data(std::string* buffer) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     uint8_t* recv_buf{reinterpret_cast<uint8_t*>(char_buffer)};
 
-    BOOST_VERIFY(channel_handle_ != nullptr);
+    OLYSEUS_VERIFY(channel_handle_ != nullptr);
     const api_code code{DjiMopChannel_RecvData(channel_handle_, recv_buf,
                                                buffer->size(), &real_len)};
 #endif
@@ -920,15 +920,15 @@ void drone::receive_data(std::string* buffer) {
     if (code.retry()) {
       continue;
     }
-    BOOST_VERIFY(code.success());
-    BOOST_VERIFY(real_len == buffer->size());
+    OLYSEUS_VERIFY(code.success());
+    OLYSEUS_VERIFY(real_len == buffer->size());
     spdlog::debug("{} bytes received", real_len);
     return;
   }
 }
 
 void drone::send_data(std::string& buffer) {
-  BOOST_VERIFY(!buffer.empty());
+  OLYSEUS_VERIFY(!buffer.empty());
 
   while (true) {
     if (interrupt_condition()) {
@@ -948,14 +948,14 @@ void drone::send_data(std::string& buffer) {
     uint8_t* send_buf{reinterpret_cast<uint8_t*>(char_buffer)};
 
     uint32_t real_len{0};
-    BOOST_VERIFY(channel_handle_ != nullptr);
+    OLYSEUS_VERIFY(channel_handle_ != nullptr);
     const api_code code{DjiMopChannel_SendData(channel_handle_, send_buf,
                                                buffer.size(), &real_len)};
     if (code.retry()) {
       continue;
     }
-    BOOST_VERIFY(code.success());
-    BOOST_VERIFY(real_len == buffer.size());
+    OLYSEUS_VERIFY(code.success());
+    OLYSEUS_VERIFY(real_len == buffer.size());
     spdlog::debug("{} bytes sent", real_len);
     return;
 #endif

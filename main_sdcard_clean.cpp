@@ -3,11 +3,11 @@
 #include <spdlog/sinks/stdout_sinks.h>        // spdlog::sinks::stdout_sink_mt
 #include <spdlog/spdlog.h>
 
-#include <boost/assert.hpp>      // BOOST_VERIFY
 #include <boost/filesystem.hpp>  // boost::filesystem::path
 #include <iostream>              // std::cerr
 
-#include "application.hpp"  // Application
+#include "application.hpp"   // Application
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 static std::string file_dst;
 static std::FILE* file;
@@ -15,18 +15,18 @@ static std::FILE* file;
 T_DjiReturnCode camera_callback(T_DjiDownloadFilePacketInfo packetInfo,
                                 const uint8_t* data, uint16_t len) {
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_START) {
-    BOOST_VERIFY(!file_dst.empty());
+    OLYSEUS_VERIFY(!file_dst.empty());
     file = fopen(file_dst.c_str(), "wb+");
     file_dst.clear();
   }
 
-  BOOST_VERIFY(file);
+  OLYSEUS_VERIFY(file);
   std::size_t res{fwrite(data, 1, len, file)};
-  BOOST_VERIFY(res == len);
+  OLYSEUS_VERIFY(res == len);
 
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_END) {
     int res{fclose(file)};
-    BOOST_VERIFY(res == 0);
+    OLYSEUS_VERIFY(res == 0);
     file = nullptr;
   }
 
@@ -65,24 +65,24 @@ auto run_main(int argc, char** argv) -> int {
   setup_logging();
 
   try {
-    BOOST_VERIFY(argc == 1);
-    BOOST_VERIFY(argv != nullptr);
+    OLYSEUS_VERIFY(argc == 1);
+    OLYSEUS_VERIFY(argv != nullptr);
     auto app{std::make_unique<Application>()};
 
     T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
-    BOOST_VERIFY(osal);
+    OLYSEUS_VERIFY(osal);
 
     T_DjiReturnCode code{DjiCameraManager_Init()};
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     constexpr E_DjiMountPosition m_pos{DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
     code = DjiCameraManager_RegDownloadFileDataCallback(m_pos, camera_callback);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     spdlog::info("Downloading file list");
     T_DjiCameraManagerFileList media_file_list;
     code = DjiCameraManager_DownloadFileList(m_pos, &media_file_list);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     std::vector<uint32_t> to_remove;
 
@@ -104,11 +104,11 @@ auto run_main(int argc, char** argv) -> int {
 
     fs::path top_dir{"__temp_sdcard_clean"};
     fs::create_directories(top_dir);
-    BOOST_VERIFY(fs::is_directory(top_dir));
+    OLYSEUS_VERIFY(fs::is_directory(top_dir));
 
     for (const uint32_t file_index : to_remove) {
       const fs::path dst_path{top_dir / std::to_string(file_index)};
-      BOOST_VERIFY(file_dst.empty());
+      OLYSEUS_VERIFY(file_dst.empty());
       file_dst = dst_path.string();
       spdlog::info("Download file with index {} to {}", file_index, file_dst);
       T_DjiReturnCode code{
@@ -116,27 +116,27 @@ auto run_main(int argc, char** argv) -> int {
       if (code != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
         spdlog::critical("Error code: {}", code);
       }
-      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
       // global variable should be cleared in callbacks for future use
-      BOOST_VERIFY(file_dst.empty());
+      OLYSEUS_VERIFY(file_dst.empty());
 
       // check file is created at this point
-      BOOST_VERIFY(fs::is_regular_file(dst_path));
+      OLYSEUS_VERIFY(fs::is_regular_file(dst_path));
 
       // The file can be deleted only after a download from sd card
       code = DjiCameraManager_DeleteFileByIndex(m_pos, file_index);
-      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
       fs::remove(dst_path);
-      BOOST_VERIFY(!fs::exists(dst_path));
+      OLYSEUS_VERIFY(!fs::exists(dst_path));
     }
 
     fs::remove_all(top_dir);
-    BOOST_VERIFY(!fs::exists(top_dir));
+    OLYSEUS_VERIFY(!fs::exists(top_dir));
 
     code = DjiCameraManager_DeInit();
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     return EXIT_SUCCESS;
   } catch (const std::system_error& exc) {
     spdlog::critical("System error: {} {} ({})", exc.code().category().name(),

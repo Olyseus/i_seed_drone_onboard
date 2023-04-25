@@ -80,7 +80,7 @@ auto run_main(int argc, char** argv) -> int {
     if (!bbimage.empty()) {
       spdlog::info("Save bounding boxes to image: {}", bbimage);
       cv::Mat cv_image{cv::imread(image.c_str())};
-      BOOST_VERIFY(cv_image.data != nullptr);
+      OLYSEUS_VERIFY(cv_image.data != nullptr);
 
       for (const bounding_box& bb : bboxes) {
         constexpr int thickness{3};
@@ -99,7 +99,7 @@ auto run_main(int argc, char** argv) -> int {
       }
 
       const bool ok{cv::imwrite(bbimage, cv_image)};
-      BOOST_VERIFY(ok);
+      OLYSEUS_VERIFY(ok);
     }
 
     return EXIT_SUCCESS;

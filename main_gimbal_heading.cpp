@@ -48,7 +48,7 @@ static std::atomic<double> gimbal_yaw{0.0};
 
 T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size,
                                     const T_DjiDataTimestamp* timestamp) {
-  BOOST_VERIFY(data != nullptr);
+  OLYSEUS_VERIFY(data != nullptr);
   const auto quaternion{*(const T_DjiFcSubscriptionQuaternion*)data};
   (void)data_size;
   (void)timestamp;
@@ -65,15 +65,15 @@ T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size,
 
   spdlog::info("drone yaw: {}", drone_yaw);
 
-  BOOST_VERIFY(drone_yaw >= -180.0);
-  BOOST_VERIFY(drone_yaw <= 180.0);
+  OLYSEUS_VERIFY(drone_yaw >= -180.0);
+  OLYSEUS_VERIFY(drone_yaw <= 180.0);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
 T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size,
                                 const T_DjiDataTimestamp* timestamp) {
-  BOOST_VERIFY(data != nullptr);
+  OLYSEUS_VERIFY(data != nullptr);
   const auto gimbal_three_data{(const T_DjiFcSubscriptionThreeGimbalData*)data};
   const GimbalSingleData d{gimbal_three_data->gbData[0]};
 
@@ -94,36 +94,36 @@ auto run_main(int argc, char** argv) -> int {
   setup_logging();
 
   try {
-    BOOST_VERIFY(argc == 1);
-    BOOST_VERIFY(argv != nullptr);
+    OLYSEUS_VERIFY(argc == 1);
+    OLYSEUS_VERIFY(argv != nullptr);
     auto app{std::make_unique<Application>()};
 
     T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
-    BOOST_VERIFY(osal);
+    OLYSEUS_VERIFY(osal);
 
     // Wait for SDK to start
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     T_DjiReturnCode code{DjiFcSubscription_Init()};
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiFcSubscription_SubscribeTopic(
         DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
         quaternion_callback);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiFcSubscription_SubscribeTopic(
         DJI_FC_SUBSCRIPTION_TOPIC_THREE_GIMBAL_DATA,
         DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ, gimbal_callback);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiGimbalManager_Init();
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     const E_DjiMountPosition m_pos{DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
 
     code = DjiGimbalManager_SetMode(m_pos, DJI_GIMBAL_MODE_FREE);
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     while (true) {
       std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -152,11 +152,11 @@ auto run_main(int argc, char** argv) -> int {
                    rotation.yaw, rotation.roll, rotation.pitch);
 
       code = DjiGimbalManager_Rotate(m_pos, rotation);
-      BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     }
 
     code = DjiFcSubscription_DeInit();
-    BOOST_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     return EXIT_SUCCESS;
   } catch (const std::system_error& exc) {
