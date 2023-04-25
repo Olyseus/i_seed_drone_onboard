@@ -56,7 +56,6 @@ auto drone::quaternion_callback(const uint8_t* data, uint16_t data_size,
   const auto quaternion{
       cast_dji<T_DjiFcSubscriptionQuaternion>(data, data_size)};
 
-  (void)data_size;
   (void)timestamp;
 
   // NOLINTBEGIN (cppcoreguidelines-avoid-magic-numbers)
@@ -106,7 +105,6 @@ auto drone::rc_callback(const uint8_t* data, uint16_t data_size,
     -> T_DjiReturnCode {
   const auto rc{cast_dji<T_DjiFcSubscriptionRC>(data, data_size)};
 
-  (void)data_size;
   (void)timestamp;
 
   rc_mode_ = rc.mode;
@@ -120,7 +118,6 @@ auto drone::position_fused_callback(const uint8_t* data, uint16_t data_size,
   const auto position{
       cast_dji<T_DjiFcSubscriptionPositionFused>(data, data_size)};
 
-  (void)data_size;
   (void)timestamp;
 
   drone_latitude_ = position.latitude * rad2deg;
@@ -144,7 +141,6 @@ auto drone::gimbal_callback(const uint8_t* data, uint16_t data_size,
       cast_dji<T_DjiFcSubscriptionThreeGimbalData>(data, data_size)};
   const GimbalSingleData d{gimbal_three_data.anglesData[0]};
 
-  (void)data_size;
   (void)timestamp;
 
   gimbal_yaw_ = d.yaw;
@@ -200,7 +196,6 @@ auto drone::homepoint_callback(const uint8_t* data, uint16_t data_size,
   const auto altitude{
       cast_dji<T_DjiFcSubscriptionAltitudeOfHomePoint>(data, data_size)};
 
-  (void)data_size;
   (void)timestamp;
 
   homepoint_altitude_ = altitude;
