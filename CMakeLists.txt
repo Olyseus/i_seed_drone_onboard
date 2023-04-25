@@ -29,6 +29,7 @@ endif()
 option(I_SEED_DRONE_ONBOARD_PEDANTIC "Enable pedantic checks" OFF)
 option(I_SEED_DRONE_ONBOARD_SIMULATOR "Run on simulator" OFF)
 option(I_SEED_DRONE_ONBOARD_DOC "Build Doxygen documentation" OFF)
+option(I_SEED_DRONE_ONBOARD_CUDA "Build with CUDA" ON)
 
 if(I_SEED_DRONE_ONBOARD_DOC)
   # Trailing return type issue: https://github.com/doxygen/doxygen/issues/5492
@@ -119,8 +120,6 @@ add_library(
     detection_result.h
     home_altitude.cpp
     home_altitude.h
-    inference.cpp
-    inference.h
     laser_range.cpp
     laser_range.h
     olyseus_verify.cpp
@@ -132,12 +131,21 @@ add_library(
     waypoint.h
 )
 
-set_source_files_properties(
-    inference.cpp
-    PROPERTIES
-    COMPILE_OPTIONS
-    "-Wno-deprecated-declarations;-Wno-unused-parameter"
-)
+if(I_SEED_DRONE_ONBOARD_CUDA)
+  target_sources(
+      i_seed_drone_onboard_core
+      PRIVATE
+      inference.cpp
+      inference.h
+  )
+
+  set_source_files_properties(
+      inference.cpp
+      PROPERTIES
+      COMPILE_OPTIONS
+      "-Wno-deprecated-declarations;-Wno-unused-parameter"
+  )
+endif()
 
 set_source_files_properties(
     utils.cpp
@@ -149,8 +157,10 @@ set_source_files_properties(
 find_package(OpenCV CONFIG REQUIRED)
 target_link_libraries(i_seed_drone_onboard_core PUBLIC ${OpenCV_LIBS})
 
-find_package(CUDAToolkit REQUIRED) # CUDA::cudart
-target_link_libraries(i_seed_drone_onboard_core PUBLIC CUDA::cudart)
+if(I_SEED_DRONE_ONBOARD_CUDA)
+  find_package(CUDAToolkit REQUIRED) # CUDA::cudart
+  target_link_libraries(i_seed_drone_onboard_core PUBLIC CUDA::cudart)
+endif()
 
 target_link_libraries(i_seed_drone_onboard_core PUBLIC protobuf::libprotobuf)
 
@@ -486,31 +496,33 @@ add_executable(
     utils_ut.cpp
 )
 
-add_executable(i_seed_convert convert_main.cpp)
-target_link_libraries(i_seed_convert PRIVATE i_seed_drone_onboard_core)
-
-set_source_files_properties(
-    convert_main.cpp
-    PROPERTIES
-    COMPILE_OPTIONS
-    "-Wno-deprecated-declarations;-Wno-unused-parameter"
-)
-
 find_package(CLI11 CONFIG REQUIRED) # CLI11::CLI11
-target_link_libraries(i_seed_convert PUBLIC CLI11::CLI11)
 
-add_executable(i_seed_inference inference_main.cpp)
-target_link_libraries(i_seed_inference PRIVATE i_seed_drone_onboard_core)
+if(I_SEED_DRONE_ONBOARD_CUDA)
+  add_executable(i_seed_convert convert_main.cpp)
+  target_link_libraries(i_seed_convert PRIVATE i_seed_drone_onboard_core)
 
-set_source_files_properties(
-    inference_main.cpp
-    PROPERTIES
-    COMPILE_OPTIONS
-    "-Wno-deprecated-declarations;-Wno-unused-parameter"
-)
+  set_source_files_properties(
+      convert_main.cpp
+      PROPERTIES
+      COMPILE_OPTIONS
+      "-Wno-deprecated-declarations;-Wno-unused-parameter"
+  )
 
-find_package(CLI11 CONFIG REQUIRED) # CLI11::CLI11
-target_link_libraries(i_seed_inference PUBLIC CLI11::CLI11)
+  target_link_libraries(i_seed_convert PUBLIC CLI11::CLI11)
+
+  add_executable(i_seed_inference inference_main.cpp)
+  target_link_libraries(i_seed_inference PRIVATE i_seed_drone_onboard_core)
+
+  set_source_files_properties(
+      inference_main.cpp
+      PROPERTIES
+      COMPILE_OPTIONS
+      "-Wno-deprecated-declarations;-Wno-unused-parameter"
+  )
+
+  target_link_libraries(i_seed_inference PUBLIC CLI11::CLI11)
+endif()
 
 find_package(GTest CONFIG REQUIRED) # GTest::gtest_main
 target_link_libraries(
@@ -591,7 +603,6 @@ if(I_SEED_DRONE_ONBOARD_PEDANTIC)
 endif()
 
 if(I_SEED_DRONE_ONBOARD_MANIFOLD)
-  find_package(CLI11 CONFIG REQUIRED) # CLI11::CLI11
   target_link_libraries(
       i_seed_drone_onboard
       PRIVATE

@@ -1,6 +1,5 @@
 #include "utils.h"
 
-#include "inference.h"
 #include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
 // return: yaw degree, pitch degree
@@ -52,9 +51,6 @@ auto gimbal_rotation_params(double x_pixel, double y_pixel,
   constexpr double sensor_size_width_m{sensor_size_width_mm / 1000};
   constexpr double sensor_size_height_m{sensor_size_height_mm / 1000};
   constexpr double focal_length_m{focal_length_mm / 1000};
-
-  constexpr std::size_t h20_img_width{inference::h20_img_width};
-  constexpr std::size_t h20_img_height{inference::h20_img_height};
 
   OLYSEUS_VERIFY(x_pixel >= 0.0);
   OLYSEUS_VERIFY(y_pixel >= 0.0);
