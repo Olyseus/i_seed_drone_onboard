@@ -4,6 +4,7 @@
 #include <thread>            // std::this_thread
 
 #include "drone.h"
+#include "olyseus_verify.h"  // OLYSEUS_UNREACHABLE
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
 
@@ -72,7 +73,7 @@ api_code simulator::receive_data(std::string* buffer) {
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_TIMEOUT};
     default:
-      BOOST_VERIFY(false);
+      OLYSEUS_UNREACHABLE;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_INVALID_PARAMETER};
   }
 }

@@ -5,6 +5,8 @@
 #include <algorithm>         // std::max
 #include <boost/assert.hpp>  // BOOST_VERIFY
 
+#include "olyseus_verify.h"  // OLYSEUS_UNREACHABLE
+
 bounding_box::bounding_box(const float* p, std::size_t x_shift,
                            std::size_t y_shift) {
   // https://github.com/ultralytics/yolov5/issues/1277#issuecomment-1081657025
@@ -120,7 +122,7 @@ auto bounding_box::class_color() const -> cv::Scalar {
       // green
       return {0, 255, 0};  // NOLINT(*-magic-numbers)
     default:
-      BOOST_VERIFY(false);
+      OLYSEUS_UNREACHABLE;
       return {0, 0, 0};
   }
 }

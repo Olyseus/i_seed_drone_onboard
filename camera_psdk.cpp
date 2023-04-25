@@ -11,6 +11,7 @@
 #include "application.hpp"
 #include "bounding_box.h"
 #include "drone.h"
+#include "olyseus_verify.h"  // OLYSEUS_UNREACHABLE
 
 namespace {
 
@@ -429,7 +430,7 @@ auto camera_psdk::iso_name(int value) -> const char* {
       return "fixed";
     default:
       spdlog::critical("unknown ISO value: {}", value);
-      BOOST_VERIFY(false);
+      OLYSEUS_UNREACHABLE;
       return "ERROR";
   }
 }
@@ -506,7 +507,7 @@ auto camera_psdk::aperture_name(int value) -> const char* {
       return "unknown";
     default:
       spdlog::critical("unknown APERTURE value: {}", value);
-      BOOST_VERIFY(false);
+      OLYSEUS_UNREACHABLE;
       return "ERROR";
   }
 }
@@ -651,7 +652,7 @@ auto camera_psdk::shutter_speed_name(int value) -> const char* {
       return "unknown";
     default:
       spdlog::critical("unknown SHUTTER_SPEED value: {}", value);
-      BOOST_VERIFY(false);
+      OLYSEUS_UNREACHABLE;
       return "ERROR";
   }
 }
@@ -724,7 +725,7 @@ auto camera_psdk::compensation_name(int value) -> const char* {
       return "fixed";
     default:
       spdlog::critical("unknown EXPOSURE_COMPENSATION value: {}", value);
-      BOOST_VERIFY(false);
+      OLYSEUS_UNREACHABLE;
       return "ERROR";
   }
 }
