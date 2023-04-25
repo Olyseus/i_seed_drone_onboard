@@ -729,7 +729,7 @@ void drone::receive_data_job_internal() {
 
     switch (command.type()) {
       case interconnection::command_type::PING: {
-        const std::lock_guard<std::mutex> lock(execute_commands_mutex_);
+        const std::lock_guard lock{execute_commands_mutex_};
         execute_commands_.push_back(command.type());
       } break;
       case interconnection::command_type::MISSION_START: {
@@ -743,7 +743,7 @@ void drone::receive_data_job_internal() {
 
         if (!mission_.init(pin_coordinates.latitude(),
                            pin_coordinates.longitude())) {
-          const std::lock_guard<std::mutex> lock(execute_commands_mutex_);
+          const std::lock_guard lock{execute_commands_mutex_};
           execute_commands_.push_back(
               interconnection::command_type::ERROR_MISSION_ALREADY_EXECUTING);
           break;
@@ -763,7 +763,7 @@ void drone::receive_data_job_internal() {
       } break;
       case interconnection::command_type::MISSION_CONTINUE: {
         if (!mission_.resume()) {
-          const std::lock_guard<std::mutex> lock(execute_commands_mutex_);
+          const std::lock_guard lock{execute_commands_mutex_};
           execute_commands_.push_back(
               interconnection::command_type::ERROR_UNEXPECTED_COMMAND);
         }
@@ -814,7 +814,7 @@ void drone::send_data_job_internal() {
     command.reset();
 
     {
-      const std::lock_guard<std::mutex> lock(execute_commands_mutex_);
+      const std::lock_guard lock{execute_commands_mutex_};
       if (!execute_commands_.empty()) {
         command = execute_commands_.front();
       }
@@ -823,7 +823,7 @@ void drone::send_data_job_internal() {
     if (!command.has_value()) {
       constexpr int wait_ms{200};
       std::this_thread::sleep_for(std::chrono::milliseconds(wait_ms));
-      const std::lock_guard<std::mutex> lock(execute_commands_mutex_);
+      const std::lock_guard lock{execute_commands_mutex_};
       execute_commands_.push_back(
           interconnection::command_type::DRONE_COORDINATES);
       continue;
@@ -869,7 +869,7 @@ void drone::send_data_job_internal() {
     }
 
     {
-      const std::lock_guard<std::mutex> lock(execute_commands_mutex_);
+      const std::lock_guard lock{execute_commands_mutex_};
       execute_commands_.pop_front();
     }
   }
