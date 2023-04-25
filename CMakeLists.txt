@@ -47,7 +47,6 @@ if(I_SEED_DRONE_ONBOARD_DOC)
   set(
       DOXYGEN_EXCLUDE
       battery_monitor_main.cpp
-      boost_assert.cpp
       convert_main.cpp
       inference_main.cpp
       main_camera_test.cpp
@@ -111,7 +110,6 @@ add_library(
     i_seed_drone_onboard_core
     ${gen_cc}
     ${gen_h}
-    boost_assert.cpp
     bounding_box.cpp
     bounding_box.h
     condition_flag.cpp
