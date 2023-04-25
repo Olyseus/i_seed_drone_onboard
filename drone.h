@@ -44,7 +44,7 @@ class drone {
 
  private:
   template <class T>
-  const T& cast_dji(const uint8_t* data, uint16_t data_size);
+  static const T& cast_dji(const uint8_t* data, uint16_t data_size);
 
   static T_DjiReturnCode quaternion_callback(
       const uint8_t* data, uint16_t data_size,
