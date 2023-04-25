@@ -41,13 +41,21 @@ std::list<interconnection::command_type::command_t> drone::execute_commands_;
 
 condition_flag drone::action_flag_;
 
+template <class T>
+const T& drone::cast_dji(const uint8_t* data, uint16_t data_size) {
+  OLYSEUS_VERIFY(data != nullptr);
+  OLYSEUS_VERIFY(data_size == sizeof(T));
+
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  return *reinterpret_cast<const T*>(data);
+}
+
 auto drone::quaternion_callback(const uint8_t* data, uint16_t data_size,
                                 const T_DjiDataTimestamp* timestamp)
     -> T_DjiReturnCode {
-  OLYSEUS_VERIFY(data != nullptr);
   const auto quaternion{
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      *reinterpret_cast<const T_DjiFcSubscriptionQuaternion*>(data)};
+      cast_dji<T_DjiFcSubscriptionQuaternion>(data, data_size)};
+
   (void)data_size;
   (void)timestamp;
 
@@ -96,9 +104,8 @@ auto drone::quaternion_callback(const uint8_t* data, uint16_t data_size,
 auto drone::rc_callback(const uint8_t* data, uint16_t data_size,
                         const T_DjiDataTimestamp* timestamp)
     -> T_DjiReturnCode {
-  OLYSEUS_VERIFY(data != nullptr);
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-  const auto rc{*reinterpret_cast<const T_DjiFcSubscriptionRC*>(data)};
+  const auto rc{cast_dji<T_DjiFcSubscriptionRC>(data, data_size)};
+
   (void)data_size;
   (void)timestamp;
 
@@ -110,10 +117,9 @@ auto drone::rc_callback(const uint8_t* data, uint16_t data_size,
 auto drone::position_fused_callback(const uint8_t* data, uint16_t data_size,
                                     const T_DjiDataTimestamp* timestamp)
     -> T_DjiReturnCode {
-  OLYSEUS_VERIFY(data != nullptr);
   const auto position{
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      *reinterpret_cast<const T_DjiFcSubscriptionPositionFused*>(data)};
+      cast_dji<T_DjiFcSubscriptionPositionFused>(data, data_size)};
+
   (void)data_size;
   (void)timestamp;
 
@@ -134,11 +140,9 @@ auto drone::position_fused_callback(const uint8_t* data, uint16_t data_size,
 auto drone::gimbal_callback(const uint8_t* data, uint16_t data_size,
                             const T_DjiDataTimestamp* timestamp)
     -> T_DjiReturnCode {
-  OLYSEUS_VERIFY(data != nullptr);
-  const auto* gimbal_three_data{
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      reinterpret_cast<const T_DjiFcSubscriptionThreeGimbalData*>(data)};
-  const GimbalSingleData d{gimbal_three_data->anglesData[0]};
+  const auto gimbal_three_data{
+      cast_dji<T_DjiFcSubscriptionThreeGimbalData>(data, data_size)};
+  const GimbalSingleData d{gimbal_three_data.anglesData[0]};
 
   (void)data_size;
   (void)timestamp;
@@ -193,10 +197,9 @@ auto drone::mission_state_callback(T_DjiWaypointV2MissionStatePush state_data)
 auto drone::homepoint_callback(const uint8_t* data, uint16_t data_size,
                                const T_DjiDataTimestamp* timestamp)
     -> T_DjiReturnCode {
-  OLYSEUS_VERIFY(data != nullptr);
   const auto altitude{
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      *reinterpret_cast<const T_DjiFcSubscriptionAltitudeOfHomePoint*>(data)};
+      cast_dji<T_DjiFcSubscriptionAltitudeOfHomePoint>(data, data_size)};
+
   (void)data_size;
   (void)timestamp;
 
