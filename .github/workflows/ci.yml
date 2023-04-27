@@ -20,10 +20,10 @@ jobs:
       matrix:
         # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#github-hosted-runners
         include:
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             build_type: Release
             clang_checks: false
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             build_type: Release
             clang_checks: true
 
