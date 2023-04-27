@@ -35,8 +35,10 @@ jobs:
 
     - name: Install system dependencies
       run: |
-        sudo apt -y update
         sudo apt install -y libboost-all-dev
+        sudo apt -y install libjpeg-dev
+        sudo apt -y install protobuf-compiler
+        sudo apt -y install libprotobuf-dev
 
     - name: Install Doxygen
       run: |
