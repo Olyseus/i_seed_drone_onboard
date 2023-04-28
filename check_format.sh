@@ -1,4 +1,6 @@
-#!/bin/bash -e
+#!/bin/bash
+
+set -e
 
 temp_file=/tmp/__clang_format_check.txt
 
