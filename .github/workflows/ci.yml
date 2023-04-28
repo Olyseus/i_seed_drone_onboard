@@ -134,6 +134,7 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
         -DCMAKE_VERBOSE_MAKEFILE=ON
         -DI_SEED_DRONE_ONBOARD_DOC=ON
+        -DI_SEED_DRONE_ONBOARD_CUDA=OFF
 
     - name: Build
       working-directory: ${{github.workspace}}/_builds
