@@ -350,10 +350,6 @@ target_link_libraries(
     spdlog::spdlog
 )
 
-target_compile_definitions(
-    i_seed_drone_onboard_core PUBLIC BOOST_ENABLE_ASSERT_HANDLER
-)
-
 if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   add_executable(
       i_seed_drone_onboard
