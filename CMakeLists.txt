@@ -528,17 +528,19 @@ target_link_libraries(
     GTest::gtest
 )
 
-if(I_SEED_DRONE_ONBOARD_MANIFOLD)
-  set(trt_so_dir "/usr/lib/aarch64-linux-gnu/")
-else()
-  set(trt_so_dir "/usr/lib/x86_64-linux-gnu/")
-endif()
+if(I_SEED_DRONE_ONBOARD_CUDA)
+  if(I_SEED_DRONE_ONBOARD_MANIFOLD)
+    set(trt_so_dir "/usr/lib/aarch64-linux-gnu/")
+  else()
+    set(trt_so_dir "/usr/lib/x86_64-linux-gnu/")
+  endif()
 
-if(NOT EXISTS "${trt_so_dir}")
-  message(FATAL_ERROR "${trt_so_dir} not found")
+  if(NOT EXISTS "${trt_so_dir}")
+    message(FATAL_ERROR "${trt_so_dir} not found")
+  endif()
+  target_link_libraries(i_seed_drone_onboard_core PUBLIC "${trt_so_dir}/libnvinfer.so")
+  target_link_libraries(i_seed_drone_onboard_core PUBLIC "${trt_so_dir}/libnvonnxparser.so")
 endif()
-target_link_libraries(i_seed_drone_onboard_core PUBLIC "${trt_so_dir}/libnvinfer.so")
-target_link_libraries(i_seed_drone_onboard_core PUBLIC "${trt_so_dir}/libnvonnxparser.so")
 
 if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   if("${PSDK_DIR}" STREQUAL "")
