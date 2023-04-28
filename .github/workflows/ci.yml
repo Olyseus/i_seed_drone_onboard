@@ -50,27 +50,12 @@ jobs:
     - name: Install Ninja
       run: sudo apt -y install ninja-build
 
+    - name: Install Clang
+      if: ${{matrix.clang_checks}}
+      run: sudo apt -y install clang
+
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/_builds /home/runner/opt ${{github.workspace}}/_deps
-
-    - name: Cache Clang
-      id: cache_clang
-      uses: actions/cache@v1
-      if: ${{matrix.clang_checks}}
-      with:
-        path: '/home/runner/opt/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04/'
-        key: '${{runner.os}}_clang_9_0_0_ubuntu_18_04'
-
-    - name: Install Clang
-      if: ${{matrix.clang_checks && steps.cache_clang.outputs.cache-hit != 'true'}}
-      working-directory: /home/runner/opt
-      run: |
-        wget https://releases.llvm.org/9.0.0/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
-        tar xf clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz
-
-    - name: Add Clang to PATH
-      if: ${{matrix.clang_checks}}
-      run: echo "/home/runner/opt/clang+llvm-9.0.0-x86_64-linux-gnu-ubuntu-18.04/bin/" >> $GITHUB_PATH
 
     # googletest {
     - name: cache_googletest
