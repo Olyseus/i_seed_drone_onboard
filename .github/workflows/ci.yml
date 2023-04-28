@@ -40,6 +40,7 @@ jobs:
         sudo apt -y install protobuf-compiler
         sudo apt -y install libprotobuf-dev
         sudo apt -y install libopencv-dev
+        sudo apt -y install libeigen3-dev
 
     - name: Install Doxygen
       run: |
