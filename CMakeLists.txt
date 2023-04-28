@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(i_seed_drone_onboard)
+project(i_seed_drone_onboard VERSION 0.0.1)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/module")
 
@@ -35,6 +35,7 @@ if(I_SEED_DRONE_ONBOARD_DOC)
   # Trailing return type issue: https://github.com/doxygen/doxygen/issues/5492
   find_package(Doxygen REQUIRED dot)
 
+  set(DOXYGEN_PROJECT_NAME "I-Seed drone's onboard service")
   set(DOXYGEN_CALL_GRAPH YES)
   set(DOXYGEN_CALLER_GRAPH YES)
   set(DOXYGEN_WARN_AS_ERROR YES)
