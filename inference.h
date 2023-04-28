@@ -3,11 +3,10 @@
 
 #include <NvInferRuntime.h>  // nvinfer1::ILogger
 
-#include <memory>  // std::unique_ptr
+#include <boost/version.hpp>  // BOOST_VERSION
+#include <memory>             // std::unique_ptr
 #include <string>
 #include <vector>
-
-#include <boost/version.hpp> // BOOST_VERSION
 
 #if BOOST_VERSION >= 107400  // 1.74.0
 #include <boost/gil/extension/io/jpeg/old.hpp>
@@ -17,7 +16,7 @@
 #include <boost/gil/extension/io/jpeg_io.hpp>
 #endif
 
-#include "utils.h" // h20_img_width
+#include "utils.h"  // h20_img_width
 
 class bounding_box;
 
