@@ -43,7 +43,7 @@ if(I_SEED_DRONE_ONBOARD_DOC)
   set(DOXYGEN_SORT_MEMBER_DOCS NO)
   set(DOXYGEN_FILE_PATTERNS *.cpp *.h)
 
-  set(DOXYGEN_EXCLUDE_PATTERNS */_builds/* */third_party/* *_ut.cpp)
+  set(DOXYGEN_EXCLUDE_PATTERNS */_deps/* */_builds/* */third_party/* *_ut.cpp)
 
   set(
       DOXYGEN_EXCLUDE
