@@ -109,6 +109,19 @@ jobs:
       run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_nlohmann_json.cmake
     # }
 
+    # geographiclib {
+    - name: cache_geographiclib
+      id: cache_geographiclib
+      uses: actions/cache@v1
+      with:
+        path: '${{github.workspace}}/_deps/geographiclib'
+        key: '${{runner.os}}_geographiclib_2_1_1_${{matrix.build_type}}_cache'
+
+    - name: install_geographiclib
+      if: ${{ steps.cache_geographiclib.outputs.cache-hit != 'true' }}
+      run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_geographiclib.cmake
+    # }
+
     - name: Check format
       working-directory: ${{github.workspace}}
       if: ${{matrix.clang_checks}}
@@ -120,7 +133,7 @@ jobs:
         cxx_compiler: ${{matrix.clang_checks && '-DCMAKE_CXX_COMPILER=clang++' || ''}}
         c_compiler: ${{matrix.clang_checks && '-DCMAKE_C_COMPILER=clang' || ''}}
         pedantic: ${{matrix.clang_checks && 'ON' || 'OFF'}}
-        prefix_path: ${{ format('-DCMAKE_PREFIX_PATH={0}/_deps/cli11/;{0}/_deps/spdlog/;{0}/_deps/googletest/;{0}/_deps/nlohmann_json/', github.workspace) }}
+        prefix_path: ${{ format('-DCMAKE_PREFIX_PATH={0}/_deps/cli11/;{0}/_deps/spdlog/;{0}/_deps/googletest/;{0}/_deps/nlohmann_json/;{0}/_deps/geographiclib/', github.workspace) }}
       run: >
         cmake ${{github.workspace}}
         -Wno-dev
