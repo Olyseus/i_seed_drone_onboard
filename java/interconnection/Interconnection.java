@@ -20,36 +20,47 @@ public final class Interconnection {
 
     /**
      * <code>required .interconnection.command_type.command_t type = 1;</code>
+     * @return Whether the type field is set.
      */
     boolean hasType();
     /**
      * <code>required .interconnection.command_type.command_t type = 1;</code>
+     * @return The type.
      */
     interconnection.Interconnection.command_type.command_t getType();
 
     /**
      * <code>required int32 version = 2;</code>
+     * @return Whether the version field is set.
      */
     boolean hasVersion();
     /**
      * <code>required int32 version = 2;</code>
+     * @return The version.
      */
     int getVersion();
   }
   /**
    * Protobuf type {@code interconnection.command_type}
    */
-  public  static final class command_type extends
+  public static final class command_type extends
       com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:interconnection.command_type)
       command_typeOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use command_type.newBuilder() to construct.
     private command_type(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
     private command_type() {
       type_ = 0;
-      version_ = 0;
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new command_type();
     }
 
     @java.lang.Override
@@ -62,6 +73,9 @@ public final class Interconnection {
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -73,15 +87,9 @@ public final class Interconnection {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 8: {
               int rawValue = input.readEnum();
+                @SuppressWarnings("deprecation")
               interconnection.Interconnection.command_type.command_t value = interconnection.Interconnection.command_type.command_t.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(1, rawValue);
@@ -94,6 +102,13 @@ public final class Interconnection {
             case 16: {
               bitField0_ |= 0x00000002;
               version_ = input.readInt32();
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
               break;
             }
           }
@@ -113,6 +128,7 @@ public final class Interconnection {
       return interconnection.Interconnection.internal_static_interconnection_command_type_descriptor;
     }
 
+    @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return interconnection.Interconnection.internal_static_interconnection_command_type_fieldAccessorTable
@@ -206,6 +222,8 @@ public final class Interconnection {
       }
 
       /**
+       * @param value The numeric wire value of the corresponding enum entry.
+       * @return The enum associated with the given numeric wire value.
        * @deprecated Use {@link #forNumber(int)} instead.
        */
       @java.lang.Deprecated
@@ -213,6 +231,10 @@ public final class Interconnection {
         return forNumber(value);
       }
 
+      /**
+       * @param value The numeric wire value of the corresponding enum entry.
+       * @return The enum associated with the given numeric wire value.
+       */
       public static command_t forNumber(int value) {
         switch (value) {
           case 0: return PING;
@@ -278,14 +300,17 @@ public final class Interconnection {
     private int type_;
     /**
      * <code>required .interconnection.command_type.command_t type = 1;</code>
+     * @return Whether the type field is set.
      */
-    public boolean hasType() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+    @java.lang.Override public boolean hasType() {
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      * <code>required .interconnection.command_type.command_t type = 1;</code>
+     * @return The type.
      */
-    public interconnection.Interconnection.command_type.command_t getType() {
+    @java.lang.Override public interconnection.Interconnection.command_type.command_t getType() {
+      @SuppressWarnings("deprecation")
       interconnection.Interconnection.command_type.command_t result = interconnection.Interconnection.command_type.command_t.valueOf(type_);
       return result == null ? interconnection.Interconnection.command_type.command_t.PING : result;
     }
@@ -294,18 +319,23 @@ public final class Interconnection {
     private int version_;
     /**
      * <code>required int32 version = 2;</code>
+     * @return Whether the version field is set.
      */
+    @java.lang.Override
     public boolean hasVersion() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
      * <code>required int32 version = 2;</code>
+     * @return The version.
      */
+    @java.lang.Override
     public int getVersion() {
       return version_;
     }
 
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -323,27 +353,29 @@ public final class Interconnection {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         output.writeEnum(1, type_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         output.writeInt32(2, version_);
       }
       unknownFields.writeTo(output);
     }
 
+    @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(1, type_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, version_);
       }
@@ -352,7 +384,6 @@ public final class Interconnection {
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
     public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
@@ -363,18 +394,17 @@ public final class Interconnection {
       }
       interconnection.Interconnection.command_type other = (interconnection.Interconnection.command_type) obj;
 
-      boolean result = true;
-      result = result && (hasType() == other.hasType());
+      if (hasType() != other.hasType()) return false;
       if (hasType()) {
-        result = result && type_ == other.type_;
+        if (type_ != other.type_) return false;
       }
-      result = result && (hasVersion() == other.hasVersion());
+      if (hasVersion() != other.hasVersion()) return false;
       if (hasVersion()) {
-        result = result && (getVersion()
-            == other.getVersion());
+        if (getVersion()
+            != other.getVersion()) return false;
       }
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
     @java.lang.Override
@@ -383,7 +413,7 @@ public final class Interconnection {
         return memoizedHashCode;
       }
       int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
+      hash = (19 * hash) + getDescriptor().hashCode();
       if (hasType()) {
         hash = (37 * hash) + TYPE_FIELD_NUMBER;
         hash = (53 * hash) + type_;
@@ -397,6 +427,17 @@ public final class Interconnection {
       return hash;
     }
 
+    public static interconnection.Interconnection.command_type parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.command_type parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static interconnection.Interconnection.command_type parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -456,6 +497,7 @@ public final class Interconnection {
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
@@ -463,6 +505,7 @@ public final class Interconnection {
     public static Builder newBuilder(interconnection.Interconnection.command_type prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
+    @java.lang.Override
     public Builder toBuilder() {
       return this == DEFAULT_INSTANCE
           ? new Builder() : new Builder().mergeFrom(this);
@@ -486,6 +529,7 @@ public final class Interconnection {
         return interconnection.Interconnection.internal_static_interconnection_command_type_descriptor;
       }
 
+      @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return interconnection.Interconnection.internal_static_interconnection_command_type_fieldAccessorTable
@@ -508,6 +552,7 @@ public final class Interconnection {
                 .alwaysUseFieldBuilders) {
         }
       }
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         type_ = 0;
@@ -517,15 +562,18 @@ public final class Interconnection {
         return this;
       }
 
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return interconnection.Interconnection.internal_static_interconnection_command_type_descriptor;
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.command_type getDefaultInstanceForType() {
         return interconnection.Interconnection.command_type.getDefaultInstance();
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.command_type build() {
         interconnection.Interconnection.command_type result = buildPartial();
         if (!result.isInitialized()) {
@@ -534,49 +582,57 @@ public final class Interconnection {
         return result;
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.command_type buildPartial() {
         interconnection.Interconnection.command_type result = new interconnection.Interconnection.command_type(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
           to_bitField0_ |= 0x00000001;
         }
         result.type_ = type_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.version_ = version_;
           to_bitField0_ |= 0x00000002;
         }
-        result.version_ = version_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
+      @java.lang.Override
       public Builder clone() {
-        return (Builder) super.clone();
+        return super.clone();
       }
+      @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
+          java.lang.Object value) {
+        return super.setField(field, value);
       }
+      @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
+        return super.clearField(field);
       }
+      @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
+        return super.clearOneof(oneof);
       }
+      @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
       }
+      @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
       }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof interconnection.Interconnection.command_type) {
           return mergeFrom((interconnection.Interconnection.command_type)other);
@@ -599,6 +655,7 @@ public final class Interconnection {
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         if (!hasType()) {
           return false;
@@ -609,6 +666,7 @@ public final class Interconnection {
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -631,19 +689,25 @@ public final class Interconnection {
       private int type_ = 0;
       /**
        * <code>required .interconnection.command_type.command_t type = 1;</code>
+       * @return Whether the type field is set.
        */
-      public boolean hasType() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+      @java.lang.Override public boolean hasType() {
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
        * <code>required .interconnection.command_type.command_t type = 1;</code>
+       * @return The type.
        */
+      @java.lang.Override
       public interconnection.Interconnection.command_type.command_t getType() {
+        @SuppressWarnings("deprecation")
         interconnection.Interconnection.command_type.command_t result = interconnection.Interconnection.command_type.command_t.valueOf(type_);
         return result == null ? interconnection.Interconnection.command_type.command_t.PING : result;
       }
       /**
        * <code>required .interconnection.command_type.command_t type = 1;</code>
+       * @param value The type to set.
+       * @return This builder for chaining.
        */
       public Builder setType(interconnection.Interconnection.command_type.command_t value) {
         if (value == null) {
@@ -656,6 +720,7 @@ public final class Interconnection {
       }
       /**
        * <code>required .interconnection.command_type.command_t type = 1;</code>
+       * @return This builder for chaining.
        */
       public Builder clearType() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -667,18 +732,24 @@ public final class Interconnection {
       private int version_ ;
       /**
        * <code>required int32 version = 2;</code>
+       * @return Whether the version field is set.
        */
+      @java.lang.Override
       public boolean hasVersion() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
        * <code>required int32 version = 2;</code>
+       * @return The version.
        */
+      @java.lang.Override
       public int getVersion() {
         return version_;
       }
       /**
        * <code>required int32 version = 2;</code>
+       * @param value The version to set.
+       * @return This builder for chaining.
        */
       public Builder setVersion(int value) {
         bitField0_ |= 0x00000002;
@@ -688,6 +759,7 @@ public final class Interconnection {
       }
       /**
        * <code>required int32 version = 2;</code>
+       * @return This builder for chaining.
        */
       public Builder clearVersion() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -695,11 +767,13 @@ public final class Interconnection {
         onChanged();
         return this;
       }
+      @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
+      @java.lang.Override
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
@@ -721,11 +795,12 @@ public final class Interconnection {
 
     @java.lang.Deprecated public static final com.google.protobuf.Parser<command_type>
         PARSER = new com.google.protobuf.AbstractParser<command_type>() {
+      @java.lang.Override
       public command_type parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-          return new command_type(input, extensionRegistry);
+        return new command_type(input, extensionRegistry);
       }
     };
 
@@ -738,6 +813,7 @@ public final class Interconnection {
       return PARSER;
     }
 
+    @java.lang.Override
     public interconnection.Interconnection.command_type getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
@@ -750,56 +826,69 @@ public final class Interconnection {
 
     /**
      * <code>required double latitude = 1;</code>
+     * @return Whether the latitude field is set.
      */
     boolean hasLatitude();
     /**
      * <code>required double latitude = 1;</code>
+     * @return The latitude.
      */
     double getLatitude();
 
     /**
      * <code>required double longitude = 2;</code>
+     * @return Whether the longitude field is set.
      */
     boolean hasLongitude();
     /**
      * <code>required double longitude = 2;</code>
+     * @return The longitude.
      */
     double getLongitude();
 
     /**
      * <code>required float heading = 3;</code>
+     * @return Whether the heading field is set.
      */
     boolean hasHeading();
     /**
      * <code>required float heading = 3;</code>
+     * @return The heading.
      */
     float getHeading();
 
     /**
      * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     * @return Whether the state field is set.
      */
     boolean hasState();
     /**
      * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     * @return The state.
      */
     interconnection.Interconnection.drone_coordinates.state_t getState();
   }
   /**
    * Protobuf type {@code interconnection.drone_coordinates}
    */
-  public  static final class drone_coordinates extends
+  public static final class drone_coordinates extends
       com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:interconnection.drone_coordinates)
       drone_coordinatesOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use drone_coordinates.newBuilder() to construct.
     private drone_coordinates(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
     private drone_coordinates() {
-      latitude_ = 0D;
-      longitude_ = 0D;
-      heading_ = 0F;
       state_ = 0;
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new drone_coordinates();
     }
 
     @java.lang.Override
@@ -812,6 +901,9 @@ public final class Interconnection {
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -823,13 +915,6 @@ public final class Interconnection {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 9: {
               bitField0_ |= 0x00000001;
               latitude_ = input.readDouble();
@@ -847,12 +932,20 @@ public final class Interconnection {
             }
             case 32: {
               int rawValue = input.readEnum();
+                @SuppressWarnings("deprecation")
               interconnection.Interconnection.drone_coordinates.state_t value = interconnection.Interconnection.drone_coordinates.state_t.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(4, rawValue);
               } else {
                 bitField0_ |= 0x00000008;
                 state_ = rawValue;
+              }
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
               }
               break;
             }
@@ -873,6 +966,7 @@ public final class Interconnection {
       return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_descriptor;
     }
 
+    @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_fieldAccessorTable
@@ -926,6 +1020,8 @@ public final class Interconnection {
       }
 
       /**
+       * @param value The numeric wire value of the corresponding enum entry.
+       * @return The enum associated with the given numeric wire value.
        * @deprecated Use {@link #forNumber(int)} instead.
        */
       @java.lang.Deprecated
@@ -933,6 +1029,10 @@ public final class Interconnection {
         return forNumber(value);
       }
 
+      /**
+       * @param value The numeric wire value of the corresponding enum entry.
+       * @return The enum associated with the given numeric wire value.
+       */
       public static state_t forNumber(int value) {
         switch (value) {
           case 0: return READY;
@@ -993,13 +1093,17 @@ public final class Interconnection {
     private double latitude_;
     /**
      * <code>required double latitude = 1;</code>
+     * @return Whether the latitude field is set.
      */
+    @java.lang.Override
     public boolean hasLatitude() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      * <code>required double latitude = 1;</code>
+     * @return The latitude.
      */
+    @java.lang.Override
     public double getLatitude() {
       return latitude_;
     }
@@ -1008,13 +1112,17 @@ public final class Interconnection {
     private double longitude_;
     /**
      * <code>required double longitude = 2;</code>
+     * @return Whether the longitude field is set.
      */
+    @java.lang.Override
     public boolean hasLongitude() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
      * <code>required double longitude = 2;</code>
+     * @return The longitude.
      */
+    @java.lang.Override
     public double getLongitude() {
       return longitude_;
     }
@@ -1023,13 +1131,17 @@ public final class Interconnection {
     private float heading_;
     /**
      * <code>required float heading = 3;</code>
+     * @return Whether the heading field is set.
      */
+    @java.lang.Override
     public boolean hasHeading() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
      * <code>required float heading = 3;</code>
+     * @return The heading.
      */
+    @java.lang.Override
     public float getHeading() {
       return heading_;
     }
@@ -1038,19 +1150,23 @@ public final class Interconnection {
     private int state_;
     /**
      * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     * @return Whether the state field is set.
      */
-    public boolean hasState() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+    @java.lang.Override public boolean hasState() {
+      return ((bitField0_ & 0x00000008) != 0);
     }
     /**
      * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     * @return The state.
      */
-    public interconnection.Interconnection.drone_coordinates.state_t getState() {
+    @java.lang.Override public interconnection.Interconnection.drone_coordinates.state_t getState() {
+      @SuppressWarnings("deprecation")
       interconnection.Interconnection.drone_coordinates.state_t result = interconnection.Interconnection.drone_coordinates.state_t.valueOf(state_);
       return result == null ? interconnection.Interconnection.drone_coordinates.state_t.READY : result;
     }
 
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -1076,41 +1192,43 @@ public final class Interconnection {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         output.writeDouble(1, latitude_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         output.writeDouble(2, longitude_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000004) != 0)) {
         output.writeFloat(3, heading_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000008) != 0)) {
         output.writeEnum(4, state_);
       }
       unknownFields.writeTo(output);
     }
 
+    @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(1, latitude_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(2, longitude_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000004) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeFloatSize(3, heading_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000008) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(4, state_);
       }
@@ -1119,7 +1237,6 @@ public final class Interconnection {
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
     public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
@@ -1130,34 +1247,30 @@ public final class Interconnection {
       }
       interconnection.Interconnection.drone_coordinates other = (interconnection.Interconnection.drone_coordinates) obj;
 
-      boolean result = true;
-      result = result && (hasLatitude() == other.hasLatitude());
+      if (hasLatitude() != other.hasLatitude()) return false;
       if (hasLatitude()) {
-        result = result && (
-            java.lang.Double.doubleToLongBits(getLatitude())
-            == java.lang.Double.doubleToLongBits(
-                other.getLatitude()));
+        if (java.lang.Double.doubleToLongBits(getLatitude())
+            != java.lang.Double.doubleToLongBits(
+                other.getLatitude())) return false;
       }
-      result = result && (hasLongitude() == other.hasLongitude());
+      if (hasLongitude() != other.hasLongitude()) return false;
       if (hasLongitude()) {
-        result = result && (
-            java.lang.Double.doubleToLongBits(getLongitude())
-            == java.lang.Double.doubleToLongBits(
-                other.getLongitude()));
+        if (java.lang.Double.doubleToLongBits(getLongitude())
+            != java.lang.Double.doubleToLongBits(
+                other.getLongitude())) return false;
       }
-      result = result && (hasHeading() == other.hasHeading());
+      if (hasHeading() != other.hasHeading()) return false;
       if (hasHeading()) {
-        result = result && (
-            java.lang.Float.floatToIntBits(getHeading())
-            == java.lang.Float.floatToIntBits(
-                other.getHeading()));
+        if (java.lang.Float.floatToIntBits(getHeading())
+            != java.lang.Float.floatToIntBits(
+                other.getHeading())) return false;
       }
-      result = result && (hasState() == other.hasState());
+      if (hasState() != other.hasState()) return false;
       if (hasState()) {
-        result = result && state_ == other.state_;
+        if (state_ != other.state_) return false;
       }
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
     @java.lang.Override
@@ -1166,7 +1279,7 @@ public final class Interconnection {
         return memoizedHashCode;
       }
       int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
+      hash = (19 * hash) + getDescriptor().hashCode();
       if (hasLatitude()) {
         hash = (37 * hash) + LATITUDE_FIELD_NUMBER;
         hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
@@ -1191,6 +1304,17 @@ public final class Interconnection {
       return hash;
     }
 
+    public static interconnection.Interconnection.drone_coordinates parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.drone_coordinates parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static interconnection.Interconnection.drone_coordinates parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1250,6 +1374,7 @@ public final class Interconnection {
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
@@ -1257,6 +1382,7 @@ public final class Interconnection {
     public static Builder newBuilder(interconnection.Interconnection.drone_coordinates prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
+    @java.lang.Override
     public Builder toBuilder() {
       return this == DEFAULT_INSTANCE
           ? new Builder() : new Builder().mergeFrom(this);
@@ -1280,6 +1406,7 @@ public final class Interconnection {
         return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_descriptor;
       }
 
+      @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_fieldAccessorTable
@@ -1302,6 +1429,7 @@ public final class Interconnection {
                 .alwaysUseFieldBuilders) {
         }
       }
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         latitude_ = 0D;
@@ -1315,15 +1443,18 @@ public final class Interconnection {
         return this;
       }
 
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_descriptor;
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.drone_coordinates getDefaultInstanceForType() {
         return interconnection.Interconnection.drone_coordinates.getDefaultInstance();
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.drone_coordinates build() {
         interconnection.Interconnection.drone_coordinates result = buildPartial();
         if (!result.isInitialized()) {
@@ -1332,23 +1463,24 @@ public final class Interconnection {
         return result;
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.drone_coordinates buildPartial() {
         interconnection.Interconnection.drone_coordinates result = new interconnection.Interconnection.drone_coordinates(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.latitude_ = latitude_;
           to_bitField0_ |= 0x00000001;
         }
-        result.latitude_ = latitude_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.longitude_ = longitude_;
           to_bitField0_ |= 0x00000002;
         }
-        result.longitude_ = longitude_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.heading_ = heading_;
           to_bitField0_ |= 0x00000004;
         }
-        result.heading_ = heading_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+        if (((from_bitField0_ & 0x00000008) != 0)) {
           to_bitField0_ |= 0x00000008;
         }
         result.state_ = state_;
@@ -1357,32 +1489,39 @@ public final class Interconnection {
         return result;
       }
 
+      @java.lang.Override
       public Builder clone() {
-        return (Builder) super.clone();
+        return super.clone();
       }
+      @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
+          java.lang.Object value) {
+        return super.setField(field, value);
       }
+      @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
+        return super.clearField(field);
       }
+      @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
+        return super.clearOneof(oneof);
       }
+      @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
       }
+      @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
       }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof interconnection.Interconnection.drone_coordinates) {
           return mergeFrom((interconnection.Interconnection.drone_coordinates)other);
@@ -1411,6 +1550,7 @@ public final class Interconnection {
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         if (!hasLatitude()) {
           return false;
@@ -1427,6 +1567,7 @@ public final class Interconnection {
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1449,18 +1590,24 @@ public final class Interconnection {
       private double latitude_ ;
       /**
        * <code>required double latitude = 1;</code>
+       * @return Whether the latitude field is set.
        */
+      @java.lang.Override
       public boolean hasLatitude() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
        * <code>required double latitude = 1;</code>
+       * @return The latitude.
        */
+      @java.lang.Override
       public double getLatitude() {
         return latitude_;
       }
       /**
        * <code>required double latitude = 1;</code>
+       * @param value The latitude to set.
+       * @return This builder for chaining.
        */
       public Builder setLatitude(double value) {
         bitField0_ |= 0x00000001;
@@ -1470,6 +1617,7 @@ public final class Interconnection {
       }
       /**
        * <code>required double latitude = 1;</code>
+       * @return This builder for chaining.
        */
       public Builder clearLatitude() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -1481,18 +1629,24 @@ public final class Interconnection {
       private double longitude_ ;
       /**
        * <code>required double longitude = 2;</code>
+       * @return Whether the longitude field is set.
        */
+      @java.lang.Override
       public boolean hasLongitude() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
        * <code>required double longitude = 2;</code>
+       * @return The longitude.
        */
+      @java.lang.Override
       public double getLongitude() {
         return longitude_;
       }
       /**
        * <code>required double longitude = 2;</code>
+       * @param value The longitude to set.
+       * @return This builder for chaining.
        */
       public Builder setLongitude(double value) {
         bitField0_ |= 0x00000002;
@@ -1502,6 +1656,7 @@ public final class Interconnection {
       }
       /**
        * <code>required double longitude = 2;</code>
+       * @return This builder for chaining.
        */
       public Builder clearLongitude() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -1513,18 +1668,24 @@ public final class Interconnection {
       private float heading_ ;
       /**
        * <code>required float heading = 3;</code>
+       * @return Whether the heading field is set.
        */
+      @java.lang.Override
       public boolean hasHeading() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000004) != 0);
       }
       /**
        * <code>required float heading = 3;</code>
+       * @return The heading.
        */
+      @java.lang.Override
       public float getHeading() {
         return heading_;
       }
       /**
        * <code>required float heading = 3;</code>
+       * @param value The heading to set.
+       * @return This builder for chaining.
        */
       public Builder setHeading(float value) {
         bitField0_ |= 0x00000004;
@@ -1534,6 +1695,7 @@ public final class Interconnection {
       }
       /**
        * <code>required float heading = 3;</code>
+       * @return This builder for chaining.
        */
       public Builder clearHeading() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -1545,19 +1707,25 @@ public final class Interconnection {
       private int state_ = 0;
       /**
        * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       * @return Whether the state field is set.
        */
-      public boolean hasState() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+      @java.lang.Override public boolean hasState() {
+        return ((bitField0_ & 0x00000008) != 0);
       }
       /**
        * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       * @return The state.
        */
+      @java.lang.Override
       public interconnection.Interconnection.drone_coordinates.state_t getState() {
+        @SuppressWarnings("deprecation")
         interconnection.Interconnection.drone_coordinates.state_t result = interconnection.Interconnection.drone_coordinates.state_t.valueOf(state_);
         return result == null ? interconnection.Interconnection.drone_coordinates.state_t.READY : result;
       }
       /**
        * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       * @param value The state to set.
+       * @return This builder for chaining.
        */
       public Builder setState(interconnection.Interconnection.drone_coordinates.state_t value) {
         if (value == null) {
@@ -1570,6 +1738,7 @@ public final class Interconnection {
       }
       /**
        * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       * @return This builder for chaining.
        */
       public Builder clearState() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -1577,11 +1746,13 @@ public final class Interconnection {
         onChanged();
         return this;
       }
+      @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
+      @java.lang.Override
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
@@ -1603,11 +1774,12 @@ public final class Interconnection {
 
     @java.lang.Deprecated public static final com.google.protobuf.Parser<drone_coordinates>
         PARSER = new com.google.protobuf.AbstractParser<drone_coordinates>() {
+      @java.lang.Override
       public drone_coordinates parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-          return new drone_coordinates(input, extensionRegistry);
+        return new drone_coordinates(input, extensionRegistry);
       }
     };
 
@@ -1620,6 +1792,7 @@ public final class Interconnection {
       return PARSER;
     }
 
+    @java.lang.Override
     public interconnection.Interconnection.drone_coordinates getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
@@ -1632,36 +1805,46 @@ public final class Interconnection {
 
     /**
      * <code>required double latitude = 1;</code>
+     * @return Whether the latitude field is set.
      */
     boolean hasLatitude();
     /**
      * <code>required double latitude = 1;</code>
+     * @return The latitude.
      */
     double getLatitude();
 
     /**
      * <code>required double longitude = 2;</code>
+     * @return Whether the longitude field is set.
      */
     boolean hasLongitude();
     /**
      * <code>required double longitude = 2;</code>
+     * @return The longitude.
      */
     double getLongitude();
   }
   /**
    * Protobuf type {@code interconnection.pin_coordinates}
    */
-  public  static final class pin_coordinates extends
+  public static final class pin_coordinates extends
       com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:interconnection.pin_coordinates)
       pin_coordinatesOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use pin_coordinates.newBuilder() to construct.
     private pin_coordinates(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
     private pin_coordinates() {
-      latitude_ = 0D;
-      longitude_ = 0D;
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new pin_coordinates();
     }
 
     @java.lang.Override
@@ -1674,6 +1857,9 @@ public final class Interconnection {
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -1685,13 +1871,6 @@ public final class Interconnection {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 9: {
               bitField0_ |= 0x00000001;
               latitude_ = input.readDouble();
@@ -1700,6 +1879,13 @@ public final class Interconnection {
             case 17: {
               bitField0_ |= 0x00000002;
               longitude_ = input.readDouble();
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
               break;
             }
           }
@@ -1719,6 +1905,7 @@ public final class Interconnection {
       return interconnection.Interconnection.internal_static_interconnection_pin_coordinates_descriptor;
     }
 
+    @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return interconnection.Interconnection.internal_static_interconnection_pin_coordinates_fieldAccessorTable
@@ -1731,13 +1918,17 @@ public final class Interconnection {
     private double latitude_;
     /**
      * <code>required double latitude = 1;</code>
+     * @return Whether the latitude field is set.
      */
+    @java.lang.Override
     public boolean hasLatitude() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      * <code>required double latitude = 1;</code>
+     * @return The latitude.
      */
+    @java.lang.Override
     public double getLatitude() {
       return latitude_;
     }
@@ -1746,18 +1937,23 @@ public final class Interconnection {
     private double longitude_;
     /**
      * <code>required double longitude = 2;</code>
+     * @return Whether the longitude field is set.
      */
+    @java.lang.Override
     public boolean hasLongitude() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
      * <code>required double longitude = 2;</code>
+     * @return The longitude.
      */
+    @java.lang.Override
     public double getLongitude() {
       return longitude_;
     }
 
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -1775,27 +1971,29 @@ public final class Interconnection {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         output.writeDouble(1, latitude_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         output.writeDouble(2, longitude_);
       }
       unknownFields.writeTo(output);
     }
 
+    @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(1, latitude_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(2, longitude_);
       }
@@ -1804,7 +2002,6 @@ public final class Interconnection {
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
     public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
@@ -1815,23 +2012,20 @@ public final class Interconnection {
       }
       interconnection.Interconnection.pin_coordinates other = (interconnection.Interconnection.pin_coordinates) obj;
 
-      boolean result = true;
-      result = result && (hasLatitude() == other.hasLatitude());
+      if (hasLatitude() != other.hasLatitude()) return false;
       if (hasLatitude()) {
-        result = result && (
-            java.lang.Double.doubleToLongBits(getLatitude())
-            == java.lang.Double.doubleToLongBits(
-                other.getLatitude()));
+        if (java.lang.Double.doubleToLongBits(getLatitude())
+            != java.lang.Double.doubleToLongBits(
+                other.getLatitude())) return false;
       }
-      result = result && (hasLongitude() == other.hasLongitude());
+      if (hasLongitude() != other.hasLongitude()) return false;
       if (hasLongitude()) {
-        result = result && (
-            java.lang.Double.doubleToLongBits(getLongitude())
-            == java.lang.Double.doubleToLongBits(
-                other.getLongitude()));
+        if (java.lang.Double.doubleToLongBits(getLongitude())
+            != java.lang.Double.doubleToLongBits(
+                other.getLongitude())) return false;
       }
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
     @java.lang.Override
@@ -1840,7 +2034,7 @@ public final class Interconnection {
         return memoizedHashCode;
       }
       int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
+      hash = (19 * hash) + getDescriptor().hashCode();
       if (hasLatitude()) {
         hash = (37 * hash) + LATITUDE_FIELD_NUMBER;
         hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
@@ -1856,6 +2050,17 @@ public final class Interconnection {
       return hash;
     }
 
+    public static interconnection.Interconnection.pin_coordinates parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.pin_coordinates parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static interconnection.Interconnection.pin_coordinates parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1915,6 +2120,7 @@ public final class Interconnection {
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
@@ -1922,6 +2128,7 @@ public final class Interconnection {
     public static Builder newBuilder(interconnection.Interconnection.pin_coordinates prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
+    @java.lang.Override
     public Builder toBuilder() {
       return this == DEFAULT_INSTANCE
           ? new Builder() : new Builder().mergeFrom(this);
@@ -1945,6 +2152,7 @@ public final class Interconnection {
         return interconnection.Interconnection.internal_static_interconnection_pin_coordinates_descriptor;
       }
 
+      @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return interconnection.Interconnection.internal_static_interconnection_pin_coordinates_fieldAccessorTable
@@ -1967,6 +2175,7 @@ public final class Interconnection {
                 .alwaysUseFieldBuilders) {
         }
       }
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         latitude_ = 0D;
@@ -1976,15 +2185,18 @@ public final class Interconnection {
         return this;
       }
 
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return interconnection.Interconnection.internal_static_interconnection_pin_coordinates_descriptor;
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.pin_coordinates getDefaultInstanceForType() {
         return interconnection.Interconnection.pin_coordinates.getDefaultInstance();
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.pin_coordinates build() {
         interconnection.Interconnection.pin_coordinates result = buildPartial();
         if (!result.isInitialized()) {
@@ -1993,49 +2205,57 @@ public final class Interconnection {
         return result;
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.pin_coordinates buildPartial() {
         interconnection.Interconnection.pin_coordinates result = new interconnection.Interconnection.pin_coordinates(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.latitude_ = latitude_;
           to_bitField0_ |= 0x00000001;
         }
-        result.latitude_ = latitude_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.longitude_ = longitude_;
           to_bitField0_ |= 0x00000002;
         }
-        result.longitude_ = longitude_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
+      @java.lang.Override
       public Builder clone() {
-        return (Builder) super.clone();
+        return super.clone();
       }
+      @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
+          java.lang.Object value) {
+        return super.setField(field, value);
       }
+      @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
+        return super.clearField(field);
       }
+      @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
+        return super.clearOneof(oneof);
       }
+      @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
       }
+      @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
       }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof interconnection.Interconnection.pin_coordinates) {
           return mergeFrom((interconnection.Interconnection.pin_coordinates)other);
@@ -2058,6 +2278,7 @@ public final class Interconnection {
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         if (!hasLatitude()) {
           return false;
@@ -2068,6 +2289,7 @@ public final class Interconnection {
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -2090,18 +2312,24 @@ public final class Interconnection {
       private double latitude_ ;
       /**
        * <code>required double latitude = 1;</code>
+       * @return Whether the latitude field is set.
        */
+      @java.lang.Override
       public boolean hasLatitude() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
        * <code>required double latitude = 1;</code>
+       * @return The latitude.
        */
+      @java.lang.Override
       public double getLatitude() {
         return latitude_;
       }
       /**
        * <code>required double latitude = 1;</code>
+       * @param value The latitude to set.
+       * @return This builder for chaining.
        */
       public Builder setLatitude(double value) {
         bitField0_ |= 0x00000001;
@@ -2111,6 +2339,7 @@ public final class Interconnection {
       }
       /**
        * <code>required double latitude = 1;</code>
+       * @return This builder for chaining.
        */
       public Builder clearLatitude() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -2122,18 +2351,24 @@ public final class Interconnection {
       private double longitude_ ;
       /**
        * <code>required double longitude = 2;</code>
+       * @return Whether the longitude field is set.
        */
+      @java.lang.Override
       public boolean hasLongitude() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
        * <code>required double longitude = 2;</code>
+       * @return The longitude.
        */
+      @java.lang.Override
       public double getLongitude() {
         return longitude_;
       }
       /**
        * <code>required double longitude = 2;</code>
+       * @param value The longitude to set.
+       * @return This builder for chaining.
        */
       public Builder setLongitude(double value) {
         bitField0_ |= 0x00000002;
@@ -2143,6 +2378,7 @@ public final class Interconnection {
       }
       /**
        * <code>required double longitude = 2;</code>
+       * @return This builder for chaining.
        */
       public Builder clearLongitude() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -2150,11 +2386,13 @@ public final class Interconnection {
         onChanged();
         return this;
       }
+      @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
+      @java.lang.Override
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
@@ -2176,11 +2414,12 @@ public final class Interconnection {
 
     @java.lang.Deprecated public static final com.google.protobuf.Parser<pin_coordinates>
         PARSER = new com.google.protobuf.AbstractParser<pin_coordinates>() {
+      @java.lang.Override
       public pin_coordinates parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-          return new pin_coordinates(input, extensionRegistry);
+        return new pin_coordinates(input, extensionRegistry);
       }
     };
 
@@ -2193,6 +2432,7 @@ public final class Interconnection {
       return PARSER;
     }
 
+    @java.lang.Override
     public interconnection.Interconnection.pin_coordinates getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
@@ -2205,26 +2445,35 @@ public final class Interconnection {
 
     /**
      * <code>required float range = 1;</code>
+     * @return Whether the range field is set.
      */
     boolean hasRange();
     /**
      * <code>required float range = 1;</code>
+     * @return The range.
      */
     float getRange();
   }
   /**
    * Protobuf type {@code interconnection.laser_range}
    */
-  public  static final class laser_range extends
+  public static final class laser_range extends
       com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:interconnection.laser_range)
       laser_rangeOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use laser_range.newBuilder() to construct.
     private laser_range(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
     private laser_range() {
-      range_ = 0F;
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new laser_range();
     }
 
     @java.lang.Override
@@ -2237,6 +2486,9 @@ public final class Interconnection {
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -2248,16 +2500,16 @@ public final class Interconnection {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 13: {
               bitField0_ |= 0x00000001;
               range_ = input.readFloat();
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
               break;
             }
           }
@@ -2277,6 +2529,7 @@ public final class Interconnection {
       return interconnection.Interconnection.internal_static_interconnection_laser_range_descriptor;
     }
 
+    @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return interconnection.Interconnection.internal_static_interconnection_laser_range_fieldAccessorTable
@@ -2289,18 +2542,23 @@ public final class Interconnection {
     private float range_;
     /**
      * <code>required float range = 1;</code>
+     * @return Whether the range field is set.
      */
+    @java.lang.Override
     public boolean hasRange() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      * <code>required float range = 1;</code>
+     * @return The range.
      */
+    @java.lang.Override
     public float getRange() {
       return range_;
     }
 
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -2314,20 +2572,22 @@ public final class Interconnection {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         output.writeFloat(1, range_);
       }
       unknownFields.writeTo(output);
     }
 
+    @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeFloatSize(1, range_);
       }
@@ -2336,7 +2596,6 @@ public final class Interconnection {
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
     public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
@@ -2347,16 +2606,14 @@ public final class Interconnection {
       }
       interconnection.Interconnection.laser_range other = (interconnection.Interconnection.laser_range) obj;
 
-      boolean result = true;
-      result = result && (hasRange() == other.hasRange());
+      if (hasRange() != other.hasRange()) return false;
       if (hasRange()) {
-        result = result && (
-            java.lang.Float.floatToIntBits(getRange())
-            == java.lang.Float.floatToIntBits(
-                other.getRange()));
+        if (java.lang.Float.floatToIntBits(getRange())
+            != java.lang.Float.floatToIntBits(
+                other.getRange())) return false;
       }
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
     @java.lang.Override
@@ -2365,7 +2622,7 @@ public final class Interconnection {
         return memoizedHashCode;
       }
       int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
+      hash = (19 * hash) + getDescriptor().hashCode();
       if (hasRange()) {
         hash = (37 * hash) + RANGE_FIELD_NUMBER;
         hash = (53 * hash) + java.lang.Float.floatToIntBits(
@@ -2376,6 +2633,17 @@ public final class Interconnection {
       return hash;
     }
 
+    public static interconnection.Interconnection.laser_range parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.laser_range parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static interconnection.Interconnection.laser_range parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2435,6 +2703,7 @@ public final class Interconnection {
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
@@ -2442,6 +2711,7 @@ public final class Interconnection {
     public static Builder newBuilder(interconnection.Interconnection.laser_range prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
+    @java.lang.Override
     public Builder toBuilder() {
       return this == DEFAULT_INSTANCE
           ? new Builder() : new Builder().mergeFrom(this);
@@ -2465,6 +2735,7 @@ public final class Interconnection {
         return interconnection.Interconnection.internal_static_interconnection_laser_range_descriptor;
       }
 
+      @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return interconnection.Interconnection.internal_static_interconnection_laser_range_fieldAccessorTable
@@ -2487,6 +2758,7 @@ public final class Interconnection {
                 .alwaysUseFieldBuilders) {
         }
       }
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         range_ = 0F;
@@ -2494,15 +2766,18 @@ public final class Interconnection {
         return this;
       }
 
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return interconnection.Interconnection.internal_static_interconnection_laser_range_descriptor;
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.laser_range getDefaultInstanceForType() {
         return interconnection.Interconnection.laser_range.getDefaultInstance();
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.laser_range build() {
         interconnection.Interconnection.laser_range result = buildPartial();
         if (!result.isInitialized()) {
@@ -2511,45 +2786,53 @@ public final class Interconnection {
         return result;
       }
 
+      @java.lang.Override
       public interconnection.Interconnection.laser_range buildPartial() {
         interconnection.Interconnection.laser_range result = new interconnection.Interconnection.laser_range(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.range_ = range_;
           to_bitField0_ |= 0x00000001;
         }
-        result.range_ = range_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
+      @java.lang.Override
       public Builder clone() {
-        return (Builder) super.clone();
+        return super.clone();
       }
+      @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
+          java.lang.Object value) {
+        return super.setField(field, value);
       }
+      @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
+        return super.clearField(field);
       }
+      @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
+        return super.clearOneof(oneof);
       }
+      @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
       }
+      @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
       }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof interconnection.Interconnection.laser_range) {
           return mergeFrom((interconnection.Interconnection.laser_range)other);
@@ -2569,6 +2852,7 @@ public final class Interconnection {
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         if (!hasRange()) {
           return false;
@@ -2576,6 +2860,7 @@ public final class Interconnection {
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -2598,18 +2883,24 @@ public final class Interconnection {
       private float range_ ;
       /**
        * <code>required float range = 1;</code>
+       * @return Whether the range field is set.
        */
+      @java.lang.Override
       public boolean hasRange() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
        * <code>required float range = 1;</code>
+       * @return The range.
        */
+      @java.lang.Override
       public float getRange() {
         return range_;
       }
       /**
        * <code>required float range = 1;</code>
+       * @param value The range to set.
+       * @return This builder for chaining.
        */
       public Builder setRange(float value) {
         bitField0_ |= 0x00000001;
@@ -2619,6 +2910,7 @@ public final class Interconnection {
       }
       /**
        * <code>required float range = 1;</code>
+       * @return This builder for chaining.
        */
       public Builder clearRange() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -2626,11 +2918,13 @@ public final class Interconnection {
         onChanged();
         return this;
       }
+      @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
+      @java.lang.Override
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
@@ -2652,11 +2946,12 @@ public final class Interconnection {
 
     @java.lang.Deprecated public static final com.google.protobuf.Parser<laser_range>
         PARSER = new com.google.protobuf.AbstractParser<laser_range>() {
+      @java.lang.Override
       public laser_range parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-          return new laser_range(input, extensionRegistry);
+        return new laser_range(input, extensionRegistry);
       }
     };
 
@@ -2669,6 +2964,7 @@ public final class Interconnection {
       return PARSER;
     }
 
+    @java.lang.Override
     public interconnection.Interconnection.laser_range getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
@@ -2713,7 +3009,7 @@ public final class Interconnection {
       "MISSION_ABORT\020\005\022\017\n\013LASER_RANGE\020\006\022\034\n\030ERRO" +
       "R_UNEXPECTED_COMMAND\020\007\022#\n\037ERROR_MISSION_" +
       "ALREADY_EXECUTING\020\010\"\302\001\n\021drone_coordinate" +
-      "s\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\022\017",
+      "s\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\022\017" +
       "\n\007heading\030\003 \002(\002\0229\n\005state\030\004 \002(\0162*.interco" +
       "nnection.drone_coordinates.state_t\"<\n\007st" +
       "ate_t\022\t\n\005READY\020\000\022\013\n\007WAITING\020\001\022\n\n\006PAUSED\020" +
@@ -2721,18 +3017,10 @@ public final class Interconnection {
       "atitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\"\034\n\013lase" +
       "r_range\022\r\n\005range\030\001 \002(\002"
     };
-    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
-    com.google.protobuf.Descriptors.FileDescriptor
+    descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-        }, assigner);
+        });
     internal_static_interconnection_command_type_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_interconnection_command_type_fieldAccessorTable = new
