@@ -111,6 +111,19 @@ jobs:
       run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_cli11.cmake
     # }
 
+    # nlohmann_json {
+    - name: cache_nlohmann_json
+      id: cache_nlohmann_json
+      uses: actions/cache@v1
+      with:
+        path: '${{github.workspace}}/_deps/nlohmann_json'
+        key: '${{runner.os}}_nlohmann_json_3_10_3_${{matrix.build_type}}_cache'
+
+    - name: install_nlohmann_json
+      if: ${{ steps.cache_nlohmann_json.outputs.cache-hit != 'true' }}
+      run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_nlohmann_json.cmake
+    # }
+
     - name: Check format
       working-directory: ${{github.workspace}}
       if: ${{matrix.clang_checks}}
@@ -122,7 +135,7 @@ jobs:
         cxx_compiler: ${{matrix.clang_checks && '-DCMAKE_CXX_COMPILER=clang++' || ''}}
         c_compiler: ${{matrix.clang_checks && '-DCMAKE_C_COMPILER=clang' || ''}}
         pedantic: ${{matrix.clang_checks && 'ON' || 'OFF'}}
-        prefix_path: ${{ format('-DCMAKE_PREFIX_PATH={0}/_deps/cli11/;{0}/_deps/spdlog/;{0}/_deps/googletest/', github.workspace) }}
+        prefix_path: ${{ format('-DCMAKE_PREFIX_PATH={0}/_deps/cli11/;{0}/_deps/spdlog/;{0}/_deps/googletest/;{0}/_deps/nlohmann_json/', github.workspace) }}
       run: >
         cmake ${{github.workspace}}
         -Wno-dev
