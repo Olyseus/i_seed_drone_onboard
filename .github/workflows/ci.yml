@@ -39,6 +39,7 @@ jobs:
         sudo apt -y install libjpeg-dev
         sudo apt -y install protobuf-compiler
         sudo apt -y install libprotobuf-dev
+        sudo apt -y install libopencv-dev
 
     - name: Install Doxygen
       run: |
