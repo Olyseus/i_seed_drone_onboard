@@ -7,7 +7,11 @@
 #include <string>
 #include <vector>
 
-#if BOOST_VERSION >= 107200  // 1.72.0
+#include <boost/version.hpp> // BOOST_VERSION
+
+#if BOOST_VERSION >= 107400  // 1.74.0
+#include <boost/gil/extension/io/jpeg/old.hpp>
+#elif BOOST_VERSION >= 107200  // 1.72.0
 #include <boost/gil/extension/io/jpeg.hpp>
 #else
 #include <boost/gil/extension/io/jpeg_io.hpp>
