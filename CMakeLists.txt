@@ -590,18 +590,22 @@ if(I_SEED_DRONE_ONBOARD_PEDANTIC)
       "${CMAKE_CURRENT_BINARY_DIR}/.clang-tidy"
   )
 
+  if("${CLANG_TIDY_EXE}" STREQUAL "")
+    set(CLANG_TIDY_EXE "clang-tidy")
+  endif()
+
   if(I_SEED_DRONE_ONBOARD_MANIFOLD)
     set_target_properties(
         i_seed_drone_onboard
         PROPERTIES
-        CXX_CLANG_TIDY clang-tidy
+        CXX_CLANG_TIDY "${CLANG_TIDY_EXE}"
     )
   endif()
 
   set_target_properties(
       i_seed_drone_onboard_core
       PROPERTIES
-      CXX_CLANG_TIDY clang-tidy
+      CXX_CLANG_TIDY "${CLANG_TIDY_EXE}"
   )
 endif()
 
