@@ -1,0 +1,6 @@
+function(__add_cache_path name path)
+  if(NOT EXISTS "${path}")
+    message(FATAL_ERROR "Path not found: ${path} (variable ${name})")
+  endif()
+  set("${name}" "${path}" CACHE PATH "")
+endfunction()
