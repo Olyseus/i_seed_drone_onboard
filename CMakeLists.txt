@@ -558,8 +558,15 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       i_seed_drone_onboard_core
       PUBLIC
       "${PSDK_DIR}/include"
-      "/usr/include/libusb-1.0/"
   )
+
+  if(NOT CMAKE_CROSSCOMPILING)
+    target_include_directories(
+        i_seed_drone_onboard_core
+        PUBLIC
+        "/usr/include/libusb-1.0/"
+    )
+  endif()
 
   find_package(Threads REQUIRED) # Threads::Threads
   find_package(FFMPEG REQUIRED) # FFMPEG_LIBRARIES
