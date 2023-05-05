@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
+
 project(i_seed_drone_onboard VERSION 0.0.1)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/module")
@@ -530,17 +531,19 @@ target_link_libraries(
 )
 
 if(I_SEED_DRONE_ONBOARD_CUDA)
-  if(I_SEED_DRONE_ONBOARD_MANIFOLD)
-    set(trt_so_dir "/usr/lib/aarch64-linux-gnu/")
-  else()
-    set(trt_so_dir "/usr/lib/x86_64-linux-gnu/")
+  if("${TRT_SO_DIR}" STREQUAL "")
+    if(I_SEED_DRONE_ONBOARD_MANIFOLD)
+      set(TRT_SO_DIR "/usr/lib/aarch64-linux-gnu/")
+    else()
+      set(TRT_SO_DIR "/usr/lib/x86_64-linux-gnu/")
+    endif()
   endif()
 
-  if(NOT EXISTS "${trt_so_dir}")
-    message(FATAL_ERROR "${trt_so_dir} not found")
+  if(NOT EXISTS "${TRT_SO_DIR}")
+    message(FATAL_ERROR "${TRT_SO_DIR} not found")
   endif()
-  target_link_libraries(i_seed_drone_onboard_core PUBLIC "${trt_so_dir}/libnvinfer.so")
-  target_link_libraries(i_seed_drone_onboard_core PUBLIC "${trt_so_dir}/libnvonnxparser.so")
+  target_link_libraries(i_seed_drone_onboard_core PUBLIC "${TRT_SO_DIR}/libnvinfer.so")
+  target_link_libraries(i_seed_drone_onboard_core PUBLIC "${TRT_SO_DIR}/libnvonnxparser.so")
 endif()
 
 if(I_SEED_DRONE_ONBOARD_MANIFOLD)
