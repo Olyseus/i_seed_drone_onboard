@@ -120,19 +120,43 @@ auto drone::position_fused_callback(const uint8_t* data, uint16_t data_size,
 
   (void)timestamp;
 
-  drone_latitude_ = position.latitude * rad2deg;
-  drone_longitude_ = position.longitude * rad2deg;
-  drone_altitude_ = position.altitude;
+  const double lat = position.latitude * rad2deg;
+  const double lon = position.longitude * rad2deg;
+  const double alt = position.altitude;  // Altitude, WGS 84 reference ellipsoid
 
-  spdlog::debug("drone latitude: {}, longitude: {}, altitude: {}",
-                drone_latitude_, drone_longitude_, drone_altitude_);
+  spdlog::debug("GPS fused, drone latitude: {}, longitude: {}, altitude: {}",
+                lat, lon, alt);
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  drone_latitude_ = lat;
+  drone_longitude_ = lon;
+  drone_altitude_ = alt;
+
   simulator_.gps_callback(drone_latitude_, drone_longitude_);
 #endif
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
+
+#if !defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+auto drone::rtk_position_callback(const uint8_t* data, uint16_t data_size,
+                                  const T_DjiDataTimestamp* timestamp)
+    -> T_DjiReturnCode {
+  const auto position{
+      cast_dji<T_DjiFcSubscriptionRtkPosition>(data, data_size)};
+
+  (void)timestamp;
+
+  drone_latitude_ = position.latitude;
+  drone_longitude_ = position.longitude;
+  drone_altitude_ = position.hfsl;  // Height above mean sea level (FIXME)
+
+  spdlog::debug("RTK, drone latitude: {}, longitude: {}, altitude: {}",
+                drone_latitude_, drone_longitude_, drone_altitude_);
+
+  return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
+}
+#endif
 
 auto drone::gimbal_callback(const uint8_t* data, uint16_t data_size,
                             const T_DjiDataTimestamp* timestamp)
@@ -236,6 +260,13 @@ drone::drone()
       DjiFcSubscription_SubscribeTopic(DJI_FC_SUBSCRIPTION_TOPIC_POSITION_FUSED,
                                        topic_freq, position_fused_callback);
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+#if !defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  code =
+      DjiFcSubscription_SubscribeTopic(DJI_FC_SUBSCRIPTION_TOPIC_RTK_POSITION,
+                                       topic_freq, rtk_position_callback);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+#endif
 
   code = DjiFcSubscription_SubscribeTopic(
       DJI_FC_SUBSCRIPTION_TOPIC_THREE_GIMBAL_DATA, topic_freq, gimbal_callback);
@@ -423,6 +454,9 @@ void drone::action_job_internal() {
   if (mission_.is_forward()) {
     align_gimbal();
   }
+
+  OLYSEUS_VERIFY(std::abs(drone_latitude_) > 1e-2);
+  OLYSEUS_VERIFY(std::abs(drone_longitude_) > 1e-2);
 
   spdlog::info("drone latitude: {}, longitude: {}, altitude: {}",
                drone_latitude_, drone_longitude_, drone_altitude_);
