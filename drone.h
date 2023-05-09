@@ -54,6 +54,12 @@ class drone {
   static T_DjiReturnCode position_fused_callback(
       const uint8_t* data, uint16_t data_size,
       const T_DjiDataTimestamp* timestamp);
+#if !defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  static T_DjiReturnCode rtk_position_callback(
+      const uint8_t* data, uint16_t data_size,
+      const T_DjiDataTimestamp* timestamp);
+#endif
+
   static T_DjiReturnCode gimbal_callback(const uint8_t* data,
                                          uint16_t data_size,
                                          const T_DjiDataTimestamp* timestamp);
