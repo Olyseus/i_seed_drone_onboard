@@ -36,20 +36,20 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt install -y libboost-all-dev
-        sudo apt -y install libjpeg-dev
-        sudo apt -y install protobuf-compiler
-        sudo apt -y install libprotobuf-dev
-        sudo apt -y install libopencv-dev
-        sudo apt -y install libeigen3-dev
+        sudo apt install -y libjpeg-dev
+        sudo apt install -y protobuf-compiler
+        sudo apt install -y libprotobuf-dev
+        sudo apt install -y libopencv-dev
+        sudo apt install -y libeigen3-dev
 
     - name: Install Doxygen
       run: |
-        sudo apt -y install doxygen
-        sudo apt -y install graphviz
-        sudo apt -y install libjs-mathjax
+        sudo apt install -y doxygen
+        sudo apt install -y graphviz
+        sudo apt install -y libjs-mathjax
 
     - name: Install Ninja
-      run: sudo apt -y install ninja-build
+      run: sudo apt install -y ninja-build
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/_builds /home/runner/opt ${{github.workspace}}/_deps
