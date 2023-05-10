@@ -23,11 +23,18 @@ jobs:
           - os: ubuntu-22.04
             build_type: Release
             clang_checks: false
+            cross: false
             alias: ci_gcc
           - os: ubuntu-22.04
             build_type: Release
             clang_checks: true
+            cross: false
             alias: ci_clang
+          - os: ubuntu-22.04
+            build_type: Release
+            clang_checks: false
+            cross: true
+            alias: ci_jetson_cross
 
     steps:
     - uses: actions/checkout@v3
@@ -54,6 +61,7 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/_builds /home/runner/opt ${{github.workspace}}/_deps
 
+    # Clang 16.0.1 {
     - uses: robinraju/release-downloader@v1.2
       if: ${{matrix.clang_checks}}
       with:
@@ -70,6 +78,26 @@ jobs:
     - name: Add Clang to PATH
       if: ${{matrix.clang_checks}}
       run: echo "${{github.workspace}}/_deps/LLVM-16.0.1-Linux/bin/" >> $GITHUB_PATH
+    # }
+
+    # jetson_cross {
+    - uses: robinraju/release-downloader@v1.2
+      if: ${{matrix.cross}}
+      with:
+        repository: "Olyseus/i_seed_drone_onboard"
+        tag: "v0.0.1"
+        fileName: "jetson_cross.tar.gz"
+        out-file-path: "${{github.workspace}}/_deps"
+        token: ${{secrets.GITHUB_TOKEN}}
+
+    - name: Install jetson_cross
+      if: ${{matrix.cross}}
+      run: tar xf "${{github.workspace}}/_deps/jetson_cross.tar.gz" -C "${{github.workspace}}/_deps/"
+
+    - name: Add jetson_cross to PATH
+      if: ${{matrix.cross}}
+      run: echo "${{github.workspace}}/_deps/jetson_cross/bin/" >> $GITHUB_PATH
+    # }
 
     # googletest {
     - name: cache_googletest
@@ -169,16 +197,17 @@ jobs:
       run: cmake --build . --config ${{matrix.build_type}}
 
     - name: Test
+      if: ${{ !matrix.cross }}
       working-directory: ${{github.workspace}}/_builds
       run: ctest -VV -C ${{matrix.build_type}}
 
     - name: Pack documentation
-      if: startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && matrix.clang_checks == false
+      if: startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && matrix.clang_checks == false && matrix.cross == false
       working-directory: ${{github.workspace}}/_builds
       run: cmake -E tar czvf "${{github.ref_name}}-doxygen.tar.gz" html/
 
     - name: Upload documentation
-      if: startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && matrix.clang_checks == false
+      if: startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && matrix.clang_checks == false && matrix.cross == false
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{secrets.GITHUB_TOKEN}}
