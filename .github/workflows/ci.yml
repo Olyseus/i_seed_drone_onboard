@@ -23,9 +23,11 @@ jobs:
           - os: ubuntu-22.04
             build_type: Release
             clang_checks: false
+            alias: ci_gcc
           - os: ubuntu-22.04
             build_type: Release
             clang_checks: true
+            alias: ci_clang
 
     steps:
     - uses: actions/checkout@v3
@@ -37,8 +39,6 @@ jobs:
       run: |
         sudo apt install -y libboost-all-dev
         sudo apt install -y libjpeg-dev
-        sudo apt install -y protobuf-compiler
-        sudo apt install -y libprotobuf-dev
         sudo apt install -y libopencv-dev
         sudo apt install -y libeigen3-dev
 
@@ -136,30 +136,33 @@ jobs:
       run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_geographiclib.cmake
     # }
 
+    # protobuf {
+    - name: cache_protobuf
+      id: cache_protobuf
+      uses: actions/cache@v1
+      with:
+        path: '${{github.workspace}}/_deps/protobuf'
+        key: '${{runner.os}}_protobuf_3_0_0_${{matrix.build_type}}_cache'
+
+    - name: install_protobuf
+      if: ${{ steps.cache_protobuf.outputs.cache-hit != 'true' }}
+      run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_protobuf.cmake
+    # }
+
     - name: Check format
       working-directory: ${{github.workspace}}
       if: ${{matrix.clang_checks}}
       run: /bin/bash ./check_format.sh
 
     - name: Configure
-      working-directory: ${{github.workspace}}/_builds
-      env:
-        cxx_compiler: ${{matrix.clang_checks && '-DCMAKE_CXX_COMPILER=clang++' || ''}}
-        c_compiler: ${{matrix.clang_checks && '-DCMAKE_C_COMPILER=clang' || ''}}
-        pedantic: ${{matrix.clang_checks && 'ON' || 'OFF'}}
-        prefix_path: ${{ format('-DCMAKE_PREFIX_PATH={0}/_deps/cli11/;{0}/_deps/spdlog/;{0}/_deps/googletest/;{0}/_deps/nlohmann_json/;{0}/_deps/geographiclib/', github.workspace) }}
+      working-directory: ${{github.workspace}}/
       run: >
-        cmake ${{github.workspace}}
-        -Wno-dev
-        ${{env.cxx_compiler}}
-        ${{env.c_compiler}}
-        '-GNinja'
-        -DI_SEED_DRONE_ONBOARD_PEDANTIC=${{env.pedantic}}
-        "${{env.prefix_path}}"
-        -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
-        -DCMAKE_VERBOSE_MAKEFILE=ON
-        -DI_SEED_DRONE_ONBOARD_DOC=ON
-        -DI_SEED_DRONE_ONBOARD_CUDA=OFF
+        cmake
+        -B "${{github.workspace}}/_builds"
+        -G Ninja
+        -W no-dev
+        -C "cmake/cache/${{matrix.alias}}.cmake"
+        -D CMAKE_BUILD_TYPE=${{matrix.build_type}}
 
     - name: Build
       working-directory: ${{github.workspace}}/_builds
