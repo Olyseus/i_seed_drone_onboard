@@ -3,6 +3,8 @@ include("${CMAKE_CURRENT_LIST_DIR}/__add_cache_path.cmake")
 __add_cache_path(CMAKE_C_COMPILER "$ENV{GITHUB_WORKSPACE}/_deps/LLVM-16.0.1-Linux/bin/clang")
 __add_cache_path(CMAKE_CXX_COMPILER "$ENV{GITHUB_WORKSPACE}/_deps/LLVM-16.0.1-Linux/bin/clang++")
 
+__add_cache_path(CLANG_TIDY_EXE "$ENV{GITHUB_WORKSPACE}/_deps/LLVM-16.0.1-Linux/bin/clang-tidy")
+
 set(__deps_dir "$ENV{GITHUB_WORKSPACE}/_deps/")
 
 # Third party
