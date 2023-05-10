@@ -51,12 +51,25 @@ jobs:
     - name: Install Ninja
       run: sudo apt -y install ninja-build
 
-    - name: Install Clang
-      if: ${{matrix.clang_checks}}
-      run: sudo apt -y install clang
-
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/_builds /home/runner/opt ${{github.workspace}}/_deps
+
+    - uses: robinraju/release-downloader@v1.2
+      if: ${{matrix.clang_checks}}
+      with:
+        repository: "Olyseus/i_seed_drone_onboard"
+        tag: "v0.0.1"
+        fileName: "Clang-16.0.1-Ubuntu-22.04.tar.gz"
+        out-file-path: "${{github.workspace}}/_deps"
+        token: ${{secrets.GITHUB_TOKEN}}
+
+    - name: Install Clang
+      if: ${{matrix.clang_checks}}
+      run: tar xf "${{github.workspace}}/_deps/Clang-16.0.1-Ubuntu-22.04.tar.gz" -C "${{github.workspace}}/_deps/"
+
+    - name: Add Clang to PATH
+      if: ${{matrix.clang_checks}}
+      run: echo "${{github.workspace}}/_deps/LLVM-16.0.1-Linux/bin/" >> $GITHUB_PATH
 
     # googletest {
     - name: cache_googletest
