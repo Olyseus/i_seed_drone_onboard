@@ -496,6 +496,11 @@ add_executable(
 
 find_package(CLI11 CONFIG REQUIRED) # CLI11::CLI11
 
+add_executable(i_seed_geoid main_geoid.cpp)
+target_link_libraries(
+    i_seed_geoid PRIVATE i_seed_drone_onboard_core CLI11::CLI11
+)
+
 if(I_SEED_DRONE_ONBOARD_CUDA)
   add_executable(i_seed_convert convert_main.cpp)
   target_link_libraries(i_seed_convert PRIVATE i_seed_drone_onboard_core)
