@@ -157,7 +157,14 @@ set_source_files_properties(
 )
 
 find_package(OpenCV CONFIG REQUIRED)
-target_link_libraries(i_seed_drone_onboard_core PUBLIC ${OpenCV_LIBS})
+target_link_libraries(
+    i_seed_drone_onboard_core
+    PUBLIC
+    opencv_core
+    opencv_highgui
+    opencv_imgcodecs
+    opencv_imgproc
+)
 
 if(I_SEED_DRONE_ONBOARD_CUDA)
   find_package(CUDAToolkit REQUIRED) # CUDA::cudart
