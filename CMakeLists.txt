@@ -44,6 +44,7 @@ if(I_SEED_DRONE_ONBOARD_DOC)
   set(DOXYGEN_EXTRACT_ALL YES)
   set(DOXYGEN_SORT_MEMBER_DOCS NO)
   set(DOXYGEN_FILE_PATTERNS *.cpp *.h)
+  set(DOXYGEN_IMAGE_PATH "${CMAKE_CURRENT_LIST_DIR}/docs")
 
   set(DOXYGEN_EXCLUDE_PATTERNS */_deps/* */_builds/* */third_party/* *_ut.cpp)
 
@@ -54,6 +55,7 @@ if(I_SEED_DRONE_ONBOARD_DOC)
       inference_main.cpp
       main_camera_test.cpp
       main_focal_length.cpp
+      main_geoid.cpp
       main_gimbal_heading.cpp
       main_positioning.cpp
       main_quaternion.cpp
