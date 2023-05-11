@@ -32,13 +32,13 @@ class laser_range {
   /// \endcond
 
   /// \brief Save the received laser range value
-  /// \note Thread: receive_data
+  /// \note \ref thread_receive_data "Thread: receive_data"
   void value_received(float range);
 
   /// \brief Request the laser range measurement
   /// \param[in] m Mutex for locking the commands list
   /// \param[in] commands List of commands where to put the laser request
-  /// \note Thread: action
+  /// \note \ref thread_action "Thread: action"
   float latest(std::mutex& m,
                std::list<interconnection::command_type::command_t>& commands);
 

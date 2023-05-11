@@ -37,12 +37,14 @@ class camera_psdk {
   /// \param[in] drone_attitude Drone's yaw/roll/pitch
   /// \param[in] gimbal_attitude Camera gimbal's yaw/roll/pitch
   /// \param[in] waypoint_index Waypoint index where result should be saved
+  /// \note \ref thread_action "Thread: action"
   void shoot_photo(const gps_coordinates& gps, const attitude& drone_attitude,
                    const attitude& gimbal_attitude, std::size_t waypoint_index);
 
   /// \brief Check SDCard for new shot photos
   /// \return \b true New photos were found, and the inference was run
   /// \return \b false No new files found yet
+  /// \note \ref thread_inference "Thread: inference"
   bool check_sdcard();
 
   /// \brief Check if processing queue is empty
