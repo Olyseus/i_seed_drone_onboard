@@ -133,6 +133,10 @@ auto drone::position_fused_callback(const uint8_t* data, uint16_t data_size,
   drone_altitude_ = alt;
 
   simulator_.gps_callback(drone_latitude_, drone_longitude_);
+#else
+  if (std::abs(drone_latitude_) > 1e-2 && std::abs(drone_longitude_) > 1e-2) {
+    OLYSEUS_VERIFY(std::abs(drone_altitude_ - alt) < 5.0);
+  }
 #endif
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
@@ -149,7 +153,11 @@ auto drone::rtk_position_callback(const uint8_t* data, uint16_t data_size,
 
   drone_latitude_ = position.latitude;
   drone_longitude_ = position.longitude;
-  drone_altitude_ = position.hfsl;  // Height above mean sea level (FIXME)
+
+  // In documentation it's "height above mean sea level" but in fact
+  // the type depends on RTK settings
+  // - https://sdk-forum.dji.net/hc/en-us/requests/82680
+  drone_altitude_ = position.hfsl;
 
   spdlog::debug("RTK, drone latitude: {}, longitude: {}, altitude: {}",
                 drone_latitude_, drone_longitude_, drone_altitude_);
