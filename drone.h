@@ -71,6 +71,18 @@
 /// \image html service.jpg
 ///
 /// \note C++, Linux
+///
+/// \section mission_details Mission execution details
+///
+/// The full mission consists of a forward mission (when we take photos and run
+/// inference in the background) and a backward mission (when we revisit
+/// waypoints where objects were detected and run laser measurements for each
+/// object). In both cases, when
+/// \ref mission::waypoint_reached "a waypoint is reached", the mission is
+/// paused, and custom code is run in the \c action_job thread. If a forward
+/// mission is finished, the mission type is
+/// \ref mission::set_backward "changed to backward",
+/// and a similar cycle continues until ready
 
 // clang-format on
 
