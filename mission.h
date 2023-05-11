@@ -37,7 +37,7 @@ class mission {
   /// \param[in] lon Mission longitude
   /// \return true If mission succesfully started
   /// \return false If mission is already in progress
-  /// \note Thread: receive data
+  /// \note \ref thread_receive_data "Thread: receive data"
   bool init(double lat, double lon);
 
   /// \brief Upload and start mission
@@ -52,42 +52,43 @@ class mission {
   /// \param[in] laser_range Use the laser range to determine the real drone
   ///     height
   /// \return [\ref waypoint_action, waypoint index]
-  /// \note Thread: action
+  /// \note \ref thread_action "Thread: action"
   std::pair<waypoint_action, std::size_t> waypoint_reached(float laser_range);
 
   /// \brief Waypoint copy by index
   /// \return \ref waypoint
-  /// \note Thread: action
+  /// \note \ref thread_action "Thread: action"
   waypoint get_waypoint_copy(std::size_t index) const;
 
   /// \brief Save the detected objects to waypoint data
   /// \param[in] index Waypoint index
   /// \param[in] result Detection result
-  /// \note Thread: inference
+  /// \note \ref thread_inference "Thread: inference"
   void save_detection(std::size_t index, const detection_result& result);
 
   /// \brief The forward mission is finished,
   ///   now set the current mission status to backward
-  /// \note Thread: action (called from \ref drone \::next_mission)
+  /// \note \ref thread_action "Thread: action" (called from
+  ///   \ref drone \::next_mission)
   void set_backward();
 
   /// \brief Check if mission is forward
-  /// \note Thread: action
+  /// \note \ref thread_action "Thread: action"
   bool is_forward() const;
 
   /// \brief Flag to indicate that mission is in process of finishing
   /// \note This is a first flag that is checked when then action thread
   ///     is notified
-  /// \note Thread: action
+  /// \note \ref thread_action "Thread: action"
   bool is_finishing() const;
 
   /// \brief Process mission event received from Payload SDK
-  /// \note Thread: Payload SDK callback
+  /// \note \ref thread_psdk_callback "Thread: Payload SDK callback"
   /// \return true if action thread need to be notified
   bool update(T_DjiWaypointV2MissionEventPush event_data);
 
   /// \brief Process state update event received from Payload SDK
-  /// \note Thread: Payload SDK callback
+  /// \note \ref thread_psdk_callback "Thread: Payload SDK callback"
   /// \return [mission_started, notify]
   std::pair<bool, bool> update(T_DjiWaypointV2MissionStatePush state_data);
 
@@ -110,12 +111,12 @@ class mission {
 
   /// \brief Resume the mission
   /// \details Triggered when 'MISSION_CONTINUE' received from user
-  /// \note Thread: receive data
+  /// \note \ref thread_receive_data "Thread: receive data"
   bool resume();
 
   /// \brief Periodically send the current state to the drone control Android
   ///     application
-  /// \note Thread: send data
+  /// \note \ref thread_send_data "Thread: send data"
   interconnection::drone_coordinates::state_t get_state() const;
 
  private:

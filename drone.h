@@ -1,6 +1,79 @@
 #ifndef DRONE_H_
 #define DRONE_H_
 
+// clang-format off
+
+/// \mainpage notitle
+///
+/// \section communication_protocol Communication protocol
+///
+/// When the onboard service is \ref drone::start "started", it listens for the
+/// commands from a user. Commands are sent from the Android control
+/// application. If extra parameters for a command are needed, they are
+/// sent/received as the follow-up message with data.
+///
+/// \image html protocol.jpg
+///
+/// \note There is no public API in Payload SDK (onboard service) to get the
+///   laser measurement value, so we have to ask Mobile SDK (drone control) and
+///   send the value back to the drone
+///
+/// \section control_app I-Seed drone control
+///
+/// There are a UI system thread that receives UI events and three custom
+/// threads: reading/writing from pipe (interconnection) and a polling job that
+/// checks the state. The \c executeCommands is a buffer with commands.
+///
+/// E.g., if a user wants to abort the mission, command \c MISSION_ABORT put
+/// into a queue. When \c writePipelineJob takes control of the queue, it reads
+/// \c MISSION_ABORT and is responsible for sending it to a drone.
+///
+/// Or when \c readPipelineJob receives a \c LASER_RANGE request from the drone,
+/// it is put into a queue. When \c writePipelineJob takes control of the queue,
+/// it reads \c LASER_RANGE and sends it to the drone, but this time command is
+/// sent with the data - the value of laser range measurement.
+///
+/// \image html control.jpg
+///
+/// \note Java, Android
+///
+/// \section onboard_service_threads I-Seed onboard service
+///
+/// \anchor thread_psdk_callback
+/// \anchor thread_inference
+/// \anchor thread_receive_data
+/// \anchor thread_send_data
+/// \anchor thread_action
+///
+/// After the drone is started, there are five threads:
+/// - Payload SDK callback thread, that's where asynchronous callbacks from
+///   Payload SDK live. E.g., we can receive an event that the mission is
+///   finished or the waypoint reached (see \ref mission and
+///   \ref mission_state). Note that there should be no time-consuming calls
+///   or blocks here. The callback should be finished as soon as possible
+/// - \c inference_job checks for
+///   \ref camera_psdk::check_sdcard "new files on SDCard", and if a new JPG
+///   file is found, it
+///   \ref inference::run "launches the inference"
+///   and \ref mission::save_detection "saves the result back"
+///   to the \ref waypoint::save_detection "waypoint data"
+/// - \c receive_data_job is reading pipe. That's where commands and data (like
+///   \ref laser_range::value_received) from the Android app come from
+/// - \c send_data_job is writing commands to pipe, commands are read from
+///   \c execute_commands_ queue, if needed extra data send as a follow-up
+/// - \c action_job is executed when we reach a waypoint. Most of the mission
+///   it's in the waiting state. That's where we can
+///   \ref camera_psdk::shoot_photo "start shooting a photo",
+///   \ref laser_range::latest "request for laser range", and calculate the
+///   \ref converter "ECEF coordinates" of
+///   \ref detection_result "detected objects"
+///
+/// \image html service.jpg
+///
+/// \note C++, Linux
+
+// clang-format on
+
 #include <signal.h>  // sig_atomic_t
 
 #include <atomic>

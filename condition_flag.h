@@ -21,11 +21,12 @@ class condition_flag {
   /// \endcond
 
   /// \brief Wait for a notification
-  /// \note Thread: action
+  /// \note \ref thread_action "Thread: action"
   void wait();
 
   /// \brief Notify waiting thread
-  /// \note Thread: Payload SDK callback, main (on error)
+  /// \note \ref thread_psdk_callback "Thread: Payload SDK callback"
+  /// \note Thread: main (on error)
   void notify();
 
  private:

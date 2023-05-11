@@ -37,6 +37,7 @@ class inference {
 
   /// \brief Start inference on image
   /// \return Vector of \ref bounding_box objects
+  /// \note \ref thread_inference "Thread: inference"
   std::vector<bounding_box> run(const std::string& image);
 
   static constexpr std::size_t inference_img_width{768};
