@@ -12,9 +12,17 @@ enum class waypoint_action {
   ok,
 
   /// \brief Abort mission on last fake waypoint
+  /// \details The minimum number of waypoints in a mission is two. So when we
+  /// need to start a mission with one waypoint, we must add a fake one to the
+  /// list. When such a waypoint is reached, we immediately abort the mission.
   abort,
 
   /// \brief Tweak altitude and restart mission
+  /// \details It's not possible to know beforehand the actual height of the
+  /// drone above the ground. We only know the actual height after laser
+  /// measurement of the place received. If the actual height is too low or
+  /// too high, the mission waypoint's height has to be corrected. After that,
+  /// the mission is restarted.
   restart
 };
 
@@ -42,10 +50,13 @@ class mission {
 
   /// \brief Upload and start mission
   /// \details
-  ///   - Upload initial mission (thread: receive data)
-  ///   - Upload forward mission with tweaked altitude (thread: action)
-  ///   - Upload backward mission, after \ref set_backward (thread: action)
-  /// \return false if no waypoints left to visit
+  ///   - Upload initial mission
+  ///     (\ref thread_receive_data "Thread: receive data")
+  ///   - Upload forward mission with tweaked altitude
+  ///     (\ref thread_action "Thread: action")
+  ///   - Upload backward mission, after \ref set_backward
+  ///     (\ref thread_action "Thread: action")
+  /// \return \b false if no waypoints left to visit
   bool upload_mission_and_start();
 
   /// \brief Ask for an action when waypoint reached
@@ -84,33 +95,38 @@ class mission {
 
   /// \brief Process mission event received from Payload SDK
   /// \note \ref thread_psdk_callback "Thread: Payload SDK callback"
-  /// \return true if action thread need to be notified
+  /// \return \b true if action thread need to be notified
   bool update(T_DjiWaypointV2MissionEventPush event_data);
 
   /// \brief Process state update event received from Payload SDK
   /// \note \ref thread_psdk_callback "Thread: Payload SDK callback"
-  /// \return [mission_started, notify]
+  /// \return auto [mission_started, notify]
   std::pair<bool, bool> update(T_DjiWaypointV2MissionStatePush state_data);
 
   /// \brief Abort the mission
   /// \details
-  ///   - Abort mission on user request (thread: receive data)
+  ///   - Abort mission on user request
+  ///     (\ref thread_receive_data "Thread: receive data")
   ///   - Abort mission on fake waypoint,
-  ///     start backward mission if needed (thread: action)
+  ///     start backward mission if needed
+  ///     (\ref thread_action "Thread: action")
   ///   - Abort mission when altitude need to be tweaked,
-  ///     only forward (thread: action)
+  ///     only forward (\ref thread_action "Thread: action")
   void abort_mission();
 
   /// \brief Stop the mission
   /// \details
-  ///   - Abort mission on user request (thread: receive data)
-  ///   - Backward mission finished succesfully (thread: action)
-  ///   - Forward mission finished, but backward mission not started because no
-  ///     object detected (thread: action)
+  ///   - Abort mission on user request
+  ///     (\ref thread_receive_data "Thread: receive data")
+  ///   - Backward mission finished succesfully
+  ///     (\ref thread_action "Thread: action")
+  ///   - The forward mission finished, but the backward mission not started
+  ///     because no objects were detected
+  ///     (\ref thread_action "Thread: action")
   void mission_stop(home_altitude& h);
 
   /// \brief Resume the mission
-  /// \details Triggered when 'MISSION_CONTINUE' received from user
+  /// \details Triggered when \c MISSION_CONTINUE received from user
   /// \note \ref thread_receive_data "Thread: receive data"
   bool resume();
 
