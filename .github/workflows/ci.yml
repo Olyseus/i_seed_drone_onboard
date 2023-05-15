@@ -69,7 +69,7 @@ jobs:
       run: cmake -E make_directory ${{github.workspace}}/_builds /home/runner/opt ${{github.workspace}}/_deps
 
     # Clang 16.0.1 {
-    - uses: robinraju/release-downloader@v1.2
+    - uses: robinraju/release-downloader@v1.8
       if: ${{matrix.clang_checks}}
       with:
         repository: "Olyseus/i_seed_drone_onboard"
@@ -88,7 +88,7 @@ jobs:
     # }
 
     # jetson_cross {
-    - uses: robinraju/release-downloader@v1.2
+    - uses: robinraju/release-downloader@v1.8
       if: ${{matrix.cross}}
       with:
         repository: "Olyseus/i_seed_drone_onboard"
