@@ -109,7 +109,7 @@ jobs:
     # googletest {
     - name: cache_googletest
       id: cache_googletest
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: '${{github.workspace}}/_deps/googletest'
         key: '${{runner.os}}_googletest_1_11_0_${{matrix.build_type}}_cache'
@@ -122,7 +122,7 @@ jobs:
     # spdlog {
     - name: cache_spdlog
       id: cache_spdlog
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: '${{github.workspace}}/_deps/spdlog'
         key: '${{runner.os}}_spdlog_1_9_0_${{matrix.build_type}}_cache'
@@ -135,7 +135,7 @@ jobs:
     # cli11 {
     - name: cache_cli11
       id: cache_cli11
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: '${{github.workspace}}/_deps/cli11'
         key: '${{runner.os}}_cli11_1_9_1_${{matrix.build_type}}_cache'
@@ -148,7 +148,7 @@ jobs:
     # nlohmann_json {
     - name: cache_nlohmann_json
       id: cache_nlohmann_json
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: '${{github.workspace}}/_deps/nlohmann_json'
         key: '${{runner.os}}_nlohmann_json_3_10_3_${{matrix.build_type}}_cache'
@@ -161,7 +161,7 @@ jobs:
     # geographiclib {
     - name: cache_geographiclib
       id: cache_geographiclib
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: '${{github.workspace}}/_deps/geographiclib'
         key: '${{runner.os}}_geographiclib_2_1_1_${{matrix.build_type}}_cache'
@@ -174,7 +174,7 @@ jobs:
     # protobuf {
     - name: cache_protobuf
       id: cache_protobuf
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: '${{github.workspace}}/_deps/protobuf'
         key: '${{runner.os}}_protobuf_3_0_0_${{matrix.build_type}}_cache'
