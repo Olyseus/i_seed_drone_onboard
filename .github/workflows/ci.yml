@@ -42,6 +42,13 @@ jobs:
         ssh-key: ${{ secrets.OLYSEUS_BOT_SSH_PRIVATE_KEY }}
         submodules: true
 
+    # https://github.com/actions/runner-images/issues/675#issuecomment-1419388451
+    - name: Tweak APT
+      run: |
+        sudo gem install apt-spy2
+        sudo apt-spy2 fix --commit --launchpad --country=US
+        sudo apt -y update
+
     - name: Install system dependencies
       run: |
         sudo apt install -y libboost-all-dev
