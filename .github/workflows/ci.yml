@@ -208,6 +208,24 @@ jobs:
       working-directory: ${{github.workspace}}/_builds
       run: ctest -VV -C ${{matrix.build_type}}
 
+    - name: Pack
+      if: ${{ matrix.cross }}
+      working-directory: ${{github.workspace}}/_builds
+      run: |
+        cpack -G DEB -B ${{github.workspace}}/_pack -C ${{matrix.build_type}} --verbose
+        cmake -E remove_directory ${{github.workspace}}/_pack/_CPack_Packages/
+
+    - name: Upload release
+      if: startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && matrix.cross == true
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{secrets.GITHUB_TOKEN}}
+        file: ${{github.workspace}}/_pack/*
+        asset_name: ${{matrix.asset_name}}
+        tag: ${{github.ref}}
+        overwrite: true
+        file_glob: true
+
     - name: Pack documentation
       if: startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && matrix.clang_checks == false && matrix.cross == false
       working-directory: ${{github.workspace}}/_builds
