@@ -75,14 +75,28 @@
 /// threads: reading/writing from pipe (interconnection) and a polling job that
 /// checks the state. The \c executeCommands is a buffer with commands.
 ///
+/// UI thread will process the events from the drone operator.
 /// E.g., if a user wants to abort the mission, command \c MISSION_ABORT put
 /// into a queue. When \c writePipelineJob takes control of the queue, it reads
 /// \c MISSION_ABORT and is responsible for sending it to a drone.
 ///
-/// Or when \c readPipelineJob receives a \c LASER_RANGE request from the drone,
+/// Read-from-pipe thread with the \c readPipelineJob method will process the
+/// commands received from the drone. When the \b PING command is received, it
+/// means communication with a drone is established, and a drone is ready to
+/// accept other commands. \b DRONE_COORDINATES command informs that
+/// coordinates with the mission state data are prepared. Drone coordinates are
+/// used for drawing drone icons in the Google Map widget. Mission state will
+/// be used to draw the controlling UI buttons. E.g., if a mission is stopped,
+/// UI is switched to the state when an operator can start a new mission.
+/// When \c readPipelineJob receives a \c LASER_RANGE request from the drone,
 /// it is put into a queue. When \c writePipelineJob takes control of the queue,
 /// it reads \c LASER_RANGE and sends it to the drone, but this time command is
 /// sent with the data - the value of laser range measurement.
+///
+/// The \c pollJob method is the main point of calling Mobile SDK API. It is
+/// responsible for initialization. It periodically checks the state of a
+/// connected smart controller, updates UI widgets, checks the pipeline,
+/// checks the GPS signal, enables laser, etc.
 ///
 /// \image html control.jpg
 ///
