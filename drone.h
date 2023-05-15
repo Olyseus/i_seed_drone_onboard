@@ -8,15 +8,66 @@
 /// \section communication_protocol Communication protocol
 ///
 /// When the onboard service is \ref drone::start "started", it listens for the
-/// commands from a user. Commands are sent from the Android control
-/// application. If extra parameters for a command are needed, they are
-/// sent/received as the follow-up message with data.
+/// commands from a user. The figure below shows how the I-Seed Drone Control
+/// Android application communicates with the I-Seed onboard service. The
+/// Android application runs on an Android phone connected to the drone’s
+/// remote control via a USB cable. The commands are noted in uppercase. If
+/// extra parameters for a command are needed, they are sent/received as the
+/// follow-up message with data.
 ///
 /// \image html protocol.jpg
 ///
-/// \note There is no public API in Payload SDK (onboard service) to get the
-///   laser measurement value, so we have to ask Mobile SDK (drone control) and
-///   send the value back to the drone
+/// When a connection is established between the application and the drone, the
+/// application will send the \b PING command and will wait for a reply with the
+/// \b PING command back. This one needed to verify that communication is
+/// actually working because the API peculiarity is that all the
+/// interconnections return successful codes, but the real packets will start
+/// receiving later.
+///
+/// There is a service running in a background thread on the drone that
+/// periodically sends the current mission states and its geographical
+/// coordinates. The drone service sends a \b DRONE_COORDINATES command to
+/// inform the Android app that a coordinate data and mission state message will
+/// follow.
+///
+/// When the drone operator is ready, a mission can be started via the Android
+/// application interface. This action sends a \b MISSION_START command to the
+/// drone service. Following the \b MISSION_START command, the drone service
+/// expects the coordinates of the waypoint the drone will have to navigate.
+/// The waypoint is sent via a \c pin_coordinates message. Pin coordinates will
+/// be taken from the Google Map widget of the Android app.
+///
+/// During a mission, a drone operator can pause, resume, or abort its
+/// execution. This is achieved by sending \b MISSION_PAUSE,
+/// \b MISSION_CONTINUE, and \b MISSION_ABORT commands, respectively,
+/// to the drone service.
+///
+/// The full mission consists of a forward mission (when we take photos and run
+/// inference in the background) and a backward mission (when we revisit
+/// waypoints where objects were detected and run laser measurements for each
+/// object). In both cases, when
+/// \ref mission::waypoint_reached "a waypoint is reached", the mission is
+/// paused, and custom code is run in the \c action_job thread. If a forward
+/// mission is finished, the mission type is
+/// \ref mission::set_backward "changed to backward",
+/// and a similar cycle continues until ready.
+///
+/// If an I-Seed is detected in a waypoint during a forward mission, the range
+/// between the camera and the I-Seed needs to be known. For this, the DJI
+/// Zenmuse H20/T laser rangefinder is used in a waypoint during a backward
+/// mission. However, there is no API call for the \c %laser_range data
+/// available from the Payload SDKs, one needs to use a hack to retrieve this
+/// information from the Mobile SDK. The onboard service emits a \b LASER_RANGE
+/// command to the Mobile SDK that runs with the Android app to achieve this.
+/// After that, the Mobile SDK sends the \c %laser_range message back to the
+/// onboard service that uses this information to compute the geolocalisation
+/// of the I-Seed.
+///
+/// It's not possible to know beforehand the actual height of the
+/// drone above the ground. We only know the actual height after laser
+/// measurement of the place received. The \b LASER_RANGE command will be used
+/// in this case too. If the actual height is too low or
+/// too high, the mission waypoint's height has to be corrected.
 ///
 /// \section control_app I-Seed drone control
 ///
@@ -71,18 +122,6 @@
 /// \image html service.jpg
 ///
 /// \note C++, Linux
-///
-/// \section mission_details Mission execution details
-///
-/// The full mission consists of a forward mission (when we take photos and run
-/// inference in the background) and a backward mission (when we revisit
-/// waypoints where objects were detected and run laser measurements for each
-/// object). In both cases, when
-/// \ref mission::waypoint_reached "a waypoint is reached", the mission is
-/// paused, and custom code is run in the \c action_job thread. If a forward
-/// mission is finished, the mission type is
-/// \ref mission::set_backward "changed to backward",
-/// and a similar cycle continues until ready
 
 // clang-format on
 
