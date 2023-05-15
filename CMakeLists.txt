@@ -637,6 +637,11 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
       INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
   )
+
+  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Ruslan Baratov <x@ruslo.dev>")
+  set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "arm64")
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "cuda-cudart-10-2, libboost-filesystem1.65.1, libboost-system1.65.1, libc6, libgcc1, libjpeg-turbo8, libnvinfer8, libnvonnxparsers8, libopencv, libprotobuf10, libstdc++6, libusb-1.0-0")
+  include(CPack)
 endif()
 
 enable_testing()

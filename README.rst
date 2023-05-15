@@ -40,3 +40,36 @@ Removing logs:
 .. code-block:: none
 
   > sudo rm -rf /var/log/journal/ /run/log/journal/ ~/.i_seed_drone_onboard/i_seed_drone_onboard.log
+
+Used files
+----------
+
+- Model for inference: ``/var/opt/i_seed_drone_onboard/best.engine``
+- Images downloaded from SDCard saved to ``/var/opt/i_seed_drone_onboard``
+
+DEB
+---
+
+Content of ``*.deb`` file:
+
+.. code-block:: none
+
+  > dpkg --contents i_seed_drone_onboard-0.0.3-Linux.deb
+
+Install ``*.deb`` package:
+
+.. code-block:: none
+
+  > sudo apt install -y ./i_seed_drone_onboard-0.0.3-Linux.deb
+
+Remove installed package:
+
+.. code-block:: none
+
+  > sudo apt remove -y i_seed_drone_onboard
+
+Check dependencies of the installed executable:
+
+.. code-block:: none
+
+  > lddtree /usr/bin/i_seed_drone_onboard
