@@ -62,7 +62,7 @@ class mission {
   /// \brief Ask for an action when waypoint reached
   /// \param[in] laser_range Use the laser range to determine the real drone
   ///     height
-  /// \return [\ref waypoint_action, waypoint index]
+  /// \return [waypoint_action, waypoint index]
   /// \note \ref thread_action "Thread: action"
   std::pair<waypoint_action, std::size_t> waypoint_reached(float laser_range);
 
