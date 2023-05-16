@@ -250,7 +250,7 @@ jobs:
         mv _builds/html/ __generated_html/
         rm -rf docs/
         mv __generated_html/ docs/
-        git rm third_party/dependencies/ # remove submodules
+        git rm -f third_party/dependencies/ # remove submodules
         touch .nojekyll docs/.nojekyll # https://stackoverflow.com/a/62967771
         git add docs/ .nojekyll
         git config user.email "x@ruslo.dev" # People with admin or maintainer permissions...
