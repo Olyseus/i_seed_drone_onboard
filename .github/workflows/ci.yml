@@ -71,7 +71,7 @@ jobs:
 
     # Clang 16.0.1 {
     - uses: robinraju/release-downloader@v1.8
-      if: ${{matrix.clang_checks}}
+      if: ${{ matrix.clang_checks }}
       with:
         repository: "Olyseus/i_seed_drone_onboard"
         tag: "v0.0.1"
@@ -80,17 +80,17 @@ jobs:
         token: ${{secrets.GITHUB_TOKEN}}
 
     - name: Install Clang
-      if: ${{matrix.clang_checks}}
+      if: ${{ matrix.clang_checks }}
       run: tar xf "${{github.workspace}}/_deps/Clang-16.0.1-Ubuntu-22.04.tar.gz" -C "${{github.workspace}}/_deps/"
 
     - name: Add Clang to PATH
-      if: ${{matrix.clang_checks}}
+      if: ${{ matrix.clang_checks }}
       run: echo "${{github.workspace}}/_deps/LLVM-16.0.1-Linux/bin/" >> $GITHUB_PATH
     # }
 
     # jetson_cross {
     - uses: robinraju/release-downloader@v1.8
-      if: ${{matrix.cross}}
+      if: ${{ matrix.cross }}
       with:
         repository: "Olyseus/i_seed_drone_onboard"
         tag: "v0.0.3"
@@ -99,11 +99,11 @@ jobs:
         token: ${{secrets.GITHUB_TOKEN}}
 
     - name: Install jetson_cross
-      if: ${{matrix.cross}}
+      if: ${{ matrix.cross }}
       run: tar xf "${{github.workspace}}/_deps/jetson_cross.tar.gz" -C "${{github.workspace}}/_deps/"
 
     - name: Add jetson_cross to PATH
-      if: ${{matrix.cross}}
+      if: ${{ matrix.cross }}
       run: echo "${{github.workspace}}/_deps/jetson_cross/bin/" >> $GITHUB_PATH
     # }
 
@@ -116,7 +116,7 @@ jobs:
         key: '${{runner.os}}_googletest_1_11_0_${{matrix.build_type}}_cache'
 
     - name: install_googletest
-      if: ${{ steps.cache_googletest.outputs.cache-hit != 'true' }}
+      if: ${{ !steps.cache_googletest.outputs.cache-hit }}
       run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_googletest.cmake
     # }
 
@@ -129,7 +129,7 @@ jobs:
         key: '${{runner.os}}_spdlog_1_9_0_${{matrix.build_type}}_cache'
 
     - name: install_spdlog
-      if: ${{ steps.cache_spdlog.outputs.cache-hit != 'true' }}
+      if: ${{ !steps.cache_spdlog.outputs.cache-hit }}
       run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_spdlog.cmake
     # }
 
@@ -142,7 +142,7 @@ jobs:
         key: '${{runner.os}}_cli11_1_9_1_${{matrix.build_type}}_cache'
 
     - name: install_cli11
-      if: ${{ steps.cache_cli11.outputs.cache-hit != 'true' }}
+      if: ${{ !steps.cache_cli11.outputs.cache-hit }}
       run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_cli11.cmake
     # }
 
@@ -155,7 +155,7 @@ jobs:
         key: '${{runner.os}}_nlohmann_json_3_10_3_${{matrix.build_type}}_cache'
 
     - name: install_nlohmann_json
-      if: ${{ steps.cache_nlohmann_json.outputs.cache-hit != 'true' }}
+      if: ${{ !steps.cache_nlohmann_json.outputs.cache-hit }}
       run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_nlohmann_json.cmake
     # }
 
@@ -168,7 +168,7 @@ jobs:
         key: '${{runner.os}}_geographiclib_2_1_1_${{matrix.build_type}}_cache'
 
     - name: install_geographiclib
-      if: ${{ steps.cache_geographiclib.outputs.cache-hit != 'true' }}
+      if: ${{ !steps.cache_geographiclib.outputs.cache-hit }}
       run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_geographiclib.cmake
     # }
 
@@ -181,13 +181,13 @@ jobs:
         key: '${{runner.os}}_protobuf_3_0_0_${{matrix.build_type}}_cache'
 
     - name: install_protobuf
-      if: ${{ steps.cache_protobuf.outputs.cache-hit != 'true' }}
+      if: ${{ !steps.cache_protobuf.outputs.cache-hit }}
       run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_protobuf.cmake
     # }
 
     - name: Check format
       working-directory: ${{github.workspace}}
-      if: ${{matrix.clang_checks}}
+      if: ${{ matrix.clang_checks }}
       run: /bin/bash ./check_format.sh
 
     - name: Configure
@@ -217,7 +217,7 @@ jobs:
         cmake -E remove_directory ${{github.workspace}}/_pack/_CPack_Packages/
 
     - name: Upload release
-      if: startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && matrix.cross == true
+      if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && matrix.cross }}
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{secrets.GITHUB_TOKEN}}
@@ -228,12 +228,12 @@ jobs:
         file_glob: true
 
     - name: Pack documentation
-      if: startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && matrix.clang_checks == false && matrix.cross == false
+      if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && !matrix.clang_checks && !matrix.cross }}
       working-directory: ${{github.workspace}}/_builds
       run: cmake -E tar czvf "${{github.ref_name}}-doxygen.tar.gz" html/
 
     - name: Upload documentation
-      if: startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && matrix.clang_checks == false && matrix.cross == false
+      if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.build_type == 'Release' && !matrix.clang_checks && !matrix.cross }}
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{secrets.GITHUB_TOKEN}}
@@ -245,7 +245,7 @@ jobs:
 
     - name: Push to deploy branch
       working-directory: ${{github.workspace}}
-      if: ${{ github.ref == 'refs/heads/master' }} && matrix.build_type == 'Release' && matrix.clang_checks == false && matrix.cross == false
+      if: ${{ github.ref == 'refs/heads/master' && matrix.build_type == 'Release' && !matrix.clang_checks && !matrix.cross }}
       run: |
         mv _builds/html/ __generated_html/
         rm -rf docs/
