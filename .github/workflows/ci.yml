@@ -5,6 +5,7 @@ on:
     branches-ignore:
     - 'wip.*'
     - 'pr.*'
+    - 'html_deploy'
     tags:
     - 'v*'
   release:
