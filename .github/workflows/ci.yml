@@ -241,3 +241,18 @@ jobs:
         tag: ${{github.ref}}
         overwrite: true
         file_glob: true
+
+    - name: Push to deploy branch
+      working-directory: ${{github.workspace}}
+      if: ${{ github.ref == 'refs/heads/master' }} && matrix.build_type == 'Release' && matrix.clang_checks == false && matrix.cross == false
+      run: |
+        mv _builds/html/ __generated_html/
+        rm -rf docs/
+        mv __generated_html/ docs/
+        touch .nojekyll docs/.nojekyll # https://stackoverflow.com/a/62967771
+        git add docs/ .nojekyll
+        git config user.email "x@ruslo.dev" # People with admin or maintainer permissions...
+        git config user.name "Ruslan Baratov"
+        git commit -m '[GitHub Action] Deploy documentation'
+        git checkout -b html_deploy
+        git push -f origin html_deploy:html_deploy
