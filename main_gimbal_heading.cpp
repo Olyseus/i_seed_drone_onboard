@@ -72,7 +72,7 @@ T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size, con
 T_DjiReturnCode gimbal_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
   const auto gimbal_three_data{(const T_DjiFcSubscriptionThreeGimbalData*)data};
-  const GimbalSingleData d{gimbal_three_data->gbData[0]};
+  const GimbalSingleData d{gimbal_three_data->anglesData[0]};
 
   (void)data_size;
   (void)timestamp;

@@ -109,7 +109,7 @@ T_DjiReturnCode drone::position_fused_callback(const uint8_t* data, uint16_t dat
 T_DjiReturnCode drone::gimbal_callback(const uint8_t* data, uint16_t data_size, const T_DjiDataTimestamp* timestamp) {
   BOOST_VERIFY(data != nullptr);
   const auto gimbal_three_data{(const T_DjiFcSubscriptionThreeGimbalData*)data};
-  const GimbalSingleData d{gimbal_three_data->gbData[0]};
+  const GimbalSingleData d{gimbal_three_data->anglesData[0]};
 
   (void)data_size;
   (void)timestamp;
