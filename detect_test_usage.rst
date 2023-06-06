@@ -112,3 +112,9 @@ Copying file to local machine's desktop:
 .. code-block:: none
 
   > scp jetson:/var/opt/i_seed_drone_onboard/bbox_2023_6_6_13_0_54.jpg ~/Desktop/
+
+Clean-up:
+
+.. code-block:: none
+
+  [~/dev]> sudo rm -rf ./i_seed_drone_camera.log ./Logs/
