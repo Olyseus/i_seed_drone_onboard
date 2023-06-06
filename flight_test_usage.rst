@@ -22,6 +22,8 @@ Simulation notes:
 - There is no interconnection between onboard service and Android control device
 - Mission and inference are run in parallel. So in logs it's not necessary the
   strict order of mission messages and detection messages
+- When forward and backward mission finished you have to interrupt execution
+  with Ctrl+C
 
 Running tool:
 
@@ -366,7 +368,7 @@ Successful log will look similar to:
   [...] State: execute flying route mission, waypoint #2
   [...] Finish event received
   [...] Updated state: exit mission
-  [...] Execute MISSION_FINISHED command
+  [...] Execute MISSION_FINISHED command ### <<< You can interrupt demo now
 
 Copying file to local machine's desktop (no bounding boxes):
 
