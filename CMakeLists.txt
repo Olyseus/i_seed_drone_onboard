@@ -228,7 +228,7 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       COMPILE_OPTIONS
       # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
       # osal_socket.c:118:22: error: ordered comparison of pointer with integer zero [-Werror=extra]
-      "-Wno-extra;-Wno-pedantic"
+      "-Wno-extra;-Wno-pedantic;-Wno-unused-result"
   )
   set_source_files_properties(
       third_party/psdk/manifold2/hal/hal_uart.c

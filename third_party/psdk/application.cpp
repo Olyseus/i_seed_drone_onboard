@@ -29,6 +29,7 @@
 #include <dji_logger.h>
 #include <dji_core.h>
 #include <dji_aircraft_info.h>
+#include <csignal>
 #include "dji_sdk_config.h"
 
 #include "common/osal/osal.h"
@@ -58,6 +59,7 @@ static FILE *s_djiLogFile;
 static FILE *s_djiLogFileCnt;
 
 /* Private functions declaration ---------------------------------------------*/
+static void DjiUser_NormalExitHandler(int signalNum);
 
 /* Exported functions definition ---------------------------------------------*/
 Application::Application()
@@ -75,14 +77,14 @@ Application::~Application()
 void Application::DjiUser_SetupEnvironment()
 {
     T_DjiReturnCode returnCode;
-    T_DjiOsalHandler osalHandler;
-    T_DjiHalUartHandler uartHandler;
-    T_DjiHalUsbBulkHandler usbBulkHandler;
+    T_DjiOsalHandler osalHandler = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    T_DjiHalUartHandler uartHandler = {0, 0, 0, 0, 0};
+    T_DjiHalUsbBulkHandler usbBulkHandler = {0, 0, 0, 0, 0};
     T_DjiLoggerConsole printConsole;
     T_DjiLoggerConsole localRecordConsole;
-    T_DjiFileSystemHandler fileSystemHandler;
-    T_DjiSocketHandler socketHandler;
-    T_DjiHalNetworkHandler networkHandler;
+    T_DjiFileSystemHandler fileSystemHandler = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    T_DjiSocketHandler socketHandler {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    T_DjiHalNetworkHandler networkHandler = {0, 0, 0};
 
     networkHandler.NetworkInit = HalNetWork_Init;
     networkHandler.NetworkDeInit = HalNetWork_DeInit;
@@ -115,6 +117,7 @@ void Application::DjiUser_SetupEnvironment()
     osalHandler.Free = Osal_Free;
     osalHandler.GetTimeMs = Osal_GetTimeMs;
     osalHandler.GetTimeUs = Osal_GetTimeUs;
+    osalHandler.GetRandomNum = Osal_GetRandomNum;
 
     printConsole.func = DjiUser_PrintConsole;
     printConsole.consoleLevel = DJI_LOGGER_CONSOLE_LOG_LEVEL_INFO;
@@ -206,6 +209,15 @@ void Application::DjiUser_ApplicationStart()
     T_DjiUserInfo userInfo;
     T_DjiReturnCode returnCode;
     T_DjiAircraftInfoBaseInfo aircraftInfoBaseInfo;
+    T_DjiFirmwareVersion firmwareVersion = {
+        .majorVersion = 1,
+        .minorVersion = 0,
+        .modifyVersion = 0,
+        .debugVersion = 0,
+    };
+
+    // attention: when the program is hand up ctrl-c will generate the coredump file
+    signal(SIGTERM, DjiUser_NormalExitHandler);
 
     returnCode = DjiUser_FillInUserInfo(&userInfo);
     if (returnCode != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
@@ -229,6 +241,16 @@ void Application::DjiUser_ApplicationStart()
     returnCode = DjiCore_SetAlias("PSDK_APPALIAS");
     if (returnCode != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
         throw std::runtime_error("Set alias error.");
+    }
+
+    returnCode = DjiCore_SetFirmwareVersion(firmwareVersion);
+    if (returnCode != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
+        throw std::runtime_error("Set firmware version error.");
+    }
+
+    returnCode = DjiCore_SetSerialNumber("PSDK12345678XX");
+    if (returnCode != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
+        throw std::runtime_error("Set serial number error");
     }
 
     returnCode = DjiCore_ApplicationStart();
@@ -388,6 +410,12 @@ T_DjiReturnCode Application::DjiUser_LocalWriteFsInit(const char *path)
     }
 
     return djiReturnCode;
+}
+
+static void DjiUser_NormalExitHandler(int signalNum)
+{
+    USER_UTIL_UNUSED(signalNum);
+    exit(0);
 }
 
 /****************** (C) COPYRIGHT DJI Innovations *****END OF FILE****/
