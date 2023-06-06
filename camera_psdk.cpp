@@ -349,7 +349,28 @@ auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
         }
       }
 
-      if (!res.pixels.empty() && !debug_launch) {
+      if (debug_launch) {
+        const fs::path bbox_path{top_dir / ("bbox_" + file_dst.str())};
+        spdlog::info("Save bounding boxes to image: {}", bbox_path.string());
+        cv::Mat cv_image{cv::imread(dst_path.string().c_str())};
+        BOOST_VERIFY(cv_image.data != nullptr);
+
+        for (const bounding_box& bb : bb) {
+          constexpr int thickness{3};
+          cv::rectangle(cv_image, bb.pmin(), bb.pmax(), bb.class_color(), thickness);
+
+          cv::Point p_text{bb.pmin()};
+          p_text.y -= 12;
+
+          std::ostringstream ss;
+          ss << std::fixed << std::setprecision(2) << bb.confidence() * 100.0 << '%';
+
+          cv::putText(cv_image, ss.str(), p_text, cv::FONT_HERSHEY_SIMPLEX, 2.0, bb.class_color(), thickness);
+        }
+
+        const bool ok{cv::imwrite(bbox_path.string(), cv_image)};
+        BOOST_VERIFY(ok);
+      } else if (!res.pixels.empty()) {
         mission_.save_detection(queue_head.waypoint_index, res);
       }
     }
