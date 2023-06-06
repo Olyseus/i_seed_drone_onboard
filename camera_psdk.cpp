@@ -215,7 +215,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps, const attitude& drone_
   }
 }
 
-auto camera_psdk::check_sdcard() -> bool {
+auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
   {
     std::lock_guard lock{queue_mutex_};
     constexpr int64_t wait_ms{20 * 1000}; // 20 sec
@@ -349,7 +349,7 @@ auto camera_psdk::check_sdcard() -> bool {
         }
       }
 
-      if (!res.pixels.empty()) {
+      if (!res.pixels.empty() && !debug_launch) {
         mission_.save_detection(queue_head.waypoint_index, res);
       }
     }

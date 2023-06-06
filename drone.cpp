@@ -647,7 +647,8 @@ void drone::inference_job() {
         spdlog::critical("Inference job exit");
         return;
       }
-      camera_psdk_.check_sdcard();
+      constexpr bool debug_launch{false};
+      camera_psdk_.check_sdcard(debug_launch);
       std::this_thread::sleep_for(std::chrono::seconds{1});
     }
   } catch (std::exception& e) {

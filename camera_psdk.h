@@ -28,7 +28,7 @@ class camera_psdk {
   void shoot_photo(const gps_coordinates&, const attitude& drone_attitude,
       const attitude& gimbal_attitude, std::size_t waypoint_index);
 
-  bool check_sdcard();
+  bool check_sdcard(bool debug_launch);
   bool queue_is_empty() const;
 
  private:
