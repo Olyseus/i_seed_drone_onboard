@@ -175,7 +175,7 @@ class drone {
   void start();
 
   static constexpr int32_t protocol_version{
-      11};  // Keep it consistent with Mobile SDK (see 'protocolVersion')
+      12};  // Keep it consistent with Mobile SDK (see 'protocolVersion')
 
   static constexpr E_DjiMountPosition m_pos{
       DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
@@ -267,7 +267,9 @@ class drone {
 
   void send_command(interconnection::command_type::command_t);
   void receive_data(std::string* buffer);
+  uint32_t receive_next_packet_size();
   void send_data(std::string& buffer);
+  void send_next_packet_size(uint32_t size);
 
   /// \anchor drone's next_mission
   void next_mission();
@@ -281,9 +283,8 @@ class drone {
   T_DjiMopChannelHandle channel_handle_{nullptr};
   camera_psdk camera_psdk_;
 
-  uint32_t command_bytes_size_{0};
-  uint32_t pin_coordinates_bytes_size_{0};
-  uint32_t laser_range_bytes_size_{0};
+  uint32_t packet_size_{0};
+
   std::atomic<bool> connection_closed_{false};
   std::atomic<bool> exception_caught_{false};
 

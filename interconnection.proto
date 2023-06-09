@@ -19,6 +19,10 @@ message command_type {
   required int32 version = 2;
 }
 
+message packet_size {
+  required fixed32 size = 1;
+}
+
 message drone_coordinates {
   enum state_t {
     READY = 0;

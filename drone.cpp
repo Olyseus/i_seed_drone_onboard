@@ -301,32 +301,14 @@ drone::drone()
   code = DjiWaypointV2_RegisterMissionStateCallback(mission_state_callback);
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-  interconnection::command_type command;
-  command.set_type(interconnection::command_type::PING);
-  command.set_version(protocol_version);
-  std::string buffer_1;
-  bool ok{command.SerializeToString(&buffer_1)};
-  OLYSEUS_VERIFY(ok);
-  command_bytes_size_ = {static_cast<uint32_t>(buffer_1.size())};
-  OLYSEUS_VERIFY(command_bytes_size_ > 0);
-
-  interconnection::pin_coordinates pin_coordinates;
-  pin_coordinates.set_latitude(0.0);
-  pin_coordinates.set_longitude(0.0);
-  std::string buffer_2;
-  ok = pin_coordinates.SerializeToString(&buffer_2);
-  OLYSEUS_VERIFY(ok);
-  pin_coordinates_bytes_size_ = {static_cast<uint32_t>(buffer_2.size())};
-  OLYSEUS_VERIFY(pin_coordinates_bytes_size_ > 0);
-
   {
-    interconnection::laser_range laser_range;
-    laser_range.set_range(0.0);
+    interconnection::packet_size p_size;
+    p_size.set_size(0);
     std::string buffer;
-    const bool ok{laser_range.SerializeToString(&buffer)};
+    bool ok{p_size.SerializeToString(&buffer)};
     OLYSEUS_VERIFY(ok);
-    laser_range_bytes_size_ = static_cast<uint32_t>(buffer.size());
-    OLYSEUS_VERIFY(laser_range_bytes_size_ > 0);
+    packet_size_ = {static_cast<uint32_t>(buffer.size())};
+    OLYSEUS_VERIFY(packet_size_ > 0);
   }
 
   constexpr int sleep_ms{2000};
@@ -349,7 +331,7 @@ drone::~drone() {
 
 void drone::start() {
   spdlog::info("Protocol version: {}", protocol_version);
-  spdlog::info("Command bytes size: {}", command_bytes_size_);
+  spdlog::info("Packet size: {}", packet_size_);
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   spdlog::info("SIMULATOR MODE");
@@ -756,10 +738,9 @@ void drone::receive_data_job_internal() {
   spdlog::info("Received data job started");
 
   std::string buffer;
-  buffer.resize(command_bytes_size_);
 
   while (true) {
-    OLYSEUS_VERIFY(command_bytes_size_ == buffer.size());
+    buffer.resize(receive_next_packet_size());
     receive_data(&buffer);
 
     interconnection::command_type command;
@@ -772,8 +753,7 @@ void drone::receive_data_job_internal() {
         execute_commands_.push_back(command.type());
       } break;
       case interconnection::command_type::MISSION_START: {
-        std::string buffer;
-        buffer.resize(pin_coordinates_bytes_size_);
+        buffer.resize(receive_next_packet_size());
         receive_data(&buffer);
 
         interconnection::pin_coordinates pin_coordinates;
@@ -813,8 +793,7 @@ void drone::receive_data_job_internal() {
         // FIXME (verify mission state)
       } break;
       case interconnection::command_type::LASER_RANGE: {
-        std::string buffer;
-        buffer.resize(laser_range_bytes_size_);
+        buffer.resize(receive_next_packet_size());
         receive_data(&buffer);
 
         interconnection::laser_range laser_range;
@@ -890,6 +869,7 @@ void drone::send_data_job_internal() {
         const bool ok{dc.SerializeToString(&buffer)};
         OLYSEUS_VERIFY(ok);
 
+        send_next_packet_size(buffer.size());
         send_data(buffer);
 
         spdlog::debug(
@@ -922,8 +902,8 @@ void drone::send_command(
   std::string buffer;
   const bool ok{command.SerializeToString(&buffer)};
   OLYSEUS_VERIFY(ok);
-  OLYSEUS_VERIFY(buffer.size() == command_bytes_size_);
 
+  send_next_packet_size(buffer.size());
   send_data(buffer);
 }
 
@@ -966,6 +946,19 @@ void drone::receive_data(std::string* buffer) {
   }
 }
 
+auto drone::receive_next_packet_size() -> uint32_t {
+  std::string buffer;
+  buffer.resize(packet_size_);
+
+  receive_data(&buffer);
+
+  interconnection::packet_size p_size;
+  const bool ok{p_size.ParseFromString(buffer)};
+  OLYSEUS_VERIFY(ok);
+
+  return p_size.size();
+}
+
 void drone::send_data(std::string& buffer) {
   OLYSEUS_VERIFY(!buffer.empty());
 
@@ -999,6 +992,16 @@ void drone::send_data(std::string& buffer) {
     return;
 #endif
   }
+}
+
+void drone::send_next_packet_size(uint32_t size) {
+  interconnection::packet_size p_size;
+  p_size.set_size(size);
+  std::string buffer;
+  const bool ok{p_size.SerializeToString(&buffer)};
+  OLYSEUS_VERIFY(ok);
+  OLYSEUS_VERIFY(buffer.size() == packet_size_);
+  send_data(buffer);
 }
 
 void drone::next_mission() {
