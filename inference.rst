@@ -57,7 +57,7 @@ Use TensorRT weights in inference:
   > ./i_seed_inference --model best.engine --image ~/Downloads/2023_3_24_10_36_22.jpg
 
 Onboard service model location: ``/var/opt/i_seed_drone_onboard/best.engine``
-Onboard sercice images from mission location: ``/var/opt/i_seed_drone_onboard``
+Onboard service images from mission location: ``/var/opt/i_seed_drone_onboard``
 
 Run inference and save bounding boxes to image:
 
