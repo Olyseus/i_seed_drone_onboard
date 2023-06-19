@@ -11,15 +11,10 @@
 mission::mission() noexcept = default;
 mission::~mission() = default;
 
-auto mission::init(double lat, double lon) -> bool {
+void mission::init(double lat, double lon) {
   const std::lock_guard lock{m_};
 
   spdlog::info("Mission parameters: lat({}), lon({})", lat, lon);
-
-  if (in_progress_) {
-    spdlog::error("Mission already in progress");
-    return false;
-  }
 
   // FIXME (points from polygons)
   // FIXME (action at waypoint?)
@@ -34,26 +29,19 @@ auto mission::init(double lat, double lon) -> bool {
   global_waypoints_.emplace_back(lat, lon);
 #endif
 
-  in_progress_ = true;
-  is_forward_ = true;
-
-  {
-    const std::lock_guard lock{is_finishing_mutex_};
-    is_finishing_ = false;
-  }
-
-  return true;
+  mission_state_.init();
 }
 
 auto mission::waypoint_reached(float laser_range)
     -> std::pair<waypoint_action, std::size_t> {
   const std::lock_guard lock{m_};
 
-  OLYSEUS_VERIFY(in_progress_);
+  mission_state_.waypoint_reached();
+  const bool is_forward{mission_state_.is_forward()};
 
   constexpr auto unused_index{std::numeric_limits<std::size_t>::max()};
 
-  std::optional<std::size_t> index{current_waypoint_index()};
+  std::optional<std::size_t> index{current_waypoint_index(is_forward)};
 
   if (!index.has_value()) {
     return {waypoint_action::abort, unused_index};
@@ -63,24 +51,24 @@ auto mission::waypoint_reached(float laser_range)
 
   if (std::abs(laser_range - waypoint::expected_height) > 1.0F) {
     spdlog::info("Bad laser range, waypoint altitude tweak");
-    OLYSEUS_VERIFY(is_forward_);
+    OLYSEUS_VERIFY(is_forward);
     OLYSEUS_VERIFY(w.is_default_altitude());
     w.set_custom_altitude(laser_range);
     OLYSEUS_VERIFY(!w.is_default_altitude());
     return {waypoint_action::restart, unused_index};
   }
 
-  w.set_ready(is_forward_);
+  w.set_ready(is_forward);
 
   return {waypoint_action::ok, index.value()};
 }
 
-auto mission::upload_mission_and_start() -> bool {
+auto mission::upload_mission_and_start(int32_t event_id) -> bool {
   const std::lock_guard lock{m_};
 
-  OLYSEUS_VERIFY(in_progress_);
-
   spdlog::info("Upload mission and start");
+
+  const bool is_forward{mission_state_.is_forward()};
 
   // NOLINTNEXTLINE(cert-msc51-cpp, cert-msc32-c)
   srand(time(nullptr));
@@ -104,13 +92,13 @@ auto mission::upload_mission_and_start() -> bool {
 
   waypoints_.clear();
 
-  if (is_forward_) {
+  if (is_forward) {
     for (const waypoint& w : global_waypoints_) {
       if (w.is_forward_ready()) {
         OLYSEUS_VERIFY(waypoints_.empty());
         continue;
       }
-      waypoints_.push_back(make_waypoint(w));
+      waypoints_.push_back(make_waypoint(w, is_forward));
     }
   } else {
     // NOLINTNEXTLINE(altera-id-dependent-backward-branch)
@@ -120,12 +108,14 @@ auto mission::upload_mission_and_start() -> bool {
       OLYSEUS_VERIFY(w.is_forward_ready());
       OLYSEUS_VERIFY(!w.is_backward_ready());
       if (w.has_detection()) {
-        waypoints_.push_back(make_waypoint(w));
+        waypoints_.push_back(make_waypoint(w, is_forward));
       }
     }
   }
 
   if (waypoints_.empty()) {
+    OLYSEUS_VERIFY(event_id == mission_state::internal_event_id);
+    OLYSEUS_VERIFY(!is_forward);
     return false;
   }
 
@@ -172,46 +162,35 @@ auto mission::upload_mission_and_start() -> bool {
   code = DjiWaypointV2_Start();
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-  mission_state_.start();
+  mission_state_.start(event_id);
 
   return true;
 }
 
-void mission::set_backward() {
-  const std::lock_guard lock{m_};
-  OLYSEUS_VERIFY(in_progress_);
-  {
-    const std::lock_guard lock{is_finishing_mutex_};
-    is_finishing_ = false;
-  }
-  OLYSEUS_VERIFY(is_forward_);
-  is_forward_ = false;
+void mission::set_backward() { mission_state_.set_backward(); }
+
+auto mission::is_forward() const -> bool { return mission_state_.is_forward(); }
+
+auto mission::is_finished() const -> bool {
+  return mission_state_.is_finished();
 }
 
-auto mission::is_forward() const -> bool {
-  const std::lock_guard lock{m_};
-  OLYSEUS_VERIFY(in_progress_);
-  return is_forward_;
+auto mission::is_ready() const -> bool { return mission_state_.is_ready(); }
+
+auto mission::is_paused() const -> bool { return mission_state_.is_paused(); }
+
+auto mission::user_cmd_accepted() const -> bool {
+  return mission_state_.user_cmd_accepted();
 }
 
-auto mission::is_finishing() const -> bool {
-  const std::lock_guard lock{is_finishing_mutex_};
-  return is_finishing_;
+void mission::update_event_id(int32_t event_id) {
+  mission_state_.update_event_id(event_id);
 }
 
 auto mission::update(T_DjiWaypointV2MissionEventPush event_data) -> bool {
   // Note: callback thread, avoid long locks
 
-  const bool notify_finished{mission_state_.update(event_data)};
-
-  if (notify_finished) {
-    const std::lock_guard lock{is_finishing_mutex_};
-    OLYSEUS_VERIFY(!is_finishing_);
-    is_finishing_ = true;
-    return true;
-  }
-
-  return false;
+  return mission_state_.update(event_data);
 }
 
 // auto [mission_started, notify]
@@ -219,84 +198,50 @@ auto mission::update(T_DjiWaypointV2MissionStatePush state_data)
     -> std::pair<bool, bool> {
   // Note: callback thread, avoid long locks
 
-  auto [mission_started, notify, notify_finished] =
-      mission_state_.update(state_data);
-
-  if (!mission_started) {
-    OLYSEUS_VERIFY(!notify);
-    OLYSEUS_VERIFY(!notify_finished);
-    return {mission_started, notify};
-  }
-
-  if (notify_finished) {
-    const std::lock_guard lock{is_finishing_mutex_};
-    OLYSEUS_VERIFY(notify);
-    OLYSEUS_VERIFY(!is_finishing_);
-    is_finishing_ = true;
-  }
-
-  return {mission_started, notify};
+  return mission_state_.update(state_data);
 }
 
-void mission::abort_mission() {
+void mission::abort(int32_t event_id) {
   spdlog::info("Mission ABORT");
 
   // Call it first to block the update callbacks
-  mission_state_.finish();
-
-  {
-    const std::lock_guard lock{is_finishing_mutex_};
-    is_finishing_ = false;
-  }
+  mission_state_.abort(event_id);
 
   const T_DjiReturnCode code{DjiWaypointV2_Stop()};
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
-void mission::mission_stop(home_altitude& h) {
-  h.mission_stop();
+void mission::pause(int32_t event_id) {
+  spdlog::info("Pause mission");
 
-  const std::lock_guard lock{m_};
-  OLYSEUS_VERIFY(in_progress_);
-  in_progress_ = false;
+  mission_state_.pause(event_id);
+
+  const T_DjiReturnCode code{DjiWaypointV2_Pause()};
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
-auto mission::resume() -> bool {
-  if (!mission_state_.is_started()) {
-    spdlog::error("Trying to resume mission that is not started");
-    return false;
-  }
+void mission::stop(home_altitude& h) {
+  h.mission_stop();
 
-  if (mission_state_.get_state() !=
-      interconnection::drone_coordinates::PAUSED) {
-    spdlog::error("Trying to resume mission that is not paused");
-    return false;
-  }
+  mission_state_.stop();
+}
+
+void mission::resume(int32_t event_id) {
+  mission_state_.resume(event_id);
 
   spdlog::info("Mission resume");
   const T_DjiReturnCode code{DjiWaypointV2_Resume()};
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-  return true;
 }
 
-auto mission::get_state() const -> interconnection::drone_coordinates::state_t {
-  const std::lock_guard lock{m_};
-
-  if (!in_progress_) {
-    return interconnection::drone_coordinates::READY;
-  }
-
-  const auto state{mission_state_.get_state()};
-  if (state == interconnection::drone_coordinates::READY) {
-    // local mission is finished, but globally we are still in progress
-    return interconnection::drone_coordinates::WAITING;
-  }
-  return state;
+auto mission::get_state()
+    -> std::pair<int32_t, interconnection::drone_coordinates::state_t> {
+  return mission_state_.get_state();
 }
 
 auto mission::get_waypoint_copy(std::size_t index) const -> waypoint {
   const std::lock_guard lock{m_};
-  OLYSEUS_VERIFY(in_progress_);
+  mission_state_.waypoint_reached();
   OLYSEUS_VERIFY(index < global_waypoints_.size());
   return global_waypoints_.at(index);
 }
@@ -308,7 +253,8 @@ void mission::save_detection(std::size_t index,
   global_waypoints_.at(index).save_detection(result);
 }
 
-auto mission::make_waypoint(const waypoint& w) const -> T_DjiWaypointV2 {
+auto mission::make_waypoint(const waypoint& w, bool is_forward) const
+    -> T_DjiWaypointV2 {
   const double latitude{w.lat()};
   const double longitude{w.lon()};
   const float relative_height{w.altitude()};
@@ -316,7 +262,7 @@ auto mission::make_waypoint(const waypoint& w) const -> T_DjiWaypointV2 {
   float heading{0.0F};
   std::string heading_str{"auto"};
 
-  if (!is_forward_) {
+  if (!is_forward) {
     OLYSEUS_VERIFY(w.has_detection());
     heading = w.heading();
     heading_str = std::to_string(heading);
@@ -333,7 +279,7 @@ auto mission::make_waypoint(const waypoint& w) const -> T_DjiWaypointV2 {
   p.waypointType =
       DJI_WAYPOINT_V2_FLIGHT_PATH_MODE_GO_TO_POINT_IN_STRAIGHT_AND_STOP;
 
-  if (is_forward_) {
+  if (is_forward) {
     // Aircraft's heading will always be in the direction of flight
     p.headingMode = DJI_WAYPOINT_V2_HEADING_MODE_AUTO;
   } else {
@@ -364,10 +310,11 @@ auto mission::make_waypoint(const waypoint& w) const -> T_DjiWaypointV2 {
   return p;
 }
 
-auto mission::current_waypoint_index() const -> std::optional<std::size_t> {
+auto mission::current_waypoint_index(bool is_forward) const
+    -> std::optional<std::size_t> {
   std::optional<std::size_t> result;
 
-  if (is_forward_) {
+  if (is_forward) {
     for (std::size_t i{0}; i < global_waypoints_.size(); ++i) {
       const waypoint& w{global_waypoints_[i]};
       if (result.has_value()) {

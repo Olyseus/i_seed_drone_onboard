@@ -396,7 +396,26 @@ void drone::action_job() {
         return;
       }
 
-      action_job_internal();
+      bool already_paused{false};
+
+      while (true) {
+        if (already_paused) {
+          spdlog::info("Mission is paused, waiting for RESUME...");
+          constexpr int sleep_ms{400};
+          std::this_thread::sleep_for(std::chrono::milliseconds{sleep_ms});
+        }
+
+        const std::lock_guard lock{action_job_mutex_};
+
+        already_paused = mission_.is_paused();
+
+        if (already_paused) {
+          continue;
+        }
+
+        action_job_internal();
+        break;
+      }
     }
   } catch (std::exception& e) {
     exception_caught_ = true;
@@ -405,7 +424,11 @@ void drone::action_job() {
 }
 
 void drone::action_job_internal() {
-  if (mission_.is_finishing()) {
+  if (mission_.is_ready()) {
+    return;
+  }
+
+  if (mission_.is_finished()) {
     next_mission();
     return;
   }
@@ -420,20 +443,23 @@ void drone::action_job_internal() {
 
   const auto [action, waypoint_index] = mission_.waypoint_reached(
       laser_range_.latest(execute_commands_mutex_, execute_commands_));
+  const bool is_forward{mission_.is_forward()};
+
+  constexpr int32_t event_id{mission_state::internal_event_id};
 
   switch (action) {
     case waypoint_action::ok:
       break;
     case waypoint_action::abort:
       spdlog::info("Abort mission on a last fake waypoint");
-      mission_.abort_mission();
+      mission_.abort(event_id);
       next_mission();
       return;
     case waypoint_action::restart: {  // restart the mission for altitude tweak
       // altitude tweak is only for forward mission
-      OLYSEUS_VERIFY(mission_.is_forward());
-      mission_.abort_mission();
-      const bool ok{mission_.upload_mission_and_start()};
+      OLYSEUS_VERIFY(is_forward);
+      mission_.abort(event_id);
+      const bool ok{mission_.upload_mission_and_start(event_id)};
       OLYSEUS_VERIFY(ok);
       return;
     }
@@ -441,7 +467,7 @@ void drone::action_job_internal() {
       OLYSEUS_UNREACHABLE;
   }
 
-  if (mission_.is_forward()) {
+  if (is_forward) {
     align_gimbal();
   }
 
@@ -465,7 +491,7 @@ void drone::action_job_internal() {
   home_altitude_.set_altitude(drone_altitude_, w.altitude(),
                               homepoint_altitude_);
 
-  if (mission_.is_forward()) {
+  if (is_forward) {
     const gps_coordinates gps{.longitude = drone_longitude_,
                               .latitude = drone_latitude_,
                               .altitude = drone_altitude_};
@@ -760,37 +786,63 @@ void drone::receive_data_job_internal() {
         const bool ok{pin_coordinates.ParseFromString(buffer)};
         OLYSEUS_VERIFY(ok);
 
-        if (!mission_.init(pin_coordinates.latitude(),
-                           pin_coordinates.longitude())) {
-          const std::lock_guard lock{execute_commands_mutex_};
-          execute_commands_.push_back(
-              interconnection::command_type::ERROR_MISSION_ALREADY_EXECUTING);
-          break;
-        }
+        mission_.init(pin_coordinates.latitude(), pin_coordinates.longitude());
 
-        const bool start_ok{mission_.upload_mission_and_start()};
+        const bool start_ok{
+            mission_.upload_mission_and_start(pin_coordinates.event_id())};
         OLYSEUS_VERIFY(start_ok);
 
         home_altitude_.mission_start();
-        // FIXME (verify mission state)
       } break;
       case interconnection::command_type::MISSION_PAUSE: {
-        spdlog::info("Mission pause");
-        const T_DjiReturnCode code{DjiWaypointV2_Pause()};
-        OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-        // FIXME (verify mission state)
-      } break;
-      case interconnection::command_type::MISSION_CONTINUE: {
-        if (!mission_.resume()) {
-          const std::lock_guard lock{execute_commands_mutex_};
-          execute_commands_.push_back(
-              interconnection::command_type::ERROR_UNEXPECTED_COMMAND);
+        const int32_t event_id{receive_event_id()};
+        while (true) {
+          if (!mission_.user_cmd_accepted()) {
+            spdlog::info("Waiting for stable state...");
+            constexpr int sleep_sec{1};
+            std::this_thread::sleep_for(std::chrono::seconds{sleep_sec});
+            continue;
+          }
+
+          const std::lock_guard lock{action_job_mutex_};
+          if (!mission_.user_cmd_accepted()) {
+            continue;
+          }
+
+          if (mission_.is_ready()) {
+            mission_.update_event_id(event_id);
+          } else {
+            mission_.pause(event_id);
+          }
+          break;
         }
       } break;
+      case interconnection::command_type::MISSION_CONTINUE:
+        mission_.resume(receive_event_id());
+        break;
       case interconnection::command_type::MISSION_ABORT: {
-        mission_.abort_mission();
-        mission_.mission_stop(home_altitude_);
-        // FIXME (verify mission state)
+        const int32_t event_id{receive_event_id()};
+        while (true) {
+          if (!mission_.user_cmd_accepted()) {
+            spdlog::info("Waiting for stable state...");
+            constexpr int sleep_sec{1};
+            std::this_thread::sleep_for(std::chrono::seconds{sleep_sec});
+            continue;
+          }
+
+          const std::lock_guard lock{action_job_mutex_};
+          if (!mission_.user_cmd_accepted()) {
+            continue;
+          }
+
+          if (mission_.is_ready()) {
+            mission_.update_event_id(event_id);
+          } else {
+            mission_.abort(event_id);
+            mission_.stop(home_altitude_);
+          }
+          break;
+        }
       } break;
       case interconnection::command_type::LASER_RANGE: {
         buffer.resize(receive_next_packet_size());
@@ -861,9 +913,9 @@ void drone::send_data_job_internal() {
         dc.set_longitude(drone_longitude_);
         dc.set_heading(drone_yaw_);
 
-        const interconnection::drone_coordinates::state_t state{
-            mission_.get_state()};
+        auto [event_id, state] = mission_.get_state();
         dc.set_state(state);
+        dc.set_event_id(event_id);
 
         std::string buffer;
         const bool ok{dc.SerializeToString(&buffer)};
@@ -1004,10 +1056,26 @@ void drone::send_next_packet_size(uint32_t size) {
   send_data(buffer);
 }
 
+auto drone::receive_event_id() -> int32_t {
+  std::string buffer;
+  buffer.resize(receive_next_packet_size());
+
+  receive_data(&buffer);
+
+  interconnection::event_id_message event_id;
+  const bool ok{event_id.ParseFromString(buffer)};
+  OLYSEUS_VERIFY(ok);
+
+  const int32_t res{event_id.event_id()};
+  OLYSEUS_VERIFY(res != mission_state::internal_event_id);
+  OLYSEUS_VERIFY(res > 0);
+  return res;
+}
+
 void drone::next_mission() {
   if (!mission_.is_forward()) {
     spdlog::info("MISSION FINISHED");
-    mission_.mission_stop(home_altitude_);
+    mission_.stop(home_altitude_);
     return;
   }
 
@@ -1021,8 +1089,9 @@ void drone::next_mission() {
   spdlog::info("Start backward mission");
 
   mission_.set_backward();
-  if (!mission_.upload_mission_and_start()) {
+  constexpr int32_t event_id{mission_state::internal_event_id};
+  if (!mission_.upload_mission_and_start(event_id)) {
     spdlog::info("Backward mission canceled: No objects detected");
-    mission_.mission_stop(home_altitude_);
+    mission_.stop(home_altitude_);
   }
 }

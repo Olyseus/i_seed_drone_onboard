@@ -43,10 +43,8 @@ class mission {
   /// \brief Apply user coordinates received from 'MISSION_START'
   /// \param[in] lat Mission latitude
   /// \param[in] lon Mission longitude
-  /// \return true If mission succesfully started
-  /// \return false If mission is already in progress
   /// \note \ref thread_receive_data "Thread: receive data"
-  bool init(double lat, double lon);
+  void init(double lat, double lon);
 
   /// \brief Upload and start mission
   /// \details
@@ -57,7 +55,7 @@ class mission {
   ///   - Upload backward mission, after \ref set_backward
   ///     (\ref thread_action "Thread: action")
   /// \return \b false if no waypoints left to visit
-  bool upload_mission_and_start();
+  bool upload_mission_and_start(int32_t event_id);
 
   /// \brief Ask for an action when waypoint reached
   /// \param[in] laser_range Use the laser range to determine the real drone
@@ -87,11 +85,27 @@ class mission {
   /// \note \ref thread_action "Thread: action"
   bool is_forward() const;
 
-  /// \brief Flag to indicate that mission is in process of finishing
+  /// \brief Flag to indicate that mission is finished
   /// \note This is a first flag that is checked when then action thread
   ///     is notified
   /// \note \ref thread_action "Thread: action"
-  bool is_finishing() const;
+  bool is_finished() const;
+
+  /// \brief Flag to indicate that mission is ready to be started
+  bool is_ready() const;
+
+  /// \brief Flag to indicate that execution of mission is paused
+  bool is_paused() const;
+
+  /// \brief Flag to indicate that mission is in the stable state and is
+  ///   ready to accept the user commands pause/resume/abort
+  bool user_cmd_accepted() const;
+
+  /// \brief Update mission \b event_id
+  /// \details Apply new value without affecting the state because the state
+  ///   is no longer actual. E.g., trying to abort a mission that is already
+  ///   finished.
+  void update_event_id(int32_t event_id);
 
   /// \brief Process mission event received from Payload SDK
   /// \note \ref thread_psdk_callback "Thread: Payload SDK callback"
@@ -112,7 +126,10 @@ class mission {
   ///     (\ref thread_action "Thread: action")
   ///   - Abort mission when altitude need to be tweaked,
   ///     only forward (\ref thread_action "Thread: action")
-  void abort_mission();
+  void abort(int32_t event_id);
+
+  /// \brief Pause the mission
+  void pause(int32_t event_id);
 
   /// \brief Stop the mission
   /// \details
@@ -123,32 +140,28 @@ class mission {
   ///   - The forward mission finished, but the backward mission not started
   ///     because no objects were detected
   ///     (\ref thread_action "Thread: action")
-  void mission_stop(home_altitude& h);
+  void stop(home_altitude& h);
 
   /// \brief Resume the mission
   /// \details Triggered when \c MISSION_CONTINUE received from user
   /// \note \ref thread_receive_data "Thread: receive data"
-  bool resume();
+  void resume(int32_t event_id);
 
   /// \brief Periodically send the current state to the drone control Android
   ///     application
   /// \note \ref thread_send_data "Thread: send data"
-  interconnection::drone_coordinates::state_t get_state() const;
+  /// \return auto [event_id, state]
+  std::pair<int32_t, interconnection::drone_coordinates::state_t> get_state();
 
  private:
-  T_DjiWaypointV2 make_waypoint(const waypoint& w) const;
-  std::optional<std::size_t> current_waypoint_index() const;
+  T_DjiWaypointV2 make_waypoint(const waypoint& w, bool is_forward) const;
+  std::optional<std::size_t> current_waypoint_index(bool is_forward) const;
 
+  // Mutex for waypoints, 'mission_state_' is thread-safe
   mutable std::mutex m_;
 
   std::vector<T_DjiWaypointV2> waypoints_;
   std::vector<waypoint> global_waypoints_;
-
-  bool in_progress_{false};
-  bool is_forward_{false};
-
-  mutable std::mutex is_finishing_mutex_;
-  bool is_finishing_{false};
 
   mission_state mission_state_;
 };

@@ -175,7 +175,7 @@ class drone {
   void start();
 
   static constexpr int32_t protocol_version{
-      12};  // Keep it consistent with Mobile SDK (see 'protocolVersion')
+      13};  // Keep it consistent with Mobile SDK (see 'protocolVersion')
 
   static constexpr E_DjiMountPosition m_pos{
       DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
@@ -249,6 +249,8 @@ class drone {
   static std::mutex execute_commands_mutex_;
   static std::list<interconnection::command_type::command_t> execute_commands_;
 
+  std::mutex action_job_mutex_;
+
   bool interrupt_condition() const;
 
   void action_job();
@@ -270,6 +272,7 @@ class drone {
   uint32_t receive_next_packet_size();
   void send_data(std::string& buffer);
   void send_next_packet_size(uint32_t size);
+  int32_t receive_event_id();
 
   /// \anchor drone's next_mission
   void next_mission();
