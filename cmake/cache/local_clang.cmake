@@ -23,7 +23,7 @@ __add_cache_path(GTest_DIR "${__opt_dir}/googletest/lib/cmake/GTest")
 __add_cache_path(Protobuf_ROOT "$ENV{HOME}/opt/protobuf")
 set(Protobuf_USE_STATIC_LIBS ON CACHE BOOL "")
 
-set(I_SEED_DRONE_ONBOARD_DOC ON CACHE BOOL "")
+set(I_SEED_DRONE_ONBOARD_DOC OFF CACHE BOOL "")
 set(I_SEED_DRONE_ONBOARD_CUDA ON CACHE BOOL "")
 set(I_SEED_DRONE_ONBOARD_PEDANTIC ON CACHE BOOL "")
 
