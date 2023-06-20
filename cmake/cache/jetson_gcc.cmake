@@ -1,10 +1,5 @@
 include("${CMAKE_CURRENT_LIST_DIR}/__add_cache_path.cmake")
 
-# https://github.com/Olyseus/dependencies/blob/42e88b7afb84a25e9d8579e873551e342faeaef2/ubuntu_22_04.rst#cuda-1211
-# https://github.com/Olyseus/dependencies/blob/42e88b7afb84a25e9d8579e873551e342faeaef2/ubuntu_22_04.rst#cudnn
-# https://github.com/Olyseus/dependencies/blob/42e88b7afb84a25e9d8579e873551e342faeaef2/ubuntu_22_04.rst#tensorrt
-__add_cache_path(TRT_LIB_DIR "/usr/lib/x86_64-linux-gnu/")
-
 __add_cache_path(CMAKE_C_COMPILER "/usr/bin/gcc")
 __add_cache_path(CMAKE_CXX_COMPILER "/usr/bin/g++")
 
