@@ -239,7 +239,7 @@ auto drone::homepoint_callback(const uint8_t* data, uint16_t data_size,
 }
 
 drone::drone()
-    : camera_psdk_("/var/opt/i_seed_drone_onboard/best.engine", mission_)
+    : camera_("/var/opt/i_seed_drone_onboard/best.engine", mission_)
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
       ,
       laser_range_(simulator_)
@@ -506,7 +506,7 @@ void drone::action_job_internal() {
     spdlog::info("Gimbal/drone yaw diff: {}", yaw_diff);
     constexpr double max_diff{0.7};
     OLYSEUS_VERIFY(yaw_diff < max_diff);
-    camera_psdk_.shoot_photo(gps, drone_attitude, gimbal_attitude,
+    camera_.shoot_photo(gps, drone_attitude, gimbal_attitude,
                              waypoint_index);
   } else {
     OLYSEUS_VERIFY(w.has_detection());
@@ -737,7 +737,7 @@ void drone::inference_job() {
         return;
       }
       constexpr bool debug_launch{false};
-      camera_psdk_.check_sdcard(debug_launch);
+      camera_.check_sdcard(debug_launch);
       std::this_thread::sleep_for(std::chrono::seconds{1});
     }
   } catch (std::exception& e) {
@@ -1080,7 +1080,7 @@ void drone::next_mission() {
   }
 
   // Forward mission is finished and we can run backward mission
-  while (!camera_psdk_.queue_is_empty()) {
+  while (!camera_.queue_is_empty()) {
     spdlog::info("Wait for inference to finish...");
     constexpr int sleep_sec{5};
     std::this_thread::sleep_for(std::chrono::seconds{sleep_sec});

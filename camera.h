@@ -1,5 +1,5 @@
-#ifndef CAMERA_PSDK_H_
-#define CAMERA_PSDK_H_
+#ifndef CAMERA_H_
+#define CAMERA_H_
 
 #include <dji_camera_manager.h>  // T_DjiCameraManagerFileCreateTime
 
@@ -19,17 +19,17 @@ class mission;
 ///     <a href="https://developer.dji.com/doc/payload-sdk-api-reference/en/module/camera-manager.html">camera management</a>
 ///     Payload SDK functions
 // clang-format on
-class camera_psdk {
+class camera {
  public:
-  camera_psdk(const std::string& model_file, mission&);
-  ~camera_psdk();
+  camera(const std::string& model_file, mission&);
+  ~camera();
 
   /// \cond private
-  camera_psdk(const camera_psdk&) = delete;
-  camera_psdk(camera_psdk&&) = delete;
+  camera(const camera&) = delete;
+  camera(camera&&) = delete;
 
-  camera_psdk& operator=(const camera_psdk&) = delete;
-  camera_psdk& operator=(camera_psdk&&) = delete;
+  camera& operator=(const camera&) = delete;
+  camera& operator=(camera&&) = delete;
   /// \endcond
 
   /// \brief Start shooting a photo
@@ -81,4 +81,4 @@ class camera_psdk {
   const std::regex jpeg_regex{".*_ZOOM\\.jpg"};
 };
 
-#endif  // CAMERA_PSDK_H_
+#endif  // CAMERA_H_

@@ -117,7 +117,7 @@
 ///   \ref mission_state). Note that there should be no time-consuming calls
 ///   or blocks here. The callback should be finished as soon as possible
 /// - \c inference_job checks for
-///   \ref camera_psdk::check_sdcard "new files on SDCard", and if a new JPG
+///   \ref camera::check_sdcard "new files on SDCard", and if a new JPG
 ///   file is found, it
 ///   \ref inference::run "launches the inference"
 ///   and \ref mission::save_detection "saves the result back"
@@ -128,7 +128,7 @@
 ///   \c execute_commands_ queue, if needed extra data send as a follow-up
 /// - \c action_job is executed when we reach a waypoint. Most of the mission
 ///   it's in the waiting state. That's where we can
-///   \ref camera_psdk::shoot_photo "start shooting a photo",
+///   \ref camera::shoot_photo "start shooting a photo",
 ///   \ref laser_range::latest "request for laser range", and calculate the
 ///   \ref converter "ECEF coordinates" of
 ///   \ref detection_result "detected objects"
@@ -144,7 +144,7 @@
 #include <atomic>
 #include <cstdint>  // uint16_t
 
-#include "camera_psdk.h"
+#include "camera.h"
 #include "condition_flag.h"
 #include "home_altitude.h"
 #include "laser_range.h"
@@ -284,7 +284,7 @@ class drone {
 
   static mission mission_;
   T_DjiMopChannelHandle channel_handle_{nullptr};
-  camera_psdk camera_psdk_;
+  camera camera_;
 
   uint32_t packet_size_{0};
 

@@ -8,7 +8,7 @@
 #include <thread>                // std::this_thread
 
 #include "application.hpp"  // Application
-#include "camera_psdk.h"
+#include "camera.h"
 #include "mission.h"
 #include "mission_state.h"
 
@@ -49,7 +49,7 @@ auto run_main(int argc, char** argv) -> int {
     auto app{std::make_unique<Application>()};
 
     mission m;
-    camera_psdk c{"/var/opt/i_seed_drone_onboard/best.engine", m};
+    camera c{"/var/opt/i_seed_drone_onboard/best.engine", m};
 
     gps_coordinates gps;
     attitude drone_attitude;

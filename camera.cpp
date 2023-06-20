@@ -1,4 +1,4 @@
-#include "camera_psdk.h"
+#include "camera.h"
 
 #include <dji_liveview.h>  // DjiLiveview_Init
 #include <dji_payload_camera.h>  // DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload
@@ -15,36 +15,36 @@
 
 namespace {
 
-std::string camera_psdk_file_dst;
-std::FILE* camera_psdk_file;
+std::string camera_file_dst;
+std::FILE* camera_file;
 
 }  // namespace
 
-auto camera_psdk_data_callback(T_DjiDownloadFilePacketInfo packetInfo,
+auto camera_data_callback(T_DjiDownloadFilePacketInfo packetInfo,
                                const uint8_t* data, uint16_t len)
     -> T_DjiReturnCode {
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_START) {
-    OLYSEUS_VERIFY(!camera_psdk_file_dst.empty());
+    OLYSEUS_VERIFY(!camera_file_dst.empty());
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    camera_psdk_file = fopen(camera_psdk_file_dst.c_str(), "wb+e");
-    camera_psdk_file_dst.clear();
+    camera_file = fopen(camera_file_dst.c_str(), "wb+e");
+    camera_file_dst.clear();
   }
 
-  OLYSEUS_VERIFY(camera_psdk_file);
-  const std::size_t res{fwrite(data, 1, len, camera_psdk_file)};
+  OLYSEUS_VERIFY(camera_file);
+  const std::size_t res{fwrite(data, 1, len, camera_file)};
   OLYSEUS_VERIFY(res == len);
 
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_END) {
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    const int res{fclose(camera_psdk_file)};
+    const int res{fclose(camera_file)};
     OLYSEUS_VERIFY(res == 0);
-    camera_psdk_file = nullptr;
+    camera_file = nullptr;
   }
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-camera_psdk::camera_psdk(const std::string& model_file, mission& m)
+camera::camera(const std::string& model_file, mission& m)
     : inference_(model_file), mission_(m) {
   T_DjiOsalHandler* osal{DjiPlatform_GetOsalHandler()};
   OLYSEUS_VERIFY(osal);
@@ -81,7 +81,7 @@ camera_psdk::camera_psdk(const std::string& model_file, mission& m)
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   code = DjiCameraManager_RegDownloadFileDataCallback(
-      m_pos, camera_psdk_data_callback);
+      m_pos, camera_data_callback);
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   /* FIXME (remove)
@@ -124,7 +124,7 @@ camera_psdk::camera_psdk(const std::string& model_file, mission& m)
                already_present_indexes_.size());
 }
 
-camera_psdk::~camera_psdk() {
+camera::~camera() {
   /* FIXME (remove)
   T_DjiReturnCode code{DjiLiveview_Init()};
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
@@ -136,7 +136,7 @@ camera_psdk::~camera_psdk() {
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
-void camera_psdk::shoot_photo(const gps_coordinates& gps,
+void camera::shoot_photo(const gps_coordinates& gps,
                               const attitude& drone_attitude,
                               const attitude& gimbal_attitude,
                               std::size_t waypoint_index) {
@@ -241,7 +241,7 @@ void camera_psdk::shoot_photo(const gps_coordinates& gps,
 }
 
 // thread: inference
-auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
+auto camera::check_sdcard(bool debug_launch) -> bool {
   {
     const std::lock_guard lock{queue_mutex_};
     constexpr int64_t wait_ms{20L * 1000L};  // 20 sec
@@ -315,12 +315,12 @@ auto camera_psdk::check_sdcard(bool debug_launch) -> bool {
   return true;
 }
 
-auto camera_psdk::queue_is_empty() const -> bool {
+auto camera::queue_is_empty() const -> bool {
   const std::lock_guard lock{queue_mutex_};
   return queue_.empty();
 }
 
-void camera_psdk::process_inference_files(
+void camera::process_inference_files(
     const std::vector<std::pair<uint32_t, T_DjiCameraManagerFileCreateTime>>&
         inference_files) {
   namespace fs = boost::filesystem;
@@ -341,10 +341,10 @@ void camera_psdk::process_inference_files(
              << static_cast<unsigned>(t.second) << ".jpg";
 
     const fs::path dst_path{top_dir / file_dst.str()};
-    OLYSEUS_VERIFY(camera_psdk_file_dst.empty());
-    camera_psdk_file_dst = dst_path.string();
+    OLYSEUS_VERIFY(camera_file_dst.empty());
+    camera_file_dst = dst_path.string();
     spdlog::info("Download file with index {} to {}", file_index,
-                 camera_psdk_file_dst);
+                 camera_file_dst);
     constexpr E_DjiMountPosition m_pos{drone::m_pos};
     T_DjiReturnCode code{
         DjiCameraManager_DownloadFileByIndex(m_pos, file_index)};
@@ -354,7 +354,7 @@ void camera_psdk::process_inference_files(
     OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     // global variable should be cleared in callbacks for future use
-    OLYSEUS_VERIFY(camera_psdk_file_dst.empty());
+    OLYSEUS_VERIFY(camera_file_dst.empty());
 
     // check file is created at this point
     OLYSEUS_VERIFY(fs::is_regular_file(dst_path));
@@ -425,7 +425,7 @@ void camera_psdk::process_inference_files(
   }
 }
 
-auto camera_psdk::iso_name(int value) -> const char* {
+auto camera::iso_name(int value) -> const char* {
   switch (value) {
     case DJI_CAMERA_MANAGER_ISO_AUTO:
       return "auto";
@@ -456,7 +456,7 @@ auto camera_psdk::iso_name(int value) -> const char* {
   }
 }
 
-auto camera_psdk::aperture_name(int value) -> const char* {
+auto camera::aperture_name(int value) -> const char* {
   switch (value) {
     case DJI_CAMERA_MANAGER_APERTURE_F_1_DOT_6:
       // It is only supported by Z30 camera
@@ -533,7 +533,7 @@ auto camera_psdk::aperture_name(int value) -> const char* {
   }
 }
 
-auto camera_psdk::shutter_speed_name(int value) -> const char* {
+auto camera::shutter_speed_name(int value) -> const char* {
   switch (value) {
     case DJI_CAMERA_MANAGER_SHUTTER_SPEED_1_8000:
       return "1/8000 s";
@@ -678,7 +678,7 @@ auto camera_psdk::shutter_speed_name(int value) -> const char* {
   }
 }
 
-auto camera_psdk::compensation_name(int value) -> const char* {
+auto camera::compensation_name(int value) -> const char* {
   switch (value) {
     case DJI_CAMERA_MANAGER_EXPOSURE_COMPENSATION_N_5_0:
       return "-5.0ev";
