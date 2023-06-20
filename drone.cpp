@@ -506,8 +506,7 @@ void drone::action_job_internal() {
     spdlog::info("Gimbal/drone yaw diff: {}", yaw_diff);
     constexpr double max_diff{0.7};
     OLYSEUS_VERIFY(yaw_diff < max_diff);
-    camera_.shoot_photo(gps, drone_attitude, gimbal_attitude,
-                             waypoint_index);
+    camera_.shoot_photo(gps, drone_attitude, gimbal_attitude, waypoint_index);
   } else {
     OLYSEUS_VERIFY(w.has_detection());
     const detection_result d{w.get_detection()};

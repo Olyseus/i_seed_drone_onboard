@@ -21,7 +21,7 @@ std::FILE* camera_file;
 }  // namespace
 
 auto camera_data_callback(T_DjiDownloadFilePacketInfo packetInfo,
-                               const uint8_t* data, uint16_t len)
+                          const uint8_t* data, uint16_t len)
     -> T_DjiReturnCode {
   if (packetInfo.downloadFileEvent == DJI_DOWNLOAD_FILE_EVENT_START) {
     OLYSEUS_VERIFY(!camera_file_dst.empty());
@@ -80,8 +80,8 @@ camera::camera(const std::string& model_file, mission& m)
       m_pos, DJI_CAMERA_MANAGER_SHOOT_PHOTO_MODE_SINGLE);
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-  code = DjiCameraManager_RegDownloadFileDataCallback(
-      m_pos, camera_data_callback);
+  code =
+      DjiCameraManager_RegDownloadFileDataCallback(m_pos, camera_data_callback);
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   /* FIXME (remove)
@@ -137,9 +137,9 @@ camera::~camera() {
 }
 
 void camera::shoot_photo(const gps_coordinates& gps,
-                              const attitude& drone_attitude,
-                              const attitude& gimbal_attitude,
-                              std::size_t waypoint_index) {
+                         const attitude& drone_attitude,
+                         const attitude& gimbal_attitude,
+                         std::size_t waypoint_index) {
   {
     const std::lock_guard lock{queue_mutex_};
     queue_.push_back({gps, drone_attitude, gimbal_attitude, waypoint_index});
