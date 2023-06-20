@@ -5,12 +5,13 @@ package interconnection;
 message command_type {
   enum command_t {
     PING = 0;
-    DRONE_COORDINATES = 1;
-    MISSION_START = 2;
-    MISSION_PAUSE = 3;
-    MISSION_CONTINUE = 4;
-    MISSION_ABORT = 5;
-    LASER_RANGE = 6;
+    PONG = 1;
+    DRONE_COORDINATES = 2;
+    MISSION_START = 3;
+    MISSION_PAUSE = 4;
+    MISSION_CONTINUE = 5;
+    MISSION_ABORT = 6;
+    LASER_RANGE = 7;
   }
 
   required command_t type = 1;

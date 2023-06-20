@@ -776,7 +776,7 @@ void drone::receive_data_job_internal() {
     switch (command.type()) {
       case interconnection::command_type::PING: {
         const std::lock_guard lock{execute_commands_mutex_};
-        execute_commands_.push_back(command.type());
+        execute_commands_.push_back(interconnection::command_type::PONG);
       } break;
       case interconnection::command_type::MISSION_START: {
         buffer.resize(receive_next_packet_size());
@@ -899,15 +899,13 @@ void drone::send_data_job_internal() {
       continue;
     }
 
-    switch (command.value()) {
-      case interconnection::command_type::PING: {
-        spdlog::info("Execute PING command");
-        send_command(interconnection::command_type::PING);
-        break;
-      }
-      case interconnection::command_type::DRONE_COORDINATES: {
-        send_command(interconnection::command_type::DRONE_COORDINATES);
+    send_command(command.value());
 
+    switch (command.value()) {
+      case interconnection::command_type::PONG:
+        spdlog::info("PONG command sent");
+        break;
+      case interconnection::command_type::DRONE_COORDINATES: {
         interconnection::drone_coordinates dc;
         dc.set_latitude(drone_latitude_);
         dc.set_longitude(drone_longitude_);
@@ -927,13 +925,10 @@ void drone::send_data_job_internal() {
         spdlog::debug(
             "Drone coordinates sent: lat:{}, lon:{}, head:{}, state:{}",
             drone_latitude_, drone_longitude_, drone_yaw_, state);
+      } break;
+      case interconnection::command_type::LASER_RANGE:
+        spdlog::info("Laser range request sent");
         break;
-      }
-      case interconnection::command_type::LASER_RANGE: {
-        spdlog::info("Request laser range");
-        send_command(interconnection::command_type::LASER_RANGE);
-        break;
-      }
       default:
         spdlog::error("Unexpected command: {}", command.value());
         OLYSEUS_UNREACHABLE;
