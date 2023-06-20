@@ -153,14 +153,6 @@ public final class Interconnection {
        * <code>LASER_RANGE = 6;</code>
        */
       LASER_RANGE(6),
-      /**
-       * <code>ERROR_UNEXPECTED_COMMAND = 7;</code>
-       */
-      ERROR_UNEXPECTED_COMMAND(7),
-      /**
-       * <code>ERROR_MISSION_ALREADY_EXECUTING = 8;</code>
-       */
-      ERROR_MISSION_ALREADY_EXECUTING(8),
       ;
 
       /**
@@ -191,14 +183,6 @@ public final class Interconnection {
        * <code>LASER_RANGE = 6;</code>
        */
       public static final int LASER_RANGE_VALUE = 6;
-      /**
-       * <code>ERROR_UNEXPECTED_COMMAND = 7;</code>
-       */
-      public static final int ERROR_UNEXPECTED_COMMAND_VALUE = 7;
-      /**
-       * <code>ERROR_MISSION_ALREADY_EXECUTING = 8;</code>
-       */
-      public static final int ERROR_MISSION_ALREADY_EXECUTING_VALUE = 8;
 
 
       public final int getNumber() {
@@ -222,8 +206,6 @@ public final class Interconnection {
           case 4: return MISSION_CONTINUE;
           case 5: return MISSION_ABORT;
           case 6: return LASER_RANGE;
-          case 7: return ERROR_UNEXPECTED_COMMAND;
-          case 8: return ERROR_MISSION_ALREADY_EXECUTING;
           default: return null;
         }
       }
@@ -1256,6 +1238,15 @@ public final class Interconnection {
      * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
      */
     interconnection.Interconnection.drone_coordinates.state_t getState();
+
+    /**
+     * <code>required int32 event_id = 5;</code>
+     */
+    boolean hasEventId();
+    /**
+     * <code>required int32 event_id = 5;</code>
+     */
+    int getEventId();
   }
   /**
    * Protobuf type {@code interconnection.drone_coordinates}
@@ -1273,6 +1264,7 @@ public final class Interconnection {
       longitude_ = 0D;
       heading_ = 0F;
       state_ = 0;
+      eventId_ = 0;
     }
 
     @java.lang.Override
@@ -1327,6 +1319,11 @@ public final class Interconnection {
                 bitField0_ |= 0x00000008;
                 state_ = rawValue;
               }
+              break;
+            }
+            case 40: {
+              bitField0_ |= 0x00000010;
+              eventId_ = input.readInt32();
               break;
             }
           }
@@ -1523,6 +1520,21 @@ public final class Interconnection {
       return result == null ? interconnection.Interconnection.drone_coordinates.state_t.READY : result;
     }
 
+    public static final int EVENT_ID_FIELD_NUMBER = 5;
+    private int eventId_;
+    /**
+     * <code>required int32 event_id = 5;</code>
+     */
+    public boolean hasEventId() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>required int32 event_id = 5;</code>
+     */
+    public int getEventId() {
+      return eventId_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -1545,6 +1557,10 @@ public final class Interconnection {
         memoizedIsInitialized = 0;
         return false;
       }
+      if (!hasEventId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -1562,6 +1578,9 @@ public final class Interconnection {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeEnum(4, state_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeInt32(5, eventId_);
       }
       unknownFields.writeTo(output);
     }
@@ -1586,6 +1605,10 @@ public final class Interconnection {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(4, state_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(5, eventId_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -1629,6 +1652,11 @@ public final class Interconnection {
       if (hasState()) {
         result = result && state_ == other.state_;
       }
+      result = result && (hasEventId() == other.hasEventId());
+      if (hasEventId()) {
+        result = result && (getEventId()
+            == other.getEventId());
+      }
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -1658,6 +1686,10 @@ public final class Interconnection {
       if (hasState()) {
         hash = (37 * hash) + STATE_FIELD_NUMBER;
         hash = (53 * hash) + state_;
+      }
+      if (hasEventId()) {
+        hash = (37 * hash) + EVENT_ID_FIELD_NUMBER;
+        hash = (53 * hash) + getEventId();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -1785,6 +1817,8 @@ public final class Interconnection {
         bitField0_ = (bitField0_ & ~0x00000004);
         state_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
+        eventId_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -1825,6 +1859,10 @@ public final class Interconnection {
           to_bitField0_ |= 0x00000008;
         }
         result.state_ = state_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.eventId_ = eventId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1879,6 +1917,9 @@ public final class Interconnection {
         if (other.hasState()) {
           setState(other.getState());
         }
+        if (other.hasEventId()) {
+          setEventId(other.getEventId());
+        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -1895,6 +1936,9 @@ public final class Interconnection {
           return false;
         }
         if (!hasState()) {
+          return false;
+        }
+        if (!hasEventId()) {
           return false;
         }
         return true;
@@ -2050,6 +2094,38 @@ public final class Interconnection {
         onChanged();
         return this;
       }
+
+      private int eventId_ ;
+      /**
+       * <code>required int32 event_id = 5;</code>
+       */
+      public boolean hasEventId() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>required int32 event_id = 5;</code>
+       */
+      public int getEventId() {
+        return eventId_;
+      }
+      /**
+       * <code>required int32 event_id = 5;</code>
+       */
+      public Builder setEventId(int value) {
+        bitField0_ |= 0x00000010;
+        eventId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 event_id = 5;</code>
+       */
+      public Builder clearEventId() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        eventId_ = 0;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
@@ -2099,6 +2175,479 @@ public final class Interconnection {
 
   }
 
+  public interface event_id_messageOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:interconnection.event_id_message)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>required int32 event_id = 1;</code>
+     */
+    boolean hasEventId();
+    /**
+     * <code>required int32 event_id = 1;</code>
+     */
+    int getEventId();
+  }
+  /**
+   * Protobuf type {@code interconnection.event_id_message}
+   */
+  public  static final class event_id_message extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:interconnection.event_id_message)
+      event_id_messageOrBuilder {
+    // Use event_id_message.newBuilder() to construct.
+    private event_id_message(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private event_id_message() {
+      eventId_ = 0;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private event_id_message(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 8: {
+              bitField0_ |= 0x00000001;
+              eventId_ = input.readInt32();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return interconnection.Interconnection.internal_static_interconnection_event_id_message_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return interconnection.Interconnection.internal_static_interconnection_event_id_message_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              interconnection.Interconnection.event_id_message.class, interconnection.Interconnection.event_id_message.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int EVENT_ID_FIELD_NUMBER = 1;
+    private int eventId_;
+    /**
+     * <code>required int32 event_id = 1;</code>
+     */
+    public boolean hasEventId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required int32 event_id = 1;</code>
+     */
+    public int getEventId() {
+      return eventId_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      if (!hasEventId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt32(1, eventId_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(1, eventId_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof interconnection.Interconnection.event_id_message)) {
+        return super.equals(obj);
+      }
+      interconnection.Interconnection.event_id_message other = (interconnection.Interconnection.event_id_message) obj;
+
+      boolean result = true;
+      result = result && (hasEventId() == other.hasEventId());
+      if (hasEventId()) {
+        result = result && (getEventId()
+            == other.getEventId());
+      }
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (hasEventId()) {
+        hash = (37 * hash) + EVENT_ID_FIELD_NUMBER;
+        hash = (53 * hash) + getEventId();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static interconnection.Interconnection.event_id_message parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.event_id_message parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.event_id_message parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.event_id_message parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.event_id_message parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.event_id_message parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.event_id_message parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.event_id_message parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.event_id_message parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.event_id_message parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(interconnection.Interconnection.event_id_message prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code interconnection.event_id_message}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:interconnection.event_id_message)
+        interconnection.Interconnection.event_id_messageOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return interconnection.Interconnection.internal_static_interconnection_event_id_message_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return interconnection.Interconnection.internal_static_interconnection_event_id_message_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                interconnection.Interconnection.event_id_message.class, interconnection.Interconnection.event_id_message.Builder.class);
+      }
+
+      // Construct using interconnection.Interconnection.event_id_message.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        eventId_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return interconnection.Interconnection.internal_static_interconnection_event_id_message_descriptor;
+      }
+
+      public interconnection.Interconnection.event_id_message getDefaultInstanceForType() {
+        return interconnection.Interconnection.event_id_message.getDefaultInstance();
+      }
+
+      public interconnection.Interconnection.event_id_message build() {
+        interconnection.Interconnection.event_id_message result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public interconnection.Interconnection.event_id_message buildPartial() {
+        interconnection.Interconnection.event_id_message result = new interconnection.Interconnection.event_id_message(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.eventId_ = eventId_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof interconnection.Interconnection.event_id_message) {
+          return mergeFrom((interconnection.Interconnection.event_id_message)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(interconnection.Interconnection.event_id_message other) {
+        if (other == interconnection.Interconnection.event_id_message.getDefaultInstance()) return this;
+        if (other.hasEventId()) {
+          setEventId(other.getEventId());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasEventId()) {
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        interconnection.Interconnection.event_id_message parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (interconnection.Interconnection.event_id_message) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private int eventId_ ;
+      /**
+       * <code>required int32 event_id = 1;</code>
+       */
+      public boolean hasEventId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required int32 event_id = 1;</code>
+       */
+      public int getEventId() {
+        return eventId_;
+      }
+      /**
+       * <code>required int32 event_id = 1;</code>
+       */
+      public Builder setEventId(int value) {
+        bitField0_ |= 0x00000001;
+        eventId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 event_id = 1;</code>
+       */
+      public Builder clearEventId() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        eventId_ = 0;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:interconnection.event_id_message)
+    }
+
+    // @@protoc_insertion_point(class_scope:interconnection.event_id_message)
+    private static final interconnection.Interconnection.event_id_message DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new interconnection.Interconnection.event_id_message();
+    }
+
+    public static interconnection.Interconnection.event_id_message getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<event_id_message>
+        PARSER = new com.google.protobuf.AbstractParser<event_id_message>() {
+      public event_id_message parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new event_id_message(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<event_id_message> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<event_id_message> getParserForType() {
+      return PARSER;
+    }
+
+    public interconnection.Interconnection.event_id_message getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface pin_coordinatesOrBuilder extends
       // @@protoc_insertion_point(interface_extends:interconnection.pin_coordinates)
       com.google.protobuf.MessageOrBuilder {
@@ -2120,6 +2669,15 @@ public final class Interconnection {
      * <code>required double longitude = 2;</code>
      */
     double getLongitude();
+
+    /**
+     * <code>required int32 event_id = 3;</code>
+     */
+    boolean hasEventId();
+    /**
+     * <code>required int32 event_id = 3;</code>
+     */
+    int getEventId();
   }
   /**
    * Protobuf type {@code interconnection.pin_coordinates}
@@ -2135,6 +2693,7 @@ public final class Interconnection {
     private pin_coordinates() {
       latitude_ = 0D;
       longitude_ = 0D;
+      eventId_ = 0;
     }
 
     @java.lang.Override
@@ -2173,6 +2732,11 @@ public final class Interconnection {
             case 17: {
               bitField0_ |= 0x00000002;
               longitude_ = input.readDouble();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000004;
+              eventId_ = input.readInt32();
               break;
             }
           }
@@ -2230,6 +2794,21 @@ public final class Interconnection {
       return longitude_;
     }
 
+    public static final int EVENT_ID_FIELD_NUMBER = 3;
+    private int eventId_;
+    /**
+     * <code>required int32 event_id = 3;</code>
+     */
+    public boolean hasEventId() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>required int32 event_id = 3;</code>
+     */
+    public int getEventId() {
+      return eventId_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -2244,6 +2823,10 @@ public final class Interconnection {
         memoizedIsInitialized = 0;
         return false;
       }
+      if (!hasEventId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -2255,6 +2838,9 @@ public final class Interconnection {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeDouble(2, longitude_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeInt32(3, eventId_);
       }
       unknownFields.writeTo(output);
     }
@@ -2271,6 +2857,10 @@ public final class Interconnection {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(2, longitude_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, eventId_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -2303,6 +2893,11 @@ public final class Interconnection {
             == java.lang.Double.doubleToLongBits(
                 other.getLongitude()));
       }
+      result = result && (hasEventId() == other.hasEventId());
+      if (hasEventId()) {
+        result = result && (getEventId()
+            == other.getEventId());
+      }
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -2323,6 +2918,10 @@ public final class Interconnection {
         hash = (37 * hash) + LONGITUDE_FIELD_NUMBER;
         hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
             java.lang.Double.doubleToLongBits(getLongitude()));
+      }
+      if (hasEventId()) {
+        hash = (37 * hash) + EVENT_ID_FIELD_NUMBER;
+        hash = (53 * hash) + getEventId();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -2446,6 +3045,8 @@ public final class Interconnection {
         bitField0_ = (bitField0_ & ~0x00000001);
         longitude_ = 0D;
         bitField0_ = (bitField0_ & ~0x00000002);
+        eventId_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -2478,6 +3079,10 @@ public final class Interconnection {
           to_bitField0_ |= 0x00000002;
         }
         result.longitude_ = longitude_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.eventId_ = eventId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2526,6 +3131,9 @@ public final class Interconnection {
         if (other.hasLongitude()) {
           setLongitude(other.getLongitude());
         }
+        if (other.hasEventId()) {
+          setEventId(other.getEventId());
+        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -2536,6 +3144,9 @@ public final class Interconnection {
           return false;
         }
         if (!hasLongitude()) {
+          return false;
+        }
+        if (!hasEventId()) {
           return false;
         }
         return true;
@@ -2620,6 +3231,38 @@ public final class Interconnection {
       public Builder clearLongitude() {
         bitField0_ = (bitField0_ & ~0x00000002);
         longitude_ = 0D;
+        onChanged();
+        return this;
+      }
+
+      private int eventId_ ;
+      /**
+       * <code>required int32 event_id = 3;</code>
+       */
+      public boolean hasEventId() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>required int32 event_id = 3;</code>
+       */
+      public int getEventId() {
+        return eventId_;
+      }
+      /**
+       * <code>required int32 event_id = 3;</code>
+       */
+      public Builder setEventId(int value) {
+        bitField0_ |= 0x00000004;
+        eventId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 event_id = 3;</code>
+       */
+      public Builder clearEventId() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        eventId_ = 0;
         onChanged();
         return this;
       }
@@ -3164,6 +3807,11 @@ public final class Interconnection {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_interconnection_drone_coordinates_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_interconnection_event_id_message_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_interconnection_event_id_message_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_interconnection_pin_coordinates_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -3183,22 +3831,22 @@ public final class Interconnection {
   static {
     java.lang.String[] descriptorData = {
       "\n\025interconnection.proto\022\017interconnection" +
-      "\"\250\002\n\014command_type\0225\n\004type\030\001 \002(\0162\'.interc" +
+      "\"\345\001\n\014command_type\0225\n\004type\030\001 \002(\0162\'.interc" +
       "onnection.command_type.command_t\022\017\n\007vers" +
-      "ion\030\002 \002(\005\"\317\001\n\tcommand_t\022\010\n\004PING\020\000\022\025\n\021DRO" +
+      "ion\030\002 \002(\005\"\214\001\n\tcommand_t\022\010\n\004PING\020\000\022\025\n\021DRO" +
       "NE_COORDINATES\020\001\022\021\n\rMISSION_START\020\002\022\021\n\rM" +
       "ISSION_PAUSE\020\003\022\024\n\020MISSION_CONTINUE\020\004\022\021\n\r" +
-      "MISSION_ABORT\020\005\022\017\n\013LASER_RANGE\020\006\022\034\n\030ERRO" +
-      "R_UNEXPECTED_COMMAND\020\007\022#\n\037ERROR_MISSION_" +
-      "ALREADY_EXECUTING\020\010\"\033\n\013packet_size\022\014\n\004si" +
-      "ze\030\001 \002(\007\"\302\001\n\021drone_coordinates\022\020\n\010latitu",
-      "de\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\022\017\n\007heading\030\003" +
-      " \002(\002\0229\n\005state\030\004 \002(\0162*.interconnection.dr" +
-      "one_coordinates.state_t\"<\n\007state_t\022\t\n\005RE" +
-      "ADY\020\000\022\013\n\007WAITING\020\001\022\n\n\006PAUSED\020\002\022\r\n\tEXECUT" +
-      "ING\020\003\"6\n\017pin_coordinates\022\020\n\010latitude\030\001 \002" +
-      "(\001\022\021\n\tlongitude\030\002 \002(\001\"\034\n\013laser_range\022\r\n\005" +
-      "range\030\001 \002(\002"
+      "MISSION_ABORT\020\005\022\017\n\013LASER_RANGE\020\006\"\033\n\013pack" +
+      "et_size\022\014\n\004size\030\001 \002(\007\"\324\001\n\021drone_coordina" +
+      "tes\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001" +
+      "\022\017\n\007heading\030\003 \002(\002\0229\n\005state\030\004 \002(\0162*.inter",
+      "connection.drone_coordinates.state_t\022\020\n\010" +
+      "event_id\030\005 \002(\005\"<\n\007state_t\022\t\n\005READY\020\000\022\013\n\007" +
+      "WAITING\020\001\022\n\n\006PAUSED\020\002\022\r\n\tEXECUTING\020\003\"$\n\020" +
+      "event_id_message\022\020\n\010event_id\030\001 \002(\005\"H\n\017pi" +
+      "n_coordinates\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongi" +
+      "tude\030\002 \002(\001\022\020\n\010event_id\030\003 \002(\005\"\034\n\013laser_ra" +
+      "nge\022\r\n\005range\030\001 \002(\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3229,15 +3877,21 @@ public final class Interconnection {
     internal_static_interconnection_drone_coordinates_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_drone_coordinates_descriptor,
-        new java.lang.String[] { "Latitude", "Longitude", "Heading", "State", });
-    internal_static_interconnection_pin_coordinates_descriptor =
+        new java.lang.String[] { "Latitude", "Longitude", "Heading", "State", "EventId", });
+    internal_static_interconnection_event_id_message_descriptor =
       getDescriptor().getMessageTypes().get(3);
+    internal_static_interconnection_event_id_message_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_interconnection_event_id_message_descriptor,
+        new java.lang.String[] { "EventId", });
+    internal_static_interconnection_pin_coordinates_descriptor =
+      getDescriptor().getMessageTypes().get(4);
     internal_static_interconnection_pin_coordinates_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_pin_coordinates_descriptor,
-        new java.lang.String[] { "Latitude", "Longitude", });
+        new java.lang.String[] { "Latitude", "Longitude", "EventId", });
     internal_static_interconnection_laser_range_descriptor =
-      getDescriptor().getMessageTypes().get(4);
+      getDescriptor().getMessageTypes().get(5);
     internal_static_interconnection_laser_range_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_laser_range_descriptor,
