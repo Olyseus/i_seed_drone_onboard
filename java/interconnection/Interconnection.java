@@ -130,29 +130,33 @@ public final class Interconnection {
        */
       PING(0),
       /**
-       * <code>DRONE_COORDINATES = 1;</code>
+       * <code>PONG = 1;</code>
        */
-      DRONE_COORDINATES(1),
+      PONG(1),
       /**
-       * <code>MISSION_START = 2;</code>
+       * <code>DRONE_COORDINATES = 2;</code>
        */
-      MISSION_START(2),
+      DRONE_COORDINATES(2),
       /**
-       * <code>MISSION_PAUSE = 3;</code>
+       * <code>MISSION_START = 3;</code>
        */
-      MISSION_PAUSE(3),
+      MISSION_START(3),
       /**
-       * <code>MISSION_CONTINUE = 4;</code>
+       * <code>MISSION_PAUSE = 4;</code>
        */
-      MISSION_CONTINUE(4),
+      MISSION_PAUSE(4),
       /**
-       * <code>MISSION_ABORT = 5;</code>
+       * <code>MISSION_CONTINUE = 5;</code>
        */
-      MISSION_ABORT(5),
+      MISSION_CONTINUE(5),
       /**
-       * <code>LASER_RANGE = 6;</code>
+       * <code>MISSION_ABORT = 6;</code>
        */
-      LASER_RANGE(6),
+      MISSION_ABORT(6),
+      /**
+       * <code>LASER_RANGE = 7;</code>
+       */
+      LASER_RANGE(7),
       ;
 
       /**
@@ -160,29 +164,33 @@ public final class Interconnection {
        */
       public static final int PING_VALUE = 0;
       /**
-       * <code>DRONE_COORDINATES = 1;</code>
+       * <code>PONG = 1;</code>
        */
-      public static final int DRONE_COORDINATES_VALUE = 1;
+      public static final int PONG_VALUE = 1;
       /**
-       * <code>MISSION_START = 2;</code>
+       * <code>DRONE_COORDINATES = 2;</code>
        */
-      public static final int MISSION_START_VALUE = 2;
+      public static final int DRONE_COORDINATES_VALUE = 2;
       /**
-       * <code>MISSION_PAUSE = 3;</code>
+       * <code>MISSION_START = 3;</code>
        */
-      public static final int MISSION_PAUSE_VALUE = 3;
+      public static final int MISSION_START_VALUE = 3;
       /**
-       * <code>MISSION_CONTINUE = 4;</code>
+       * <code>MISSION_PAUSE = 4;</code>
        */
-      public static final int MISSION_CONTINUE_VALUE = 4;
+      public static final int MISSION_PAUSE_VALUE = 4;
       /**
-       * <code>MISSION_ABORT = 5;</code>
+       * <code>MISSION_CONTINUE = 5;</code>
        */
-      public static final int MISSION_ABORT_VALUE = 5;
+      public static final int MISSION_CONTINUE_VALUE = 5;
       /**
-       * <code>LASER_RANGE = 6;</code>
+       * <code>MISSION_ABORT = 6;</code>
        */
-      public static final int LASER_RANGE_VALUE = 6;
+      public static final int MISSION_ABORT_VALUE = 6;
+      /**
+       * <code>LASER_RANGE = 7;</code>
+       */
+      public static final int LASER_RANGE_VALUE = 7;
 
 
       public final int getNumber() {
@@ -200,12 +208,13 @@ public final class Interconnection {
       public static command_t forNumber(int value) {
         switch (value) {
           case 0: return PING;
-          case 1: return DRONE_COORDINATES;
-          case 2: return MISSION_START;
-          case 3: return MISSION_PAUSE;
-          case 4: return MISSION_CONTINUE;
-          case 5: return MISSION_ABORT;
-          case 6: return LASER_RANGE;
+          case 1: return PONG;
+          case 2: return DRONE_COORDINATES;
+          case 3: return MISSION_START;
+          case 4: return MISSION_PAUSE;
+          case 5: return MISSION_CONTINUE;
+          case 6: return MISSION_ABORT;
+          case 7: return LASER_RANGE;
           default: return null;
         }
       }
@@ -3831,22 +3840,22 @@ public final class Interconnection {
   static {
     java.lang.String[] descriptorData = {
       "\n\025interconnection.proto\022\017interconnection" +
-      "\"\345\001\n\014command_type\0225\n\004type\030\001 \002(\0162\'.interc" +
+      "\"\357\001\n\014command_type\0225\n\004type\030\001 \002(\0162\'.interc" +
       "onnection.command_type.command_t\022\017\n\007vers" +
-      "ion\030\002 \002(\005\"\214\001\n\tcommand_t\022\010\n\004PING\020\000\022\025\n\021DRO" +
-      "NE_COORDINATES\020\001\022\021\n\rMISSION_START\020\002\022\021\n\rM" +
-      "ISSION_PAUSE\020\003\022\024\n\020MISSION_CONTINUE\020\004\022\021\n\r" +
-      "MISSION_ABORT\020\005\022\017\n\013LASER_RANGE\020\006\"\033\n\013pack" +
-      "et_size\022\014\n\004size\030\001 \002(\007\"\324\001\n\021drone_coordina" +
-      "tes\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001" +
-      "\022\017\n\007heading\030\003 \002(\002\0229\n\005state\030\004 \002(\0162*.inter",
-      "connection.drone_coordinates.state_t\022\020\n\010" +
-      "event_id\030\005 \002(\005\"<\n\007state_t\022\t\n\005READY\020\000\022\013\n\007" +
-      "WAITING\020\001\022\n\n\006PAUSED\020\002\022\r\n\tEXECUTING\020\003\"$\n\020" +
-      "event_id_message\022\020\n\010event_id\030\001 \002(\005\"H\n\017pi" +
-      "n_coordinates\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongi" +
-      "tude\030\002 \002(\001\022\020\n\010event_id\030\003 \002(\005\"\034\n\013laser_ra" +
-      "nge\022\r\n\005range\030\001 \002(\002"
+      "ion\030\002 \002(\005\"\226\001\n\tcommand_t\022\010\n\004PING\020\000\022\010\n\004PON" +
+      "G\020\001\022\025\n\021DRONE_COORDINATES\020\002\022\021\n\rMISSION_ST" +
+      "ART\020\003\022\021\n\rMISSION_PAUSE\020\004\022\024\n\020MISSION_CONT" +
+      "INUE\020\005\022\021\n\rMISSION_ABORT\020\006\022\017\n\013LASER_RANGE" +
+      "\020\007\"\033\n\013packet_size\022\014\n\004size\030\001 \002(\007\"\324\001\n\021dron" +
+      "e_coordinates\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongi" +
+      "tude\030\002 \002(\001\022\017\n\007heading\030\003 \002(\002\0229\n\005state\030\004 \002",
+      "(\0162*.interconnection.drone_coordinates.s" +
+      "tate_t\022\020\n\010event_id\030\005 \002(\005\"<\n\007state_t\022\t\n\005R" +
+      "EADY\020\000\022\013\n\007WAITING\020\001\022\n\n\006PAUSED\020\002\022\r\n\tEXECU" +
+      "TING\020\003\"$\n\020event_id_message\022\020\n\010event_id\030\001" +
+      " \002(\005\"H\n\017pin_coordinates\022\020\n\010latitude\030\001 \002(" +
+      "\001\022\021\n\tlongitude\030\002 \002(\001\022\020\n\010event_id\030\003 \002(\005\"\034" +
+      "\n\013laser_range\022\r\n\005range\030\001 \002(\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
