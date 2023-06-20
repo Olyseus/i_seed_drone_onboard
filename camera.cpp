@@ -311,7 +311,7 @@ auto camera::check_sdcard(bool debug_launch) -> bool {
 
   spdlog::info("{} files to process", inference_files.size());
 
-  process_inference_files(inference_files);
+  process_inference_files(inference_files, debug_launch);
   return true;
 }
 
@@ -322,7 +322,8 @@ auto camera::queue_is_empty() const -> bool {
 
 void camera::process_inference_files(
     const std::vector<std::pair<uint32_t, T_DjiCameraManagerFileCreateTime>>&
-        inference_files) {
+        inference_files,
+    bool debug_launch) {
   namespace fs = boost::filesystem;
 
   const fs::path top_dir{"/var/opt/i_seed_drone_onboard"};
@@ -397,15 +398,18 @@ void camera::process_inference_files(
 
         for (const bounding_box& bb : bb) {
           constexpr int thickness{3};
-          cv::rectangle(cv_image, bb.pmin(), bb.pmax(), bb.class_color(), thickness);
+          cv::rectangle(cv_image, bb.pmin(), bb.pmax(), bb.class_color(),
+                        thickness);
 
           cv::Point p_text{bb.pmin()};
           p_text.y -= 12;
 
           std::ostringstream ss;
-          ss << std::fixed << std::setprecision(2) << bb.confidence() * 100.0 << '%';
+          ss << std::fixed << std::setprecision(2) << bb.confidence() * 100.0
+             << '%';
 
-          cv::putText(cv_image, ss.str(), p_text, cv::FONT_HERSHEY_SIMPLEX, 2.0, bb.class_color(), thickness);
+          cv::putText(cv_image, ss.str(), p_text, cv::FONT_HERSHEY_SIMPLEX, 2.0,
+                      bb.class_color(), thickness);
         }
 
         const bool ok{cv::imwrite(bbox_path.string(), cv_image)};

@@ -54,7 +54,8 @@ class camera {
  private:
   void process_inference_files(
       const std::vector<std::pair<uint32_t, T_DjiCameraManagerFileCreateTime>>&
-          inference_files);
+          inference_files,
+      bool debug_launch);
 
   inference inference_;
   mission& mission_;
