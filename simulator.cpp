@@ -55,9 +55,11 @@ api_code simulator::receive_data(std::string* buffer) {
   command.set_type(interconnection::command_type::MISSION_START);
   command.set_version(drone::protocol_version);
 
+  constexpr int32_t event_id{1};
   interconnection::pin_coordinates pin_coordinates;
   pin_coordinates.set_latitude(mission_lat);
   pin_coordinates.set_longitude(mission_lon);
+  pin_coordinates.set_event_id(event_id);
 
   switch (state_) {
     case begin_size: {
