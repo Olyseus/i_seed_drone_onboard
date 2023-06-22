@@ -2,6 +2,8 @@
 
 #include <thread>  // std::this_thread
 
+#include <spdlog/spdlog.h>
+
 #include "drone.h"
 #include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
@@ -59,6 +61,7 @@ api_code simulator::receive_data(std::string* buffer) {
 
   switch (state_) {
     case begin_size: {
+      spdlog::info("simulate send: begin_size");
       std::string tmp_buffer;
       bool ok{command.SerializeToString(&tmp_buffer)};
       OLYSEUS_VERIFY(ok);
@@ -71,12 +74,14 @@ api_code simulator::receive_data(std::string* buffer) {
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
     }
     case begin: {
+      spdlog::info("simulate send: begin");
       const bool ok{command.SerializeToString(buffer)};
       OLYSEUS_VERIFY(ok);
       state_ = mission_start_size;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
     }
     case mission_start_size: {
+      spdlog::info("simulate send: mission_start_size");
       std::string tmp_buffer;
       bool ok{pin_coordinates.SerializeToString(&tmp_buffer)};
       OLYSEUS_VERIFY(ok);
@@ -89,6 +94,7 @@ api_code simulator::receive_data(std::string* buffer) {
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
     }
     case mission_start: {
+      spdlog::info("simulate send: mission_start");
       const bool ok{pin_coordinates.SerializeToString(buffer)};
       OLYSEUS_VERIFY(ok);
       state_ = end;
