@@ -39,8 +39,15 @@ class simulator {
   void verify_lat_lon();
 
   enum state { begin_size, begin, mission_start_size, mission_start, end };
-
   state state_{begin_size};
+
+  enum laser_state {
+    laser_cmd_size,
+    laser_cmd,
+    laser_range_size,
+    laser_range_packet
+  };
+  laser_state laser_state_{laser_cmd_size};
 
   std::atomic<double> latitude_{0.0};
   std::atomic<double> longitude_{0.0};
@@ -52,7 +59,6 @@ class simulator {
   static constexpr double p2_lon_{-9.4003};
 
   std::optional<float> laser_range_;
-  bool laser_range_cmd_sent_{false};
 };
 #endif
 

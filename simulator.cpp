@@ -1,8 +1,8 @@
 #include "simulator.h"
 
-#include <thread>  // std::this_thread
-
 #include <spdlog/spdlog.h>
+
+#include <thread>  // std::this_thread
 
 #include "drone.h"
 #include "olyseus_verify.h"  // OLYSEUS_VERIFY
@@ -19,25 +19,59 @@ api_code simulator::receive_data(std::string* buffer) {
   {
     const std::lock_guard lock{m_};
 
+    interconnection::command_type command;
+    command.set_type(interconnection::command_type::LASER_RANGE);
+    command.set_version(drone::protocol_version);
+
+    interconnection::laser_range laser_range;
+    laser_range.set_range(laser_range_.value());
+
     if (laser_range_.has_value()) {
-      if (laser_range_cmd_sent_) {
-        interconnection::laser_range laser_range;
-        laser_range.set_range(laser_range_.value());
-        const bool ok{laser_range.SerializeToString(buffer)};
-        OLYSEUS_VERIFY(ok);
-        laser_range_.reset();
-        laser_range_cmd_sent_ = false;
-        return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+      switch (laser_state_) {
+        case laser_cmd_size: {
+          spdlog::info("simulate send: laser_cmd_size");
+          std::string tmp_buffer;
+          bool ok{command.SerializeToString(&tmp_buffer)};
+          OLYSEUS_VERIFY(ok);
+
+          interconnection::packet_size p_size;
+          p_size.set_size(tmp_buffer.size());
+          ok = p_size.SerializeToString(buffer);
+          OLYSEUS_VERIFY(ok);
+          laser_state_ = laser_cmd;
+          return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+        }
+        case laser_cmd: {
+          spdlog::info("simulate send: laser_cmd");
+          const bool ok{command.SerializeToString(buffer)};
+          OLYSEUS_VERIFY(ok);
+          laser_state_ = laser_range_size;
+          return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+        }
+        case laser_range_size: {
+          spdlog::info("simulate send: laser_range_size");
+          std::string tmp_buffer;
+          bool ok{laser_range.SerializeToString(&tmp_buffer)};
+          OLYSEUS_VERIFY(ok);
+
+          interconnection::packet_size p_size;
+          p_size.set_size(tmp_buffer.size());
+          ok = p_size.SerializeToString(buffer);
+          OLYSEUS_VERIFY(ok);
+          laser_state_ = laser_range_packet;
+          return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+        }
+        case laser_range_packet: {
+          spdlog::info("simulate send: laser_range_packet");
+          const bool ok{laser_range.SerializeToString(buffer)};
+          OLYSEUS_VERIFY(ok);
+          laser_state_ = laser_cmd_size;
+          laser_range_.reset();
+          return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+        }
+        default:
+          OLYSEUS_UNREACHABLE;
       }
-
-      interconnection::command_type command;
-      command.set_type(interconnection::command_type::LASER_RANGE);
-      command.set_version(drone::protocol_version);
-      const bool ok{command.SerializeToString(buffer)};
-      OLYSEUS_VERIFY(ok);
-
-      laser_range_cmd_sent_ = true;
-      return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
     }
   }
 
@@ -115,7 +149,7 @@ void simulator::laser_range(float range) {
   const std::lock_guard lock{m_};
 
   OLYSEUS_VERIFY(!laser_range_.has_value());
-  OLYSEUS_VERIFY(!laser_range_cmd_sent_);
+  OLYSEUS_VERIFY(laser_state_ == laser_cmd_size);
   laser_range_ = range;
 }
 
