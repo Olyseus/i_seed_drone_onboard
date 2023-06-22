@@ -85,7 +85,7 @@ api_code simulator::receive_data(std::string* buffer) {
       p_size.set_size(tmp_buffer.size());
       ok = p_size.SerializeToString(buffer);
       OLYSEUS_VERIFY(ok);
-      state_ = begin;
+      state_ = mission_start;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
     }
     case mission_start: {
