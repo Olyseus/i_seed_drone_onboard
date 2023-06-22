@@ -49,20 +49,46 @@ api_code simulator::receive_data(std::string* buffer) {
   const double mission_lat{(p1_diff > p2_diff) ? p1_lat_ : p2_lat_};
   const double mission_lon{(p1_diff > p2_diff) ? p1_lon_ : p2_lon_};
 
+  interconnection::command_type command;
+  command.set_type(interconnection::command_type::MISSION_START);
+  command.set_version(drone::protocol_version);
+
+  interconnection::pin_coordinates pin_coordinates;
+  pin_coordinates.set_latitude(mission_lat);
+  pin_coordinates.set_longitude(mission_lon);
+
   switch (state_) {
+    case begin_size: {
+      std::string tmp_buffer;
+      bool ok{command.SerializeToString(&tmp_buffer)};
+      OLYSEUS_VERIFY(ok);
+
+      interconnection::packet_size p_size;
+      p_size.set_size(tmp_buffer.size());
+      ok = p_size.SerializeToString(buffer);
+      OLYSEUS_VERIFY(ok);
+      state_ = begin;
+      return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+    }
     case begin: {
-      interconnection::command_type command;
-      command.set_type(interconnection::command_type::MISSION_START);
-      command.set_version(drone::protocol_version);
       const bool ok{command.SerializeToString(buffer)};
       OLYSEUS_VERIFY(ok);
-      state_ = mission_start;
+      state_ = mission_start_size;
+      return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+    }
+    case mission_start_size: {
+      std::string tmp_buffer;
+      bool ok{pin_coordinates.SerializeToString(&tmp_buffer)};
+      OLYSEUS_VERIFY(ok);
+
+      interconnection::packet_size p_size;
+      p_size.set_size(tmp_buffer.size());
+      ok = p_size.SerializeToString(buffer);
+      OLYSEUS_VERIFY(ok);
+      state_ = begin;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
     }
     case mission_start: {
-      interconnection::pin_coordinates pin_coordinates;
-      pin_coordinates.set_latitude(mission_lat);
-      pin_coordinates.set_longitude(mission_lon);
       const bool ok{pin_coordinates.SerializeToString(buffer)};
       OLYSEUS_VERIFY(ok);
       state_ = end;
