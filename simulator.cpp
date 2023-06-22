@@ -19,14 +19,14 @@ api_code simulator::receive_data(std::string* buffer) {
   {
     const std::lock_guard lock{m_};
 
-    interconnection::command_type command;
-    command.set_type(interconnection::command_type::LASER_RANGE);
-    command.set_version(drone::protocol_version);
-
-    interconnection::laser_range laser_range;
-    laser_range.set_range(laser_range_.value());
-
     if (laser_range_.has_value()) {
+      interconnection::command_type command;
+      command.set_type(interconnection::command_type::LASER_RANGE);
+      command.set_version(drone::protocol_version);
+
+      interconnection::laser_range laser_range;
+      laser_range.set_range(laser_range_.value());
+
       switch (laser_state_) {
         case laser_cmd_size: {
           spdlog::info("simulate send: laser_cmd_size");
