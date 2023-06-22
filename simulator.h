@@ -40,7 +40,7 @@ class simulator {
 
   enum state { begin_size, begin, mission_start_size, mission_start, end };
 
-  state state_{begin};
+  state state_{begin_size};
 
   std::atomic<double> latitude_{0.0};
   std::atomic<double> longitude_{0.0};
