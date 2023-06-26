@@ -73,3 +73,23 @@ Check dependencies of the installed executable:
 .. code-block:: none
 
   > lddtree /usr/bin/i_seed_drone_onboard
+
+UART configuration
+------------------
+
+Direct config:
+
+.. code-block:: none
+
+  #define LINUX_UART_DEV1    "/dev/ttyS0"
+  #define LINUX_UART_DEV2    "/dev/ttyACM0"
+
+USB-serial config:
+
+.. code-block:: none
+
+  #define LINUX_UART_DEV1    "/dev/ttyUSB0"
+  #define LINUX_UART_DEV2    "/dev/ttyACM0"
+
+- ``third_party/psdk/manifold2/hal/hal_uart.h``
+- ``samples/sample_c/platform/linux/manifold2/hal/hal_uart.h`` (OSDK sample)
