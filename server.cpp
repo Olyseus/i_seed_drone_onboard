@@ -17,19 +17,17 @@ server::server(uint16_t channel_id) {
   code = DjiMopChannel_Bind(channel_handle, channel_id);
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  OLYSEUS_VERIFY(out_channel_handle_ == nullptr);
-#else
+#if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
   code = DjiMopChannel_Accept(channel_handle, &out_channel_handle_);
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   OLYSEUS_VERIFY(out_channel_handle_ != nullptr);
+#else
+  OLYSEUS_VERIFY(out_channel_handle_ == nullptr);
 #endif
 }
 
 server::~server() {
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  OLYSEUS_VERIFY(out_channel_handle_ == nullptr);
-#else
+#if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
   spdlog::info("Close channel");
 
   T_DjiReturnCode code{DjiMopChannel_Close(out_channel_handle_)};
@@ -37,14 +35,16 @@ server::~server() {
 
   code = DjiMopChannel_Destroy(out_channel_handle_);
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+#else
+  OLYSEUS_VERIFY(out_channel_handle_ == nullptr);
 #endif
 }
 
 auto server::handle() const -> T_DjiMopChannelHandle {
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  OLYSEUS_VERIFY(out_channel_handle_ == nullptr);
-#else
+#if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
   OLYSEUS_VERIFY(out_channel_handle_ != nullptr);
+#else
+  OLYSEUS_VERIFY(out_channel_handle_ == nullptr);
 #endif
   return out_channel_handle_;
 }

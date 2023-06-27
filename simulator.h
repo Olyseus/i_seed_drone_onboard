@@ -3,6 +3,7 @@
 
 #include <atomic>
 #include <cmath>  // M_PI
+#include <list>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -10,6 +11,22 @@
 #include "api_code.h"
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+#if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
+class simulator {
+ public:
+  simulator() = default;
+  ~simulator() = default;
+
+  simulator(const simulator&) = delete;
+  simulator(simulator&&) = delete;
+
+  simulator& operator=(const simulator&) = delete;
+  simulator& operator=(simulator&&) = delete;
+
+  // thread: action
+  float laser_range() { return 15.0F; }
+};
+#else
 class simulator {
  public:
   simulator();
@@ -31,23 +48,13 @@ class simulator {
   api_code receive_data(std::string* buffer);
 
   // thread: action
-  void laser_range(float range);
+  float laser_range();
 
  private:
-  std::mutex m_;
-
   void verify_lat_lon();
 
   enum state { begin_size, begin, mission_start_size, mission_start, end };
   state state_{begin_size};
-
-  enum laser_state {
-    laser_cmd_size,
-    laser_cmd,
-    laser_range_size,
-    laser_range_packet
-  };
-  laser_state laser_state_{laser_cmd_size};
 
   std::atomic<double> latitude_{0.0};
   std::atomic<double> longitude_{0.0};
@@ -58,8 +65,9 @@ class simulator {
   static constexpr double p2_lat_{48.90};
   static constexpr double p2_lon_{-9.4003};
 
-  std::optional<float> laser_range_;
+  std::list<float> laser_range_values_;
 };
+#endif
 #endif
 
 #endif  // SIMULATOR_H_

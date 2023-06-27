@@ -20,13 +20,13 @@ void mission::init(double lat, double lon) {
   // FIXME (action at waypoint?)
   global_waypoints_.clear();
 
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+#if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
+  global_waypoints_.emplace_back(lat, lon);
+#else
   global_waypoints_.emplace_back(lat, lon + 0.0001);
   global_waypoints_.emplace_back(lat, lon + 0.0002);
   global_waypoints_.emplace_back(lat, lon + 0.0003);
   global_waypoints_.emplace_back(lat, lon + 0.0004);
-#else
-  global_waypoints_.emplace_back(lat, lon);
 #endif
 
   mission_state_.init();

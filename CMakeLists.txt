@@ -28,9 +28,36 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
 endif()
 
 option(I_SEED_DRONE_ONBOARD_PEDANTIC "Enable pedantic checks" OFF)
+option(I_SEED_DRONE_ONBOARD_INTERCONNECTION "Establish interconnection with RC" ON)
 option(I_SEED_DRONE_ONBOARD_SIMULATOR "Run on simulator" OFF)
 option(I_SEED_DRONE_ONBOARD_DOC "Build Doxygen documentation" OFF)
 option(I_SEED_DRONE_ONBOARD_CUDA "Build with CUDA" ON)
+
+if(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
+  if(I_SEED_DRONE_ONBOARD_SIMULATOR)
+    # RC: connected
+    # Simulator: ON
+    # RTK: OFF
+    # Laser: simulated values, no LASER_RANGE packets
+    message("Configuration: Simulator flight with connected RC")
+  else()
+    # RC: connected
+    # Simulator: OFF
+    # RTK: ON
+    # Laser: real values
+    message("Configuration: REAL FLIGHT")
+  endif()
+else()
+  if(I_SEED_DRONE_ONBOARD_SIMULATOR)
+    # RC: OFF
+    # Simulator: ON
+    # RTK: OFF
+    # Laser: simulated values, no LASER_RANGE packets
+    message("Configuration: Simulator flight without RC")
+  else()
+    message(FATAL_ERROR "Configuration: INVALID")
+  endif()
+endif()
 
 if(I_SEED_DRONE_ONBOARD_DOC)
   # Trailing return type issue: https://github.com/doxygen/doxygen/issues/5492
@@ -350,6 +377,10 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
 
   if(I_SEED_DRONE_ONBOARD_SIMULATOR)
     target_compile_definitions(i_seed_drone_onboard_core PUBLIC I_SEED_DRONE_ONBOARD_SIMULATOR)
+  endif()
+
+  if(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
+    target_compile_definitions(i_seed_drone_onboard_core PUBLIC I_SEED_DRONE_ONBOARD_INTERCONNECTION)
   endif()
 endif()
 

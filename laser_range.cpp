@@ -4,52 +4,9 @@
 
 #include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-#include "simulator.h"
-#endif
+#if !defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
 
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-laser_range::laser_range(simulator& s) : simulator_(s) {
-  // waypoint 0, bad
-  values_.push_back(13.2F);
-  values_.push_back(15.0F);
-
-  // waypoint 1, good
-  values_.push_back(15.2F);
-
-  // waypoint 2, good
-  values_.push_back(14.9F);
-
-  // waypoint 3, bad
-  values_.push_back(17.8F);
-  values_.push_back(15.0F);
-
-  // fake waypoint
-  values_.push_back(15.0F);
-
-  // backward
-
-  // waypoint 3
-  values_.push_back(15.2F);
-
-  // waypoint 2
-  values_.push_back(14.8F);
-
-  // waypoint 1
-  values_.push_back(15.1F);
-
-  // waypoint 0
-  values_.push_back(15.5F);
-
-  // extra data for laser measurement
-  for (int i{0}; i < 10; ++i) {
-    values_.push_back(15.0F);
-  }
-}
-#else
 laser_range::laser_range() = default;
-#endif
-
 laser_range::~laser_range() = default;
 
 // thread: receive_data
@@ -70,17 +27,6 @@ void laser_range::value_received(float range) {
 auto laser_range::latest(
     std::mutex& m,
     std::list<interconnection::command_type::command_t>& commands) -> float {
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  {
-    const std::lock_guard lock{m_};
-    OLYSEUS_VERIFY(!values_.empty());
-    const float simulated_range{values_.front()};
-    values_.pop_front();
-    spdlog::info("Simulating laser range: {}", simulated_range);
-    simulator_.laser_range(simulated_range);
-  }
-#endif
-
   while (true) {
     {
       const std::lock_guard lock{m_};
@@ -113,3 +59,5 @@ auto laser_range::latest(
     OLYSEUS_VERIFY(latest_time_point_ != invalid_time_point);
   }
 }
+
+#endif

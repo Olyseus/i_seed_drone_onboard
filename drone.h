@@ -193,6 +193,7 @@ class drone {
       const uint8_t* data, uint16_t data_size,
       const T_DjiDataTimestamp* timestamp);
 #if !defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  // RTK: ON
   static T_DjiReturnCode rtk_position_callback(
       const uint8_t* data, uint16_t data_size,
       const T_DjiDataTimestamp* timestamp);
@@ -277,6 +278,8 @@ class drone {
   /// \anchor drone's next_mission
   void next_mission();
 
+  float latest_laser_range();
+
   static constexpr uint16_t channel_id{
       9745};  // Just a random number. Keep it consistent with Mobile SDK
   static constexpr int pkg_index{0};
@@ -293,6 +296,8 @@ class drone {
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
   static simulator simulator_;
+#else
+  laser_range laser_range_;
 #endif
 
   static condition_flag action_flag_;
@@ -300,8 +305,6 @@ class drone {
   static void sigint_handler(int);
   static std::atomic<bool> sigint_received_;
   home_altitude home_altitude_;
-
-  laser_range laser_range_;
 };
 
 #endif  //  DRONE_H_

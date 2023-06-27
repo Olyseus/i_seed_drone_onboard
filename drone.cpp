@@ -128,12 +128,16 @@ auto drone::position_fused_callback(const uint8_t* data, uint16_t data_size,
                 lat, lon, alt);
 
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  // RTK is OFF
   drone_latitude_ = lat;
   drone_longitude_ = lon;
   drone_altitude_ = alt;
 
+#if !defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
   simulator_.gps_callback(drone_latitude_, drone_longitude_);
+#endif
 #else
+  // RTK is ON
   if (std::abs(drone_latitude_) > 1e-2 && std::abs(drone_longitude_) > 1e-2) {
     OLYSEUS_VERIFY(std::abs(drone_altitude_ - alt) < 5.0);
   }
@@ -239,12 +243,7 @@ auto drone::homepoint_callback(const uint8_t* data, uint16_t data_size,
 }
 
 drone::drone()
-    : camera_("/var/opt/i_seed_drone_onboard/best.engine", mission_)
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-      ,
-      laser_range_(simulator_)
-#endif
-{
+    : camera_("/var/opt/i_seed_drone_onboard/best.engine", mission_) {
   OLYSEUS_VERIFY(sigint_received_.is_lock_free());
 
   constexpr E_DjiDataSubscriptionTopicFreq topic_freq{
@@ -270,6 +269,7 @@ drone::drone()
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
 #if !defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  // RTK: ON
   code =
       DjiFcSubscription_SubscribeTopic(DJI_FC_SUBSCRIPTION_TOPIC_RTK_POSITION,
                                        topic_freq, rtk_position_callback);
@@ -348,11 +348,12 @@ void drone::start() {
     OLYSEUS_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
     const server server{channel_id};
     channel_handle_ = server.handle();
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-    OLYSEUS_VERIFY(channel_handle_ == nullptr);
-#else
+#if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
     OLYSEUS_VERIFY(channel_handle_ != nullptr);
+#else
+    OLYSEUS_VERIFY(channel_handle_ == nullptr);
 #endif
+
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     OLYSEUS_VERIFY(signal(SIGINT, sigint_handler) != SIG_ERR);
 
@@ -441,8 +442,8 @@ void drone::action_job_internal() {
   constexpr int sleep_ms{1000};
   std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms));
 
-  const auto [action, waypoint_index] = mission_.waypoint_reached(
-      laser_range_.latest(execute_commands_mutex_, execute_commands_));
+  const auto [action, waypoint_index] =
+      mission_.waypoint_reached(latest_laser_range());
   const bool is_forward{mission_.is_forward()};
 
   constexpr int32_t event_id{mission_state::internal_event_id};
@@ -538,8 +539,7 @@ void drone::action_job_internal() {
       const converter_result pixel_result{
           converter::run(d.gps, d.drone_attitude, pixel_gimbal_attitude, 1.0F)};
       const converter_result laser_result{converter::run(
-          gps, drone_attitude, laser_gimbal_attitude,
-          laser_range_.latest(execute_commands_mutex_, execute_commands_))};
+          gps, drone_attitude, laser_gimbal_attitude, latest_laser_range())};
 
       constexpr double eps{1e-3};
       constexpr double max_dist{5.0};
@@ -844,6 +844,9 @@ void drone::receive_data_job_internal() {
         }
       } break;
       case interconnection::command_type::LASER_RANGE: {
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+        OLYSEUS_UNREACHABLE;
+#else
         buffer.resize(receive_next_packet_size());
         receive_data(&buffer);
 
@@ -852,6 +855,7 @@ void drone::receive_data_job_internal() {
         OLYSEUS_VERIFY(ok);
 
         laser_range_.value_received(laser_range.range());
+#endif
       } break;
       default:
         spdlog::error("Unexpected command type: {}", command.type());
@@ -926,7 +930,11 @@ void drone::send_data_job_internal() {
             drone_latitude_, drone_longitude_, drone_yaw_, state);
       } break;
       case interconnection::command_type::LASER_RANGE:
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+        OLYSEUS_UNREACHABLE;
+#else
         spdlog::info("Laser range request sent");
+#endif
         break;
       default:
         spdlog::error("Unexpected command: {}", command.value());
@@ -967,11 +975,7 @@ void drone::receive_data(std::string* buffer) {
 
     uint32_t real_len{0};
 
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-    OLYSEUS_VERIFY(channel_handle_ == nullptr);
-    const api_code code{simulator_.receive_data(buffer)};
-    real_len = buffer->size();
-#else
+#if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
     char* char_buffer{buffer->data()};
     static_assert(sizeof(char) == sizeof(uint8_t));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -980,6 +984,12 @@ void drone::receive_data(std::string* buffer) {
     OLYSEUS_VERIFY(channel_handle_ != nullptr);
     const api_code code{DjiMopChannel_RecvData(channel_handle_, recv_buf,
                                                buffer->size(), &real_len)};
+#elif defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+    OLYSEUS_VERIFY(channel_handle_ == nullptr);
+    const api_code code{simulator_.receive_data(buffer)};
+    real_len = buffer->size();
+#else
+#error "Invalid configuration"
 #endif
 
     if (code.retry()) {
@@ -1016,10 +1026,7 @@ void drone::send_data(std::string& buffer) {
       throw pipeline_closed();
     }
 
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-    // Act like data was successfully sent
-    return;
-#else
+#if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
     char* char_buffer{buffer.data()};
     static_assert(sizeof(char) == sizeof(uint8_t));
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -1035,6 +1042,9 @@ void drone::send_data(std::string& buffer) {
     OLYSEUS_VERIFY(code.success());
     OLYSEUS_VERIFY(real_len == buffer.size());
     spdlog::debug("{} bytes sent", real_len);
+    return;
+#else
+    // Act like data was successfully sent
     return;
 #endif
   }
@@ -1088,4 +1098,12 @@ void drone::next_mission() {
     spdlog::info("Backward mission canceled: No objects detected");
     mission_.stop(home_altitude_);
   }
+}
+
+auto drone::latest_laser_range() -> float {
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
+  return simulator_.laser_range();
+#else
+  return laser_range_.latest(execute_commands_mutex_, execute_commands_);
+#endif
 }

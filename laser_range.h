@@ -8,19 +8,11 @@
 
 #include "interconnection.pb.h"
 
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-class simulator;
-#endif
-
+#if !defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
 /// \brief Information about the laser range measurement
 class laser_range {
  public:
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  laser_range(simulator& s);
-#else
   laser_range();
-#endif
-
   ~laser_range();
 
   /// \cond private
@@ -43,10 +35,6 @@ class laser_range {
                std::list<interconnection::command_type::command_t>& commands);
 
  private:
-#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
-  simulator& simulator_;
-  std::list<float> values_;
-#endif
   std::mutex m_;
   std::condition_variable condition_variable_;
 
@@ -57,5 +45,6 @@ class laser_range {
   time_point latest_time_point_{invalid_time_point};
   float latest_value_{0.0};
 };
+#endif
 
 #endif  // LASER_RANGE_H_
