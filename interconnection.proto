@@ -6,12 +6,15 @@ message command_type {
   enum command_t {
     PING = 0;
     PONG = 1;
-    DRONE_COORDINATES = 2;
-    MISSION_START = 3;
-    MISSION_PAUSE = 4;
-    MISSION_CONTINUE = 5;
-    MISSION_ABORT = 6;
-    LASER_RANGE = 7;
+    BUILD_MISSION = 2;
+    MISSION_PATH_CANCEL = 3;
+    MISSION_START = 4;
+    MISSION_PAUSE = 5;
+    MISSION_CONTINUE = 6;
+    MISSION_ABORT = 7;
+    DRONE_INFO = 8;
+    LASER_RANGE_REQUEST = 9;
+    LASER_RANGE_RESPONSE = 10;
   }
 
   required command_t type = 1;
@@ -22,12 +25,24 @@ message packet_size {
   required fixed32 size = 1;
 }
 
-message drone_coordinates {
+message coordinate {
+  required double latitude = 1;
+  required double longitude = 2;
+}
+
+message input_polygon {
+  repeated coordinate vertices = 1;
+  required int32 event_id = 2;
+}
+
+message drone_info {
   enum state_t {
     READY = 0;
     WAITING = 1;
-    PAUSED = 2;
-    EXECUTING = 3;
+    PATH_DATA = 2;
+    PATH = 3;
+    EXECUTING = 4;
+    PAUSED = 5;
   }
 
   required double latitude = 1;
@@ -37,14 +52,12 @@ message drone_coordinates {
   required int32 event_id = 5;
 }
 
-message event_id_message {
-  required int32 event_id = 1;
+message mission_path {
+  repeated coordinate waypoints = 1;
 }
 
-message pin_coordinates {
-  required double latitude = 1;
-  required double longitude = 2;
-  required int32 event_id = 3;
+message event_id_message {
+  required int32 event_id = 1;
 }
 
 message laser_range {

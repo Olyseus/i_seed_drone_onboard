@@ -175,7 +175,7 @@ class drone {
   void start();
 
   static constexpr int32_t protocol_version{
-      14};  // Keep it consistent with Mobile SDK (see 'protocolVersion')
+      15};  // Keep it consistent with Mobile SDK (see 'protocolVersion')
 
   static constexpr E_DjiMountPosition m_pos{
       DJI_MOUNT_POSITION_PAYLOAD_PORT_NO1};
