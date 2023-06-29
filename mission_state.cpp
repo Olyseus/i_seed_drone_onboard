@@ -4,10 +4,42 @@
 
 #include "olyseus_verify.h"  // OLYSEUS_VERIFY
 
-void mission_state::init() {
+void mission_state::mission_path_ready(int32_t event_id) {
   const std::lock_guard lock{m_};
 
   OLYSEUS_VERIFY(global_state_ == ready);
+  global_state_ = path_data;
+
+  OLYSEUS_VERIFY(!next_state_.has_value());
+  OLYSEUS_VERIFY(event_id != internal_event_id);
+
+  OLYSEUS_VERIFY(event_id == event_id_ + 1);
+  event_id_ = event_id;
+}
+
+void mission_state::mission_path_cancel(int32_t event_id) {
+  const std::lock_guard lock{m_};
+
+  OLYSEUS_VERIFY(global_state_ == path);
+  global_state_ = ready;
+
+  OLYSEUS_VERIFY(!next_state_.has_value());
+  OLYSEUS_VERIFY(event_id != internal_event_id);
+
+  OLYSEUS_VERIFY(event_id == event_id_ + 1);
+  event_id_ = event_id;
+}
+
+auto mission_state::mission_path_available() const -> bool {
+  const std::lock_guard lock{m_};
+
+  return global_state_ == path;
+}
+
+void mission_state::init() {
+  const std::lock_guard lock{m_};
+
+  OLYSEUS_VERIFY(global_state_ == path);
   global_state_ = forward_wait_start;
 }
 
@@ -21,7 +53,7 @@ void mission_state::start(int32_t event_id) {
     global_state_ = backward_wait_update;
   }
 
-  set_next_state(interconnection::drone_coordinates::EXECUTING, event_id);
+  set_next_state(interconnection::drone_info::EXECUTING, event_id);
 
   already_executed_.clear();
 }
@@ -32,7 +64,7 @@ void mission_state::pause(int32_t event_id) {
   OLYSEUS_VERIFY(global_state_ == forward_executing ||
                  global_state_ == backward_executing);
 
-  set_next_state(interconnection::drone_coordinates::PAUSED, event_id);
+  set_next_state(interconnection::drone_info::PAUSED, event_id);
 }
 
 void mission_state::stop() {
@@ -57,7 +89,7 @@ void mission_state::abort(int32_t event_id) {
   // 'event_id' for internal mission restart is invalid,
   // if 'event_id' is valid, it means user aborted the mission and next
   // state is 'READY'
-  set_next_state(interconnection::drone_coordinates::READY, event_id);
+  set_next_state(interconnection::drone_info::READY, event_id);
 }
 
 void mission_state::resume(int32_t event_id) {
@@ -67,7 +99,7 @@ void mission_state::resume(int32_t event_id) {
                  global_state_ == backward_executing);
   OLYSEUS_VERIFY(event_id != internal_event_id);
 
-  set_next_state(interconnection::drone_coordinates::EXECUTING, event_id);
+  set_next_state(interconnection::drone_info::EXECUTING, event_id);
 }
 
 void mission_state::update_event_id(int32_t event_id) {
@@ -102,6 +134,8 @@ auto mission_state::is_forward() const -> bool {
     case forward_wait_update:
     case backward_wait_update:
     case ready:
+    case path_data:
+    case path:
     default:
       OLYSEUS_UNREACHABLE;
   }
@@ -137,7 +171,7 @@ auto mission_state::is_paused() const -> bool {
   }
 
   if (next_state_.has_value() &&
-      next_state_.value() == interconnection::drone_coordinates::PAUSED) {
+      next_state_.value() == interconnection::drone_info::PAUSED) {
     // PAUSE command was received from user by mission state hasn't updated yet
     return true;
   }
@@ -249,16 +283,27 @@ auto mission_state::update(T_DjiWaypointV2MissionStatePush state_data)
 }
 
 auto mission_state::get_state()
-    -> std::pair<int32_t, interconnection::drone_coordinates::state_t> {
+    -> std::pair<int32_t, interconnection::drone_info::state_t> {
   const std::lock_guard lock{m_};
 
+  if (global_state_ == path_data) {
+    OLYSEUS_VERIFY(!next_state_.has_value());
+    global_state_ = path;
+    return {event_id_, interconnection::drone_info::PATH_DATA};
+  }
+
+  if (global_state_ == path) {
+    OLYSEUS_VERIFY(!next_state_.has_value());
+    return {event_id_, interconnection::drone_info::PATH};
+  }
+
   if (global_state_ == ready) {
-    return get_state(interconnection::drone_coordinates::READY);
+    return get_state(interconnection::drone_info::READY);
   }
 
   if (global_state_ != backward_executing &&
       global_state_ != forward_executing) {
-    return get_state(interconnection::drone_coordinates::WAITING);
+    return get_state(interconnection::drone_info::WAITING);
   }
 
   switch (state_) {
@@ -266,23 +311,22 @@ auto mission_state::get_state()
     case exit_mission:
     case end_of_waypoint_mission:
     case mission_prepared:
-      return get_state(interconnection::drone_coordinates::WAITING);
+      return get_state(interconnection::drone_info::WAITING);
     case pause_state:
-      return get_state(interconnection::drone_coordinates::PAUSED);
+      return get_state(interconnection::drone_info::PAUSED);
     case enter_mission:
     case execute_flying_route_mission:
     case enter_mission_after_ending_pause:
-      return get_state(interconnection::drone_coordinates::EXECUTING);
+      return get_state(interconnection::drone_info::EXECUTING);
     default:
       spdlog::error("Unknown state: {}", static_cast<unsigned>(state_));
       OLYSEUS_UNREACHABLE;
-      return get_state(interconnection::drone_coordinates::EXECUTING);
+      return get_state(interconnection::drone_info::EXECUTING);
   }
 }
 
-auto mission_state::get_state(
-    interconnection::drone_coordinates::state_t new_state)
-    -> std::pair<int32_t, interconnection::drone_coordinates::state_t> {
+auto mission_state::get_state(interconnection::drone_info::state_t new_state)
+    -> std::pair<int32_t, interconnection::drone_info::state_t> {
   if (next_state_.has_value()) {
     if (next_state_.value() == new_state) {
       next_state_.reset();
@@ -326,6 +370,8 @@ auto mission_state::state_name() const -> const char* {
 auto mission_state::check_updates() const -> bool {
   switch (global_state_) {
     case ready:
+    case path_data:
+    case path:
     case forward_wait_start:
     case forward_finished:
     case backward_wait_start:
@@ -341,9 +387,9 @@ auto mission_state::check_updates() const -> bool {
   }
 }
 
-void mission_state::set_next_state(
-    interconnection::drone_coordinates::state_t s, int32_t event_id) {
-  OLYSEUS_VERIFY(s != interconnection::drone_coordinates::WAITING);
+void mission_state::set_next_state(interconnection::drone_info::state_t s,
+                                   int32_t event_id) {
+  OLYSEUS_VERIFY(s != interconnection::drone_info::WAITING);
 
   if (event_id == internal_event_id) {
     return;

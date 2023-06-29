@@ -777,18 +777,39 @@ void drone::receive_data_job_internal() {
         const std::lock_guard lock{execute_commands_mutex_};
         execute_commands_.push_back(interconnection::command_type::PONG);
       } break;
-      case interconnection::command_type::MISSION_START: {
+      case interconnection::command_type::BUILD_MISSION: {
         buffer.resize(receive_next_packet_size());
         receive_data(&buffer);
 
-        interconnection::pin_coordinates pin_coordinates;
-        const bool ok{pin_coordinates.ParseFromString(buffer)};
+        interconnection::input_polygon input_polygon_proto;
+        const bool ok{input_polygon_proto.ParseFromString(buffer)};
         OLYSEUS_VERIFY(ok);
 
-        mission_.init(pin_coordinates.latitude(), pin_coordinates.longitude());
+        const int32_t event_id{input_polygon_proto.event_id()};
+        OLYSEUS_VERIFY(event_id != mission_state::internal_event_id);
+
+        OLYSEUS_VERIFY(input_polygon_proto.vertices_size() > 0);
+        std::vector<lat_lon> input_polygon;
+        input_polygon.reserve(input_polygon_proto.vertices_size());
+        for (int i{0}; i < input_polygon_proto.vertices_size(); ++i) {
+          const interconnection::coordinate c{input_polygon_proto.vertices(i)};
+          input_polygon.emplace_back(c.latitude(), c.longitude());
+        }
+        OLYSEUS_VERIFY(!input_polygon.empty());
+
+        // FIXME (build real path)
+        std::vector<lat_lon> mission_path{std::move(input_polygon)};
+
+        mission_.mission_path_ready(std::move(mission_path), event_id);
+      } break;
+      case interconnection::command_type::MISSION_PATH_CANCEL: {
+        mission_.mission_path_cancel(receive_event_id());
+      } break;
+      case interconnection::command_type::MISSION_START: {
+        mission_.init();
 
         const bool start_ok{
-            mission_.upload_mission_and_start(pin_coordinates.event_id())};
+            mission_.upload_mission_and_start(receive_event_id())};
         OLYSEUS_VERIFY(start_ok);
 
         home_altitude_.mission_start();
@@ -843,7 +864,7 @@ void drone::receive_data_job_internal() {
           break;
         }
       } break;
-      case interconnection::command_type::LASER_RANGE: {
+      case interconnection::command_type::LASER_RANGE_RESPONSE: {
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
         OLYSEUS_UNREACHABLE;
 #else
@@ -897,8 +918,7 @@ void drone::send_data_job_internal() {
       constexpr int wait_ms{200};
       std::this_thread::sleep_for(std::chrono::milliseconds(wait_ms));
       const std::lock_guard lock{execute_commands_mutex_};
-      execute_commands_.push_back(
-          interconnection::command_type::DRONE_COORDINATES);
+      execute_commands_.push_back(interconnection::command_type::DRONE_INFO);
       continue;
     }
 
@@ -908,28 +928,33 @@ void drone::send_data_job_internal() {
       case interconnection::command_type::PONG:
         spdlog::info("PONG command sent");
         break;
-      case interconnection::command_type::DRONE_COORDINATES: {
-        interconnection::drone_coordinates dc;
-        dc.set_latitude(drone_latitude_);
-        dc.set_longitude(drone_longitude_);
-        dc.set_heading(drone_yaw_);
+      case interconnection::command_type::DRONE_INFO: {
+        const auto state{send_drone_info()};
+        if (state == interconnection::drone_info::PATH_DATA) {
+          spdlog::info("Sending mission path for PATH_DATA");
+          const std::vector<lat_lon> mission_path{mission_.get_mission_path()};
 
-        auto [event_id, state] = mission_.get_state();
-        dc.set_state(state);
-        dc.set_event_id(event_id);
+          interconnection::mission_path m_path;
+          for (const lat_lon& p : mission_path) {
+            interconnection::coordinate* w{m_path.add_waypoints()};
+            OLYSEUS_VERIFY(w != nullptr);
+            w->set_latitude(p.latitude());
+            w->set_longitude(p.longitude());
+          }
 
-        std::string buffer;
-        const bool ok{dc.SerializeToString(&buffer)};
-        OLYSEUS_VERIFY(ok);
+          std::string buffer;
+          const bool ok{m_path.SerializeToString(&buffer)};
+          OLYSEUS_VERIFY(ok);
 
-        send_next_packet_size(buffer.size());
-        send_data(buffer);
+          send_next_packet_size(buffer.size());
+          send_data(buffer);
 
-        spdlog::debug(
-            "Drone coordinates sent: lat:{}, lon:{}, head:{}, state:{}",
-            drone_latitude_, drone_longitude_, drone_yaw_, state);
+          send_command(interconnection::command_type::DRONE_INFO);
+          const auto state_next{send_drone_info()};
+          OLYSEUS_VERIFY(state_next == interconnection::drone_info::PATH);
+        }
       } break;
-      case interconnection::command_type::LASER_RANGE:
+      case interconnection::command_type::LASER_RANGE_REQUEST:
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)
         OLYSEUS_UNREACHABLE;
 #else
@@ -1074,6 +1099,29 @@ auto drone::receive_event_id() -> int32_t {
   OLYSEUS_VERIFY(res != mission_state::internal_event_id);
   OLYSEUS_VERIFY(res > 0);
   return res;
+}
+
+auto drone::send_drone_info() -> interconnection::drone_info::state_t {
+  interconnection::drone_info d_info;
+  d_info.set_latitude(drone_latitude_);
+  d_info.set_longitude(drone_longitude_);
+  d_info.set_heading(drone_yaw_);
+
+  auto [event_id, state] = mission_.get_state();
+  d_info.set_state(state);
+  d_info.set_event_id(event_id);
+
+  std::string buffer;
+  const bool ok{d_info.SerializeToString(&buffer)};
+  OLYSEUS_VERIFY(ok);
+
+  send_next_packet_size(buffer.size());
+  send_data(buffer);
+
+  spdlog::debug("Drone coordinates sent: lat:{}, lon:{}, head:{}, state:{}",
+                drone_latitude_, drone_longitude_, drone_yaw_, state);
+
+  return state;
 }
 
 void drone::next_mission() {

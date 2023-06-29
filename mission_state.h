@@ -19,8 +19,21 @@ class mission_state {
  public:
   static constexpr int32_t internal_event_id{-1};
 
-  /// \brief Clean-up state before running forward/backward missions
-  /// \details \b ready -> \b forward_wait_start
+  /// \brief The mission path is constructed and ready to be sent to a user
+  ///   for confirmation
+  /// \details \b ready -> \b path_data
+  void mission_path_ready(int32_t event_id);
+
+  /// \brief A user request to clear the current mission path. Either the path
+  ///   is invalid, or the user wants to change it
+  /// \details \b path_data -> \b ready
+  void mission_path_cancel(int32_t event_id);
+
+  /// \brief The mission path is available in current state
+  bool mission_path_available() const;
+
+  /// \brief Initial fetch of the path before running forward/backward missions
+  /// \details \b path -> \b forward_wait_start
   /// \note Update events still ignored
   void init();
 
@@ -36,8 +49,8 @@ class mission_state {
 
   /// \brief Stop the global mission execution
   /// \details \b forward_wait_start -> \b ready (abort execution)
-  /// \details \b backward_wait_start -> \b ready (no objects detected,
-  ///   no backward mission)
+  /// \details \b backward_wait_start -> \b ready (no objects detected -
+  ///   no backward mission, aborted execution)
   /// \details \b backward_finished -> \b ready (success)
   void stop();
 
@@ -94,18 +107,20 @@ class mission_state {
   /// \brief Current drone's state to sent to the drone control Android
   ///     application
   /// \return auto [event_id, state]
-  std::pair<int32_t, interconnection::drone_coordinates::state_t> get_state();
+  /// \note Can change the global state \b path_data -> \b path
+  std::pair<int32_t, interconnection::drone_info::state_t> get_state();
 
  private:
-  std::pair<int32_t, interconnection::drone_coordinates::state_t> get_state(
-      interconnection::drone_coordinates::state_t new_state);
+  std::pair<int32_t, interconnection::drone_info::state_t> get_state(
+      interconnection::drone_info::state_t new_state);
   const char* state_name() const;
   bool check_updates() const;
-  void set_next_state(interconnection::drone_coordinates::state_t,
-                      int32_t event_id);
+  void set_next_state(interconnection::drone_info::state_t, int32_t event_id);
 
   enum global_state {
     ready,
+    path_data,
+    path,
     forward_wait_start,
     forward_wait_update,
     forward_executing,
@@ -125,7 +140,7 @@ class mission_state {
   // This one is global. Don't change even if connection is restarted
   int32_t event_id_{0};
 
-  std::optional<interconnection::drone_coordinates::state_t> next_state_;
+  std::optional<interconnection::drone_info::state_t> next_state_;
   int32_t next_event_id_{0};
 
   // https://github.com/dji-sdk/Payload-SDK/blob/3.3/psdk_lib/include/dji_waypoint_v2_type.h#L1055-L1070

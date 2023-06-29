@@ -155,6 +155,7 @@ add_library(
     home_altitude.h
     laser_range.cpp
     laser_range.h
+    lat_lon.h
     olyseus_verify.cpp
     olyseus_verify.h
     timer.h

@@ -49,7 +49,7 @@ auto laser_range::latest(
 
     {
       const std::lock_guard lock{m};
-      commands.push_back(interconnection::command_type::LASER_RANGE);
+      commands.push_back(interconnection::command_type::LASER_RANGE_REQUEST);
     }
 
     // need to wait for a new value

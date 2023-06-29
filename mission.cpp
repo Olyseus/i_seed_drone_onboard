@@ -11,23 +11,43 @@
 mission::mission() noexcept = default;
 mission::~mission() = default;
 
-void mission::init(double lat, double lon) {
+void mission::mission_path_ready(std::vector<lat_lon> mission_path,
+                                 int32_t event_id) {
   const std::lock_guard lock{m_};
 
-  spdlog::info("Mission parameters: lat({}), lon({})", lat, lon);
+  mission_path_ = std::move(mission_path);
 
-  // FIXME (points from polygons)
-  // FIXME (action at waypoint?)
+  mission_state_.mission_path_ready(event_id);
+}
+
+void mission::mission_path_cancel(int32_t event_id) {
+  const std::lock_guard lock{m_};
+
+  mission_path_.clear();
+
+  mission_state_.mission_path_cancel(event_id);
+}
+
+auto mission::get_mission_path() const -> const std::vector<lat_lon> {
+  const std::lock_guard lock{m_};
+
+  OLYSEUS_VERIFY(mission_state_.mission_path_available());
+
+  return mission_path_;
+}
+
+void mission::init() {
+  const std::lock_guard lock{m_};
+
+  OLYSEUS_VERIFY(!mission_path_.empty());
+
+  spdlog::info("Init mission with waypoints:");
+
   global_waypoints_.clear();
-
-#if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
-  global_waypoints_.emplace_back(lat, lon);
-#else
-  global_waypoints_.emplace_back(lat, lon + 0.0001);
-  global_waypoints_.emplace_back(lat, lon + 0.0002);
-  global_waypoints_.emplace_back(lat, lon + 0.0003);
-  global_waypoints_.emplace_back(lat, lon + 0.0004);
-#endif
+  for (const lat_lon& p : mission_path_) {
+    spdlog::info("  ({}, {})", p.latitude(), p.longitude());
+    global_waypoints_.emplace_back(p.latitude(), p.longitude());
+  }
 
   mission_state_.init();
 }
@@ -235,7 +255,7 @@ void mission::resume(int32_t event_id) {
 }
 
 auto mission::get_state()
-    -> std::pair<int32_t, interconnection::drone_coordinates::state_t> {
+    -> std::pair<int32_t, interconnection::drone_info::state_t> {
   return mission_state_.get_state();
 }
 

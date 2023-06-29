@@ -53,8 +53,18 @@ class simulator {
  private:
   void verify_lat_lon();
 
-  enum state { begin_size, begin, mission_start_size, mission_start, end };
-  state state_{begin_size};
+  enum state {
+    build_mission_size,
+    build_mission,
+    input_polygon_size,
+    input_polygon_packet,
+    mission_start_size,
+    mission_start,
+    event_id_message_size,
+    event_id_message_packet,
+    end
+  };
+  state state_{build_mission_size};
 
   std::atomic<double> latitude_{0.0};
   std::atomic<double> longitude_{0.0};

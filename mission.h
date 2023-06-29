@@ -1,6 +1,7 @@
 #ifndef MISSION_H_
 #define MISSION_H_
 
+#include "lat_lon.h"
 #include "mission_state.h"
 #include "waypoint.h"
 
@@ -40,11 +41,19 @@ class mission {
   mission& operator=(mission&&) = delete;
   /// \endcond
 
-  /// \brief Apply user coordinates received from 'MISSION_START'
-  /// \param[in] lat Mission latitude
-  /// \param[in] lon Mission longitude
+  /// \brief The mission path is ready. It is constructed based on an input
+  ///   polygon
+  void mission_path_ready(std::vector<lat_lon> mission_path, int32_t event_id);
+
+  /// \brief A user request to clear the current mission path
+  void mission_path_cancel(int32_t event_id);
+
+  /// \brief Get the costructred mission path
+  const std::vector<lat_lon> get_mission_path() const;
+
+  /// \brief 'MISSION_START' command received from user
   /// \note \ref thread_receive_data "Thread: receive data"
-  void init(double lat, double lon);
+  void init();
 
   /// \brief Upload and start mission
   /// \details
@@ -151,7 +160,7 @@ class mission {
   ///     application
   /// \note \ref thread_send_data "Thread: send data"
   /// \return auto [event_id, state]
-  std::pair<int32_t, interconnection::drone_coordinates::state_t> get_state();
+  std::pair<int32_t, interconnection::drone_info::state_t> get_state();
 
  private:
   T_DjiWaypointV2 make_waypoint(const waypoint& w, bool is_forward) const;
@@ -159,6 +168,8 @@ class mission {
 
   // Mutex for waypoints, 'mission_state_' is thread-safe
   mutable std::mutex m_;
+
+  std::vector<lat_lon> mission_path_;
 
   std::vector<T_DjiWaypointV2> waypoints_;
   std::vector<waypoint> global_waypoints_;

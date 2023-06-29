@@ -66,57 +66,117 @@ api_code simulator::receive_data(std::string* buffer) {
   const double mission_lat{(p1_diff > p2_diff) ? p1_lat_ : p2_lat_};
   const double mission_lon{(p1_diff > p2_diff) ? p1_lon_ : p2_lon_};
 
-  interconnection::command_type command;
-  command.set_type(interconnection::command_type::MISSION_START);
-  command.set_version(drone::protocol_version);
+  interconnection::command_type build_mission_cmd;
+  build_mission_cmd.set_type(interconnection::command_type::BUILD_MISSION);
+  build_mission_cmd.set_version(drone::protocol_version);
+  constexpr int32_t build_mission_event_id{1};
 
-  constexpr int32_t event_id{1};
-  interconnection::pin_coordinates pin_coordinates;
-  pin_coordinates.set_latitude(mission_lat);
-  pin_coordinates.set_longitude(mission_lon);
-  pin_coordinates.set_event_id(event_id);
+  interconnection::input_polygon input_polygon;
+  for (int i{1}; i < 5; ++i) {
+    interconnection::coordinate* v{input_polygon.add_vertices()};
+    OLYSEUS_VERIFY(v != nullptr);
+    v->set_latitude(mission_lat);
+    v->set_longitude(mission_lon + 0.0001 * i);
+  }
+  input_polygon.set_event_id(build_mission_event_id);
+
+  interconnection::command_type mission_start_cmd;
+  mission_start_cmd.set_type(interconnection::command_type::MISSION_START);
+  mission_start_cmd.set_version(drone::protocol_version);
+  constexpr int32_t mission_start_event_id{2};
+
+  interconnection::event_id_message event_id_message;
+  event_id_message.set_event_id(mission_start_event_id);
 
   switch (state_) {
-    case begin_size: {
-      spdlog::info("simulate send: begin_size");
+    case build_mission_size:
+      spdlog::info("simulate send: build_mission_size");
+
       std::string tmp_buffer;
-      bool ok{command.SerializeToString(&tmp_buffer)};
+      bool ok{build_mission_command.SerializeToString(&tmp_buffer)};
       OLYSEUS_VERIFY(ok);
 
       interconnection::packet_size p_size;
       p_size.set_size(tmp_buffer.size());
       ok = p_size.SerializeToString(buffer);
       OLYSEUS_VERIFY(ok);
-      state_ = begin;
+
+      state_ = build_mission;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
-    }
-    case begin: {
-      spdlog::info("simulate send: begin");
-      const bool ok{command.SerializeToString(buffer)};
+    case build_mission:
+      spdlog::info("simulate send: build_mission");
+
+      const bool ok{build_mission_command.SerializeToString(buffer)};
       OLYSEUS_VERIFY(ok);
+
+      state_ = input_polygon_size;
+      return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+    case input_polygon_size:
+      spdlog::info("simulate send: input_polygon_size");
+
+      std::string tmp_buffer;
+      bool ok{input_polygon.SerializeToString(&tmp_buffer)};
+      OLYSEUS_VERIFY(ok);
+
+      interconnection::packet_size p_size;
+      p_size.set_size(tmp_buffer.size());
+      ok = p_size.SerializeToString(buffer);
+      OLYSEUS_VERIFY(ok);
+
+      state_ = input_polygon_packet;
+      return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+    case input_polygon_packet:
+      spdlog::info("simulate send: input_polygon_packet");
+
+      const bool ok{input_polygon.SerializeToString(buffer)};
+      OLYSEUS_VERIFY(ok);
+
       state_ = mission_start_size;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
-    }
-    case mission_start_size: {
+    case mission_start_size:
       spdlog::info("simulate send: mission_start_size");
+
       std::string tmp_buffer;
-      bool ok{pin_coordinates.SerializeToString(&tmp_buffer)};
+      bool ok{mission_start_cmd.SerializeToString(&tmp_buffer)};
       OLYSEUS_VERIFY(ok);
 
       interconnection::packet_size p_size;
       p_size.set_size(tmp_buffer.size());
       ok = p_size.SerializeToString(buffer);
       OLYSEUS_VERIFY(ok);
+
       state_ = mission_start;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
-    }
-    case mission_start: {
+    case mission_start:
       spdlog::info("simulate send: mission_start");
-      const bool ok{pin_coordinates.SerializeToString(buffer)};
+
+      const bool ok{mission_start_cmd.SerializeToString(buffer)};
       OLYSEUS_VERIFY(ok);
+
+      state_ = event_id_message_size;
+      return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+    case event_id_message_size:
+      spdlog::info("simulate send: event_id_message_size");
+
+      std::string tmp_buffer;
+      bool ok{event_id_message.SerializeToString(&tmp_buffer)};
+      OLYSEUS_VERIFY(ok);
+
+      interconnection::packet_size p_size;
+      p_size.set_size(tmp_buffer.size());
+      ok = p_size.SerializeToString(buffer);
+      OLYSEUS_VERIFY(ok);
+
+      state_ = event_id_message_packet;
+      return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+    case event_id_message_packet:
+      spdlog::info("simulate send: event_id_message_packet");
+
+      const bool ok{event_id_message.SerializeToString(buffer)};
+      OLYSEUS_VERIFY(ok);
+
       state_ = end;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
-    }
     case end:
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_TIMEOUT};

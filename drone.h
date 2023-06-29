@@ -26,7 +26,7 @@
 ///
 /// There is a service running in a background thread on the drone that
 /// periodically sends the current mission states and its geographical
-/// coordinates. The drone service sends a \b DRONE_COORDINATES command to
+/// coordinates. The drone service sends a \b DRONE_INFO command to
 /// inform the Android app that a coordinate data and mission state message will
 /// follow.
 ///
@@ -34,7 +34,7 @@
 /// application interface. This action sends a \b MISSION_START command to the
 /// drone service. Following the \b MISSION_START command, the drone service
 /// expects the coordinates of the waypoint the drone will have to navigate.
-/// The waypoint is sent via a \c pin_coordinates message. Pin coordinates will
+/// The waypoint is sent via a \c input_polygon message. Coordinates will
 /// be taken from the Google Map widget of the Android app.
 ///
 /// During a mission, a drone operator can pause, resume, or abort its
@@ -83,7 +83,7 @@
 /// Read-from-pipe thread with the \c readPipelineJob method will process the
 /// commands received from the drone. When the \b PING command is received, it
 /// means communication with a drone is established, and a drone is ready to
-/// accept other commands. \b DRONE_COORDINATES command informs that
+/// accept other commands. \b DRONE_INFO command informs that
 /// coordinates with the mission state data are prepared. Drone coordinates are
 /// used for drawing drone icons in the Google Map widget. Mission state will
 /// be used to draw the controlling UI buttons. E.g., if a mission is stopped,
@@ -274,6 +274,7 @@ class drone {
   void send_data(std::string& buffer);
   void send_next_packet_size(uint32_t size);
   int32_t receive_event_id();
+  interconnection::drone_info::state_t send_drone_info();
 
   /// \anchor drone's next_mission
   void next_mission();
