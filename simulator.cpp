@@ -89,11 +89,11 @@ api_code simulator::receive_data(std::string* buffer) {
   event_id_message.set_event_id(mission_start_event_id);
 
   switch (state_) {
-    case build_mission_size:
+    case build_mission_size: {
       spdlog::info("simulate send: build_mission_size");
 
       std::string tmp_buffer;
-      bool ok{build_mission_command.SerializeToString(&tmp_buffer)};
+      bool ok{build_mission_cmd.SerializeToString(&tmp_buffer)};
       OLYSEUS_VERIFY(ok);
 
       interconnection::packet_size p_size;
@@ -103,15 +103,17 @@ api_code simulator::receive_data(std::string* buffer) {
 
       state_ = build_mission;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
-    case build_mission:
+    }
+    case build_mission: {
       spdlog::info("simulate send: build_mission");
 
-      const bool ok{build_mission_command.SerializeToString(buffer)};
+      const bool ok{build_mission_cmd.SerializeToString(buffer)};
       OLYSEUS_VERIFY(ok);
 
       state_ = input_polygon_size;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
-    case input_polygon_size:
+    }
+    case input_polygon_size: {
       spdlog::info("simulate send: input_polygon_size");
 
       std::string tmp_buffer;
@@ -125,7 +127,8 @@ api_code simulator::receive_data(std::string* buffer) {
 
       state_ = input_polygon_packet;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
-    case input_polygon_packet:
+    }
+    case input_polygon_packet: {
       spdlog::info("simulate send: input_polygon_packet");
 
       const bool ok{input_polygon.SerializeToString(buffer)};
@@ -133,7 +136,8 @@ api_code simulator::receive_data(std::string* buffer) {
 
       state_ = mission_start_size;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
-    case mission_start_size:
+    }
+    case mission_start_size: {
       spdlog::info("simulate send: mission_start_size");
 
       std::string tmp_buffer;
@@ -147,7 +151,8 @@ api_code simulator::receive_data(std::string* buffer) {
 
       state_ = mission_start;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
-    case mission_start:
+    }
+    case mission_start: {
       spdlog::info("simulate send: mission_start");
 
       const bool ok{mission_start_cmd.SerializeToString(buffer)};
@@ -155,7 +160,8 @@ api_code simulator::receive_data(std::string* buffer) {
 
       state_ = event_id_message_size;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
-    case event_id_message_size:
+    }
+    case event_id_message_size: {
       spdlog::info("simulate send: event_id_message_size");
 
       std::string tmp_buffer;
@@ -169,7 +175,8 @@ api_code simulator::receive_data(std::string* buffer) {
 
       state_ = event_id_message_packet;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
-    case event_id_message_packet:
+    }
+    case event_id_message_packet: {
       spdlog::info("simulate send: event_id_message_packet");
 
       const bool ok{event_id_message.SerializeToString(buffer)};
@@ -177,6 +184,7 @@ api_code simulator::receive_data(std::string* buffer) {
 
       state_ = end;
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS};
+    }
     case end:
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
       return api_code{DJI_ERROR_SYSTEM_MODULE_CODE_TIMEOUT};
