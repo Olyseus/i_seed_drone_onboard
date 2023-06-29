@@ -134,29 +134,41 @@ public final class Interconnection {
        */
       PONG(1),
       /**
-       * <code>DRONE_COORDINATES = 2;</code>
+       * <code>BUILD_MISSION = 2;</code>
        */
-      DRONE_COORDINATES(2),
+      BUILD_MISSION(2),
       /**
-       * <code>MISSION_START = 3;</code>
+       * <code>MISSION_PATH_CANCEL = 3;</code>
        */
-      MISSION_START(3),
+      MISSION_PATH_CANCEL(3),
       /**
-       * <code>MISSION_PAUSE = 4;</code>
+       * <code>MISSION_START = 4;</code>
        */
-      MISSION_PAUSE(4),
+      MISSION_START(4),
       /**
-       * <code>MISSION_CONTINUE = 5;</code>
+       * <code>MISSION_PAUSE = 5;</code>
        */
-      MISSION_CONTINUE(5),
+      MISSION_PAUSE(5),
       /**
-       * <code>MISSION_ABORT = 6;</code>
+       * <code>MISSION_CONTINUE = 6;</code>
        */
-      MISSION_ABORT(6),
+      MISSION_CONTINUE(6),
       /**
-       * <code>LASER_RANGE = 7;</code>
+       * <code>MISSION_ABORT = 7;</code>
        */
-      LASER_RANGE(7),
+      MISSION_ABORT(7),
+      /**
+       * <code>DRONE_INFO = 8;</code>
+       */
+      DRONE_INFO(8),
+      /**
+       * <code>LASER_RANGE_REQUEST = 9;</code>
+       */
+      LASER_RANGE_REQUEST(9),
+      /**
+       * <code>LASER_RANGE_RESPONSE = 10;</code>
+       */
+      LASER_RANGE_RESPONSE(10),
       ;
 
       /**
@@ -168,29 +180,41 @@ public final class Interconnection {
        */
       public static final int PONG_VALUE = 1;
       /**
-       * <code>DRONE_COORDINATES = 2;</code>
+       * <code>BUILD_MISSION = 2;</code>
        */
-      public static final int DRONE_COORDINATES_VALUE = 2;
+      public static final int BUILD_MISSION_VALUE = 2;
       /**
-       * <code>MISSION_START = 3;</code>
+       * <code>MISSION_PATH_CANCEL = 3;</code>
        */
-      public static final int MISSION_START_VALUE = 3;
+      public static final int MISSION_PATH_CANCEL_VALUE = 3;
       /**
-       * <code>MISSION_PAUSE = 4;</code>
+       * <code>MISSION_START = 4;</code>
        */
-      public static final int MISSION_PAUSE_VALUE = 4;
+      public static final int MISSION_START_VALUE = 4;
       /**
-       * <code>MISSION_CONTINUE = 5;</code>
+       * <code>MISSION_PAUSE = 5;</code>
        */
-      public static final int MISSION_CONTINUE_VALUE = 5;
+      public static final int MISSION_PAUSE_VALUE = 5;
       /**
-       * <code>MISSION_ABORT = 6;</code>
+       * <code>MISSION_CONTINUE = 6;</code>
        */
-      public static final int MISSION_ABORT_VALUE = 6;
+      public static final int MISSION_CONTINUE_VALUE = 6;
       /**
-       * <code>LASER_RANGE = 7;</code>
+       * <code>MISSION_ABORT = 7;</code>
        */
-      public static final int LASER_RANGE_VALUE = 7;
+      public static final int MISSION_ABORT_VALUE = 7;
+      /**
+       * <code>DRONE_INFO = 8;</code>
+       */
+      public static final int DRONE_INFO_VALUE = 8;
+      /**
+       * <code>LASER_RANGE_REQUEST = 9;</code>
+       */
+      public static final int LASER_RANGE_REQUEST_VALUE = 9;
+      /**
+       * <code>LASER_RANGE_RESPONSE = 10;</code>
+       */
+      public static final int LASER_RANGE_RESPONSE_VALUE = 10;
 
 
       public final int getNumber() {
@@ -209,12 +233,15 @@ public final class Interconnection {
         switch (value) {
           case 0: return PING;
           case 1: return PONG;
-          case 2: return DRONE_COORDINATES;
-          case 3: return MISSION_START;
-          case 4: return MISSION_PAUSE;
-          case 5: return MISSION_CONTINUE;
-          case 6: return MISSION_ABORT;
-          case 7: return LASER_RANGE;
+          case 2: return BUILD_MISSION;
+          case 3: return MISSION_PATH_CANCEL;
+          case 4: return MISSION_START;
+          case 5: return MISSION_PAUSE;
+          case 6: return MISSION_CONTINUE;
+          case 7: return MISSION_ABORT;
+          case 8: return DRONE_INFO;
+          case 9: return LASER_RANGE_REQUEST;
+          case 10: return LASER_RANGE_RESPONSE;
           default: return null;
         }
       }
@@ -1208,8 +1235,1432 @@ public final class Interconnection {
 
   }
 
-  public interface drone_coordinatesOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:interconnection.drone_coordinates)
+  public interface coordinateOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:interconnection.coordinate)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>required double latitude = 1;</code>
+     */
+    boolean hasLatitude();
+    /**
+     * <code>required double latitude = 1;</code>
+     */
+    double getLatitude();
+
+    /**
+     * <code>required double longitude = 2;</code>
+     */
+    boolean hasLongitude();
+    /**
+     * <code>required double longitude = 2;</code>
+     */
+    double getLongitude();
+  }
+  /**
+   * Protobuf type {@code interconnection.coordinate}
+   */
+  public  static final class coordinate extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:interconnection.coordinate)
+      coordinateOrBuilder {
+    // Use coordinate.newBuilder() to construct.
+    private coordinate(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private coordinate() {
+      latitude_ = 0D;
+      longitude_ = 0D;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private coordinate(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 9: {
+              bitField0_ |= 0x00000001;
+              latitude_ = input.readDouble();
+              break;
+            }
+            case 17: {
+              bitField0_ |= 0x00000002;
+              longitude_ = input.readDouble();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return interconnection.Interconnection.internal_static_interconnection_coordinate_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return interconnection.Interconnection.internal_static_interconnection_coordinate_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              interconnection.Interconnection.coordinate.class, interconnection.Interconnection.coordinate.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int LATITUDE_FIELD_NUMBER = 1;
+    private double latitude_;
+    /**
+     * <code>required double latitude = 1;</code>
+     */
+    public boolean hasLatitude() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required double latitude = 1;</code>
+     */
+    public double getLatitude() {
+      return latitude_;
+    }
+
+    public static final int LONGITUDE_FIELD_NUMBER = 2;
+    private double longitude_;
+    /**
+     * <code>required double longitude = 2;</code>
+     */
+    public boolean hasLongitude() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required double longitude = 2;</code>
+     */
+    public double getLongitude() {
+      return longitude_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      if (!hasLatitude()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasLongitude()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeDouble(1, latitude_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeDouble(2, longitude_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeDoubleSize(1, latitude_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeDoubleSize(2, longitude_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof interconnection.Interconnection.coordinate)) {
+        return super.equals(obj);
+      }
+      interconnection.Interconnection.coordinate other = (interconnection.Interconnection.coordinate) obj;
+
+      boolean result = true;
+      result = result && (hasLatitude() == other.hasLatitude());
+      if (hasLatitude()) {
+        result = result && (
+            java.lang.Double.doubleToLongBits(getLatitude())
+            == java.lang.Double.doubleToLongBits(
+                other.getLatitude()));
+      }
+      result = result && (hasLongitude() == other.hasLongitude());
+      if (hasLongitude()) {
+        result = result && (
+            java.lang.Double.doubleToLongBits(getLongitude())
+            == java.lang.Double.doubleToLongBits(
+                other.getLongitude()));
+      }
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (hasLatitude()) {
+        hash = (37 * hash) + LATITUDE_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            java.lang.Double.doubleToLongBits(getLatitude()));
+      }
+      if (hasLongitude()) {
+        hash = (37 * hash) + LONGITUDE_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            java.lang.Double.doubleToLongBits(getLongitude()));
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static interconnection.Interconnection.coordinate parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.coordinate parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.coordinate parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.coordinate parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.coordinate parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.coordinate parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.coordinate parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.coordinate parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.coordinate parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.coordinate parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(interconnection.Interconnection.coordinate prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code interconnection.coordinate}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:interconnection.coordinate)
+        interconnection.Interconnection.coordinateOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return interconnection.Interconnection.internal_static_interconnection_coordinate_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return interconnection.Interconnection.internal_static_interconnection_coordinate_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                interconnection.Interconnection.coordinate.class, interconnection.Interconnection.coordinate.Builder.class);
+      }
+
+      // Construct using interconnection.Interconnection.coordinate.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        latitude_ = 0D;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        longitude_ = 0D;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return interconnection.Interconnection.internal_static_interconnection_coordinate_descriptor;
+      }
+
+      public interconnection.Interconnection.coordinate getDefaultInstanceForType() {
+        return interconnection.Interconnection.coordinate.getDefaultInstance();
+      }
+
+      public interconnection.Interconnection.coordinate build() {
+        interconnection.Interconnection.coordinate result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public interconnection.Interconnection.coordinate buildPartial() {
+        interconnection.Interconnection.coordinate result = new interconnection.Interconnection.coordinate(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.latitude_ = latitude_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.longitude_ = longitude_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof interconnection.Interconnection.coordinate) {
+          return mergeFrom((interconnection.Interconnection.coordinate)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(interconnection.Interconnection.coordinate other) {
+        if (other == interconnection.Interconnection.coordinate.getDefaultInstance()) return this;
+        if (other.hasLatitude()) {
+          setLatitude(other.getLatitude());
+        }
+        if (other.hasLongitude()) {
+          setLongitude(other.getLongitude());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasLatitude()) {
+          return false;
+        }
+        if (!hasLongitude()) {
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        interconnection.Interconnection.coordinate parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (interconnection.Interconnection.coordinate) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private double latitude_ ;
+      /**
+       * <code>required double latitude = 1;</code>
+       */
+      public boolean hasLatitude() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required double latitude = 1;</code>
+       */
+      public double getLatitude() {
+        return latitude_;
+      }
+      /**
+       * <code>required double latitude = 1;</code>
+       */
+      public Builder setLatitude(double value) {
+        bitField0_ |= 0x00000001;
+        latitude_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required double latitude = 1;</code>
+       */
+      public Builder clearLatitude() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        latitude_ = 0D;
+        onChanged();
+        return this;
+      }
+
+      private double longitude_ ;
+      /**
+       * <code>required double longitude = 2;</code>
+       */
+      public boolean hasLongitude() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required double longitude = 2;</code>
+       */
+      public double getLongitude() {
+        return longitude_;
+      }
+      /**
+       * <code>required double longitude = 2;</code>
+       */
+      public Builder setLongitude(double value) {
+        bitField0_ |= 0x00000002;
+        longitude_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required double longitude = 2;</code>
+       */
+      public Builder clearLongitude() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        longitude_ = 0D;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:interconnection.coordinate)
+    }
+
+    // @@protoc_insertion_point(class_scope:interconnection.coordinate)
+    private static final interconnection.Interconnection.coordinate DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new interconnection.Interconnection.coordinate();
+    }
+
+    public static interconnection.Interconnection.coordinate getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<coordinate>
+        PARSER = new com.google.protobuf.AbstractParser<coordinate>() {
+      public coordinate parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new coordinate(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<coordinate> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<coordinate> getParserForType() {
+      return PARSER;
+    }
+
+    public interconnection.Interconnection.coordinate getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface input_polygonOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:interconnection.input_polygon)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .interconnection.coordinate vertices = 1;</code>
+     */
+    java.util.List<interconnection.Interconnection.coordinate> 
+        getVerticesList();
+    /**
+     * <code>repeated .interconnection.coordinate vertices = 1;</code>
+     */
+    interconnection.Interconnection.coordinate getVertices(int index);
+    /**
+     * <code>repeated .interconnection.coordinate vertices = 1;</code>
+     */
+    int getVerticesCount();
+    /**
+     * <code>repeated .interconnection.coordinate vertices = 1;</code>
+     */
+    java.util.List<? extends interconnection.Interconnection.coordinateOrBuilder> 
+        getVerticesOrBuilderList();
+    /**
+     * <code>repeated .interconnection.coordinate vertices = 1;</code>
+     */
+    interconnection.Interconnection.coordinateOrBuilder getVerticesOrBuilder(
+        int index);
+
+    /**
+     * <code>required int32 event_id = 2;</code>
+     */
+    boolean hasEventId();
+    /**
+     * <code>required int32 event_id = 2;</code>
+     */
+    int getEventId();
+  }
+  /**
+   * Protobuf type {@code interconnection.input_polygon}
+   */
+  public  static final class input_polygon extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:interconnection.input_polygon)
+      input_polygonOrBuilder {
+    // Use input_polygon.newBuilder() to construct.
+    private input_polygon(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private input_polygon() {
+      vertices_ = java.util.Collections.emptyList();
+      eventId_ = 0;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private input_polygon(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                vertices_ = new java.util.ArrayList<interconnection.Interconnection.coordinate>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              vertices_.add(
+                  input.readMessage(interconnection.Interconnection.coordinate.PARSER, extensionRegistry));
+              break;
+            }
+            case 16: {
+              bitField0_ |= 0x00000001;
+              eventId_ = input.readInt32();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          vertices_ = java.util.Collections.unmodifiableList(vertices_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return interconnection.Interconnection.internal_static_interconnection_input_polygon_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return interconnection.Interconnection.internal_static_interconnection_input_polygon_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              interconnection.Interconnection.input_polygon.class, interconnection.Interconnection.input_polygon.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int VERTICES_FIELD_NUMBER = 1;
+    private java.util.List<interconnection.Interconnection.coordinate> vertices_;
+    /**
+     * <code>repeated .interconnection.coordinate vertices = 1;</code>
+     */
+    public java.util.List<interconnection.Interconnection.coordinate> getVerticesList() {
+      return vertices_;
+    }
+    /**
+     * <code>repeated .interconnection.coordinate vertices = 1;</code>
+     */
+    public java.util.List<? extends interconnection.Interconnection.coordinateOrBuilder> 
+        getVerticesOrBuilderList() {
+      return vertices_;
+    }
+    /**
+     * <code>repeated .interconnection.coordinate vertices = 1;</code>
+     */
+    public int getVerticesCount() {
+      return vertices_.size();
+    }
+    /**
+     * <code>repeated .interconnection.coordinate vertices = 1;</code>
+     */
+    public interconnection.Interconnection.coordinate getVertices(int index) {
+      return vertices_.get(index);
+    }
+    /**
+     * <code>repeated .interconnection.coordinate vertices = 1;</code>
+     */
+    public interconnection.Interconnection.coordinateOrBuilder getVerticesOrBuilder(
+        int index) {
+      return vertices_.get(index);
+    }
+
+    public static final int EVENT_ID_FIELD_NUMBER = 2;
+    private int eventId_;
+    /**
+     * <code>required int32 event_id = 2;</code>
+     */
+    public boolean hasEventId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required int32 event_id = 2;</code>
+     */
+    public int getEventId() {
+      return eventId_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      if (!hasEventId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      for (int i = 0; i < getVerticesCount(); i++) {
+        if (!getVertices(i).isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < vertices_.size(); i++) {
+        output.writeMessage(1, vertices_.get(i));
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt32(2, eventId_);
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < vertices_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, vertices_.get(i));
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, eventId_);
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof interconnection.Interconnection.input_polygon)) {
+        return super.equals(obj);
+      }
+      interconnection.Interconnection.input_polygon other = (interconnection.Interconnection.input_polygon) obj;
+
+      boolean result = true;
+      result = result && getVerticesList()
+          .equals(other.getVerticesList());
+      result = result && (hasEventId() == other.hasEventId());
+      if (hasEventId()) {
+        result = result && (getEventId()
+            == other.getEventId());
+      }
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (getVerticesCount() > 0) {
+        hash = (37 * hash) + VERTICES_FIELD_NUMBER;
+        hash = (53 * hash) + getVerticesList().hashCode();
+      }
+      if (hasEventId()) {
+        hash = (37 * hash) + EVENT_ID_FIELD_NUMBER;
+        hash = (53 * hash) + getEventId();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static interconnection.Interconnection.input_polygon parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.input_polygon parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.input_polygon parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.input_polygon parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.input_polygon parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.input_polygon parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.input_polygon parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.input_polygon parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.input_polygon parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.input_polygon parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(interconnection.Interconnection.input_polygon prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code interconnection.input_polygon}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:interconnection.input_polygon)
+        interconnection.Interconnection.input_polygonOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return interconnection.Interconnection.internal_static_interconnection_input_polygon_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return interconnection.Interconnection.internal_static_interconnection_input_polygon_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                interconnection.Interconnection.input_polygon.class, interconnection.Interconnection.input_polygon.Builder.class);
+      }
+
+      // Construct using interconnection.Interconnection.input_polygon.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getVerticesFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (verticesBuilder_ == null) {
+          vertices_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          verticesBuilder_.clear();
+        }
+        eventId_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return interconnection.Interconnection.internal_static_interconnection_input_polygon_descriptor;
+      }
+
+      public interconnection.Interconnection.input_polygon getDefaultInstanceForType() {
+        return interconnection.Interconnection.input_polygon.getDefaultInstance();
+      }
+
+      public interconnection.Interconnection.input_polygon build() {
+        interconnection.Interconnection.input_polygon result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public interconnection.Interconnection.input_polygon buildPartial() {
+        interconnection.Interconnection.input_polygon result = new interconnection.Interconnection.input_polygon(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (verticesBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            vertices_ = java.util.Collections.unmodifiableList(vertices_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.vertices_ = vertices_;
+        } else {
+          result.vertices_ = verticesBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.eventId_ = eventId_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof interconnection.Interconnection.input_polygon) {
+          return mergeFrom((interconnection.Interconnection.input_polygon)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(interconnection.Interconnection.input_polygon other) {
+        if (other == interconnection.Interconnection.input_polygon.getDefaultInstance()) return this;
+        if (verticesBuilder_ == null) {
+          if (!other.vertices_.isEmpty()) {
+            if (vertices_.isEmpty()) {
+              vertices_ = other.vertices_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureVerticesIsMutable();
+              vertices_.addAll(other.vertices_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.vertices_.isEmpty()) {
+            if (verticesBuilder_.isEmpty()) {
+              verticesBuilder_.dispose();
+              verticesBuilder_ = null;
+              vertices_ = other.vertices_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              verticesBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getVerticesFieldBuilder() : null;
+            } else {
+              verticesBuilder_.addAllMessages(other.vertices_);
+            }
+          }
+        }
+        if (other.hasEventId()) {
+          setEventId(other.getEventId());
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasEventId()) {
+          return false;
+        }
+        for (int i = 0; i < getVerticesCount(); i++) {
+          if (!getVertices(i).isInitialized()) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        interconnection.Interconnection.input_polygon parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (interconnection.Interconnection.input_polygon) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<interconnection.Interconnection.coordinate> vertices_ =
+        java.util.Collections.emptyList();
+      private void ensureVerticesIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          vertices_ = new java.util.ArrayList<interconnection.Interconnection.coordinate>(vertices_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          interconnection.Interconnection.coordinate, interconnection.Interconnection.coordinate.Builder, interconnection.Interconnection.coordinateOrBuilder> verticesBuilder_;
+
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public java.util.List<interconnection.Interconnection.coordinate> getVerticesList() {
+        if (verticesBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(vertices_);
+        } else {
+          return verticesBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public int getVerticesCount() {
+        if (verticesBuilder_ == null) {
+          return vertices_.size();
+        } else {
+          return verticesBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public interconnection.Interconnection.coordinate getVertices(int index) {
+        if (verticesBuilder_ == null) {
+          return vertices_.get(index);
+        } else {
+          return verticesBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public Builder setVertices(
+          int index, interconnection.Interconnection.coordinate value) {
+        if (verticesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureVerticesIsMutable();
+          vertices_.set(index, value);
+          onChanged();
+        } else {
+          verticesBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public Builder setVertices(
+          int index, interconnection.Interconnection.coordinate.Builder builderForValue) {
+        if (verticesBuilder_ == null) {
+          ensureVerticesIsMutable();
+          vertices_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          verticesBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public Builder addVertices(interconnection.Interconnection.coordinate value) {
+        if (verticesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureVerticesIsMutable();
+          vertices_.add(value);
+          onChanged();
+        } else {
+          verticesBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public Builder addVertices(
+          int index, interconnection.Interconnection.coordinate value) {
+        if (verticesBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureVerticesIsMutable();
+          vertices_.add(index, value);
+          onChanged();
+        } else {
+          verticesBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public Builder addVertices(
+          interconnection.Interconnection.coordinate.Builder builderForValue) {
+        if (verticesBuilder_ == null) {
+          ensureVerticesIsMutable();
+          vertices_.add(builderForValue.build());
+          onChanged();
+        } else {
+          verticesBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public Builder addVertices(
+          int index, interconnection.Interconnection.coordinate.Builder builderForValue) {
+        if (verticesBuilder_ == null) {
+          ensureVerticesIsMutable();
+          vertices_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          verticesBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public Builder addAllVertices(
+          java.lang.Iterable<? extends interconnection.Interconnection.coordinate> values) {
+        if (verticesBuilder_ == null) {
+          ensureVerticesIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, vertices_);
+          onChanged();
+        } else {
+          verticesBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public Builder clearVertices() {
+        if (verticesBuilder_ == null) {
+          vertices_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          verticesBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public Builder removeVertices(int index) {
+        if (verticesBuilder_ == null) {
+          ensureVerticesIsMutable();
+          vertices_.remove(index);
+          onChanged();
+        } else {
+          verticesBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public interconnection.Interconnection.coordinate.Builder getVerticesBuilder(
+          int index) {
+        return getVerticesFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public interconnection.Interconnection.coordinateOrBuilder getVerticesOrBuilder(
+          int index) {
+        if (verticesBuilder_ == null) {
+          return vertices_.get(index);  } else {
+          return verticesBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public java.util.List<? extends interconnection.Interconnection.coordinateOrBuilder> 
+           getVerticesOrBuilderList() {
+        if (verticesBuilder_ != null) {
+          return verticesBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(vertices_);
+        }
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public interconnection.Interconnection.coordinate.Builder addVerticesBuilder() {
+        return getVerticesFieldBuilder().addBuilder(
+            interconnection.Interconnection.coordinate.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public interconnection.Interconnection.coordinate.Builder addVerticesBuilder(
+          int index) {
+        return getVerticesFieldBuilder().addBuilder(
+            index, interconnection.Interconnection.coordinate.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .interconnection.coordinate vertices = 1;</code>
+       */
+      public java.util.List<interconnection.Interconnection.coordinate.Builder> 
+           getVerticesBuilderList() {
+        return getVerticesFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          interconnection.Interconnection.coordinate, interconnection.Interconnection.coordinate.Builder, interconnection.Interconnection.coordinateOrBuilder> 
+          getVerticesFieldBuilder() {
+        if (verticesBuilder_ == null) {
+          verticesBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              interconnection.Interconnection.coordinate, interconnection.Interconnection.coordinate.Builder, interconnection.Interconnection.coordinateOrBuilder>(
+                  vertices_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          vertices_ = null;
+        }
+        return verticesBuilder_;
+      }
+
+      private int eventId_ ;
+      /**
+       * <code>required int32 event_id = 2;</code>
+       */
+      public boolean hasEventId() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required int32 event_id = 2;</code>
+       */
+      public int getEventId() {
+        return eventId_;
+      }
+      /**
+       * <code>required int32 event_id = 2;</code>
+       */
+      public Builder setEventId(int value) {
+        bitField0_ |= 0x00000002;
+        eventId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 event_id = 2;</code>
+       */
+      public Builder clearEventId() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        eventId_ = 0;
+        onChanged();
+        return this;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:interconnection.input_polygon)
+    }
+
+    // @@protoc_insertion_point(class_scope:interconnection.input_polygon)
+    private static final interconnection.Interconnection.input_polygon DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new interconnection.Interconnection.input_polygon();
+    }
+
+    public static interconnection.Interconnection.input_polygon getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<input_polygon>
+        PARSER = new com.google.protobuf.AbstractParser<input_polygon>() {
+      public input_polygon parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new input_polygon(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<input_polygon> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<input_polygon> getParserForType() {
+      return PARSER;
+    }
+
+    public interconnection.Interconnection.input_polygon getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface drone_infoOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:interconnection.drone_info)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -1240,13 +2691,13 @@ public final class Interconnection {
     float getHeading();
 
     /**
-     * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     * <code>required .interconnection.drone_info.state_t state = 4;</code>
      */
     boolean hasState();
     /**
-     * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     * <code>required .interconnection.drone_info.state_t state = 4;</code>
      */
-    interconnection.Interconnection.drone_coordinates.state_t getState();
+    interconnection.Interconnection.drone_info.state_t getState();
 
     /**
      * <code>required int32 event_id = 5;</code>
@@ -1258,17 +2709,17 @@ public final class Interconnection {
     int getEventId();
   }
   /**
-   * Protobuf type {@code interconnection.drone_coordinates}
+   * Protobuf type {@code interconnection.drone_info}
    */
-  public  static final class drone_coordinates extends
+  public  static final class drone_info extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:interconnection.drone_coordinates)
-      drone_coordinatesOrBuilder {
-    // Use drone_coordinates.newBuilder() to construct.
-    private drone_coordinates(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      // @@protoc_insertion_point(message_implements:interconnection.drone_info)
+      drone_infoOrBuilder {
+    // Use drone_info.newBuilder() to construct.
+    private drone_info(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
-    private drone_coordinates() {
+    private drone_info() {
       latitude_ = 0D;
       longitude_ = 0D;
       heading_ = 0F;
@@ -1281,7 +2732,7 @@ public final class Interconnection {
     getUnknownFields() {
       return this.unknownFields;
     }
-    private drone_coordinates(
+    private drone_info(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1321,7 +2772,7 @@ public final class Interconnection {
             }
             case 32: {
               int rawValue = input.readEnum();
-              interconnection.Interconnection.drone_coordinates.state_t value = interconnection.Interconnection.drone_coordinates.state_t.valueOf(rawValue);
+              interconnection.Interconnection.drone_info.state_t value = interconnection.Interconnection.drone_info.state_t.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(4, rawValue);
               } else {
@@ -1349,18 +2800,18 @@ public final class Interconnection {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_descriptor;
+      return interconnection.Interconnection.internal_static_interconnection_drone_info_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_fieldAccessorTable
+      return interconnection.Interconnection.internal_static_interconnection_drone_info_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              interconnection.Interconnection.drone_coordinates.class, interconnection.Interconnection.drone_coordinates.Builder.class);
+              interconnection.Interconnection.drone_info.class, interconnection.Interconnection.drone_info.Builder.class);
     }
 
     /**
-     * Protobuf enum {@code interconnection.drone_coordinates.state_t}
+     * Protobuf enum {@code interconnection.drone_info.state_t}
      */
     public enum state_t
         implements com.google.protobuf.ProtocolMessageEnum {
@@ -1373,13 +2824,21 @@ public final class Interconnection {
        */
       WAITING(1),
       /**
-       * <code>PAUSED = 2;</code>
+       * <code>PATH_DATA = 2;</code>
        */
-      PAUSED(2),
+      PATH_DATA(2),
       /**
-       * <code>EXECUTING = 3;</code>
+       * <code>PATH = 3;</code>
        */
-      EXECUTING(3),
+      PATH(3),
+      /**
+       * <code>EXECUTING = 4;</code>
+       */
+      EXECUTING(4),
+      /**
+       * <code>PAUSED = 5;</code>
+       */
+      PAUSED(5),
       ;
 
       /**
@@ -1391,13 +2850,21 @@ public final class Interconnection {
        */
       public static final int WAITING_VALUE = 1;
       /**
-       * <code>PAUSED = 2;</code>
+       * <code>PATH_DATA = 2;</code>
        */
-      public static final int PAUSED_VALUE = 2;
+      public static final int PATH_DATA_VALUE = 2;
       /**
-       * <code>EXECUTING = 3;</code>
+       * <code>PATH = 3;</code>
        */
-      public static final int EXECUTING_VALUE = 3;
+      public static final int PATH_VALUE = 3;
+      /**
+       * <code>EXECUTING = 4;</code>
+       */
+      public static final int EXECUTING_VALUE = 4;
+      /**
+       * <code>PAUSED = 5;</code>
+       */
+      public static final int PAUSED_VALUE = 5;
 
 
       public final int getNumber() {
@@ -1416,8 +2883,10 @@ public final class Interconnection {
         switch (value) {
           case 0: return READY;
           case 1: return WAITING;
-          case 2: return PAUSED;
-          case 3: return EXECUTING;
+          case 2: return PATH_DATA;
+          case 3: return PATH;
+          case 4: return EXECUTING;
+          case 5: return PAUSED;
           default: return null;
         }
       }
@@ -1444,7 +2913,7 @@ public final class Interconnection {
       }
       public static final com.google.protobuf.Descriptors.EnumDescriptor
           getDescriptor() {
-        return interconnection.Interconnection.drone_coordinates.getDescriptor().getEnumTypes().get(0);
+        return interconnection.Interconnection.drone_info.getDescriptor().getEnumTypes().get(0);
       }
 
       private static final state_t[] VALUES = values();
@@ -1464,7 +2933,7 @@ public final class Interconnection {
         this.value = value;
       }
 
-      // @@protoc_insertion_point(enum_scope:interconnection.drone_coordinates.state_t)
+      // @@protoc_insertion_point(enum_scope:interconnection.drone_info.state_t)
     }
 
     private int bitField0_;
@@ -1516,17 +2985,17 @@ public final class Interconnection {
     public static final int STATE_FIELD_NUMBER = 4;
     private int state_;
     /**
-     * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     * <code>required .interconnection.drone_info.state_t state = 4;</code>
      */
     public boolean hasState() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+     * <code>required .interconnection.drone_info.state_t state = 4;</code>
      */
-    public interconnection.Interconnection.drone_coordinates.state_t getState() {
-      interconnection.Interconnection.drone_coordinates.state_t result = interconnection.Interconnection.drone_coordinates.state_t.valueOf(state_);
-      return result == null ? interconnection.Interconnection.drone_coordinates.state_t.READY : result;
+    public interconnection.Interconnection.drone_info.state_t getState() {
+      interconnection.Interconnection.drone_info.state_t result = interconnection.Interconnection.drone_info.state_t.valueOf(state_);
+      return result == null ? interconnection.Interconnection.drone_info.state_t.READY : result;
     }
 
     public static final int EVENT_ID_FIELD_NUMBER = 5;
@@ -1630,10 +3099,10 @@ public final class Interconnection {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof interconnection.Interconnection.drone_coordinates)) {
+      if (!(obj instanceof interconnection.Interconnection.drone_info)) {
         return super.equals(obj);
       }
-      interconnection.Interconnection.drone_coordinates other = (interconnection.Interconnection.drone_coordinates) obj;
+      interconnection.Interconnection.drone_info other = (interconnection.Interconnection.drone_info) obj;
 
       boolean result = true;
       result = result && (hasLatitude() == other.hasLatitude());
@@ -1705,58 +3174,58 @@ public final class Interconnection {
       return hash;
     }
 
-    public static interconnection.Interconnection.drone_coordinates parseFrom(
+    public static interconnection.Interconnection.drone_info parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static interconnection.Interconnection.drone_coordinates parseFrom(
+    public static interconnection.Interconnection.drone_info parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static interconnection.Interconnection.drone_coordinates parseFrom(byte[] data)
+    public static interconnection.Interconnection.drone_info parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static interconnection.Interconnection.drone_coordinates parseFrom(
+    public static interconnection.Interconnection.drone_info parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static interconnection.Interconnection.drone_coordinates parseFrom(java.io.InputStream input)
+    public static interconnection.Interconnection.drone_info parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static interconnection.Interconnection.drone_coordinates parseFrom(
+    public static interconnection.Interconnection.drone_info parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
-    public static interconnection.Interconnection.drone_coordinates parseDelimitedFrom(java.io.InputStream input)
+    public static interconnection.Interconnection.drone_info parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
-    public static interconnection.Interconnection.drone_coordinates parseDelimitedFrom(
+    public static interconnection.Interconnection.drone_info parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static interconnection.Interconnection.drone_coordinates parseFrom(
+    public static interconnection.Interconnection.drone_info parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
-    public static interconnection.Interconnection.drone_coordinates parseFrom(
+    public static interconnection.Interconnection.drone_info parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1768,7 +3237,7 @@ public final class Interconnection {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(interconnection.Interconnection.drone_coordinates prototype) {
+    public static Builder newBuilder(interconnection.Interconnection.drone_info prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     public Builder toBuilder() {
@@ -1783,25 +3252,25 @@ public final class Interconnection {
       return builder;
     }
     /**
-     * Protobuf type {@code interconnection.drone_coordinates}
+     * Protobuf type {@code interconnection.drone_info}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:interconnection.drone_coordinates)
-        interconnection.Interconnection.drone_coordinatesOrBuilder {
+        // @@protoc_insertion_point(builder_implements:interconnection.drone_info)
+        interconnection.Interconnection.drone_infoOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_descriptor;
+        return interconnection.Interconnection.internal_static_interconnection_drone_info_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_fieldAccessorTable
+        return interconnection.Interconnection.internal_static_interconnection_drone_info_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                interconnection.Interconnection.drone_coordinates.class, interconnection.Interconnection.drone_coordinates.Builder.class);
+                interconnection.Interconnection.drone_info.class, interconnection.Interconnection.drone_info.Builder.class);
       }
 
-      // Construct using interconnection.Interconnection.drone_coordinates.newBuilder()
+      // Construct using interconnection.Interconnection.drone_info.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -1833,23 +3302,23 @@ public final class Interconnection {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return interconnection.Interconnection.internal_static_interconnection_drone_coordinates_descriptor;
+        return interconnection.Interconnection.internal_static_interconnection_drone_info_descriptor;
       }
 
-      public interconnection.Interconnection.drone_coordinates getDefaultInstanceForType() {
-        return interconnection.Interconnection.drone_coordinates.getDefaultInstance();
+      public interconnection.Interconnection.drone_info getDefaultInstanceForType() {
+        return interconnection.Interconnection.drone_info.getDefaultInstance();
       }
 
-      public interconnection.Interconnection.drone_coordinates build() {
-        interconnection.Interconnection.drone_coordinates result = buildPartial();
+      public interconnection.Interconnection.drone_info build() {
+        interconnection.Interconnection.drone_info result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      public interconnection.Interconnection.drone_coordinates buildPartial() {
-        interconnection.Interconnection.drone_coordinates result = new interconnection.Interconnection.drone_coordinates(this);
+      public interconnection.Interconnection.drone_info buildPartial() {
+        interconnection.Interconnection.drone_info result = new interconnection.Interconnection.drone_info(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -1904,16 +3373,16 @@ public final class Interconnection {
         return (Builder) super.addRepeatedField(field, value);
       }
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof interconnection.Interconnection.drone_coordinates) {
-          return mergeFrom((interconnection.Interconnection.drone_coordinates)other);
+        if (other instanceof interconnection.Interconnection.drone_info) {
+          return mergeFrom((interconnection.Interconnection.drone_info)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(interconnection.Interconnection.drone_coordinates other) {
-        if (other == interconnection.Interconnection.drone_coordinates.getDefaultInstance()) return this;
+      public Builder mergeFrom(interconnection.Interconnection.drone_info other) {
+        if (other == interconnection.Interconnection.drone_info.getDefaultInstance()) return this;
         if (other.hasLatitude()) {
           setLatitude(other.getLatitude());
         }
@@ -1957,11 +3426,11 @@ public final class Interconnection {
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        interconnection.Interconnection.drone_coordinates parsedMessage = null;
+        interconnection.Interconnection.drone_info parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (interconnection.Interconnection.drone_coordinates) e.getUnfinishedMessage();
+          parsedMessage = (interconnection.Interconnection.drone_info) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -2070,22 +3539,22 @@ public final class Interconnection {
 
       private int state_ = 0;
       /**
-       * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       * <code>required .interconnection.drone_info.state_t state = 4;</code>
        */
       public boolean hasState() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       * <code>required .interconnection.drone_info.state_t state = 4;</code>
        */
-      public interconnection.Interconnection.drone_coordinates.state_t getState() {
-        interconnection.Interconnection.drone_coordinates.state_t result = interconnection.Interconnection.drone_coordinates.state_t.valueOf(state_);
-        return result == null ? interconnection.Interconnection.drone_coordinates.state_t.READY : result;
+      public interconnection.Interconnection.drone_info.state_t getState() {
+        interconnection.Interconnection.drone_info.state_t result = interconnection.Interconnection.drone_info.state_t.valueOf(state_);
+        return result == null ? interconnection.Interconnection.drone_info.state_t.READY : result;
       }
       /**
-       * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       * <code>required .interconnection.drone_info.state_t state = 4;</code>
        */
-      public Builder setState(interconnection.Interconnection.drone_coordinates.state_t value) {
+      public Builder setState(interconnection.Interconnection.drone_info.state_t value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -2095,7 +3564,7 @@ public final class Interconnection {
         return this;
       }
       /**
-       * <code>required .interconnection.drone_coordinates.state_t state = 4;</code>
+       * <code>required .interconnection.drone_info.state_t state = 4;</code>
        */
       public Builder clearState() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -2146,39 +3615,793 @@ public final class Interconnection {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:interconnection.drone_coordinates)
+      // @@protoc_insertion_point(builder_scope:interconnection.drone_info)
     }
 
-    // @@protoc_insertion_point(class_scope:interconnection.drone_coordinates)
-    private static final interconnection.Interconnection.drone_coordinates DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:interconnection.drone_info)
+    private static final interconnection.Interconnection.drone_info DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new interconnection.Interconnection.drone_coordinates();
+      DEFAULT_INSTANCE = new interconnection.Interconnection.drone_info();
     }
 
-    public static interconnection.Interconnection.drone_coordinates getDefaultInstance() {
+    public static interconnection.Interconnection.drone_info getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    @java.lang.Deprecated public static final com.google.protobuf.Parser<drone_coordinates>
-        PARSER = new com.google.protobuf.AbstractParser<drone_coordinates>() {
-      public drone_coordinates parsePartialFrom(
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<drone_info>
+        PARSER = new com.google.protobuf.AbstractParser<drone_info>() {
+      public drone_info parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-          return new drone_coordinates(input, extensionRegistry);
+          return new drone_info(input, extensionRegistry);
       }
     };
 
-    public static com.google.protobuf.Parser<drone_coordinates> parser() {
+    public static com.google.protobuf.Parser<drone_info> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<drone_coordinates> getParserForType() {
+    public com.google.protobuf.Parser<drone_info> getParserForType() {
       return PARSER;
     }
 
-    public interconnection.Interconnection.drone_coordinates getDefaultInstanceForType() {
+    public interconnection.Interconnection.drone_info getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
+  public interface mission_pathOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:interconnection.mission_path)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+     */
+    java.util.List<interconnection.Interconnection.coordinate> 
+        getWaypointsList();
+    /**
+     * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+     */
+    interconnection.Interconnection.coordinate getWaypoints(int index);
+    /**
+     * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+     */
+    int getWaypointsCount();
+    /**
+     * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+     */
+    java.util.List<? extends interconnection.Interconnection.coordinateOrBuilder> 
+        getWaypointsOrBuilderList();
+    /**
+     * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+     */
+    interconnection.Interconnection.coordinateOrBuilder getWaypointsOrBuilder(
+        int index);
+  }
+  /**
+   * Protobuf type {@code interconnection.mission_path}
+   */
+  public  static final class mission_path extends
+      com.google.protobuf.GeneratedMessageV3 implements
+      // @@protoc_insertion_point(message_implements:interconnection.mission_path)
+      mission_pathOrBuilder {
+    // Use mission_path.newBuilder() to construct.
+    private mission_path(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      super(builder);
+    }
+    private mission_path() {
+      waypoints_ = java.util.Collections.emptyList();
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+    getUnknownFields() {
+      return this.unknownFields;
+    }
+    private mission_path(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      this();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                waypoints_ = new java.util.ArrayList<interconnection.Interconnection.coordinate>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              waypoints_.add(
+                  input.readMessage(interconnection.Interconnection.coordinate.PARSER, extensionRegistry));
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          waypoints_ = java.util.Collections.unmodifiableList(waypoints_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return interconnection.Interconnection.internal_static_interconnection_mission_path_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return interconnection.Interconnection.internal_static_interconnection_mission_path_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              interconnection.Interconnection.mission_path.class, interconnection.Interconnection.mission_path.Builder.class);
+    }
+
+    public static final int WAYPOINTS_FIELD_NUMBER = 1;
+    private java.util.List<interconnection.Interconnection.coordinate> waypoints_;
+    /**
+     * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+     */
+    public java.util.List<interconnection.Interconnection.coordinate> getWaypointsList() {
+      return waypoints_;
+    }
+    /**
+     * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+     */
+    public java.util.List<? extends interconnection.Interconnection.coordinateOrBuilder> 
+        getWaypointsOrBuilderList() {
+      return waypoints_;
+    }
+    /**
+     * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+     */
+    public int getWaypointsCount() {
+      return waypoints_.size();
+    }
+    /**
+     * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+     */
+    public interconnection.Interconnection.coordinate getWaypoints(int index) {
+      return waypoints_.get(index);
+    }
+    /**
+     * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+     */
+    public interconnection.Interconnection.coordinateOrBuilder getWaypointsOrBuilder(
+        int index) {
+      return waypoints_.get(index);
+    }
+
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      for (int i = 0; i < getWaypointsCount(); i++) {
+        if (!getWaypoints(i).isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      for (int i = 0; i < waypoints_.size(); i++) {
+        output.writeMessage(1, waypoints_.get(i));
+      }
+      unknownFields.writeTo(output);
+    }
+
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      for (int i = 0; i < waypoints_.size(); i++) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(1, waypoints_.get(i));
+      }
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof interconnection.Interconnection.mission_path)) {
+        return super.equals(obj);
+      }
+      interconnection.Interconnection.mission_path other = (interconnection.Interconnection.mission_path) obj;
+
+      boolean result = true;
+      result = result && getWaypointsList()
+          .equals(other.getWaypointsList());
+      result = result && unknownFields.equals(other.unknownFields);
+      return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptorForType().hashCode();
+      if (getWaypointsCount() > 0) {
+        hash = (37 * hash) + WAYPOINTS_FIELD_NUMBER;
+        hash = (53 * hash) + getWaypointsList().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static interconnection.Interconnection.mission_path parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.mission_path parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.mission_path parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static interconnection.Interconnection.mission_path parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static interconnection.Interconnection.mission_path parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.mission_path parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.mission_path parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.mission_path parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static interconnection.Interconnection.mission_path parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
+    }
+    public static interconnection.Interconnection.mission_path parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(interconnection.Interconnection.mission_path prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code interconnection.mission_path}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:interconnection.mission_path)
+        interconnection.Interconnection.mission_pathOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return interconnection.Interconnection.internal_static_interconnection_mission_path_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return interconnection.Interconnection.internal_static_interconnection_mission_path_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                interconnection.Interconnection.mission_path.class, interconnection.Interconnection.mission_path.Builder.class);
+      }
+
+      // Construct using interconnection.Interconnection.mission_path.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
+          getWaypointsFieldBuilder();
+        }
+      }
+      public Builder clear() {
+        super.clear();
+        if (waypointsBuilder_ == null) {
+          waypoints_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+        } else {
+          waypointsBuilder_.clear();
+        }
+        return this;
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return interconnection.Interconnection.internal_static_interconnection_mission_path_descriptor;
+      }
+
+      public interconnection.Interconnection.mission_path getDefaultInstanceForType() {
+        return interconnection.Interconnection.mission_path.getDefaultInstance();
+      }
+
+      public interconnection.Interconnection.mission_path build() {
+        interconnection.Interconnection.mission_path result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public interconnection.Interconnection.mission_path buildPartial() {
+        interconnection.Interconnection.mission_path result = new interconnection.Interconnection.mission_path(this);
+        int from_bitField0_ = bitField0_;
+        if (waypointsBuilder_ == null) {
+          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+            waypoints_ = java.util.Collections.unmodifiableList(waypoints_);
+            bitField0_ = (bitField0_ & ~0x00000001);
+          }
+          result.waypoints_ = waypoints_;
+        } else {
+          result.waypoints_ = waypointsBuilder_.build();
+        }
+        onBuilt();
+        return result;
+      }
+
+      public Builder clone() {
+        return (Builder) super.clone();
+      }
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.setField(field, value);
+      }
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return (Builder) super.clearField(field);
+      }
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return (Builder) super.clearOneof(oneof);
+      }
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, Object value) {
+        return (Builder) super.setRepeatedField(field, index, value);
+      }
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          Object value) {
+        return (Builder) super.addRepeatedField(field, value);
+      }
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof interconnection.Interconnection.mission_path) {
+          return mergeFrom((interconnection.Interconnection.mission_path)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(interconnection.Interconnection.mission_path other) {
+        if (other == interconnection.Interconnection.mission_path.getDefaultInstance()) return this;
+        if (waypointsBuilder_ == null) {
+          if (!other.waypoints_.isEmpty()) {
+            if (waypoints_.isEmpty()) {
+              waypoints_ = other.waypoints_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+            } else {
+              ensureWaypointsIsMutable();
+              waypoints_.addAll(other.waypoints_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.waypoints_.isEmpty()) {
+            if (waypointsBuilder_.isEmpty()) {
+              waypointsBuilder_.dispose();
+              waypointsBuilder_ = null;
+              waypoints_ = other.waypoints_;
+              bitField0_ = (bitField0_ & ~0x00000001);
+              waypointsBuilder_ = 
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                   getWaypointsFieldBuilder() : null;
+            } else {
+              waypointsBuilder_.addAllMessages(other.waypoints_);
+            }
+          }
+        }
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        for (int i = 0; i < getWaypointsCount(); i++) {
+          if (!getWaypoints(i).isInitialized()) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        interconnection.Interconnection.mission_path parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (interconnection.Interconnection.mission_path) e.getUnfinishedMessage();
+          throw e.unwrapIOException();
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<interconnection.Interconnection.coordinate> waypoints_ =
+        java.util.Collections.emptyList();
+      private void ensureWaypointsIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          waypoints_ = new java.util.ArrayList<interconnection.Interconnection.coordinate>(waypoints_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          interconnection.Interconnection.coordinate, interconnection.Interconnection.coordinate.Builder, interconnection.Interconnection.coordinateOrBuilder> waypointsBuilder_;
+
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public java.util.List<interconnection.Interconnection.coordinate> getWaypointsList() {
+        if (waypointsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(waypoints_);
+        } else {
+          return waypointsBuilder_.getMessageList();
+        }
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public int getWaypointsCount() {
+        if (waypointsBuilder_ == null) {
+          return waypoints_.size();
+        } else {
+          return waypointsBuilder_.getCount();
+        }
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public interconnection.Interconnection.coordinate getWaypoints(int index) {
+        if (waypointsBuilder_ == null) {
+          return waypoints_.get(index);
+        } else {
+          return waypointsBuilder_.getMessage(index);
+        }
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public Builder setWaypoints(
+          int index, interconnection.Interconnection.coordinate value) {
+        if (waypointsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureWaypointsIsMutable();
+          waypoints_.set(index, value);
+          onChanged();
+        } else {
+          waypointsBuilder_.setMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public Builder setWaypoints(
+          int index, interconnection.Interconnection.coordinate.Builder builderForValue) {
+        if (waypointsBuilder_ == null) {
+          ensureWaypointsIsMutable();
+          waypoints_.set(index, builderForValue.build());
+          onChanged();
+        } else {
+          waypointsBuilder_.setMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public Builder addWaypoints(interconnection.Interconnection.coordinate value) {
+        if (waypointsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureWaypointsIsMutable();
+          waypoints_.add(value);
+          onChanged();
+        } else {
+          waypointsBuilder_.addMessage(value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public Builder addWaypoints(
+          int index, interconnection.Interconnection.coordinate value) {
+        if (waypointsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureWaypointsIsMutable();
+          waypoints_.add(index, value);
+          onChanged();
+        } else {
+          waypointsBuilder_.addMessage(index, value);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public Builder addWaypoints(
+          interconnection.Interconnection.coordinate.Builder builderForValue) {
+        if (waypointsBuilder_ == null) {
+          ensureWaypointsIsMutable();
+          waypoints_.add(builderForValue.build());
+          onChanged();
+        } else {
+          waypointsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public Builder addWaypoints(
+          int index, interconnection.Interconnection.coordinate.Builder builderForValue) {
+        if (waypointsBuilder_ == null) {
+          ensureWaypointsIsMutable();
+          waypoints_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          waypointsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public Builder addAllWaypoints(
+          java.lang.Iterable<? extends interconnection.Interconnection.coordinate> values) {
+        if (waypointsBuilder_ == null) {
+          ensureWaypointsIsMutable();
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, waypoints_);
+          onChanged();
+        } else {
+          waypointsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public Builder clearWaypoints() {
+        if (waypointsBuilder_ == null) {
+          waypoints_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000001);
+          onChanged();
+        } else {
+          waypointsBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public Builder removeWaypoints(int index) {
+        if (waypointsBuilder_ == null) {
+          ensureWaypointsIsMutable();
+          waypoints_.remove(index);
+          onChanged();
+        } else {
+          waypointsBuilder_.remove(index);
+        }
+        return this;
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public interconnection.Interconnection.coordinate.Builder getWaypointsBuilder(
+          int index) {
+        return getWaypointsFieldBuilder().getBuilder(index);
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public interconnection.Interconnection.coordinateOrBuilder getWaypointsOrBuilder(
+          int index) {
+        if (waypointsBuilder_ == null) {
+          return waypoints_.get(index);  } else {
+          return waypointsBuilder_.getMessageOrBuilder(index);
+        }
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public java.util.List<? extends interconnection.Interconnection.coordinateOrBuilder> 
+           getWaypointsOrBuilderList() {
+        if (waypointsBuilder_ != null) {
+          return waypointsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(waypoints_);
+        }
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public interconnection.Interconnection.coordinate.Builder addWaypointsBuilder() {
+        return getWaypointsFieldBuilder().addBuilder(
+            interconnection.Interconnection.coordinate.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public interconnection.Interconnection.coordinate.Builder addWaypointsBuilder(
+          int index) {
+        return getWaypointsFieldBuilder().addBuilder(
+            index, interconnection.Interconnection.coordinate.getDefaultInstance());
+      }
+      /**
+       * <code>repeated .interconnection.coordinate waypoints = 1;</code>
+       */
+      public java.util.List<interconnection.Interconnection.coordinate.Builder> 
+           getWaypointsBuilderList() {
+        return getWaypointsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilderV3<
+          interconnection.Interconnection.coordinate, interconnection.Interconnection.coordinate.Builder, interconnection.Interconnection.coordinateOrBuilder> 
+          getWaypointsFieldBuilder() {
+        if (waypointsBuilder_ == null) {
+          waypointsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+              interconnection.Interconnection.coordinate, interconnection.Interconnection.coordinate.Builder, interconnection.Interconnection.coordinateOrBuilder>(
+                  waypoints_,
+                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  getParentForChildren(),
+                  isClean());
+          waypoints_ = null;
+        }
+        return waypointsBuilder_;
+      }
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
+
+      // @@protoc_insertion_point(builder_scope:interconnection.mission_path)
+    }
+
+    // @@protoc_insertion_point(class_scope:interconnection.mission_path)
+    private static final interconnection.Interconnection.mission_path DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new interconnection.Interconnection.mission_path();
+    }
+
+    public static interconnection.Interconnection.mission_path getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<mission_path>
+        PARSER = new com.google.protobuf.AbstractParser<mission_path>() {
+      public mission_path parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+          return new mission_path(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<mission_path> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<mission_path> getParserForType() {
+      return PARSER;
+    }
+
+    public interconnection.Interconnection.mission_path getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -2652,673 +4875,6 @@ public final class Interconnection {
     }
 
     public interconnection.Interconnection.event_id_message getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
-  }
-
-  public interface pin_coordinatesOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:interconnection.pin_coordinates)
-      com.google.protobuf.MessageOrBuilder {
-
-    /**
-     * <code>required double latitude = 1;</code>
-     */
-    boolean hasLatitude();
-    /**
-     * <code>required double latitude = 1;</code>
-     */
-    double getLatitude();
-
-    /**
-     * <code>required double longitude = 2;</code>
-     */
-    boolean hasLongitude();
-    /**
-     * <code>required double longitude = 2;</code>
-     */
-    double getLongitude();
-
-    /**
-     * <code>required int32 event_id = 3;</code>
-     */
-    boolean hasEventId();
-    /**
-     * <code>required int32 event_id = 3;</code>
-     */
-    int getEventId();
-  }
-  /**
-   * Protobuf type {@code interconnection.pin_coordinates}
-   */
-  public  static final class pin_coordinates extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:interconnection.pin_coordinates)
-      pin_coordinatesOrBuilder {
-    // Use pin_coordinates.newBuilder() to construct.
-    private pin_coordinates(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-      super(builder);
-    }
-    private pin_coordinates() {
-      latitude_ = 0D;
-      longitude_ = 0D;
-      eventId_ = 0;
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return this.unknownFields;
-    }
-    private pin_coordinates(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 9: {
-              bitField0_ |= 0x00000001;
-              latitude_ = input.readDouble();
-              break;
-            }
-            case 17: {
-              bitField0_ |= 0x00000002;
-              longitude_ = input.readDouble();
-              break;
-            }
-            case 24: {
-              bitField0_ |= 0x00000004;
-              eventId_ = input.readInt32();
-              break;
-            }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return interconnection.Interconnection.internal_static_interconnection_pin_coordinates_descriptor;
-    }
-
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return interconnection.Interconnection.internal_static_interconnection_pin_coordinates_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              interconnection.Interconnection.pin_coordinates.class, interconnection.Interconnection.pin_coordinates.Builder.class);
-    }
-
-    private int bitField0_;
-    public static final int LATITUDE_FIELD_NUMBER = 1;
-    private double latitude_;
-    /**
-     * <code>required double latitude = 1;</code>
-     */
-    public boolean hasLatitude() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required double latitude = 1;</code>
-     */
-    public double getLatitude() {
-      return latitude_;
-    }
-
-    public static final int LONGITUDE_FIELD_NUMBER = 2;
-    private double longitude_;
-    /**
-     * <code>required double longitude = 2;</code>
-     */
-    public boolean hasLongitude() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <code>required double longitude = 2;</code>
-     */
-    public double getLongitude() {
-      return longitude_;
-    }
-
-    public static final int EVENT_ID_FIELD_NUMBER = 3;
-    private int eventId_;
-    /**
-     * <code>required int32 event_id = 3;</code>
-     */
-    public boolean hasEventId() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <code>required int32 event_id = 3;</code>
-     */
-    public int getEventId() {
-      return eventId_;
-    }
-
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
-
-      if (!hasLatitude()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasLongitude()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasEventId()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      memoizedIsInitialized = 1;
-      return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeDouble(1, latitude_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeDouble(2, longitude_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeInt32(3, eventId_);
-      }
-      unknownFields.writeTo(output);
-    }
-
-    public int getSerializedSize() {
-      int size = memoizedSize;
-      if (size != -1) return size;
-
-      size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(1, latitude_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeDoubleSize(2, longitude_);
-      }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(3, eventId_);
-      }
-      size += unknownFields.getSerializedSize();
-      memoizedSize = size;
-      return size;
-    }
-
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof interconnection.Interconnection.pin_coordinates)) {
-        return super.equals(obj);
-      }
-      interconnection.Interconnection.pin_coordinates other = (interconnection.Interconnection.pin_coordinates) obj;
-
-      boolean result = true;
-      result = result && (hasLatitude() == other.hasLatitude());
-      if (hasLatitude()) {
-        result = result && (
-            java.lang.Double.doubleToLongBits(getLatitude())
-            == java.lang.Double.doubleToLongBits(
-                other.getLatitude()));
-      }
-      result = result && (hasLongitude() == other.hasLongitude());
-      if (hasLongitude()) {
-        result = result && (
-            java.lang.Double.doubleToLongBits(getLongitude())
-            == java.lang.Double.doubleToLongBits(
-                other.getLongitude()));
-      }
-      result = result && (hasEventId() == other.hasEventId());
-      if (hasEventId()) {
-        result = result && (getEventId()
-            == other.getEventId());
-      }
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
-      if (hasLatitude()) {
-        hash = (37 * hash) + LATITUDE_FIELD_NUMBER;
-        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-            java.lang.Double.doubleToLongBits(getLatitude()));
-      }
-      if (hasLongitude()) {
-        hash = (37 * hash) + LONGITUDE_FIELD_NUMBER;
-        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-            java.lang.Double.doubleToLongBits(getLongitude()));
-      }
-      if (hasEventId()) {
-        hash = (37 * hash) + EVENT_ID_FIELD_NUMBER;
-        hash = (53 * hash) + getEventId();
-      }
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
-    }
-
-    public static interconnection.Interconnection.pin_coordinates parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static interconnection.Interconnection.pin_coordinates parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static interconnection.Interconnection.pin_coordinates parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data);
-    }
-    public static interconnection.Interconnection.pin_coordinates parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return PARSER.parseFrom(data, extensionRegistry);
-    }
-    public static interconnection.Interconnection.pin_coordinates parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static interconnection.Interconnection.pin_coordinates parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static interconnection.Interconnection.pin_coordinates parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
-    }
-    public static interconnection.Interconnection.pin_coordinates parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-    }
-    public static interconnection.Interconnection.pin_coordinates parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
-    }
-    public static interconnection.Interconnection.pin_coordinates parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
-    }
-
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
-    public static Builder newBuilder(interconnection.Interconnection.pin_coordinates prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    /**
-     * Protobuf type {@code interconnection.pin_coordinates}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:interconnection.pin_coordinates)
-        interconnection.Interconnection.pin_coordinatesOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return interconnection.Interconnection.internal_static_interconnection_pin_coordinates_descriptor;
-      }
-
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return interconnection.Interconnection.internal_static_interconnection_pin_coordinates_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(
-                interconnection.Interconnection.pin_coordinates.class, interconnection.Interconnection.pin_coordinates.Builder.class);
-      }
-
-      // Construct using interconnection.Interconnection.pin_coordinates.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-
-      private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
-        }
-      }
-      public Builder clear() {
-        super.clear();
-        latitude_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000001);
-        longitude_ = 0D;
-        bitField0_ = (bitField0_ & ~0x00000002);
-        eventId_ = 0;
-        bitField0_ = (bitField0_ & ~0x00000004);
-        return this;
-      }
-
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return interconnection.Interconnection.internal_static_interconnection_pin_coordinates_descriptor;
-      }
-
-      public interconnection.Interconnection.pin_coordinates getDefaultInstanceForType() {
-        return interconnection.Interconnection.pin_coordinates.getDefaultInstance();
-      }
-
-      public interconnection.Interconnection.pin_coordinates build() {
-        interconnection.Interconnection.pin_coordinates result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-
-      public interconnection.Interconnection.pin_coordinates buildPartial() {
-        interconnection.Interconnection.pin_coordinates result = new interconnection.Interconnection.pin_coordinates(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.latitude_ = latitude_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        result.longitude_ = longitude_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
-        result.eventId_ = eventId_;
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
-
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof interconnection.Interconnection.pin_coordinates) {
-          return mergeFrom((interconnection.Interconnection.pin_coordinates)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-
-      public Builder mergeFrom(interconnection.Interconnection.pin_coordinates other) {
-        if (other == interconnection.Interconnection.pin_coordinates.getDefaultInstance()) return this;
-        if (other.hasLatitude()) {
-          setLatitude(other.getLatitude());
-        }
-        if (other.hasLongitude()) {
-          setLongitude(other.getLongitude());
-        }
-        if (other.hasEventId()) {
-          setEventId(other.getEventId());
-        }
-        this.mergeUnknownFields(other.unknownFields);
-        onChanged();
-        return this;
-      }
-
-      public final boolean isInitialized() {
-        if (!hasLatitude()) {
-          return false;
-        }
-        if (!hasLongitude()) {
-          return false;
-        }
-        if (!hasEventId()) {
-          return false;
-        }
-        return true;
-      }
-
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        interconnection.Interconnection.pin_coordinates parsedMessage = null;
-        try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (interconnection.Interconnection.pin_coordinates) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
-        } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
-        return this;
-      }
-      private int bitField0_;
-
-      private double latitude_ ;
-      /**
-       * <code>required double latitude = 1;</code>
-       */
-      public boolean hasLatitude() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required double latitude = 1;</code>
-       */
-      public double getLatitude() {
-        return latitude_;
-      }
-      /**
-       * <code>required double latitude = 1;</code>
-       */
-      public Builder setLatitude(double value) {
-        bitField0_ |= 0x00000001;
-        latitude_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>required double latitude = 1;</code>
-       */
-      public Builder clearLatitude() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        latitude_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      private double longitude_ ;
-      /**
-       * <code>required double longitude = 2;</code>
-       */
-      public boolean hasLongitude() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>required double longitude = 2;</code>
-       */
-      public double getLongitude() {
-        return longitude_;
-      }
-      /**
-       * <code>required double longitude = 2;</code>
-       */
-      public Builder setLongitude(double value) {
-        bitField0_ |= 0x00000002;
-        longitude_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>required double longitude = 2;</code>
-       */
-      public Builder clearLongitude() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        longitude_ = 0D;
-        onChanged();
-        return this;
-      }
-
-      private int eventId_ ;
-      /**
-       * <code>required int32 event_id = 3;</code>
-       */
-      public boolean hasEventId() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>required int32 event_id = 3;</code>
-       */
-      public int getEventId() {
-        return eventId_;
-      }
-      /**
-       * <code>required int32 event_id = 3;</code>
-       */
-      public Builder setEventId(int value) {
-        bitField0_ |= 0x00000004;
-        eventId_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>required int32 event_id = 3;</code>
-       */
-      public Builder clearEventId() {
-        bitField0_ = (bitField0_ & ~0x00000004);
-        eventId_ = 0;
-        onChanged();
-        return this;
-      }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
-      }
-
-
-      // @@protoc_insertion_point(builder_scope:interconnection.pin_coordinates)
-    }
-
-    // @@protoc_insertion_point(class_scope:interconnection.pin_coordinates)
-    private static final interconnection.Interconnection.pin_coordinates DEFAULT_INSTANCE;
-    static {
-      DEFAULT_INSTANCE = new interconnection.Interconnection.pin_coordinates();
-    }
-
-    public static interconnection.Interconnection.pin_coordinates getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    @java.lang.Deprecated public static final com.google.protobuf.Parser<pin_coordinates>
-        PARSER = new com.google.protobuf.AbstractParser<pin_coordinates>() {
-      public pin_coordinates parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-          return new pin_coordinates(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<pin_coordinates> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<pin_coordinates> getParserForType() {
-      return PARSER;
-    }
-
-    public interconnection.Interconnection.pin_coordinates getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
@@ -3811,20 +5367,30 @@ public final class Interconnection {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_interconnection_packet_size_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_interconnection_drone_coordinates_descriptor;
+    internal_static_interconnection_coordinate_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_interconnection_drone_coordinates_fieldAccessorTable;
+      internal_static_interconnection_coordinate_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_interconnection_input_polygon_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_interconnection_input_polygon_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_interconnection_drone_info_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_interconnection_drone_info_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_interconnection_mission_path_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_interconnection_mission_path_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_interconnection_event_id_message_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_interconnection_event_id_message_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_interconnection_pin_coordinates_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_interconnection_pin_coordinates_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_interconnection_laser_range_descriptor;
   private static final 
@@ -3840,22 +5406,27 @@ public final class Interconnection {
   static {
     java.lang.String[] descriptorData = {
       "\n\025interconnection.proto\022\017interconnection" +
-      "\"\357\001\n\014command_type\0225\n\004type\030\001 \002(\0162\'.interc" +
+      "\"\266\002\n\014command_type\0225\n\004type\030\001 \002(\0162\'.interc" +
       "onnection.command_type.command_t\022\017\n\007vers" +
-      "ion\030\002 \002(\005\"\226\001\n\tcommand_t\022\010\n\004PING\020\000\022\010\n\004PON" +
-      "G\020\001\022\025\n\021DRONE_COORDINATES\020\002\022\021\n\rMISSION_ST" +
-      "ART\020\003\022\021\n\rMISSION_PAUSE\020\004\022\024\n\020MISSION_CONT" +
-      "INUE\020\005\022\021\n\rMISSION_ABORT\020\006\022\017\n\013LASER_RANGE" +
-      "\020\007\"\033\n\013packet_size\022\014\n\004size\030\001 \002(\007\"\324\001\n\021dron" +
-      "e_coordinates\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongi" +
-      "tude\030\002 \002(\001\022\017\n\007heading\030\003 \002(\002\0229\n\005state\030\004 \002",
-      "(\0162*.interconnection.drone_coordinates.s" +
-      "tate_t\022\020\n\010event_id\030\005 \002(\005\"<\n\007state_t\022\t\n\005R" +
-      "EADY\020\000\022\013\n\007WAITING\020\001\022\n\n\006PAUSED\020\002\022\r\n\tEXECU" +
-      "TING\020\003\"$\n\020event_id_message\022\020\n\010event_id\030\001" +
-      " \002(\005\"H\n\017pin_coordinates\022\020\n\010latitude\030\001 \002(" +
-      "\001\022\021\n\tlongitude\030\002 \002(\001\022\020\n\010event_id\030\003 \002(\005\"\034" +
-      "\n\013laser_range\022\r\n\005range\030\001 \002(\002"
+      "ion\030\002 \002(\005\"\335\001\n\tcommand_t\022\010\n\004PING\020\000\022\010\n\004PON" +
+      "G\020\001\022\021\n\rBUILD_MISSION\020\002\022\027\n\023MISSION_PATH_C" +
+      "ANCEL\020\003\022\021\n\rMISSION_START\020\004\022\021\n\rMISSION_PA" +
+      "USE\020\005\022\024\n\020MISSION_CONTINUE\020\006\022\021\n\rMISSION_A" +
+      "BORT\020\007\022\016\n\nDRONE_INFO\020\010\022\027\n\023LASER_RANGE_RE" +
+      "QUEST\020\t\022\030\n\024LASER_RANGE_RESPONSE\020\n\"\033\n\013pac" +
+      "ket_size\022\014\n\004size\030\001 \002(\007\"1\n\ncoordinate\022\020\n\010",
+      "latitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\"P\n\rinp" +
+      "ut_polygon\022-\n\010vertices\030\001 \003(\0132\033.interconn" +
+      "ection.coordinate\022\020\n\010event_id\030\002 \002(\005\"\337\001\n\n" +
+      "drone_info\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongitud" +
+      "e\030\002 \002(\001\022\017\n\007heading\030\003 \002(\002\0222\n\005state\030\004 \002(\0162" +
+      "#.interconnection.drone_info.state_t\022\020\n\010" +
+      "event_id\030\005 \002(\005\"U\n\007state_t\022\t\n\005READY\020\000\022\013\n\007" +
+      "WAITING\020\001\022\r\n\tPATH_DATA\020\002\022\010\n\004PATH\020\003\022\r\n\tEX" +
+      "ECUTING\020\004\022\n\n\006PAUSED\020\005\">\n\014mission_path\022.\n" +
+      "\twaypoints\030\001 \003(\0132\033.interconnection.coord",
+      "inate\"$\n\020event_id_message\022\020\n\010event_id\030\001 " +
+      "\002(\005\"\034\n\013laser_range\022\r\n\005range\030\001 \002(\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3881,26 +5452,38 @@ public final class Interconnection {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_packet_size_descriptor,
         new java.lang.String[] { "Size", });
-    internal_static_interconnection_drone_coordinates_descriptor =
+    internal_static_interconnection_coordinate_descriptor =
       getDescriptor().getMessageTypes().get(2);
-    internal_static_interconnection_drone_coordinates_fieldAccessorTable = new
+    internal_static_interconnection_coordinate_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_interconnection_drone_coordinates_descriptor,
-        new java.lang.String[] { "Latitude", "Longitude", "Heading", "State", "EventId", });
-    internal_static_interconnection_event_id_message_descriptor =
+        internal_static_interconnection_coordinate_descriptor,
+        new java.lang.String[] { "Latitude", "Longitude", });
+    internal_static_interconnection_input_polygon_descriptor =
       getDescriptor().getMessageTypes().get(3);
+    internal_static_interconnection_input_polygon_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_interconnection_input_polygon_descriptor,
+        new java.lang.String[] { "Vertices", "EventId", });
+    internal_static_interconnection_drone_info_descriptor =
+      getDescriptor().getMessageTypes().get(4);
+    internal_static_interconnection_drone_info_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_interconnection_drone_info_descriptor,
+        new java.lang.String[] { "Latitude", "Longitude", "Heading", "State", "EventId", });
+    internal_static_interconnection_mission_path_descriptor =
+      getDescriptor().getMessageTypes().get(5);
+    internal_static_interconnection_mission_path_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_interconnection_mission_path_descriptor,
+        new java.lang.String[] { "Waypoints", });
+    internal_static_interconnection_event_id_message_descriptor =
+      getDescriptor().getMessageTypes().get(6);
     internal_static_interconnection_event_id_message_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_event_id_message_descriptor,
         new java.lang.String[] { "EventId", });
-    internal_static_interconnection_pin_coordinates_descriptor =
-      getDescriptor().getMessageTypes().get(4);
-    internal_static_interconnection_pin_coordinates_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_interconnection_pin_coordinates_descriptor,
-        new java.lang.String[] { "Latitude", "Longitude", "EventId", });
     internal_static_interconnection_laser_range_descriptor =
-      getDescriptor().getMessageTypes().get(5);
+      getDescriptor().getMessageTypes().get(7);
     internal_static_interconnection_laser_range_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_laser_range_descriptor,
