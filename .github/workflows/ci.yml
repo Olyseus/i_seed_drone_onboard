@@ -36,6 +36,16 @@ jobs:
             clang_checks: false
             cross: true
             alias: ci_jetson_cross
+          - os: ubuntu-22.04
+            build_type: Release
+            clang_checks: false
+            cross: true
+            alias: ci_jetson_cross_sim_only
+          - os: ubuntu-22.04
+            build_type: Release
+            clang_checks: false
+            cross: true
+            alias: ci_jetson_cross_sim_interconnection
 
     steps:
     - uses: actions/checkout@v3
