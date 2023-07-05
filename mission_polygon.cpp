@@ -21,13 +21,13 @@ mission_polygon::mission_polygon(const utils::polygon& poly) {
 
   OLYSEUS_VERIFY(poly.size() >= 3);
   for (std::size_t i{0}; i < poly.size(); ++i) {
-    const utils::point p0_d{poly.vertex(i)};
+    const utils::point& p0_d{poly.vertex(i)};
     const point p0{p0_d.x(), p0_d.y()};
     std::size_t next{i + 1};
     if (next >= poly.size()) {
       next = 0;
     }
-    const utils::point p1_d{poly.vertex(next)};
+    const utils::point& p1_d{poly.vertex(next)};
     const point p1{p1_d.x(), p1_d.y()};
     segments.emplace_back(p0, p1);
   }
@@ -42,6 +42,7 @@ mission_polygon::mission_polygon(const utils::polygon& poly) {
     utils::polygon poly;
     auto const begin = it->outer_ccb();
     auto curr = begin;
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-do-while)
     do {
       const point p{curr->source()->point()};
       poly.push_back({CGAL::to_double(p.x()), CGAL::to_double(p.y())});
@@ -125,6 +126,7 @@ auto mission_polygon::make(const utils::point& home)
   for (std::size_t i{result.size()}; i > 0; --i) {
     const std::size_t index{i - 1};
     if (removed[index]) {
+      // NOLINTNEXTLINE(*-narrowing-conversions)
       result.erase(result.begin() + index);
       ++count;
     }

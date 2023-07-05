@@ -6,8 +6,8 @@
 
 #include "mission_polygon.h"
 
-std::vector<lat_lon> mission_builder::make(const std::vector<lat_lon>& points,
-                                           const lat_lon& home) {
+auto mission_builder::make(const std::vector<lat_lon>& points,
+                           const lat_lon& home) -> std::vector<lat_lon> {
   using real = GeographicLib::Math::real;
 
   const std::size_t size{points.size()};
@@ -21,9 +21,9 @@ std::vector<lat_lon> mission_builder::make(const std::vector<lat_lon>& points,
   ecef_points.reserve(size);
 
   for (const lat_lon& p : points) {
-    real x;
-    real y;
-    real z;
+    real x{0.0};
+    real y{0.0};
+    real z{0.0};
     constexpr double alt{0.0};
     GeographicLib::Geocentric::WGS84().Forward(p.latitude(), p.longitude(), alt,
                                                x, y, z);
@@ -37,13 +37,13 @@ std::vector<lat_lon> mission_builder::make(const std::vector<lat_lon>& points,
     centroid.y() += p.y();
     centroid.z() += p.z();
   }
-  centroid.x() /= size;
-  centroid.y() /= size;
-  centroid.z() /= size;
+  centroid.x() /= static_cast<double>(size);
+  centroid.y() /= static_cast<double>(size);
+  centroid.z() /= static_cast<double>(size);
 
-  real centroid_lat;
-  real centroid_lon;
-  real centroid_h;
+  real centroid_lat{0.0};
+  real centroid_lon{0.0};
+  real centroid_h{0.0};
   GeographicLib::Geocentric::WGS84().Reverse(centroid.x(), centroid.y(),
                                              centroid.z(), centroid_lat,
                                              centroid_lon, centroid_h);
@@ -55,19 +55,19 @@ std::vector<lat_lon> mission_builder::make(const std::vector<lat_lon>& points,
   utils::polygon poly;
   for (const lat_lon& p : points) {
     constexpr double h{0.0};
-    double x;
-    double y;
-    double z;
+    double x{0.0};
+    double y{0.0};
+    double z{0.0};
     local_cartesian.Forward(p.latitude(), p.longitude(), h, x, y, z);
     poly.push_back({x, y});
   }
 
   constexpr double h{0.0};
-  double x;
-  double y;
-  double z;
+  double x{0.0};
+  double y{0.0};
+  double z{0.0};
   local_cartesian.Forward(home.latitude(), home.longitude(), h, x, y, z);
-  utils::point p_home{x, y};
+  const utils::point p_home{x, y};
   mission_polygon mission{poly};
 
   const std::vector<utils::point> xy_result{mission.make(p_home)};
@@ -79,9 +79,9 @@ std::vector<lat_lon> mission_builder::make(const std::vector<lat_lon>& points,
     const double x{CGAL::to_double(p.x())};
     const double y{CGAL::to_double(p.y())};
     constexpr double z{0.0};
-    double lat;
-    double lon;
-    double h;
+    double lat{0.0};
+    double lon{0.0};
+    double h{0.0};
     local_cartesian.Reverse(x, y, z, lat, lon, h);
     result.emplace_back(lat, lon);
   }

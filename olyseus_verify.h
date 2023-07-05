@@ -20,13 +20,13 @@ namespace olyseus {
 }  // namespace olyseus
 
 #define OLYSEUS_VERIFY(expr)                                                  \
-  (BOOST_LIKELY(!!(expr))                                                     \
+  (BOOST_LIKELY(static_cast<bool>(expr))                                      \
        ? ((void)0)                                                            \
        : ::olyseus::assertion_failed(#expr, BOOST_CURRENT_FUNCTION, __FILE__, \
                                      __LINE__))
 
 #define OLYSEUS_VERIFY_MSG(expr, msg)                                        \
-  (BOOST_LIKELY(!!(expr))                                                    \
+  (BOOST_LIKELY(static_cast<bool>(expr))                                     \
        ? ((void)0)                                                           \
        : ::olyseus::assertion_failed_msg(#expr, msg, BOOST_CURRENT_FUNCTION, \
                                          __FILE__, __LINE__))

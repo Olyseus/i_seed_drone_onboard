@@ -29,7 +29,7 @@ mission_simple_polygon::mission_simple_polygon(const polygon& poly) {
   }
 
   min_waypoint_ = std::numeric_limits<std::size_t>::max();
-  for (mission_directed_polygon& c : cells_) {
+  for (const mission_directed_polygon& c : cells_) {
     const std::size_t count{c.waypoint_count()};
     OLYSEUS_VERIFY(count > 0);
     if (count < min_waypoint_) {
@@ -64,7 +64,7 @@ void mission_simple_polygon::build_path(const point& start,
   closest(start).build_path(start, result);
 }
 
-std::size_t mission_simple_polygon::waypoint_count() const {
+auto mission_simple_polygon::waypoint_count() const -> std::size_t {
   return min_waypoint_;
 }
 
@@ -93,6 +93,7 @@ auto mission_simple_polygon::closest(const point& start) const
 auto mission_simple_polygon::closest(const point& start)
     -> mission_directed_polygon& {
   mission_directed_polygon* c{
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
       const_cast<mission_directed_polygon*>(closest_ptr(start))};
   OLYSEUS_VERIFY(c != nullptr);
   return *c;

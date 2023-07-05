@@ -12,12 +12,13 @@ mission_directed_cell::mission_directed_cell(const direction& dir,
   // Rotation that will move (1, 0) to (dir.y, dir.x).
   // This rotation will move (dir.x, dir.y) to (0, 1), i.e. make it vertical
   const direction rot_dir{dir.dy(), dir.dx()};
-  forward_ = transformation{CGAL::ROTATION, rot_dir, 1.0, 1e3};
+  constexpr double den{1e3};
+  forward_ = transformation{CGAL::ROTATION, rot_dir, 1.0, den};
   back_ = forward_.inverse();
   rotated_polygon_ = CGAL::transform(forward_, poly);
 
-  for (corner c : {corner::left_down, corner::left_up, corner::right_down,
-                   corner::right_up}) {
+  for (const corner c : {corner::left_down, corner::left_up, corner::right_down,
+                         corner::right_up}) {
     mission_aligned_cell cell{c, rotated_polygon_};
     if (cell.waypoint_count() > 0) {
       cells_.push_back(std::move(cell));
@@ -30,7 +31,7 @@ mission_directed_cell::mission_directed_cell(const direction& dir,
   }
 
   min_waypoint_ = std::numeric_limits<std::size_t>::max();
-  for (mission_aligned_cell& c : cells_) {
+  for (const mission_aligned_cell& c : cells_) {
     const std::size_t count{c.waypoint_count()};
     OLYSEUS_VERIFY(count > 0);
     if (count < min_waypoint_) {
@@ -49,13 +50,13 @@ mission_directed_cell::mission_directed_cell(const direction& dir,
   OLYSEUS_VERIFY(!cells_.empty());
 }
 
-std::size_t mission_directed_cell::waypoint_count() const {
+auto mission_directed_cell::waypoint_count() const -> std::size_t {
   return min_waypoint_;
 }
 
 mission_directed_cell::~mission_directed_cell() = default;
 
-double mission_directed_cell::distance(const point& start) const {
+auto mission_directed_cell::distance(const point& start) const -> double {
   const point start_local{forward_.transform(start)};
   return closest(start_local).distance(start_local);
 }
@@ -101,6 +102,7 @@ auto mission_directed_cell::closest(const point& start_local) const
 auto mission_directed_cell::closest(const point& start_local)
     -> mission_aligned_cell& {
   mission_aligned_cell* c{
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
       const_cast<mission_aligned_cell*>(closest_ptr(start_local))};
   OLYSEUS_VERIFY(c != nullptr);
   return *c;

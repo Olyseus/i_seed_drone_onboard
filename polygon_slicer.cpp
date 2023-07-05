@@ -12,7 +12,7 @@ polygon_slicer::polygon_slicer(const utils::polygon& poly)
   }
   OLYSEUS_VERIFY(polygon_.is_counterclockwise_oriented());
 
-  utils::bbox bbox{polygon_.bbox()};
+  const utils::bbox bbox{polygon_.bbox()};
 
   constexpr double eps{1e-3};
   OLYSEUS_VERIFY(bbox.ymin() >= 0 && bbox.ymin() < eps);

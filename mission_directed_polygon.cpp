@@ -15,7 +15,8 @@ mission_directed_polygon::mission_directed_polygon(const utils::direction& dir,
   // Rotation that will move (1, 0) to (dir.y, dir.x).
   // This rotation will move (dir.x, dir.y) to (0, 1), i.e. make it vertical
   const utils::direction rot_dir{dir.dy(), dir.dx()};
-  forward_ = utils::transformation{CGAL::ROTATION, rot_dir, 1.0, 1e9};
+  constexpr double den{1e9};
+  forward_ = utils::transformation{CGAL::ROTATION, rot_dir, 1.0, den};
   back_ = forward_.inverse();
 
   rotated_polygon_ = CGAL::transform(forward_, poly);
@@ -25,7 +26,7 @@ mission_directed_polygon::mission_directed_polygon(const utils::direction& dir,
     rotated_polygon_exact.push_back({v.x(), v.y()});
   }
 
-  CGAL::Polygon_vertical_decomposition_2<kernel> decompose;
+  const CGAL::Polygon_vertical_decomposition_2<kernel> decompose;
   std::vector<polygon> trapezoids;
   spdlog::info("Decomposing polygon");
   timer t;
@@ -81,11 +82,12 @@ mission_directed_polygon::mission_directed_polygon(const utils::direction& dir,
 
 mission_directed_polygon::~mission_directed_polygon() = default;
 
-std::size_t mission_directed_polygon::waypoint_count() const {
+auto mission_directed_polygon::waypoint_count() const -> std::size_t {
   return waypoint_count_;
 }
 
-double mission_directed_polygon::distance(const utils::point& start) const {
+auto mission_directed_polygon::distance(const utils::point& start) const
+    -> double {
   const utils::point start_local{forward_.transform(start)};
   const mission_cell* c{closest(start_local)};
   OLYSEUS_VERIFY(c != nullptr);
@@ -99,6 +101,7 @@ void mission_directed_polygon::build_path(const utils::point& start,
   std::vector<utils::point> new_points;
 
   while (true) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     mission_cell* c{const_cast<mission_cell*>(closest(start_local))};
     if (c == nullptr) {
       break;

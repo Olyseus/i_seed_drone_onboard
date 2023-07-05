@@ -121,7 +121,6 @@ auto mission::upload_mission_and_start(int32_t event_id) -> bool {
       waypoints_.push_back(make_waypoint(w, is_forward));
     }
   } else {
-    // NOLINTNEXTLINE(altera-id-dependent-backward-branch)
     for (auto it{global_waypoints_.rbegin()}; it != global_waypoints_.rend();
          ++it) {
       const waypoint& w{*it};
@@ -348,7 +347,6 @@ auto mission::current_waypoint_index(bool is_forward) const
       }
     }
   } else {
-    // NOLINTNEXTLINE(altera-id-dependent-backward-branch)
     for (std::size_t i{global_waypoints_.size()}; i > 0; --i) {
       const std::size_t index{i - 1};
       const waypoint& w{global_waypoints_[index]};

@@ -126,6 +126,7 @@ void cleanup_collinear(polygon* poly) {
   }
 
   for (auto it{to_remove.rbegin()}; it != to_remove.rend(); ++it) {
+    // NOLINTNEXTLINE(*-narrowing-conversions)
     poly->erase(poly->vertices_begin() + *it);
   }
 

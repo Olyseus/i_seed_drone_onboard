@@ -191,7 +191,6 @@ void camera::shoot_photo(const gps_coordinates& gps,
         m_pos, DJI_CAMERA_MANAGER_EXPOSURE_MODE_PROGRAM_AUTO);
     OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-    // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     if (false) {  // FIXME (upstream issue)
       code = DjiCameraManager_SetISO(m_pos, DJI_CAMERA_MANAGER_ISO_100);
       OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
@@ -211,7 +210,6 @@ void camera::shoot_photo(const gps_coordinates& gps,
     OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
     spdlog::debug("DjiCameraManager_StartShootPhoto OK");
 
-    // NOLINTNEXTLINE(readability-simplify-boolean-expr)
     if (false) {  // FIXME (upstream issue)
       E_DjiCameraManagerISO iso{DJI_CAMERA_MANAGER_ISO_FIXED};
       code = DjiCameraManager_GetISO(m_pos, &iso);

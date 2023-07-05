@@ -7,12 +7,15 @@ mission_aligned_cell::mission_aligned_cell(corner c, const polygon& poly) {
   OLYSEUS_VERIFY(poly.is_simple());
   OLYSEUS_VERIFY(poly.is_convex());
   OLYSEUS_VERIFY(poly.is_counterclockwise_oriented());
+
   OLYSEUS_VERIFY(poly.size() == 3 || poly.size() == 4);
 
   utils::transformation reflection;
   const utils::line x_axis{CGAL::ORIGIN, utils::point{1, 0}};
   const utils::line y_axis{CGAL::ORIGIN, utils::point{0, 1}};
   const utils::direction neg_x{-1, 0};
+
+  static double constexpr den{1e3};
 
   switch (c) {
     case corner::left_down:
@@ -29,7 +32,7 @@ mission_aligned_cell::mission_aligned_cell(corner c, const polygon& poly) {
       break;
     case corner::right_up:
       // (x, y) -> (-x, -y)
-      reflection = utils::transformation(CGAL::ROTATION, neg_x, 1.0, 1e3);
+      reflection = utils::transformation(CGAL::ROTATION, neg_x, 1.0, den);
       break;
     default:
       OLYSEUS_VERIFY(false);
@@ -75,7 +78,7 @@ mission_aligned_cell::mission_aligned_cell(corner c, const polygon& poly) {
     std::vector<point> column;
     for (int y{y_start}; y <= y_stop; ++y) {
       const double y_mid{y * h + h / 2};
-      column.push_back({x_slice, y_mid});
+      column.emplace_back(x_slice, y_mid);
     }
     if (!column.empty()) {
       mission_points_.push_back(column);
@@ -88,13 +91,13 @@ mission_aligned_cell::~mission_aligned_cell() = default;
 auto mission_aligned_cell::waypoint_count() const -> std::size_t {
   std::size_t count{0};
   for (const auto& v : mission_points_) {
-    OLYSEUS_VERIFY(v.size() > 0);
+    OLYSEUS_VERIFY(!v.empty());
     count += v.size();
   }
   return count;
 }
 
-double mission_aligned_cell::distance(const point& start) const {
+auto mission_aligned_cell::distance(const point& start) const -> double {
   OLYSEUS_VERIFY(!mission_points_.empty());
   const point local_start{forward_.transform(start)};
 
@@ -161,7 +164,6 @@ auto mission_aligned_cell::build_path(const point& start,
   }
 
   if (dist_back_back < min_dist) {
-    min_dist = dist_back_back;
     left_to_right = false;
     up_to_down = true;
   }

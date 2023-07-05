@@ -304,7 +304,6 @@ void inference::analyze_entries(float* data, std::size_t x_shift,
       continue;
     }
 
-    // NOLINTNEXTLINE(altera-id-dependent-backward-branch)
     for (auto it{bboxes.begin()}; it != bboxes.end();) {
       if (!it->intersect(box)) {
         ++it;
