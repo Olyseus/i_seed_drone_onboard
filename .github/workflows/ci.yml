@@ -103,7 +103,7 @@ jobs:
       if: ${{ matrix.cross }}
       with:
         repository: "Olyseus/i_seed_drone_onboard"
-        tag: "v0.0.7"
+        tag: "v0.0.8"
         fileName: "jetson_cross.tar.gz"
         out-file-path: "${{github.workspace}}/_deps"
         token: ${{secrets.GITHUB_TOKEN}}
