@@ -797,11 +797,20 @@ void drone::receive_data_job_internal() {
           input_polygon.emplace_back(c.latitude(), c.longitude());
         }
         OLYSEUS_VERIFY(!input_polygon.empty());
+        spdlog::info("Input polygon:");
+        for (const lat_lon& p : input_polygon) {
+          spdlog::info("  ({}, {})", p.latitude(), p.longitude());
+        }
 
         const interconnection::coordinate c_home{input_polygon_proto.home()};
         const lat_lon home{c_home.latitude(), c_home.longitude()};
         std::vector<lat_lon> mission_path{
             mission_builder::make(input_polygon, home)};
+
+        spdlog::info("Mission path:");
+        for (const lat_lon& p : mission_path) {
+          spdlog::info("  ({}, {})", p.latitude(), p.longitude());
+        }
 
         mission_.mission_path_ready(std::move(mission_path), event_id);
       } break;
