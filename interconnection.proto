@@ -32,7 +32,8 @@ message coordinate {
 
 message input_polygon {
   repeated coordinate vertices = 1;
-  required int32 event_id = 2;
+  required coordinate home = 2;
+  required int32 event_id = 3;
 }
 
 message drone_info {

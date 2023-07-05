@@ -80,6 +80,9 @@ api_code simulator::receive_data(std::string* buffer) {
   }
   input_polygon.set_event_id(build_mission_event_id);
 
+  input_polygon.mutable_home()->set_latitude(mission_lat);
+  input_polygon.mutable_home()->set_longitude(mission_lon);
+
   interconnection::command_type mission_start_cmd;
   mission_start_cmd.set_type(interconnection::command_type::MISSION_START);
   mission_start_cmd.set_version(drone::protocol_version);
