@@ -1837,11 +1837,24 @@ public final class Interconnection {
         int index);
 
     /**
-     * <code>required int32 event_id = 2;</code>
+     * <code>required .interconnection.coordinate home = 2;</code>
+     */
+    boolean hasHome();
+    /**
+     * <code>required .interconnection.coordinate home = 2;</code>
+     */
+    interconnection.Interconnection.coordinate getHome();
+    /**
+     * <code>required .interconnection.coordinate home = 2;</code>
+     */
+    interconnection.Interconnection.coordinateOrBuilder getHomeOrBuilder();
+
+    /**
+     * <code>required int32 event_id = 3;</code>
      */
     boolean hasEventId();
     /**
-     * <code>required int32 event_id = 2;</code>
+     * <code>required int32 event_id = 3;</code>
      */
     int getEventId();
   }
@@ -1898,8 +1911,21 @@ public final class Interconnection {
                   input.readMessage(interconnection.Interconnection.coordinate.PARSER, extensionRegistry));
               break;
             }
-            case 16: {
+            case 18: {
+              interconnection.Interconnection.coordinate.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                subBuilder = home_.toBuilder();
+              }
+              home_ = input.readMessage(interconnection.Interconnection.coordinate.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(home_);
+                home_ = subBuilder.buildPartial();
+              }
               bitField0_ |= 0x00000001;
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000002;
               eventId_ = input.readInt32();
               break;
             }
@@ -1966,16 +1992,37 @@ public final class Interconnection {
       return vertices_.get(index);
     }
 
-    public static final int EVENT_ID_FIELD_NUMBER = 2;
-    private int eventId_;
+    public static final int HOME_FIELD_NUMBER = 2;
+    private interconnection.Interconnection.coordinate home_;
     /**
-     * <code>required int32 event_id = 2;</code>
+     * <code>required .interconnection.coordinate home = 2;</code>
      */
-    public boolean hasEventId() {
+    public boolean hasHome() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>required int32 event_id = 2;</code>
+     * <code>required .interconnection.coordinate home = 2;</code>
+     */
+    public interconnection.Interconnection.coordinate getHome() {
+      return home_ == null ? interconnection.Interconnection.coordinate.getDefaultInstance() : home_;
+    }
+    /**
+     * <code>required .interconnection.coordinate home = 2;</code>
+     */
+    public interconnection.Interconnection.coordinateOrBuilder getHomeOrBuilder() {
+      return home_ == null ? interconnection.Interconnection.coordinate.getDefaultInstance() : home_;
+    }
+
+    public static final int EVENT_ID_FIELD_NUMBER = 3;
+    private int eventId_;
+    /**
+     * <code>required int32 event_id = 3;</code>
+     */
+    public boolean hasEventId() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required int32 event_id = 3;</code>
      */
     public int getEventId() {
       return eventId_;
@@ -1987,6 +2034,10 @@ public final class Interconnection {
       if (isInitialized == 1) return true;
       if (isInitialized == 0) return false;
 
+      if (!hasHome()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       if (!hasEventId()) {
         memoizedIsInitialized = 0;
         return false;
@@ -1996,6 +2047,10 @@ public final class Interconnection {
           memoizedIsInitialized = 0;
           return false;
         }
+      }
+      if (!getHome().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
       }
       memoizedIsInitialized = 1;
       return true;
@@ -2007,7 +2062,10 @@ public final class Interconnection {
         output.writeMessage(1, vertices_.get(i));
       }
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeInt32(2, eventId_);
+        output.writeMessage(2, getHome());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt32(3, eventId_);
       }
       unknownFields.writeTo(output);
     }
@@ -2023,7 +2081,11 @@ public final class Interconnection {
       }
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(2, eventId_);
+          .computeMessageSize(2, getHome());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, eventId_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -2044,6 +2106,11 @@ public final class Interconnection {
       boolean result = true;
       result = result && getVerticesList()
           .equals(other.getVerticesList());
+      result = result && (hasHome() == other.hasHome());
+      if (hasHome()) {
+        result = result && getHome()
+            .equals(other.getHome());
+      }
       result = result && (hasEventId() == other.hasEventId());
       if (hasEventId()) {
         result = result && (getEventId()
@@ -2063,6 +2130,10 @@ public final class Interconnection {
       if (getVerticesCount() > 0) {
         hash = (37 * hash) + VERTICES_FIELD_NUMBER;
         hash = (53 * hash) + getVerticesList().hashCode();
+      }
+      if (hasHome()) {
+        hash = (37 * hash) + HOME_FIELD_NUMBER;
+        hash = (53 * hash) + getHome().hashCode();
       }
       if (hasEventId()) {
         hash = (37 * hash) + EVENT_ID_FIELD_NUMBER;
@@ -2183,6 +2254,7 @@ public final class Interconnection {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
           getVerticesFieldBuilder();
+          getHomeFieldBuilder();
         }
       }
       public Builder clear() {
@@ -2193,8 +2265,14 @@ public final class Interconnection {
         } else {
           verticesBuilder_.clear();
         }
-        eventId_ = 0;
+        if (homeBuilder_ == null) {
+          home_ = null;
+        } else {
+          homeBuilder_.clear();
+        }
         bitField0_ = (bitField0_ & ~0x00000002);
+        eventId_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -2230,6 +2308,14 @@ public final class Interconnection {
         }
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000001;
+        }
+        if (homeBuilder_ == null) {
+          result.home_ = home_;
+        } else {
+          result.home_ = homeBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000002;
         }
         result.eventId_ = eventId_;
         result.bitField0_ = to_bitField0_;
@@ -2300,6 +2386,9 @@ public final class Interconnection {
             }
           }
         }
+        if (other.hasHome()) {
+          mergeHome(other.getHome());
+        }
         if (other.hasEventId()) {
           setEventId(other.getEventId());
         }
@@ -2309,6 +2398,9 @@ public final class Interconnection {
       }
 
       public final boolean isInitialized() {
+        if (!hasHome()) {
+          return false;
+        }
         if (!hasEventId()) {
           return false;
         }
@@ -2316,6 +2408,9 @@ public final class Interconnection {
           if (!getVertices(i).isInitialized()) {
             return false;
           }
+        }
+        if (!getHome().isInitialized()) {
+          return false;
         }
         return true;
       }
@@ -2579,33 +2674,151 @@ public final class Interconnection {
         return verticesBuilder_;
       }
 
-      private int eventId_ ;
+      private interconnection.Interconnection.coordinate home_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          interconnection.Interconnection.coordinate, interconnection.Interconnection.coordinate.Builder, interconnection.Interconnection.coordinateOrBuilder> homeBuilder_;
       /**
-       * <code>required int32 event_id = 2;</code>
+       * <code>required .interconnection.coordinate home = 2;</code>
        */
-      public boolean hasEventId() {
+      public boolean hasHome() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>required int32 event_id = 2;</code>
+       * <code>required .interconnection.coordinate home = 2;</code>
+       */
+      public interconnection.Interconnection.coordinate getHome() {
+        if (homeBuilder_ == null) {
+          return home_ == null ? interconnection.Interconnection.coordinate.getDefaultInstance() : home_;
+        } else {
+          return homeBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>required .interconnection.coordinate home = 2;</code>
+       */
+      public Builder setHome(interconnection.Interconnection.coordinate value) {
+        if (homeBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          home_ = value;
+          onChanged();
+        } else {
+          homeBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>required .interconnection.coordinate home = 2;</code>
+       */
+      public Builder setHome(
+          interconnection.Interconnection.coordinate.Builder builderForValue) {
+        if (homeBuilder_ == null) {
+          home_ = builderForValue.build();
+          onChanged();
+        } else {
+          homeBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>required .interconnection.coordinate home = 2;</code>
+       */
+      public Builder mergeHome(interconnection.Interconnection.coordinate value) {
+        if (homeBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              home_ != null &&
+              home_ != interconnection.Interconnection.coordinate.getDefaultInstance()) {
+            home_ =
+              interconnection.Interconnection.coordinate.newBuilder(home_).mergeFrom(value).buildPartial();
+          } else {
+            home_ = value;
+          }
+          onChanged();
+        } else {
+          homeBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>required .interconnection.coordinate home = 2;</code>
+       */
+      public Builder clearHome() {
+        if (homeBuilder_ == null) {
+          home_ = null;
+          onChanged();
+        } else {
+          homeBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>required .interconnection.coordinate home = 2;</code>
+       */
+      public interconnection.Interconnection.coordinate.Builder getHomeBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getHomeFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>required .interconnection.coordinate home = 2;</code>
+       */
+      public interconnection.Interconnection.coordinateOrBuilder getHomeOrBuilder() {
+        if (homeBuilder_ != null) {
+          return homeBuilder_.getMessageOrBuilder();
+        } else {
+          return home_ == null ?
+              interconnection.Interconnection.coordinate.getDefaultInstance() : home_;
+        }
+      }
+      /**
+       * <code>required .interconnection.coordinate home = 2;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          interconnection.Interconnection.coordinate, interconnection.Interconnection.coordinate.Builder, interconnection.Interconnection.coordinateOrBuilder> 
+          getHomeFieldBuilder() {
+        if (homeBuilder_ == null) {
+          homeBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              interconnection.Interconnection.coordinate, interconnection.Interconnection.coordinate.Builder, interconnection.Interconnection.coordinateOrBuilder>(
+                  getHome(),
+                  getParentForChildren(),
+                  isClean());
+          home_ = null;
+        }
+        return homeBuilder_;
+      }
+
+      private int eventId_ ;
+      /**
+       * <code>required int32 event_id = 3;</code>
+       */
+      public boolean hasEventId() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>required int32 event_id = 3;</code>
        */
       public int getEventId() {
         return eventId_;
       }
       /**
-       * <code>required int32 event_id = 2;</code>
+       * <code>required int32 event_id = 3;</code>
        */
       public Builder setEventId(int value) {
-        bitField0_ |= 0x00000002;
+        bitField0_ |= 0x00000004;
         eventId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required int32 event_id = 2;</code>
+       * <code>required int32 event_id = 3;</code>
        */
       public Builder clearEventId() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000004);
         eventId_ = 0;
         onChanged();
         return this;
@@ -5415,18 +5628,19 @@ public final class Interconnection {
       "BORT\020\007\022\016\n\nDRONE_INFO\020\010\022\027\n\023LASER_RANGE_RE" +
       "QUEST\020\t\022\030\n\024LASER_RANGE_RESPONSE\020\n\"\033\n\013pac" +
       "ket_size\022\014\n\004size\030\001 \002(\007\"1\n\ncoordinate\022\020\n\010",
-      "latitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\"P\n\rinp" +
+      "latitude\030\001 \002(\001\022\021\n\tlongitude\030\002 \002(\001\"{\n\rinp" +
       "ut_polygon\022-\n\010vertices\030\001 \003(\0132\033.interconn" +
-      "ection.coordinate\022\020\n\010event_id\030\002 \002(\005\"\337\001\n\n" +
-      "drone_info\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongitud" +
-      "e\030\002 \002(\001\022\017\n\007heading\030\003 \002(\002\0222\n\005state\030\004 \002(\0162" +
-      "#.interconnection.drone_info.state_t\022\020\n\010" +
-      "event_id\030\005 \002(\005\"U\n\007state_t\022\t\n\005READY\020\000\022\013\n\007" +
-      "WAITING\020\001\022\r\n\tPATH_DATA\020\002\022\010\n\004PATH\020\003\022\r\n\tEX" +
-      "ECUTING\020\004\022\n\n\006PAUSED\020\005\">\n\014mission_path\022.\n" +
-      "\twaypoints\030\001 \003(\0132\033.interconnection.coord",
-      "inate\"$\n\020event_id_message\022\020\n\010event_id\030\001 " +
-      "\002(\005\"\034\n\013laser_range\022\r\n\005range\030\001 \002(\002"
+      "ection.coordinate\022)\n\004home\030\002 \002(\0132\033.interc" +
+      "onnection.coordinate\022\020\n\010event_id\030\003 \002(\005\"\337" +
+      "\001\n\ndrone_info\022\020\n\010latitude\030\001 \002(\001\022\021\n\tlongi" +
+      "tude\030\002 \002(\001\022\017\n\007heading\030\003 \002(\002\0222\n\005state\030\004 \002" +
+      "(\0162#.interconnection.drone_info.state_t\022" +
+      "\020\n\010event_id\030\005 \002(\005\"U\n\007state_t\022\t\n\005READY\020\000\022" +
+      "\013\n\007WAITING\020\001\022\r\n\tPATH_DATA\020\002\022\010\n\004PATH\020\003\022\r\n" +
+      "\tEXECUTING\020\004\022\n\n\006PAUSED\020\005\">\n\014mission_path",
+      "\022.\n\twaypoints\030\001 \003(\0132\033.interconnection.co" +
+      "ordinate\"$\n\020event_id_message\022\020\n\010event_id" +
+      "\030\001 \002(\005\"\034\n\013laser_range\022\r\n\005range\030\001 \002(\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5463,7 +5677,7 @@ public final class Interconnection {
     internal_static_interconnection_input_polygon_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_input_polygon_descriptor,
-        new java.lang.String[] { "Vertices", "EventId", });
+        new java.lang.String[] { "Vertices", "Home", "EventId", });
     internal_static_interconnection_drone_info_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_interconnection_drone_info_fieldAccessorTable = new
