@@ -12,6 +12,7 @@ __add_cache_path(spdlog_DIR "${__opt_dir}/spdlog/lib/cmake/spdlog")
 __add_cache_path(CLI11_DIR "${__opt_dir}/cli11/lib/cmake/CLI11")
 __add_cache_path(GTest_DIR "${__opt_dir}/googletest/lib/cmake/GTest")
 __add_cache_path(PSDK_DIR "${__opt_dir}/psdk")
+__add_cache_path(CGAL_DIR "${__opt_dir}/cgal/lib/cmake/CGAL")
 
 set(I_SEED_DRONE_ONBOARD_DOC OFF CACHE BOOL "")
 set(I_SEED_DRONE_ONBOARD_CUDA ON CACHE BOOL "")
