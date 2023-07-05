@@ -394,7 +394,7 @@ void camera::process_inference_files(
         const fs::path bbox_path{top_dir / ("bbox_" + file_dst.str())};
         spdlog::info("Save bounding boxes to image: {}", bbox_path.string());
         cv::Mat cv_image{cv::imread(dst_path.string().c_str())};
-        BOOST_VERIFY(cv_image.data != nullptr);
+        OLYSEUS_VERIFY(cv_image.data != nullptr);
 
         for (const bounding_box& bb : bb) {
           constexpr int thickness{3};
@@ -413,7 +413,7 @@ void camera::process_inference_files(
         }
 
         const bool ok{cv::imwrite(bbox_path.string(), cv_image)};
-        BOOST_VERIFY(ok);
+        OLYSEUS_VERIFY(ok);
       } else if (!res.pixels.empty()) {
         mission_.save_detection(queue_head.waypoint_index, res);
       }
