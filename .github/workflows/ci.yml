@@ -156,6 +156,19 @@ jobs:
       run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_cli11.cmake
     # }
 
+    # cgal {
+    - name: cache_cgal
+      id: cache_cgal
+      uses: actions/cache@v3
+      with:
+        path: '${{github.workspace}}/_deps/cgal'
+        key: '${{runner.os}}_cgal_5_5_${{matrix.build_type}}_cache'
+
+    - name: install_cgal
+      if: ${{ !steps.cache_cgal.outputs.cache-hit }}
+      run: cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} "-DCMAKE_INSTALL_PREFIX=${{github.workspace}}/_deps" -P third_party/dependencies/cmake/script/install_cgal.cmake
+    # }
+
     # nlohmann_json {
     - name: cache_nlohmann_json
       id: cache_nlohmann_json
