@@ -156,14 +156,33 @@ add_library(
     laser_range.cpp
     laser_range.h
     lat_lon.h
+    mission_aligned_cell.cpp
+    mission_aligned_cell.h
+    mission_builder.cpp
+    mission_builder.h
+    mission_cell.cpp
+    mission_cell.h
+    mission_directed_cell.cpp
+    mission_directed_cell.h
+    mission_directed_polygon.cpp
+    mission_directed_polygon.h
+    mission_polygon.cpp
+    mission_polygon.h
+    mission_simple_polygon.cpp
+    mission_simple_polygon.h
     olyseus_verify.cpp
     olyseus_verify.h
+    polygon_slicer.cpp
+    polygon_slicer.h
     timer.h
     utils.cpp
     utils.h
     waypoint.cpp
     waypoint.h
 )
+
+find_package(CGAL CONFIG REQUIRED)
+target_link_libraries(i_seed_drone_onboard_core PUBLIC CGAL::CGAL)
 
 if(I_SEED_DRONE_ONBOARD_CUDA)
   target_sources(
