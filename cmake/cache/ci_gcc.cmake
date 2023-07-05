@@ -11,7 +11,7 @@ __add_cache_path(GeographicLib_DIR "${__deps_dir}/geographiclib/lib/cmake/Geogra
 __add_cache_path(spdlog_DIR "${__deps_dir}/spdlog/lib/cmake/spdlog")
 __add_cache_path(CLI11_DIR "${__deps_dir}/cli11/lib/cmake/CLI11")
 __add_cache_path(GTest_DIR "${__deps_dir}/googletest/lib/cmake/GTest")
-__add_cache_path(CGAL_DIR "${__opt_dir}/cgal/lib/cmake/CGAL")
+__add_cache_path(CGAL_DIR "${__deps_dir}/cgal/lib/cmake/CGAL")
 
 # Same Protobuf 3.0.0 version as on 'jetson'
 __add_cache_path(Protobuf_ROOT "${__deps_dir}/protobuf")
