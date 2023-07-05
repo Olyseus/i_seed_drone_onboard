@@ -9,6 +9,7 @@
 
 #include "api_code.h"
 #include "converter.h"
+#include "mission_builder.h"
 #include "olyseus_verify.h"  // OLYSEUS_VERIFY
 #include "server.h"
 #include "utils.h"  // rad2deg
@@ -578,7 +579,7 @@ void drone::align_gimbal() {
 
   constexpr int time_ms{500};
   constexpr int time_wait_ms{3 * time_ms};
-  constexpr double ms{1.0 / 1000.0};
+  const double ms{1.0 / 1000.0};
 
   constexpr float expected_gimbal_roll{0.0F};
   const float expected_gimbal_yaw{drone_yaw_};
@@ -662,7 +663,7 @@ auto drone::rotate_gimbal(float x, float y, double drone_heading_degree)
 
   constexpr int time_ms{500};
   constexpr int time_wait_ms{3 * time_ms};
-  constexpr double ms{1.0 / 1000.0};
+  const double ms{1.0 / 1000.0};
 
   T_DjiGimbalManagerRotation rotation;
   rotation.rotationMode = DJI_GIMBAL_ROTATION_MODE_RELATIVE_ANGLE;
@@ -691,7 +692,7 @@ auto drone::rotate_gimbal(float x, float y, double drone_heading_degree)
         "pitch: {}, yaw: {}",
         d_roll, d_pitch, d_yaw);
 
-    constexpr double ms{1.0 / 1000.0};
+    const double ms{1.0 / 1000.0};
     constexpr double rotate{178.0};
 
     T_DjiGimbalManagerRotation rotation;
@@ -797,8 +798,10 @@ void drone::receive_data_job_internal() {
         }
         OLYSEUS_VERIFY(!input_polygon.empty());
 
-        // FIXME (build real path)
-        std::vector<lat_lon> mission_path{std::move(input_polygon)};
+        const interconnection::coordinate c_home{input_polygon_proto.home()};
+        const lat_lon home{c_home.latitude(), c_home.longitude()};
+        std::vector<lat_lon> mission_path{
+            mission_builder::make(input_polygon, home)};
 
         mission_.mission_path_ready(std::move(mission_path), event_id);
       } break;
