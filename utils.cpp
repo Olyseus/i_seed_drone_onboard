@@ -130,6 +130,12 @@ void cleanup_collinear(polygon* poly) {
     poly->erase(poly->vertices_begin() + *it);
   }
 
+  if (poly->size() < 3) {
+    poly->clear();
+    OLYSEUS_VERIFY(poly->size() == 0);
+    return;
+  }
+
   OLYSEUS_VERIFY(poly->is_simple());
   OLYSEUS_VERIFY(poly->is_convex());
   OLYSEUS_VERIFY(poly->is_counterclockwise_oriented());

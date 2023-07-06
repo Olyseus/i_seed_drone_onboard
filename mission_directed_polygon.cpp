@@ -46,16 +46,17 @@ mission_directed_polygon::mission_directed_polygon(const utils::direction& dir,
 
     utils::cleanup_collinear(&p);
 
+    if (p.size() < 3) {
+      // Polygon degrades into line
+      OLYSEUS_VERIFY(p.size() == 0);
+      continue;
+    }
+
     OLYSEUS_VERIFY(p.is_simple());
     OLYSEUS_VERIFY(p.is_convex());
     OLYSEUS_VERIFY(p.is_counterclockwise_oriented());
 
     const auto& vertices{p.vertices()};
-
-    if (vertices.size() < 3) {
-      // Polygon degrades into line
-      continue;
-    }
 
     OLYSEUS_VERIFY(vertices.size() == 3 || vertices.size() == 4);
 
