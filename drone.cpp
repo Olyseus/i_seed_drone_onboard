@@ -813,6 +813,13 @@ void drone::receive_data_job_internal() {
         }
 
         mission_.mission_path_ready(std::move(mission_path), event_id);
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR) && \
+    !defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
+        auto state{send_drone_info()};
+        OLYSEUS_VERIFY(state == interconnection::drone_info::PATH_DATA);
+        state = send_drone_info();
+        OLYSEUS_VERIFY(state == interconnection::drone_info::PATH);
+#endif
       } break;
       case interconnection::command_type::MISSION_PATH_CANCEL: {
         mission_.mission_path_cancel(receive_event_id());

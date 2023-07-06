@@ -20,10 +20,7 @@ simulator::simulator() {
   // waypoint 1, good
   laser_range_values_.push_back(15.2F);
 
-  // waypoint 2, good
-  laser_range_values_.push_back(14.9F);
-
-  // waypoint 3, bad
+  // waypoint 2, bad
   laser_range_values_.push_back(17.8F);
   laser_range_values_.push_back(15.0F);
 
@@ -32,14 +29,11 @@ simulator::simulator() {
 
   // backward
 
-  // waypoint 3
+  // waypoint 2
   laser_range_values_.push_back(15.2F);
 
-  // waypoint 2
-  laser_range_values_.push_back(14.8F);
-
   // waypoint 1
-  laser_range_values_.push_back(15.1F);
+  laser_range_values_.push_back(14.8F);
 
   // waypoint 0
   laser_range_values_.push_back(15.5F);
@@ -72,12 +66,25 @@ api_code simulator::receive_data(std::string* buffer) {
   constexpr int32_t build_mission_event_id{1};
 
   interconnection::input_polygon input_polygon;
-  for (int i{1}; i < 5; ++i) {
-    interconnection::coordinate* v{input_polygon.add_vertices()};
-    OLYSEUS_VERIFY(v != nullptr);
-    v->set_latitude(mission_lat);
-    v->set_longitude(mission_lon + 0.0001 * i);
-  }
+
+  constexpr double side{0.00005};
+
+  interconnection::coordinate* v_1{input_polygon.add_vertices()};
+  v_1->set_latitude(mission_lat - side);
+  v_1->set_longitude(mission_lon - side);
+
+  interconnection::coordinate* v_2{input_polygon.add_vertices()};
+  v_2->set_latitude(mission_lat - side);
+  v_2->set_longitude(mission_lon + side);
+
+  interconnection::coordinate* v_3{input_polygon.add_vertices()};
+  v_3->set_latitude(mission_lat + side);
+  v_3->set_longitude(mission_lon + side);
+
+  interconnection::coordinate* v_4{input_polygon.add_vertices()};
+  v_4->set_latitude(mission_lat + side);
+  v_4->set_longitude(mission_lon - side);
+
   input_polygon.set_event_id(build_mission_event_id);
 
   input_polygon.mutable_home()->set_latitude(mission_lat);
