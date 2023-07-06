@@ -553,6 +553,7 @@ add_executable(
     i_seed_drone_onboard_core_ut.cpp
     main_ut.cpp
     main_ut.h
+    mission_polygon_ut.cpp
     utils_ut.cpp
 )
 
