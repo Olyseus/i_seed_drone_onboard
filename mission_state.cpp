@@ -236,7 +236,7 @@ auto mission_state::update(T_DjiWaypointV2MissionStatePush state_data)
   const uint16_t waypoint_index{state_data.curWaypointIndex};
 
   const bool forward_wait = (global_state_ == forward_wait_update);
-  const bool backward_wait = (global_state_ == forward_wait_update);
+  const bool backward_wait = (global_state_ == backward_wait_update);
 
   if (forward_wait || backward_wait) {
     if (forward_wait) {
