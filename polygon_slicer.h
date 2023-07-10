@@ -3,6 +3,7 @@
 
 #include "utils.h"
 
+/// \brief Utility for path creation inside the cell
 class polygon_slicer {
  public:
   using kernel = CGAL::Cartesian<double>;
@@ -14,12 +15,21 @@ class polygon_slicer {
   explicit polygon_slicer(const utils::polygon& poly);
   ~polygon_slicer();
 
+  /// \cond private
   polygon_slicer(const polygon_slicer&) = delete;
   polygon_slicer(polygon_slicer&&) = delete;
 
   polygon_slicer& operator=(const polygon_slicer&) = delete;
   polygon_slicer& operator=(polygon_slicer&&) = delete;
+  /// \endcond
 
+  /// \details Assuming drone will fly vertically on the X = x_slice
+  ///   line (parallel to Y-axis), return the start and stop index
+  ///   of the waypoint that will cover given X = x_slice line
+  /// \return the start and stop indices of waypoints
+  /// \note On the image below you can see the work of the method
+  ///   applied to three X = x_slice_(1|2|3) vertical lines
+  /// \image html polygon_slicer.png width=40%
   std::pair<int, int> slice(double x_slice) const;
 
  private:

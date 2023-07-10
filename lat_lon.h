@@ -1,6 +1,7 @@
 #ifndef LAT_LON_H_
 #define LAT_LON_H_
 
+/// \brief Latitude/longitude container
 class lat_lon {
  public:
   lat_lon(double latitude, double longitude)

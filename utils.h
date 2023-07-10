@@ -47,6 +47,7 @@ using line = kernel::Line_2;
 using vect = kernel::Vector_2;
 using bbox = CGAL::Bbox_2;
 
+/// \brief Alignment of the cell
 enum class corner { left_down, left_up, right_down, right_up };
 
 // https://github.com/Olyseus/i_seed_drone_onboard/issues/13#issuecomment-1253192301
