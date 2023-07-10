@@ -19,7 +19,7 @@
 ///
 /// When a connection is established between the application and the drone, the
 /// application will send the \b PING command and will wait for a reply with the
-/// \b PING command back. This one needed to verify that communication is
+/// \b PONG command back. This one needed to verify that communication is
 /// actually working because the API peculiarity is that all the
 /// interconnections return successful codes, but the real packets will start
 /// receiving later.
@@ -28,19 +28,32 @@
 /// periodically sends the current mission states and its geographical
 /// coordinates. The drone service sends a \b DRONE_INFO command to
 /// inform the Android app that a coordinate data and mission state message will
-/// follow.
+/// follow. The \c mission_path message with the coordinates of the mission
+/// path built from the user input polygon will be sent in case of the special
+/// drone state called \c PATH_DATA.
 ///
 /// When the drone operator is ready, a mission can be started via the Android
-/// application interface. This action sends a \b MISSION_START command to the
-/// drone service. Following the \b MISSION_START command, the drone service
-/// expects the coordinates of the waypoint the drone will have to navigate.
-/// The waypoint is sent via a \c input_polygon message. Coordinates will
-/// be taken from the Google Map widget of the Android app.
+/// application interface. The first step will be to build and approve the
+/// mission path by providing an input polygon and sending the \b BUILD_MISSION
+/// command. Coordinates will be taken from the Google Map widget of
+/// the Android app. In the second step, user sends a \b MISSION_START command
+/// to the drone service and actually starts the mission.
+/// If the mission path doesn't look appropriate for any reason, the user can
+/// clear the mission path by sending \b MISSION_PATH_CANCEL and tweak the
+/// input polygon.
 ///
 /// During a mission, a drone operator can pause, resume, or abort its
 /// execution. This is achieved by sending \b MISSION_PAUSE,
 /// \b MISSION_CONTINUE, and \b MISSION_ABORT commands, respectively,
 /// to the drone service.
+///
+/// Since the effect of applying mission control command is not immediate, and
+/// there is a pool of send/received messages, the \c event_id counter is
+/// introduced to synchronize the state. After each user's mission command,
+/// such as \b MISSION_PAUSE or \b MISSION_CONTINUE, the \c event_id counter
+/// increased by one. All the mission states received in DRONE_INFO with the
+/// less value in \c event_id will be ignored until the message with updated
+/// \c event_id is received.
 ///
 /// The full mission consists of a forward mission (when we take photos and run
 /// inference in the background) and a backward mission (when we revisit
@@ -55,17 +68,20 @@
 /// If an I-Seed is detected in a waypoint during a forward mission, the range
 /// between the camera and the I-Seed needs to be known. For this, the DJI
 /// Zenmuse H20/T laser rangefinder is used in a waypoint during a backward
-/// mission. However, there is no API call for the \c %laser_range data
+/// mission. However, there is no API call for the \c laser_range data
 /// available from the Payload SDKs, one needs to use a hack to retrieve this
-/// information from the Mobile SDK. The onboard service emits a \b LASER_RANGE
+/// information from the Mobile SDK. The onboard service emits a
+/// \b LASER_RANGE_REQUEST
 /// command to the Mobile SDK that runs with the Android app to achieve this.
-/// After that, the Mobile SDK sends the \c %laser_range message back to the
+/// After that, the Mobile SDK sends \b LASER_RANGE_RESPONSE with the
+/// \c laser_range message back to the
 /// onboard service that uses this information to compute the geolocalisation
 /// of the I-Seed.
 ///
 /// It's not possible to know beforehand the actual height of the
 /// drone above the ground. We only know the actual height after laser
-/// measurement of the place received. The \b LASER_RANGE command will be used
+/// measurement of the place received. The \b LASER_RANGE_REQUEST command will
+/// be used
 /// in this case too. If the actual height is too low or
 /// too high, the mission waypoint's height has to be corrected.
 ///
@@ -81,16 +97,17 @@
 /// \c MISSION_ABORT and is responsible for sending it to a drone.
 ///
 /// Read-from-pipe thread with the \c readPipelineJob method will process the
-/// commands received from the drone. When the \b PING command is received, it
+/// commands received from the drone. When the \b PONG command is received, it
 /// means communication with a drone is established, and a drone is ready to
 /// accept other commands. \b DRONE_INFO command informs that
 /// coordinates with the mission state data are prepared. Drone coordinates are
 /// used for drawing drone icons in the Google Map widget. Mission state will
 /// be used to draw the controlling UI buttons. E.g., if a mission is stopped,
 /// UI is switched to the state when an operator can start a new mission.
-/// When \c readPipelineJob receives a \c LASER_RANGE request from the drone,
-/// it is put into a queue. When \c writePipelineJob takes control of the queue,
-/// it reads \c LASER_RANGE and sends it to the drone, but this time command is
+/// When \c readPipelineJob receives a \b LASER_RANGE_REQUEST request from
+/// the drone, it puts \b LASER_RANGE_RESPONSE into a queue. When
+/// \c writePipelineJob takes control of the queue, it reads
+/// \b LASER_RANGE_RESPONSE and sends it to the drone, but this time command is
 /// sent with the data - the value of laser range measurement.
 ///
 /// The \c pollJob method is the main point of calling Mobile SDK API. It is
@@ -99,6 +116,24 @@
 /// checks the GPS signal, enables laser, etc.
 ///
 /// \image html control.jpg
+///
+/// The following diagram describes the state of the drone control Android
+/// application. The initial state is \c WAITING since the drone may already
+/// be in the progress of mission execution (e.g., the application is
+/// restarted). In the \c READY state, the user can provide a mission input
+/// polygon. The cancel button will clear the polygon, and the action button
+/// will send the \b BUILD_MISSION command.
+///
+/// When the mission path is ready, the special state \c PATH_DATA will be
+/// received from the onboard service, and the \c mission_path message will be
+/// the next packet. After this state, the next state will be \c PATH. In the
+/// \c PATH state user can cancel the mission by sending \b MISSION_PATH_CANCEL
+/// or start the mission by sending \b MISSION_START. State \c EXECUTING is a
+/// normal state when a mission is in progress. State \c PAUSED received when
+/// a user pauses the mission. In both those states mission can be aborted by
+/// sending \b MISSION_ABORT.
+///
+/// \image html states_control.jpg
 ///
 /// \note Java, Android
 ///
@@ -134,6 +169,43 @@
 ///   \ref detection_result "detected objects"
 ///
 /// \image html service.jpg
+///
+/// The following diagram describes the state of the drone onboard service.
+/// The initial state is \c ready. In this state, the service emits \c READY
+/// for drone control until the user receives the input polygon, and the
+/// service \ref mission_builder "builds the mission path".
+/// When the mission path is ready, the state
+/// is switched to a special state, \c path_data, which emits \c PATH_DATA and
+/// a message \c mission_path. Immediately after \c PATH_DATA is sent, the
+/// state is switched to the \c path state, emitting \c PATH. In this state,
+/// the user can cancel the mission or start it. Starting the mission is a
+/// two-step process. The first \c init step will fetch the mission path,
+/// switching to \c forward_wait_start, and the second \c start step will
+/// actually start the mission, switching to \c forward_wait_update.
+///
+/// In all the states except \c forward_wait_update, \c backward_wait_update,
+/// \c forward_executing, \c backward_executing, the update callbacks received
+/// from Payload SDK will be ignored. The
+/// \c forward_wait_update/\c backward_wait_update
+/// will be switched to
+/// \c forward_executing/\c backward_executing
+/// once the Payload SDK update is received. In these
+/// states \c EXECUTING/PAUSED emitted. All other states that were not
+/// mentioned so far will emit \c WAITING. In
+/// \c forward_executing/backward_executing states, the method \c abort can be
+/// called if a user
+/// wants to abort the mission (the following method will be \c stop), or the
+/// last fake waypoint reached, or the same mission but with the tweaked height
+/// need to be restarted (forward mission only, following method will be
+/// \c start). When the finish event is received from the Payload SDK
+/// callback, the state is switched to \c forward_finished/backward_finished.
+/// \c set_backward will switch the mission to \c backward_wait_start for the
+/// forward mission method. Another way to reach \c backward_wait_start is from
+/// \c forward_wait_start (when the last fake waypoint is reached and we want
+/// to start the backward mission). If no objects are detected in the forward
+/// mission, the method \c stop will move \c backward_wait_start to ready.
+///
+/// \image html mission_state.jpg
 ///
 /// \note C++, Linux
 
