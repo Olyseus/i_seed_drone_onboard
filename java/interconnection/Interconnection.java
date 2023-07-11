@@ -3893,6 +3893,15 @@ public final class Interconnection {
      */
     interconnection.Interconnection.coordinateOrBuilder getWaypointsOrBuilder(
         int index);
+
+    /**
+     * <code>required int32 reserved = 2;</code>
+     */
+    boolean hasReserved();
+    /**
+     * <code>required int32 reserved = 2;</code>
+     */
+    int getReserved();
   }
   /**
    * Protobuf type {@code interconnection.mission_path}
@@ -3907,6 +3916,7 @@ public final class Interconnection {
     }
     private mission_path() {
       waypoints_ = java.util.Collections.emptyList();
+      reserved_ = 0;
     }
 
     @java.lang.Override
@@ -3946,6 +3956,11 @@ public final class Interconnection {
                   input.readMessage(interconnection.Interconnection.coordinate.PARSER, extensionRegistry));
               break;
             }
+            case 16: {
+              bitField0_ |= 0x00000001;
+              reserved_ = input.readInt32();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -3973,6 +3988,7 @@ public final class Interconnection {
               interconnection.Interconnection.mission_path.class, interconnection.Interconnection.mission_path.Builder.class);
     }
 
+    private int bitField0_;
     public static final int WAYPOINTS_FIELD_NUMBER = 1;
     private java.util.List<interconnection.Interconnection.coordinate> waypoints_;
     /**
@@ -4008,12 +4024,31 @@ public final class Interconnection {
       return waypoints_.get(index);
     }
 
+    public static final int RESERVED_FIELD_NUMBER = 2;
+    private int reserved_;
+    /**
+     * <code>required int32 reserved = 2;</code>
+     */
+    public boolean hasReserved() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required int32 reserved = 2;</code>
+     */
+    public int getReserved() {
+      return reserved_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
       if (isInitialized == 0) return false;
 
+      if (!hasReserved()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       for (int i = 0; i < getWaypointsCount(); i++) {
         if (!getWaypoints(i).isInitialized()) {
           memoizedIsInitialized = 0;
@@ -4029,6 +4064,9 @@ public final class Interconnection {
       for (int i = 0; i < waypoints_.size(); i++) {
         output.writeMessage(1, waypoints_.get(i));
       }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt32(2, reserved_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -4040,6 +4078,10 @@ public final class Interconnection {
       for (int i = 0; i < waypoints_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(1, waypoints_.get(i));
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, reserved_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -4060,6 +4102,11 @@ public final class Interconnection {
       boolean result = true;
       result = result && getWaypointsList()
           .equals(other.getWaypointsList());
+      result = result && (hasReserved() == other.hasReserved());
+      if (hasReserved()) {
+        result = result && (getReserved()
+            == other.getReserved());
+      }
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -4074,6 +4121,10 @@ public final class Interconnection {
       if (getWaypointsCount() > 0) {
         hash = (37 * hash) + WAYPOINTS_FIELD_NUMBER;
         hash = (53 * hash) + getWaypointsList().hashCode();
+      }
+      if (hasReserved()) {
+        hash = (37 * hash) + RESERVED_FIELD_NUMBER;
+        hash = (53 * hash) + getReserved();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -4200,6 +4251,8 @@ public final class Interconnection {
         } else {
           waypointsBuilder_.clear();
         }
+        reserved_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -4223,6 +4276,7 @@ public final class Interconnection {
       public interconnection.Interconnection.mission_path buildPartial() {
         interconnection.Interconnection.mission_path result = new interconnection.Interconnection.mission_path(this);
         int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         if (waypointsBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
             waypoints_ = java.util.Collections.unmodifiableList(waypoints_);
@@ -4232,6 +4286,11 @@ public final class Interconnection {
         } else {
           result.waypoints_ = waypointsBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.reserved_ = reserved_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -4299,12 +4358,18 @@ public final class Interconnection {
             }
           }
         }
+        if (other.hasReserved()) {
+          setReserved(other.getReserved());
+        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
+        if (!hasReserved()) {
+          return false;
+        }
         for (int i = 0; i < getWaypointsCount(); i++) {
           if (!getWaypoints(i).isInitialized()) {
             return false;
@@ -4570,6 +4635,38 @@ public final class Interconnection {
           waypoints_ = null;
         }
         return waypointsBuilder_;
+      }
+
+      private int reserved_ ;
+      /**
+       * <code>required int32 reserved = 2;</code>
+       */
+      public boolean hasReserved() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required int32 reserved = 2;</code>
+       */
+      public int getReserved() {
+        return reserved_;
+      }
+      /**
+       * <code>required int32 reserved = 2;</code>
+       */
+      public Builder setReserved(int value) {
+        bitField0_ |= 0x00000002;
+        reserved_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 reserved = 2;</code>
+       */
+      public Builder clearReserved() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        reserved_ = 0;
+        onChanged();
+        return this;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -5637,10 +5734,11 @@ public final class Interconnection {
       "(\0162#.interconnection.drone_info.state_t\022" +
       "\020\n\010event_id\030\005 \002(\005\"U\n\007state_t\022\t\n\005READY\020\000\022" +
       "\013\n\007WAITING\020\001\022\r\n\tPATH_DATA\020\002\022\010\n\004PATH\020\003\022\r\n" +
-      "\tEXECUTING\020\004\022\n\n\006PAUSED\020\005\">\n\014mission_path",
+      "\tEXECUTING\020\004\022\n\n\006PAUSED\020\005\"P\n\014mission_path",
       "\022.\n\twaypoints\030\001 \003(\0132\033.interconnection.co" +
-      "ordinate\"$\n\020event_id_message\022\020\n\010event_id" +
-      "\030\001 \002(\005\"\034\n\013laser_range\022\r\n\005range\030\001 \002(\002"
+      "ordinate\022\020\n\010reserved\030\002 \002(\005\"$\n\020event_id_m" +
+      "essage\022\020\n\010event_id\030\001 \002(\005\"\034\n\013laser_range\022" +
+      "\r\n\005range\030\001 \002(\002"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -5689,7 +5787,7 @@ public final class Interconnection {
     internal_static_interconnection_mission_path_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_interconnection_mission_path_descriptor,
-        new java.lang.String[] { "Waypoints", });
+        new java.lang.String[] { "Waypoints", "Reserved", });
     internal_static_interconnection_event_id_message_descriptor =
       getDescriptor().getMessageTypes().get(6);
     internal_static_interconnection_event_id_message_fieldAccessorTable = new
