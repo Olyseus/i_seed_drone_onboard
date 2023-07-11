@@ -190,15 +190,15 @@ TEST(utils, gimbal_rotation_heading_zero) {
   x_pixel = h20_img_width / 2.0;
   double d_m{std::tan(expected_pitch * M_PI / 180.0) * utils::focal_length_m};
   ASSERT_LT(d_m, utils::sensor_size_height_m / 2.0);
-  y_pixel = h20_img_height / 2.0 -
-            d_m / utils::sensor_size_height_m * h20_img_height;
+  y_pixel =
+      h20_img_height / 2.0 - d_m / utils::sensor_size_height_m * h20_img_height;
   std::tie(yaw_degree, pitch_degree) =
       gimbal_rotation_params(x_pixel, y_pixel, heading_degree);
   ASSERT_NEAR(yaw_degree, 0.0, 1e-3);
   ASSERT_NEAR(pitch_degree, -90.0 + expected_pitch, 1e-3);
 
-  y_pixel = h20_img_height / 2.0 +
-            d_m / utils::sensor_size_height_m * h20_img_height;
+  y_pixel =
+      h20_img_height / 2.0 + d_m / utils::sensor_size_height_m * h20_img_height;
   std::tie(yaw_degree, pitch_degree) =
       gimbal_rotation_params(x_pixel, y_pixel, heading_degree);
   ASSERT_NEAR(yaw_degree, 180.0, 1e-3);
@@ -208,15 +208,15 @@ TEST(utils, gimbal_rotation_heading_zero) {
   y_pixel = h20_img_height / 2.0;
   d_m = std::tan(expected_pitch * M_PI / 180.0) * utils::focal_length_m;
   ASSERT_LT(d_m, utils::sensor_size_width_m / 2.0);
-  x_pixel = h20_img_width / 2.0 +
-            d_m / utils::sensor_size_width_m * h20_img_width;
+  x_pixel =
+      h20_img_width / 2.0 + d_m / utils::sensor_size_width_m * h20_img_width;
   std::tie(yaw_degree, pitch_degree) =
       gimbal_rotation_params(x_pixel, y_pixel, heading_degree);
   ASSERT_NEAR(yaw_degree, 90.0, 1e-3);
   ASSERT_NEAR(pitch_degree, -90.0 + expected_pitch, 1e-3);
 
-  x_pixel = h20_img_width / 2.0 -
-            d_m / utils::sensor_size_width_m * h20_img_width;
+  x_pixel =
+      h20_img_width / 2.0 - d_m / utils::sensor_size_width_m * h20_img_width;
   std::tie(yaw_degree, pitch_degree) =
       gimbal_rotation_params(x_pixel, y_pixel, heading_degree);
   ASSERT_NEAR(yaw_degree, -90.0, 1e-3);
@@ -237,15 +237,15 @@ TEST(utils, gimbal_rotation_heading) {
   x_pixel = h20_img_width / 2.0;
   double d_m{std::tan(expected_pitch * M_PI / 180.0) * utils::focal_length_m};
   ASSERT_LT(d_m, utils::sensor_size_height_m / 2.0);
-  y_pixel = h20_img_height / 2.0 -
-            d_m / utils::sensor_size_height_m * h20_img_height;
+  y_pixel =
+      h20_img_height / 2.0 - d_m / utils::sensor_size_height_m * h20_img_height;
   std::tie(yaw_degree, pitch_degree) =
       gimbal_rotation_params(x_pixel, y_pixel, heading_degree);
   ASSERT_NEAR(yaw_degree, heading_degree, 1e-3);
   ASSERT_NEAR(pitch_degree, -90.0 + expected_pitch, 1e-3);
 
-  y_pixel = h20_img_height / 2.0 +
-            d_m / utils::sensor_size_height_m * h20_img_height;
+  y_pixel =
+      h20_img_height / 2.0 + d_m / utils::sensor_size_height_m * h20_img_height;
   std::tie(yaw_degree, pitch_degree) =
       gimbal_rotation_params(x_pixel, y_pixel, heading_degree);
   ASSERT_NEAR(yaw_degree, 180.0 + heading_degree, 1e-3);
@@ -255,15 +255,15 @@ TEST(utils, gimbal_rotation_heading) {
   y_pixel = h20_img_height / 2.0;
   d_m = std::tan(expected_pitch * M_PI / 180.0) * utils::focal_length_m;
   ASSERT_LT(d_m, utils::sensor_size_width_m / 2.0);
-  x_pixel = h20_img_width / 2.0 +
-            d_m / utils::sensor_size_width_m * h20_img_width;
+  x_pixel =
+      h20_img_width / 2.0 + d_m / utils::sensor_size_width_m * h20_img_width;
   std::tie(yaw_degree, pitch_degree) =
       gimbal_rotation_params(x_pixel, y_pixel, heading_degree);
   ASSERT_NEAR(yaw_degree, 90.0 + heading_degree, 1e-3);
   ASSERT_NEAR(pitch_degree, -90.0 + expected_pitch, 1e-3);
 
-  x_pixel = h20_img_width / 2.0 -
-            d_m / utils::sensor_size_width_m * h20_img_width;
+  x_pixel =
+      h20_img_width / 2.0 - d_m / utils::sensor_size_width_m * h20_img_width;
   std::tie(yaw_degree, pitch_degree) =
       gimbal_rotation_params(x_pixel, y_pixel, heading_degree);
   ASSERT_NEAR(yaw_degree, -90.0 + heading_degree, 1e-3);

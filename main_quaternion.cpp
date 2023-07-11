@@ -80,7 +80,7 @@ T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size,
 }
 
 auto rtk_position_callback(const uint8_t* data, uint16_t data_size,
-                                  const T_DjiDataTimestamp* timestamp)
+                           const T_DjiDataTimestamp* timestamp)
     -> T_DjiReturnCode {
   OLYSEUS_VERIFY(data != nullptr);
   const auto position{*(const T_DjiFcSubscriptionRtkPosition*)data};
@@ -119,13 +119,12 @@ auto run_main(int argc, char** argv) -> int {
     OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiFcSubscription_SubscribeTopic(
-        DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, topic_freq,
-        quaternion_callback);
+        DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, topic_freq, quaternion_callback);
     OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-    code = DjiFcSubscription_SubscribeTopic(
-        DJI_FC_SUBSCRIPTION_TOPIC_RTK_POSITION, topic_freq,
-        rtk_position_callback);
+    code =
+        DjiFcSubscription_SubscribeTopic(DJI_FC_SUBSCRIPTION_TOPIC_RTK_POSITION,
+                                         topic_freq, rtk_position_callback);
     OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     while (true) {
