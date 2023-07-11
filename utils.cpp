@@ -36,17 +36,9 @@ auto gimbal_rotation_params_with_heading_degree(double yaw_x_degree,
 auto gimbal_rotation_params(double x_pixel, double y_pixel,
                             double drone_heading_degree)
     -> std::pair<float, float> {
-  // https://github.com/Olyseus/i_seed_drone_onboard/issues/13#issuecomment-1253192301
-  // https://github.com/Olyseus/i_seed_drone_onboard/issues/13#issuecomment-1281932707
-  // https://sdk-forum.dji.net/hc/en-us/articles/11606411050265
-  // https://github.com/Olyseus/i_seed_drone_onboard/issues/13#issuecomment-1325870404
-  constexpr double sensor_size_width_x1000_mm{7412};   // 7.412mm
-  constexpr double sensor_size_height_x1000_mm{5559};  // 5.559mm
-  constexpr double focal_length_x100_mm{683};          // 6.83mm
-
-  const double sensor_size_width_mm{sensor_size_width_x1000_mm / 1000};
-  const double sensor_size_height_mm{sensor_size_height_x1000_mm / 1000};
-  const double focal_length_mm{focal_length_x100_mm / 100};
+  const double sensor_size_width_mm{utils::sensor_size_width_x1000_mm / 1000};
+  const double sensor_size_height_mm{utils::sensor_size_height_x1000_mm / 1000};
+  const double focal_length_mm{utils::focal_length_x100_mm / 100};
 
   const double sensor_size_width_m{sensor_size_width_mm / 1000};
   const double sensor_size_height_m{sensor_size_height_mm / 1000};

@@ -52,9 +52,11 @@ enum class corner { left_down, left_up, right_down, right_up };
 
 // https://github.com/Olyseus/i_seed_drone_onboard/issues/13#issuecomment-1253192301
 // https://github.com/Olyseus/i_seed_drone_onboard/issues/13#issuecomment-1281932707
+// https://sdk-forum.dji.net/hc/en-us/articles/11606411050265
+// https://github.com/Olyseus/i_seed_drone_onboard/issues/13#issuecomment-1325870404
 static const kernel_ft sensor_size_width_x1000_mm{7412};   // 7.412mm
 static const kernel_ft sensor_size_height_x1000_mm{5559};  // 5.559mm
-static const kernel_ft focal_length_x100_mm{1034};         // 10.34mm
+static const kernel_ft focal_length_x100_mm{683};          // 6.83mm
 
 static const kernel_ft sensor_size_width_mm{sensor_size_width_x1000_mm / 1000};
 static const kernel_ft sensor_size_height_mm{sensor_size_height_x1000_mm /
