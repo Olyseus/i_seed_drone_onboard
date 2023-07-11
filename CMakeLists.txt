@@ -553,7 +553,13 @@ add_executable(
     i_seed_drone_onboard_core_ut.cpp
     main_ut.cpp
     main_ut.h
+    mission_aligned_cell_ut.cpp
+    mission_cell_ut.cpp
+    mission_directed_cell_ut.cpp
+    mission_directed_polygon_ut.cpp
     mission_polygon_ut.cpp
+    mission_simple_polygon_ut.cpp
+    polygon_slicer_ut.cpp
     utils_ut.cpp
 )
 
