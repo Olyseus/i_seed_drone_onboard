@@ -55,6 +55,7 @@ message drone_info {
 
 message mission_path {
   repeated coordinate waypoints = 1;
+  required int32 reserved = 2;
 }
 
 message event_id_message {

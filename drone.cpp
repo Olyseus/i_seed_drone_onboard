@@ -954,6 +954,7 @@ void drone::send_data_job_internal() {
           const std::vector<lat_lon> mission_path{mission_.get_mission_path()};
 
           interconnection::mission_path m_path;
+          m_path.set_reserved(0x0);
           for (const lat_lon& p : mission_path) {
             interconnection::coordinate* w{m_path.add_waypoints()};
             OLYSEUS_VERIFY(w != nullptr);
