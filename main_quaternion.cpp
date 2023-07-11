@@ -79,16 +79,21 @@ T_DjiReturnCode quaternion_callback(const uint8_t* data, uint16_t data_size,
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
-T_DjiReturnCode position_fused_callback(const uint8_t* data, uint16_t data_size,
-                                        const T_DjiDataTimestamp* timestamp) {
+auto rtk_position_callback(const uint8_t* data, uint16_t data_size,
+                                  const T_DjiDataTimestamp* timestamp)
+    -> T_DjiReturnCode {
   OLYSEUS_VERIFY(data != nullptr);
-  const auto position{*(const T_DjiFcSubscriptionPositionFused*)data};
+  const auto position{*(const T_DjiFcSubscriptionRtkPosition*)data};
   (void)data_size;
   (void)timestamp;
 
-  spdlog::info("latitude: {}, longitude: {}, altitude: {}",
-               position.latitude * 180.0 / M_PI,
-               position.longitude * 180.0 / M_PI, position.altitude);
+  // Note: position.hfsl;
+  // In documentation it's "height above mean sea level" but in fact
+  // the type depends on RTK settings
+  // - https://sdk-forum.dji.net/hc/en-us/requests/82680
+
+  spdlog::debug("RTK, drone latitude: {}, longitude: {}, altitude: {}",
+                position.latitude, position.longitude, position.hfsl);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
@@ -107,17 +112,21 @@ auto run_main(int argc, char** argv) -> int {
     // Wait for SDK to start
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
+    constexpr E_DjiDataSubscriptionTopicFreq topic_freq{
+        DJI_DATA_SUBSCRIPTION_TOPIC_10_HZ};
+
     T_DjiReturnCode code{DjiFcSubscription_Init()};
     OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiFcSubscription_SubscribeTopic(
-        DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ,
+        DJI_FC_SUBSCRIPTION_TOPIC_QUATERNION, topic_freq,
         quaternion_callback);
     OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     code = DjiFcSubscription_SubscribeTopic(
-        DJI_FC_SUBSCRIPTION_TOPIC_POSITION_FUSED,
-        DJI_DATA_SUBSCRIPTION_TOPIC_1_HZ, position_fused_callback);
+        DJI_FC_SUBSCRIPTION_TOPIC_RTK_POSITION, topic_freq,
+        rtk_position_callback);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
     while (true) {
       // Receive callbacks until interrupted
