@@ -7,6 +7,8 @@
 void mission_state::mission_path_ready(int32_t event_id) {
   const std::lock_guard lock{m_};
 
+  user_pause_ = false;
+
   OLYSEUS_VERIFY(global_state_ == ready);
   global_state_ = path_data;
 
@@ -61,6 +63,9 @@ void mission_state::start(int32_t event_id) {
 void mission_state::pause(int32_t event_id) {
   const std::lock_guard lock{m_};
 
+  OLYSEUS_VERIFY(!user_pause_);
+  user_pause_ = true;
+
   OLYSEUS_VERIFY(global_state_ == forward_executing ||
                  global_state_ == backward_executing);
 
@@ -94,6 +99,9 @@ void mission_state::abort(int32_t event_id) {
 
 void mission_state::resume(int32_t event_id) {
   const std::lock_guard lock{m_};
+
+  OLYSEUS_VERIFY(user_pause_);
+  user_pause_ = false;
 
   OLYSEUS_VERIFY(global_state_ == forward_executing ||
                  global_state_ == backward_executing);
@@ -313,7 +321,12 @@ auto mission_state::get_state()
     case mission_prepared:
       return get_state(interconnection::drone_info::WAITING);
     case pause_state:
-      return get_state(interconnection::drone_info::PAUSED);
+      if (user_pause_) {
+        return get_state(interconnection::drone_info::PAUSED);
+      } else {
+        // Waypoint reached, user visible state should be EXECUTING
+        return get_state(interconnection::drone_info::EXECUTING);
+      }
     case enter_mission:
     case execute_flying_route_mission:
     case enter_mission_after_ending_pause:

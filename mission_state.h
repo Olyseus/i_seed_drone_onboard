@@ -140,6 +140,8 @@ class mission_state {
   // This one is global. Don't change even if connection is restarted
   int32_t event_id_{0};
 
+  bool user_pause_{false};
+
   std::optional<interconnection::drone_info::state_t> next_state_;
   int32_t next_event_id_{0};
 
