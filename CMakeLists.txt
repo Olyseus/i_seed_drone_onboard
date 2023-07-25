@@ -21,9 +21,14 @@ else()
 endif()
 
 if(I_SEED_DRONE_ONBOARD_MANIFOLD)
-  set(acm "/dev/ttyACM0")
-  if(NOT EXISTS "${acm}")
-    message(WARNING "${acm} not present, drone is not connected")
+  set(LINUX_UART_DEV1 "/dev/ttyS0")
+  if(NOT EXISTS "${LINUX_UART_DEV1}")
+    message(WARNING "${LINUX_UART_DEV1} not present, drone is not connected")
+  endif()
+
+  set(LINUX_UART_DEV2 "/dev/ttyACM0")
+  if(NOT EXISTS "${LINUX_UART_DEV2}")
+    message(WARNING "${LINUX_UART_DEV2} not present, drone is not connected")
   endif()
 endif()
 
