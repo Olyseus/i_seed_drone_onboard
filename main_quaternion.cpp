@@ -93,7 +93,7 @@ auto rtk_position_callback(const uint8_t* data, uint16_t data_size,
   // - https://sdk-forum.dji.net/hc/en-us/requests/82680
 
   spdlog::info("RTK, drone latitude: {}, longitude: {}, altitude: {}",
-                position.latitude, position.longitude, position.hfsl);
+               position.latitude, position.longitude, position.hfsl);
 
   return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
