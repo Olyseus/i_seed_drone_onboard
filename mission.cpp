@@ -231,7 +231,7 @@ void mission::abort(int32_t event_id) {
 }
 
 void mission::pause(int32_t event_id) {
-  spdlog::info("Pause mission");
+  spdlog::info("Pause mission (user)");
 
   mission_state_.pause(event_id);
 

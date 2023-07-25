@@ -435,7 +435,7 @@ void drone::action_job_internal() {
     return;
   }
 
-  spdlog::info("Pause mission");
+  spdlog::info("Pause mission (action)");
   T_DjiReturnCode code{DjiWaypointV2_Pause()};
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
@@ -851,6 +851,7 @@ void drone::receive_data_job_internal() {
           if (mission_.is_ready()) {
             mission_.update_event_id(event_id);
           } else {
+            spdlog::info("User pause");
             mission_.pause(event_id);
           }
           break;
