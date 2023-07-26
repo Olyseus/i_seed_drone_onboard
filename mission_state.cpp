@@ -180,7 +180,7 @@ auto mission_state::is_paused() const -> bool {
 
   if (next_state_.has_value() &&
       next_state_.value() == interconnection::drone_info::PAUSED) {
-    // PAUSE command was received from user by mission state hasn't updated yet
+    // PAUSE command was received from user but mission state hasn't updated yet
     return true;
   }
 
