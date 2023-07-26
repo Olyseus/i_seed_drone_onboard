@@ -129,7 +129,7 @@ class mission {
   /// \brief Abort the mission
   /// \details
   ///   - Abort mission on user request
-  ///     (\ref thread_receive_data "Thread: receive data")
+  ///     (\ref thread_user_control "Thread: user control")
   ///   - Abort mission on fake waypoint,
   ///     start backward mission if needed
   ///     (\ref thread_action "Thread: action")
@@ -143,7 +143,7 @@ class mission {
   /// \brief Stop the mission
   /// \details
   ///   - Abort mission on user request
-  ///     (\ref thread_receive_data "Thread: receive data")
+  ///     (\ref thread_user_control "Thread: user control")
   ///   - Backward mission finished succesfully
   ///     (\ref thread_action "Thread: action")
   ///   - The forward mission finished, but the backward mission not started

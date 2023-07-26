@@ -343,6 +343,7 @@ void drone::start() {
 
   std::thread action_thread{&drone::action_job, this};
   std::thread inference_thread{&drone::inference_job, this};
+  std::thread user_control_thread{&drone::user_control_job, this};
 
   while (!interrupt_condition()) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
@@ -375,6 +376,7 @@ void drone::start() {
 
   // Wait for other threads to finish. No need to nofify
   inference_thread.join();
+  user_control_thread.join();
 
   if (sigint_received_) {
     throw std::runtime_error("SIGINT received");
@@ -746,6 +748,64 @@ void drone::inference_job() {
   }
 }
 
+void drone::user_control_job() {
+  try {
+    while (true) {
+      if (interrupt_condition()) {
+        spdlog::critical("User control job exit");
+        return;
+      }
+
+      constexpr int sleep_sec{1};
+      std::this_thread::sleep_for(std::chrono::seconds{sleep_sec});
+
+      const std::lock_guard lock_1{user_control_job_mutex_};
+
+      if (!user_control_job_abort_ && !user_control_job_pause_) {
+        continue;
+      }
+
+      if (!mission_.user_cmd_accepted()) {
+        spdlog::info("Waiting for stable state...");
+        continue;
+      }
+
+      const std::lock_guard lock_2{action_job_mutex_};
+
+      if (!mission_.user_cmd_accepted()) {
+        spdlog::info("Waiting for stable state...");
+        continue;
+      }
+
+      if (mission_.is_ready()) {
+        spdlog::info("Mission finished, ignoring user's command");
+        user_control_job_abort_ = false;
+        user_control_job_pause_ = false;
+        mission_.update_event_id(user_control_event_id_);
+        continue;
+      }
+
+      if (user_control_job_abort_) {
+        OLYSEUS_VERIFY(!user_control_job_pause_);
+        user_control_job_abort_ = false;
+
+        mission_.abort(user_control_event_id_);
+        mission_.stop(home_altitude_);
+        continue;
+      }
+
+      OLYSEUS_VERIFY(user_control_job_pause_);
+      user_control_job_pause_ = false;
+
+      spdlog::info("User pause");
+      mission_.pause(user_control_event_id_);
+    }
+  } catch (std::exception& e) {
+    exception_caught_ = true;
+    spdlog::critical("Exception: {}", e.what());
+  }
+}
+
 void drone::receive_data_job() {
   try {
     receive_data_job_internal();
@@ -835,54 +895,22 @@ void drone::receive_data_job_internal() {
       } break;
       case interconnection::command_type::MISSION_PAUSE: {
         const int32_t event_id{receive_event_id()};
-        while (true) {
-          if (!mission_.user_cmd_accepted()) {
-            spdlog::info("Waiting for stable state...");
-            constexpr int sleep_sec{1};
-            std::this_thread::sleep_for(std::chrono::seconds{sleep_sec});
-            continue;
-          }
-
-          const std::lock_guard lock{action_job_mutex_};
-          if (!mission_.user_cmd_accepted()) {
-            continue;
-          }
-
-          if (mission_.is_ready()) {
-            mission_.update_event_id(event_id);
-          } else {
-            spdlog::info("User pause");
-            mission_.pause(event_id);
-          }
-          break;
-        }
+        const std::lock_guard lock{user_control_job_mutex_};
+        OLYSEUS_VERIFY(!user_control_job_abort_);
+        OLYSEUS_VERIFY(!user_control_job_pause_);
+        user_control_job_pause_ = true;
+        user_control_event_id_ = event_id;
       } break;
       case interconnection::command_type::MISSION_CONTINUE:
         mission_.resume(receive_event_id());
         break;
       case interconnection::command_type::MISSION_ABORT: {
         const int32_t event_id{receive_event_id()};
-        while (true) {
-          if (!mission_.user_cmd_accepted()) {
-            spdlog::info("Waiting for stable state...");
-            constexpr int sleep_sec{1};
-            std::this_thread::sleep_for(std::chrono::seconds{sleep_sec});
-            continue;
-          }
-
-          const std::lock_guard lock{action_job_mutex_};
-          if (!mission_.user_cmd_accepted()) {
-            continue;
-          }
-
-          if (mission_.is_ready()) {
-            mission_.update_event_id(event_id);
-          } else {
-            mission_.abort(event_id);
-            mission_.stop(home_altitude_);
-          }
-          break;
-        }
+        const std::lock_guard lock{user_control_job_mutex_};
+        OLYSEUS_VERIFY(!user_control_job_abort_);
+        OLYSEUS_VERIFY(!user_control_job_pause_);
+        user_control_job_abort_ = true;
+        user_control_event_id_ = event_id;
       } break;
       case interconnection::command_type::LASER_RANGE_RESPONSE: {
 #if defined(I_SEED_DRONE_ONBOARD_SIMULATOR)

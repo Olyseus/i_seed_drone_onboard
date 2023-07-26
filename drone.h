@@ -142,10 +142,11 @@
 /// \anchor thread_psdk_callback
 /// \anchor thread_inference
 /// \anchor thread_receive_data
+/// \anchor thread_user_control
 /// \anchor thread_send_data
 /// \anchor thread_action
 ///
-/// After the drone is started, there are five threads:
+/// After the drone is started, there are six threads:
 /// - Payload SDK callback thread, that's where asynchronous callbacks from
 ///   Payload SDK live. E.g., we can receive an event that the mission is
 ///   finished or the waypoint reached (see \ref mission and
@@ -161,6 +162,9 @@
 ///   \ref laser_range::value_received) from the Android app come from
 /// - \c send_data_job is writing commands to pipe, commands are read from
 ///   \c execute_commands_ queue, if needed extra data send as a follow-up
+/// - \c user_control_job is waiting for the right conditions to execute
+///   \ref mission::abort and \ref mission::pause requested by the user.
+///   Code moved from \c receive_data_job to avoid blocking the read pipe
 /// - \c action_job is executed when we reach a waypoint. Most of the mission
 ///   it's in the waiting state. That's where we can
 ///   \ref camera::shoot_photo "start shooting a photo",
@@ -333,6 +337,13 @@ class drone {
   static attitude rotate_gimbal(float x, float y, double drone_heading_degree);
 
   void inference_job();
+
+  std::mutex user_control_job_mutex_;
+  bool user_control_job_abort_{false};
+  bool user_control_job_pause_{false};
+  int32_t user_control_event_id_{-1};
+
+  void user_control_job();
 
   void receive_data_job();
   void receive_data_job_internal();
