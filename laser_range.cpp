@@ -49,14 +49,18 @@ auto laser_range::latest(
 
     {
       const std::lock_guard lock{m};
-      commands.push_back(interconnection::command_type::LASER_RANGE_REQUEST);
+      const auto cmd{interconnection::command_type::LASER_RANGE_REQUEST};
+      if (std::find(commands.begin(), commands.end(), cmd) == commands.end()) {
+        commands.push_back(cmd);
+      }
     }
 
     // need to wait for a new value
     std::unique_lock lock{m_};
-    condition_variable_.wait(
-        lock, [this] { return latest_time_point_ != invalid_time_point; });
-    OLYSEUS_VERIFY(latest_time_point_ != invalid_time_point);
+    constexpr int wait_sec{2};
+    condition_variable_.wait_for(lock, std::chrono::seconds(wait_sec), [this] {
+      return latest_time_point_ != invalid_time_point;
+    });
   }
 }
 

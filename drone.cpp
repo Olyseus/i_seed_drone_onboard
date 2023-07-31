@@ -346,6 +346,11 @@ void drone::start() {
   std::thread user_control_thread{&drone::user_control_job, this};
 
   while (!interrupt_condition()) {
+    {
+      const std::lock_guard lock{execute_commands_mutex_};
+      execute_commands_.clear();
+    }
+
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     OLYSEUS_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
     const server server{channel_id};
