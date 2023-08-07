@@ -77,6 +77,13 @@ Check dependencies of the installed executable:
 UART configuration
 ------------------
 
+Latest recommended config:
+
+.. code-block:: none
+
+  #define LINUX_UART_DEV1    "/dev/ttyTHS2"
+  #define LINUX_UART_DEV2    "/dev/ttyACM0"
+
 Direct config:
 
 .. code-block:: none
