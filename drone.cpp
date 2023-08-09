@@ -576,8 +576,18 @@ void drone::action_job_internal() {
       spdlog::info("{} {} {} 0 255 0", p_pixel_end(0), p_pixel_end(1),
                    p_pixel_end(2));
       constexpr double sanity_dist{10.0};
-      OLYSEUS_VERIFY((p_pixel_end - p_laser_end).norm() < sanity_dist);
-
+      const double end_diff{(p_pixel_end - p_laser_end).norm()};
+      if (end_diff > sanity_dist) {
+#if defined(I_SEED_DRONE_ONBOARD_GIMBAL_ROTATION)
+        OLYSEUS_UNREACHABLE;
+#else
+        spdlog::warn(
+            "Distance between laser and pixel prediction "
+            "is too long: {}. "
+            "Gimbal rotation is OFF, issue IGNORED",
+            end_diff);
+#endif
+      }
       // FIXME (save to file)
     }
   }
@@ -611,8 +621,8 @@ void drone::align_gimbal() {
   const double d_pitch{std::abs(rotation.pitch)};
   const double d_yaw{std::abs(rotation.yaw)};
 
-  const bool no_rotation{
-      d_roll < rough_eps && d_pitch < rough_eps && d_yaw < rough_eps};
+  const bool no_rotation{d_roll < rough_eps && d_pitch < rough_eps &&
+                         d_yaw < rough_eps};
 #else
   constexpr bool no_rotation{true};
 #endif
