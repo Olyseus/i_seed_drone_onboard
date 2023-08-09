@@ -39,7 +39,7 @@ simulator::simulator() {
   laser_range_values_.push_back(15.5F);
 
   // extra data for laser measurement
-  for (int i{0}; i < 10; ++i) {
+  for (int i{0}; i < 1000; ++i) {
     laser_range_values_.push_back(15.0F);
   }
 }
