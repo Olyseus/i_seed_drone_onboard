@@ -514,7 +514,13 @@ void drone::action_job_internal() {
     const double yaw_diff{std::abs(drone_yaw_ - gimbal_yaw_)};
     spdlog::info("Gimbal/drone yaw diff: {}", yaw_diff);
     constexpr double max_diff{0.7};
-    OLYSEUS_VERIFY(yaw_diff < max_diff);
+    if (yaw_diff > max_diff) {
+#if defined(I_SEED_DRONE_ONBOARD_GIMBAL_ROTATION)
+      OLYSEUS_UNREACHABLE;
+#else
+      spdlog::warn("Gimbal rotation is OFF, yaw diff IGNORED");
+#endif
+    }
     camera_.shoot_photo(gps, drone_attitude, gimbal_attitude, waypoint_index);
   } else {
     OLYSEUS_VERIFY(w.has_detection());
