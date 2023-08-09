@@ -1216,6 +1216,10 @@ void drone::next_mission() {
   if (!mission_.is_forward()) {
     spdlog::info("MISSION FINISHED");
     mission_.stop(home_altitude_);
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR) && \
+    !defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
+    throw std::runtime_error("Simulator mission complete");
+#endif
     return;
   }
 
