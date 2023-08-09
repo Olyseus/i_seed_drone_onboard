@@ -31,6 +31,19 @@ TEST_F(mission_polygon_test, 4_points_2_polygons) {
   ASSERT_EQ(simple_polygons(mission).size(), 2);
 }
 
+TEST_F(mission_polygon_test, coordinates_for_simulator) {
+  utils::polygon poly;
+
+  poly.push_back({-6.598646985268483, -10.00870200892634});
+  poly.push_back({6.598646985656046, -10.008702008515277});
+  poly.push_back({6.598623291218747, 10.008702008039176});
+  poly.push_back({-6.598623290763276, 10.008702007695618});
+
+  mission_polygon mission(poly);
+  auto path{mission.make({6.829418543029466e-11, -1.2293522473970883e-06})};
+  ASSERT_EQ(path.size(), 3);
+}
+
 TEST_F(mission_polygon_test, real_1) {
   utils::polygon poly;
   poly.push_back({-46.59007849081423, -13.758538302038106});
