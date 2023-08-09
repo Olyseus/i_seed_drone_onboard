@@ -598,12 +598,20 @@ void drone::align_gimbal() {
   rotation.yaw = expected_gimbal_yaw - gimbal_yaw_;
   rotation.time = time_ms * ms;
 
+#if defined(I_SEED_DRONE_ONBOARD_GIMBAL_ROTATION)
   constexpr float eps{1e-3};
   constexpr float rough_eps{0.1 + eps};
   const double d_roll{std::abs(rotation.roll)};
   const double d_pitch{std::abs(rotation.pitch)};
   const double d_yaw{std::abs(rotation.yaw)};
-  if (d_roll < rough_eps && d_pitch < rough_eps && d_yaw < rough_eps) {
+
+  const bool no_rotation{
+      d_roll < rough_eps && d_pitch < rough_eps && d_yaw < rough_eps};
+#else
+  constexpr bool no_rotation{true};
+#endif
+
+  if (no_rotation) {
     return;
   }
 
@@ -667,6 +675,16 @@ auto drone::rotate_gimbal(float x, float y, double drone_heading_degree)
   attitude expected{.pitch = 0.0, .roll = 0.0, .yaw = 0.0};
   std::tie(expected.yaw, expected.pitch) =
       gimbal_rotation_params(x, y, drone_heading_degree);
+
+#if defined(I_SEED_DRONE_ONBOARD_GIMBAL_ROTATION)
+  constexpr bool no_rotation{false};
+#else
+  constexpr bool no_rotation{true};
+#endif
+
+  if (no_rotation) {
+    return expected;
+  }
 
   constexpr int time_ms{500};
   constexpr int time_wait_ms{3 * time_ms};

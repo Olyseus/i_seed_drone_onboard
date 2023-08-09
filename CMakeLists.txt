@@ -37,6 +37,7 @@ option(I_SEED_DRONE_ONBOARD_INTERCONNECTION "Establish interconnection with RC" 
 option(I_SEED_DRONE_ONBOARD_SIMULATOR "Run on simulator" OFF)
 option(I_SEED_DRONE_ONBOARD_DOC "Build Doxygen documentation" OFF)
 option(I_SEED_DRONE_ONBOARD_CUDA "Build with CUDA" ON)
+option(I_SEED_DRONE_ONBOARD_GIMBAL_ROTATION "Enable gimbal rotation" ON)
 
 if(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
   if(I_SEED_DRONE_ONBOARD_SIMULATOR)
@@ -51,6 +52,9 @@ if(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
     # RTK: ON
     # Laser: real values
     message("Configuration: REAL FLIGHT")
+    if(NOT I_SEED_DRONE_ONBOARD_GIMBAL_ROTATION)
+      message(FATAL_ERROR "Gimbal rotation should be enabled in real flight")
+    endif()
   endif()
 else()
   if(I_SEED_DRONE_ONBOARD_SIMULATOR)
@@ -406,6 +410,10 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
 
   if(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
     target_compile_definitions(i_seed_drone_onboard_core PUBLIC I_SEED_DRONE_ONBOARD_INTERCONNECTION)
+  endif()
+
+  if(I_SEED_DRONE_ONBOARD_GIMBAL_ROTATION)
+    target_compile_definitions(i_seed_drone_onboard_core PUBLIC I_SEED_DRONE_ONBOARD_GIMBAL_ROTATION)
   endif()
 endif()
 
