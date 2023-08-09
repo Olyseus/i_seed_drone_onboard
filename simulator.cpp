@@ -67,7 +67,7 @@ api_code simulator::receive_data(std::string* buffer) {
 
   interconnection::input_polygon input_polygon;
 
-  constexpr double side{0.00005};
+  constexpr double side{0.00009};
 
   interconnection::coordinate* v_1{input_polygon.add_vertices()};
   v_1->set_latitude(mission_lat - side);
