@@ -160,7 +160,7 @@ auto drone::rtk_position_callback(const uint8_t* data, uint16_t data_size,
   drone_longitude_ = position.longitude;
 
   // In documentation it's "height above mean sea level" but in fact
-  // the type depends on RTK settings
+  // the type is WGS 84 (outside of China)
   // - https://sdk-forum.dji.net/hc/en-us/requests/82680
   drone_altitude_ = position.hfsl;
 
