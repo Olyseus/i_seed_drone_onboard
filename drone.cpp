@@ -1237,6 +1237,10 @@ void drone::next_mission() {
   if (!mission_.upload_mission_and_start(event_id)) {
     spdlog::info("Backward mission canceled: No objects detected");
     mission_.stop(home_altitude_);
+#if defined(I_SEED_DRONE_ONBOARD_SIMULATOR) && \
+    !defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
+    throw std::runtime_error("Simulator mission complete");
+#endif
   }
 }
 
