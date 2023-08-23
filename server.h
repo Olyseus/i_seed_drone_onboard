@@ -23,10 +23,11 @@ class server {
   server& operator=(server&&) = delete;
   /// \endcond
 
+  /// \note: Used only in \ref channel
   T_DjiMopChannelHandle handle() const;
 
  private:
-  T_DjiMopChannelHandle out_channel_handle_{nullptr};
+  T_DjiMopChannelHandle channel_handle_{nullptr};
 };
 
 #endif  // SERVER_H_

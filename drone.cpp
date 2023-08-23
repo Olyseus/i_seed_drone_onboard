@@ -8,6 +8,7 @@
 #include <future>
 
 #include "api_code.h"
+#include "channel.h"
 #include "converter.h"
 #include "mission_builder.h"
 #include "olyseus_verify.h"  // OLYSEUS_VERIFY
@@ -341,6 +342,8 @@ void drone::start() {
   const T_DjiReturnCode code = DjiMopChannel_Init();
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
+  const server server{channel_id};
+
   std::thread action_thread{&drone::action_job, this};
   std::thread inference_thread{&drone::inference_job, this};
   std::thread user_control_thread{&drone::user_control_job, this};
@@ -351,18 +354,21 @@ void drone::start() {
       execute_commands_.clear();
     }
 
+    // Make it possible to break (Ctrl+C) the channel accepting procedure
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
     OLYSEUS_VERIFY(signal(SIGINT, SIG_DFL) != SIG_ERR);
-    const server server{channel_id};
-    channel_handle_ = server.handle();
+
+    channel c{server};
+
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
+    OLYSEUS_VERIFY(signal(SIGINT, sigint_handler) != SIG_ERR);
+
+    channel_handle_ = c.out_handle();
 #if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
     OLYSEUS_VERIFY(channel_handle_ != nullptr);
 #else
     OLYSEUS_VERIFY(channel_handle_ == nullptr);
 #endif
-
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
-    OLYSEUS_VERIFY(signal(SIGINT, sigint_handler) != SIG_ERR);
 
     connection_closed_ = false;
 

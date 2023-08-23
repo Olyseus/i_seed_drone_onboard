@@ -277,6 +277,8 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       third_party/psdk/manifold2/hal/hal_uart.h
       third_party/psdk/manifold2/hal/hal_usb_bulk.c
       third_party/psdk/manifold2/hal/hal_usb_bulk.h
+      channel.cpp
+      channel.h
       mission_state.cpp
       mission_state.h
       server.cpp
