@@ -15,6 +15,7 @@ channel::channel(const server& s) {
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   OLYSEUS_VERIFY(out_channel_handle_ != nullptr);
 #else
+  (void)s;  // unused
   OLYSEUS_VERIFY(out_channel_handle_ == nullptr);
 #endif
 }
