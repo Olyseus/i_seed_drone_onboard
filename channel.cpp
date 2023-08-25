@@ -1,6 +1,10 @@
 #include "channel.h"
 
+#include <dji_mop_channel.h>  // DjiMopChannel_Accept
 #include <spdlog/spdlog.h>
+
+#include "olyseus_verify.h"  // OLYSEUS_VERIFY
+#include "server.h"
 
 channel::channel(const server& s) {
 #if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
