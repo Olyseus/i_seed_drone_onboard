@@ -4,6 +4,7 @@
 
 channel::channel(const server& s) {
 #if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
+  // That's where we will wait for connection from other side
   spdlog::info("Accept channel (create out)");
   const T_DjiReturnCode code{
       DjiMopChannel_Accept(s.handle(), &out_channel_handle_)};
