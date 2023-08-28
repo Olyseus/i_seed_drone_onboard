@@ -24,7 +24,7 @@ Protobuf pip package from ``yolo_v5`` virtualenv needs to be downgraded:
 ONNX (Ubuntu x64)
 -----------------
 
-Convert ``best.pt`` to ONNX format:
+Convert ``best.pt`` (variation YOLOv5s) to ONNX format (yolov5, git tag v6.2):
 
 .. code-block:: none
 
