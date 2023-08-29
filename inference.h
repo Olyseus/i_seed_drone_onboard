@@ -78,8 +78,9 @@ class inference {
 
   // https://github.com/ultralytics/yolov5/issues/1277#issuecomment-1081657025
   static constexpr std::size_t output_params{5};  // x y w h objectness
+  // https://github.com/Olyseus/i_seed_drone_onboard/issues/37
   static constexpr std::size_t n_classes{
-      3};  // i-seed blue, i-seed brown, i-seed green
+      2};  // i-seed blue, i-seed original color
   static constexpr std::size_t output_entry_len{output_params + n_classes};
 
   // https://github.com/ultralytics/yolov5/issues/1277#issuecomment-810458576

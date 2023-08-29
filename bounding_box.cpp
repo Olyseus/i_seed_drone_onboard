@@ -41,27 +41,18 @@ bounding_box::bounding_box(const float* p, std::size_t x_shift,
   OLYSEUS_VERIFY(iseed_blue <= 1.0);
 
   // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-  const float iseed_brown{p[6]};
-  OLYSEUS_VERIFY(iseed_brown >= 0.0);
-  OLYSEUS_VERIFY(iseed_brown <= 1.0);
+  const float iseed_original_color{p[6]};
+  OLYSEUS_VERIFY(iseed_original_color >= 0.0);
+  OLYSEUS_VERIFY(iseed_original_color <= 1.0);
 
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-  const float iseed_green{p[7]};
-  OLYSEUS_VERIFY(iseed_green >= 0.0);
-  OLYSEUS_VERIFY(iseed_green <= 1.0);
-
-  if (iseed_blue > std::max(iseed_brown, iseed_green)) {
+  if (iseed_blue > iseed_original_color) {
     class_id_ = 0;
     class_name_ = "blue";
     confidence_ *= iseed_blue;
-  } else if (iseed_brown > std::max(iseed_blue, iseed_green)) {
-    class_id_ = 1;
-    class_name_ = "brown";
-    confidence_ *= iseed_brown;
   } else {
-    class_id_ = 2;
-    class_name_ = "green";
-    confidence_ *= iseed_green;
+    class_id_ = 1;
+    class_name_ = "original_color";
+    confidence_ *= iseed_original_color;
   }
 }
 
@@ -115,10 +106,7 @@ auto bounding_box::class_color() const -> cv::Scalar {
       // blue
       return {255, 0, 0};  // NOLINT(*-magic-numbers)
     case 1:
-      // brown
-      return {42, 42, 165};  // NOLINT(*-magic-numbers)
-    case 2:
-      // green
+      // original color, green
       return {0, 255, 0};  // NOLINT(*-magic-numbers)
     default:
       OLYSEUS_UNREACHABLE;
