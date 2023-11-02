@@ -359,12 +359,21 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       # libusb.h:736:4: error: ISO C++ forbids zero-size array ‘dev_capability_data’ [-Werror=pedantic]
       "-Wno-ignored-qualifiers;-Wno-pedantic"
   )
+
+  set_source_files_properties(
+      third_party/psdk/dji_config_manager.c
+      PROPERTIES
+      COMPILE_OPTIONS
+      # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
+      "-Wno-pedantic"
+  )
   set_source_files_properties(
       third_party/psdk/manifold2/hal/hal_usb_bulk.c
       PROPERTIES
       COMPILE_OPTIONS
       # dji_error.h:44:1: error: ISO C restricts enumerator values to range of ‘int’ [-Werror=pedantic]
-      "-Wno-pedantic"
+      # directive output may be truncated writing 4 bytes into a region of size between 1 and 64
+      "-Wno-pedantic;-Wno-format-truncation"
   )
   set_source_files_properties(
       third_party/psdk/manifold2/hal/hal_network.c
