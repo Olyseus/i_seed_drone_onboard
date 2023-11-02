@@ -285,6 +285,8 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
       server.h
       third_party/psdk/application.cpp
       third_party/psdk/application.hpp
+      third_party/psdk/dji_config_manager.c
+      third_party/psdk/dji_config_manager.h
       third_party/psdk/dji_sdk_app_info.h
       third_party/psdk/dji_sdk_config.h
       camera.cpp
