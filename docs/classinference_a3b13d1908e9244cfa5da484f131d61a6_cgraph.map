@@ -1,0 +1,5 @@
+<map id="inference::inference" name="inference::inference">
+<area shape="rect" id="node1" title="Load model from file." alt="" coords="5,31,157,57"/>
+<area shape="rect" id="node2" href="$classtimer.html#ab273f4025081b9c3754fafd85f6f5151" title="Show elapsed time in milliseconds." alt="" coords="205,5,348,32"/>
+<area shape="rect" id="node3" href="$classtimer.html#a9aa894a57748b2bdf3adce46f5736794" title="Start timer." alt="" coords="229,56,324,83"/>
+</map>

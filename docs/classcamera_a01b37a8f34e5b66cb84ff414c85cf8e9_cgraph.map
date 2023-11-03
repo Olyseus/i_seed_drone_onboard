@@ -1,0 +1,4 @@
+<map id="camera::shoot_photo" name="camera::shoot_photo">
+<area shape="rect" id="node1" title="Start shooting a photo." alt="" coords="5,5,164,32"/>
+<area shape="rect" id="node2" href="$classtimer.html#a9aa894a57748b2bdf3adce46f5736794" title="Start timer." alt="" coords="212,5,307,32"/>
+</map>

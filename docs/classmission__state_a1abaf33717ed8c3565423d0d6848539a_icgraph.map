@@ -1,0 +1,4 @@
+<map id="mission_state::is_ready" name="mission_state::is_ready">
+<area shape="rect" id="node1" title="Check if mission is ready to start." alt="" coords="189,5,365,32"/>
+<area shape="rect" id="node2" href="$classmission.html#a125b043c7989d0a10ecfe429e2185cb8" title="Flag to indicate that mission is ready to be started." alt="" coords="5,5,141,32"/>
+</map>

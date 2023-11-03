@@ -1,0 +1,4 @@
+<map id="mission::abort" name="mission::abort">
+<area shape="rect" id="node1" title="Abort the mission." alt="" coords="5,5,120,32"/>
+<area shape="rect" id="node2" href="$classmission__state.html#ad8e3ea87befa5ed762df532991660e71" title="Abort mission. Ignore update events." alt="" coords="168,5,323,32"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="pipeline_closed" name="pipeline_closed">
+<area shape="rect" id="node1" title="An exception is thrown when the communication channel is broken and needs to be recreated." alt="" coords="5,80,128,107"/>
+<area shape="rect" id="node2" title=" " alt="" coords="9,5,124,32"/>
+</map>

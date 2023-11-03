@@ -1,0 +1,5 @@
+<map id="mission_polygon::make" name="mission_polygon::make">
+<area shape="rect" id="node1" title="Build mission math." alt="" coords="5,31,181,57"/>
+<area shape="rect" id="node2" href="$classtimer.html#ab273f4025081b9c3754fafd85f6f5151" title="Show elapsed time in milliseconds." alt="" coords="229,5,372,32"/>
+<area shape="rect" id="node3" href="$classtimer.html#a9aa894a57748b2bdf3adce46f5736794" title="Start timer." alt="" coords="253,56,348,83"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="mission_state::user_cmd_accepted" name="mission_state::user_cmd_accepted">
+<area shape="rect" id="node1" title="Check if state accepts user&#39;s command pause/resume/abort." alt="" coords="264,5,413,47"/>
+<area shape="rect" id="node2" href="$classmission.html#a9358767b90498e8c8a7ddae6028d11dd" title="Flag to indicate that mission is in the stable state and is ready to accept the user commands pause/r..." alt="" coords="5,13,216,39"/>
+</map>

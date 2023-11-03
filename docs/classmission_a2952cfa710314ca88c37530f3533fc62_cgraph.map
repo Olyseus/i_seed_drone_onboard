@@ -1,0 +1,4 @@
+<map id="mission::is_forward" name="mission::is_forward">
+<area shape="rect" id="node1" title="Check if mission is forward." alt="" coords="5,5,155,32"/>
+<area shape="rect" id="node2" href="$classmission__state.html#ae8766d575b6fa6e1f47ad823dfe65eea" title="Forward mission is in progress." alt="" coords="203,5,392,32"/>
+</map>

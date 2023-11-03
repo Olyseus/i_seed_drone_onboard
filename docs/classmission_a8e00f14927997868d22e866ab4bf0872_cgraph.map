@@ -1,0 +1,4 @@
+<map id="mission::mission_path_cancel" name="mission::mission_path_cancel">
+<area shape="rect" id="node1" title="A user request to clear the current mission path." alt="" coords="5,5,173,47"/>
+<area shape="rect" id="node2" href="$classmission__state.html#ae23ee3b3b54f849dd0409aa21f47babb" title="A user request to clear the current mission path. Either the path is invalid, or the user wants to ch..." alt="" coords="221,5,393,47"/>
+</map>

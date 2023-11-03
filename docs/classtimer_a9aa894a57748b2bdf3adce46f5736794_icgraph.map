@@ -1,0 +1,9 @@
+<map id="timer::start" name="timer::start">
+<area shape="rect" id="node1" title="Start timer." alt="" coords="253,148,348,175"/>
+<area shape="rect" id="node2" href="$classinference.html#a3b13d1908e9244cfa5da484f131d61a6" title="Load model from file." alt="" coords="29,5,181,32"/>
+<area shape="rect" id="node3" href="$classmission__polygon.html#a19ee84c58373c3a1b782225d2c822ecc" title="Build mission math." alt="" coords="17,56,193,83"/>
+<area shape="rect" id="node4" href="$classmission__directed__polygon.html#a83945962ff128434d65f5a600cdf7ac2" title=" " alt="" coords="5,107,205,149"/>
+<area shape="rect" id="node5" href="$classmission__simple__polygon.html#a93785bda9218a8fc3a361c0c73bf8ca3" title=" " alt="" coords="10,173,201,214"/>
+<area shape="rect" id="node6" href="$classinference.html#ace0e2a040196a21a09e76fe4dcd663cf" title="Start inference on image." alt="" coords="49,239,161,265"/>
+<area shape="rect" id="node7" href="$classcamera.html#a01b37a8f34e5b66cb84ff414c85cf8e9" title="Start shooting a photo." alt="" coords="26,289,185,316"/>
+</map>

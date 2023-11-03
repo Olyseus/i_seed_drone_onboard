@@ -1,0 +1,6 @@
+<map id="mission_directed_polygon::build_path" name="mission_directed_polygon::build_path">
+<area shape="rect" id="node1" title="Build mission path." alt="" coords="5,5,197,47"/>
+<area shape="rect" id="node2" href="$classmission__cell.html#a114b8845c564e7f63601ae70d7746bad" title="Build mission path." alt="" coords="245,13,424,39"/>
+<area shape="rect" id="node3" href="$classmission__directed__cell.html#a11f263e563a9e578e8be39b1d4fcca5b" title="Build mission path." alt="" coords="472,5,635,47"/>
+<area shape="rect" id="node4" href="$classmission__aligned__cell.html#abc80e5bb207e9432163e59bf1e33b731" title="Build mission path." alt="" coords="683,5,841,47"/>
+</map>

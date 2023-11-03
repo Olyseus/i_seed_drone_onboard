@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" title=" " alt="" coords="5,31,120,57"/>
+<area shape="rect" id="node2" href="$classjob__interrupted__event.html" title="Stop the process because of interruption event: exception or SIGINT." alt="" coords="168,5,333,32"/>
+<area shape="rect" id="node3" href="$classpipeline__closed.html" title="An exception is thrown when the communication channel is broken and needs to be recreated." alt="" coords="189,56,312,83"/>
+</map>

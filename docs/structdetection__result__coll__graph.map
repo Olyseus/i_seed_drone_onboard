@@ -1,0 +1,5 @@
+<map id="detection_result" name="detection_result">
+<area shape="rect" id="node1" title="Full information about detected object." alt="" coords="45,109,172,136"/>
+<area shape="rect" id="node2" href="$structattitude.html" title="Drone and gimbal attitude." alt="" coords="5,5,79,32"/>
+<area shape="rect" id="node3" href="$structgps__coordinates.html" title="Drone GPS coordinates." alt="" coords="113,5,241,32"/>
+</map>

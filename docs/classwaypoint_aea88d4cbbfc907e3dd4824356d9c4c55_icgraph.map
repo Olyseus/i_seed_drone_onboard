@@ -1,0 +1,9 @@
+<map id="waypoint::is_forward_ready" name="waypoint::is_forward_ready">
+<area shape="rect" id="node1" title=" " alt="" coords="433,99,592,141"/>
+<area shape="rect" id="node2" href="$classwaypoint.html#a257e9d94d1865217fd2c43177de8e417" title="Retrieve the detection results of the waypoint." alt="" coords="201,5,380,32"/>
+<area shape="rect" id="node3" href="$classwaypoint.html#ab14c6b60b0a0d79d111048220ca661ff" title=" " alt="" coords="200,56,381,83"/>
+<area shape="rect" id="node5" href="$classwaypoint.html#a45c7cd14e4f8001817cfeb9c51657503" title="When inference finished, save the detected objects." alt="" coords="196,107,385,133"/>
+<area shape="rect" id="node6" href="$classwaypoint.html#a43c6185d061483d298b096f128b7807d" title=" " alt="" coords="208,158,373,199"/>
+<area shape="rect" id="node7" href="$classwaypoint.html#a2e1f8d3f6095179ef13051bd2e882a0c" title="Mark waypoint as ready." alt="" coords="213,224,368,251"/>
+<area shape="rect" id="node4" href="$classwaypoint.html#a53c001e6e4bff8d220f8982033772b64" title=" " alt="" coords="5,56,148,83"/>
+</map>

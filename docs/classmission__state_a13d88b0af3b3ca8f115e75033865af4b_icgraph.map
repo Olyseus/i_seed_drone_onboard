@@ -1,0 +1,4 @@
+<map id="mission_state::is_finished" name="mission_state::is_finished">
+<area shape="rect" id="node1" title="Check if forward/backward mission finished." alt="" coords="204,5,395,32"/>
+<area shape="rect" id="node2" href="$classmission.html#a9d618354f58d136fedfaa55e1c658c41" title="Flag to indicate that mission is finished." alt="" coords="5,5,156,32"/>
+</map>

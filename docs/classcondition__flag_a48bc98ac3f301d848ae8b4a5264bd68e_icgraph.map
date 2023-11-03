@@ -1,0 +1,4 @@
+<map id="condition_flag::notify" name="condition_flag::notify">
+<area shape="rect" id="node1" title="Notify waiting thread." alt="" coords="151,5,309,32"/>
+<area shape="rect" id="node2" href="$classdrone.html#af1f1e7a230a184ecd3747f80c9692940" title="Start the drone work." alt="" coords="5,5,103,32"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="mission_state::set_backward" name="mission_state::set_backward">
+<area shape="rect" id="node1" title="Switch to backward mission." alt="" coords="224,5,365,47"/>
+<area shape="rect" id="node2" href="$classmission.html#a462d55cf83661f5b405d8ee9769b2cac" title="The forward mission is finished, now set the current mission status to backward." alt="" coords="5,13,176,39"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="mission_simple_polygon::mission_simple_polygon" name="mission_simple_polygon::mission_simple_polygon">
+<area shape="rect" id="node1" title=" " alt="" coords="5,23,196,65"/>
+<area shape="rect" id="node2" href="$classtimer.html#ab273f4025081b9c3754fafd85f6f5151" title="Show elapsed time in milliseconds." alt="" coords="244,5,387,32"/>
+<area shape="rect" id="node3" href="$classtimer.html#a9aa894a57748b2bdf3adce46f5736794" title="Start timer." alt="" coords="268,56,363,83"/>
+</map>

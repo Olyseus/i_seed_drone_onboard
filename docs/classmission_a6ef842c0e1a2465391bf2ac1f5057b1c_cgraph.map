@@ -1,0 +1,5 @@
+<map id="mission::stop" name="mission::stop">
+<area shape="rect" id="node1" title="Stop the mission." alt="" coords="5,31,115,57"/>
+<area shape="rect" id="node2" href="$classhome__altitude.html#aa8b6ba1265d546cf272f0b3a1c6c873c" title="Mission stopped, no more data expected." alt="" coords="163,5,373,32"/>
+<area shape="rect" id="node3" href="$classmission__state.html#a597175b82b617d325ac367e79e72f02e" title="Stop the global mission execution." alt="" coords="193,56,343,83"/>
+</map>

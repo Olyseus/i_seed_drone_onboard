@@ -1,0 +1,4 @@
+<map id="mission_state::init" name="mission_state::init">
+<area shape="rect" id="node1" title="Initial fetch of the path before running forward/backward missions." alt="" coords="156,5,299,32"/>
+<area shape="rect" id="node2" href="$classmission.html#af6473144bdff5be813d013be26b8514e" title="&#39;MISSION_START&#39; command received from user" alt="" coords="5,5,108,32"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="mission::pause" name="mission::pause">
+<area shape="rect" id="node1" title="Pause the mission." alt="" coords="5,5,125,32"/>
+<area shape="rect" id="node2" href="$classmission__state.html#ab7c5256bfe76e42a2895e4e2c5cf9302" title="Pause mission." alt="" coords="173,5,333,32"/>
+</map>

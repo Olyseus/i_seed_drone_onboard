@@ -1,3 +1,0 @@
-[submodule "third_party/dependencies"]
-	path = third_party/dependencies
-	url = git@github.com:olyseus/dependencies

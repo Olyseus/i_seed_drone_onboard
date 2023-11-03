@@ -1,0 +1,5 @@
+<map id="inference::run" name="inference::run">
+<area shape="rect" id="node1" title="Start inference on image." alt="" coords="5,31,117,57"/>
+<area shape="rect" id="node2" href="$classtimer.html#ab273f4025081b9c3754fafd85f6f5151" title="Show elapsed time in milliseconds." alt="" coords="165,5,308,32"/>
+<area shape="rect" id="node3" href="$classtimer.html#a9aa894a57748b2bdf3adce46f5736794" title="Start timer." alt="" coords="189,56,284,83"/>
+</map>

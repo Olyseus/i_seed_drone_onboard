@@ -1,0 +1,5 @@
+<map id="mission_cell::build_path" name="mission_cell::build_path">
+<area shape="rect" id="node1" title="Build mission path." alt="" coords="5,13,184,39"/>
+<area shape="rect" id="node2" href="$classmission__directed__cell.html#a11f263e563a9e578e8be39b1d4fcca5b" title="Build mission path." alt="" coords="232,5,395,47"/>
+<area shape="rect" id="node3" href="$classmission__aligned__cell.html#abc80e5bb207e9432163e59bf1e33b731" title="Build mission path." alt="" coords="443,5,601,47"/>
+</map>

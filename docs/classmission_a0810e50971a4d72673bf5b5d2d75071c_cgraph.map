@@ -1,0 +1,4 @@
+<map id="mission::resume" name="mission::resume">
+<area shape="rect" id="node1" title="Resume the mission." alt="" coords="5,5,136,32"/>
+<area shape="rect" id="node2" href="$classmission__state.html#a27d740c5fa5012d478739006671cff2b" title="Resume mission." alt="" coords="184,5,355,32"/>
+</map>

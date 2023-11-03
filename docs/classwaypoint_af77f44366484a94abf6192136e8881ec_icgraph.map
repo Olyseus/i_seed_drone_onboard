@@ -1,0 +1,6 @@
+<map id="waypoint::is_backward_ready" name="waypoint::is_backward_ready">
+<area shape="rect" id="node1" title=" " alt="" coords="243,49,413,90"/>
+<area shape="rect" id="node2" href="$classwaypoint.html#a257e9d94d1865217fd2c43177de8e417" title="Retrieve the detection results of the waypoint." alt="" coords="11,5,189,32"/>
+<area shape="rect" id="node3" href="$classwaypoint.html#a45c7cd14e4f8001817cfeb9c51657503" title="When inference finished, save the detected objects." alt="" coords="5,56,195,83"/>
+<area shape="rect" id="node4" href="$classwaypoint.html#a2e1f8d3f6095179ef13051bd2e882a0c" title="Mark waypoint as ready." alt="" coords="23,107,177,133"/>
+</map>

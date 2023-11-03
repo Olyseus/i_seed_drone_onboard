@@ -1,0 +1,4 @@
+<map id="mission_state::is_paused" name="mission_state::is_paused">
+<area shape="rect" id="node1" title="Check if global mission is paused." alt="" coords="200,5,387,32"/>
+<area shape="rect" id="node2" href="$classmission.html#a2f9149f4de5bf1614f11eed26e3bd9e1" title="Flag to indicate that execution of mission is paused." alt="" coords="5,5,152,32"/>
+</map>

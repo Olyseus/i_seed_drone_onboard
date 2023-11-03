@@ -1,0 +1,4 @@
+<map id="mission::get_mission_path" name="mission::get_mission_path">
+<area shape="rect" id="node1" title="Get the costructred mission path." alt="" coords="5,13,201,39"/>
+<area shape="rect" id="node2" href="$classmission__state.html#a4c2e8b258ca539c0fceb2d960f9cd4ba" title="The mission path is available in current state." alt="" coords="249,5,421,47"/>
+</map>
