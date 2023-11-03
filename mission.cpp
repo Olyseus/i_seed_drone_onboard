@@ -175,7 +175,8 @@ auto mission::upload_mission_and_start(int32_t event_id) -> bool {
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
   // If DjiWaypointV2_Start failed
-  constexpr int wait_ms{1500};
+  // https://sdk-forum.dji.net/hc/en-us/articles/4402056893465-Occasionally-uploading-fails-when-there-are-many-waypoint-mission-in-waypoint-v2
+  constexpr int wait_ms{3000};
   std::this_thread::sleep_for(std::chrono::milliseconds(wait_ms));
 
   code = DjiWaypointV2_Start();
