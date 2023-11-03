@@ -28,10 +28,10 @@
 #include <dji_platform.h>
 #include <dji_logger.h>
 #include <dji_core.h>
+#include <dji_power_management.h>
 #include <dji_aircraft_info.h>
 #include <csignal>
 #include "dji_sdk_config.h"
-#include "dji_config_manager.h"
 
 #include "common/osal/osal.h"
 #include "common/osal/osal_fs.h"
@@ -39,14 +39,6 @@
 #include "manifold2/hal/hal_usb_bulk.h"
 #include "manifold2/hal/hal_uart.h"
 #include "manifold2/hal/hal_network.h"
-
-#include <gimbal_emu/test_payload_gimbal_emu.h>
-#include <camera_emu/test_payload_cam_emu_media.h>
-#include <camera_emu/test_payload_cam_emu_base.h>
-#include "widget/test_widget.h"
-#include "widget/test_widget_speaker.h"
-#include <power_management/test_power_management.h>
-#include "data_transmission/test_data_transmission.h"
 
 /* Private constants ---------------------------------------------------------*/
 #define DJI_LOG_PATH                    "Logs/DJI"
@@ -71,8 +63,6 @@ static FILE *s_djiLogFileCnt;
 
 /* Private functions declaration ---------------------------------------------*/
 static void DjiUser_NormalExitHandler(int signalNum);
-static T_DjiReturnCode DjiTest_HighPowerApplyPinInit();
-static T_DjiReturnCode DjiTest_WriteHighPowerApplyPin(E_DjiPowerManagementPinState pinState);
 
 /* Exported functions definition ---------------------------------------------*/
 Application::Application()
@@ -98,7 +88,6 @@ void Application::DjiUser_SetupEnvironment()
     T_DjiFileSystemHandler fileSystemHandler = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     T_DjiSocketHandler socketHandler {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     T_DjiHalNetworkHandler networkHandler = {0, 0, 0};
-    T_DjiUserLinkConfig linkConfig;
 
     networkHandler.NetworkInit = HalNetWork_Init;
     networkHandler.NetworkDeInit = HalNetWork_DeInit;
@@ -512,7 +501,8 @@ T_DjiReturnCode Application::DjiUser_LocalWriteFsInit(const char *path)
     }
 
     sprintf(systemCmd, "ln -sfrv %s " DJI_LOG_FOLDER_NAME "/latest.log", filePath);
-    system(systemCmd);
+    int result = system(systemCmd);
+    (void)result;
     return djiReturnCode;
 }
 
@@ -520,17 +510,6 @@ static void DjiUser_NormalExitHandler(int signalNum)
 {
     USER_UTIL_UNUSED(signalNum);
     exit(0);
-}
-
-static T_DjiReturnCode DjiTest_HighPowerApplyPinInit()
-{
-    return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
-}
-
-static T_DjiReturnCode DjiTest_WriteHighPowerApplyPin(E_DjiPowerManagementPinState pinState)
-{
-    //attention: please pull up the HWPR pin state by hardware.
-    return DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS;
 }
 
 /****************** (C) COPYRIGHT DJI Innovations *****END OF FILE****/
