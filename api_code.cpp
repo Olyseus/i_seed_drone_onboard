@@ -26,6 +26,10 @@ api_code::api_code(const T_DjiReturnCode code) {
     case DJI_ERROR_SYSTEM_MODULE_CODE_MEMORY_ALLOC_FAILED:
       spdlog::error("DjiErrorCode: memory allocation failed");
       throw pipeline_closed();
+    case DJI_ERROR_SYSTEM_MODULE_CODE_NONSUPPORT_IN_CURRENT_STATE:
+      spdlog::error("DjiErrorCode: nonsupport in current state");
+      make_retry();
+      break;
     default:
       spdlog::error("Invalid DjiErrorCode: {}", code);
       break;
