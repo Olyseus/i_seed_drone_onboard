@@ -15,7 +15,7 @@ void setup_logging() {
 
   namespace fs = boost::filesystem;
 
-  const fs::path log_path{fs::absolute("i_seed_drone_sdcard_clean.log")};
+  const fs::path log_path{fs::absolute("i_seed_drone_sdcard_list.log")};
   fs::remove(log_path);
 
   constexpr std::size_t max_file_size{10 * 1024 * 1024};
