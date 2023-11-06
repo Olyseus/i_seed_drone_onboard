@@ -88,51 +88,49 @@ auto run_main(int argc, char** argv) -> int {
                  optical_zoom_spec.maxFocalLength,
                  optical_zoom_spec.focalLengthStep);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    const E_DjiCameraManagerFocusMode expected_focus_mode{
+        DJI_CAMERA_MANAGER_FOCUS_MODE_MANUAL};
 
-    while (true) {
-      const E_DjiCameraManagerFocusMode expected_focus_mode{
-          DJI_CAMERA_MANAGER_FOCUS_MODE_MANUAL};
+    // If failed, check camera is ZOOM and the pause is long enough:
+    // - https://sdk-forum.dji.net/hc/en-us/requests/73828
+    E_DjiCameraManagerFocusMode focus_mode;
+    code = DjiCameraManager_GetFocusMode(m_pos, &focus_mode);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-      // If failed, check camera is ZOOM and the pause is long enough:
-      // - https://sdk-forum.dji.net/hc/en-us/requests/73828
-      E_DjiCameraManagerFocusMode focus_mode;
-      code = DjiCameraManager_GetFocusMode(m_pos, &focus_mode);
+    if (focus_mode != expected_focus_mode) {
+      spdlog::info("Changing focus mode to MF");
+      code = DjiCameraManager_SetFocusMode(m_pos, expected_focus_mode);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    }
+
+    uint16_t focal_length{0};
+    code = DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload(
+        m_pos, &focal_length);
+    OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+    spdlog::info("Focal length: {}", focal_length);
+
+    // Level is not x1.3 if it's not minimum
+    OLYSEUS_VERIFY(focal_length == optical_zoom_spec.minFocalLength);
+
+    // FIXME (remove?)
+    if (focal_length != optical_zoom_spec.minFocalLength) {
+      T_DjiCameraManagerOpticalZoomParam optical_zoom_param;
+      code = DjiCameraManager_GetOpticalZoomParam(m_pos, &optical_zoom_param);
+      OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+      spdlog::info("zoom param current: {}",
+                   optical_zoom_param.currentOpticalZoomFactor);
+
+      code = DjiCameraManager_SetOpticalZoomParam(
+          m_pos, DJI_CAMERA_ZOOM_DIRECTION_OUT,
+          optical_zoom_param.currentOpticalZoomFactor *
+              optical_zoom_spec.minFocalLength / focal_length);
       OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 
-      if (focus_mode != expected_focus_mode) {
-        spdlog::info("Changing focus mode to MF");
-        code = DjiCameraManager_SetFocusMode(m_pos, expected_focus_mode);
-        OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-      }
-
-      uint16_t focal_length{0};
       code = DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload(
           m_pos, &focal_length);
       OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-      spdlog::info("Focal length: {}", focal_length);
 
-      if (focal_length != optical_zoom_spec.minFocalLength) {
-        T_DjiCameraManagerOpticalZoomParam optical_zoom_param;
-        code = DjiCameraManager_GetOpticalZoomParam(m_pos, &optical_zoom_param);
-        OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-        spdlog::info("zoom param current: {}",
-                     optical_zoom_param.currentOpticalZoomFactor);
-
-        code = DjiCameraManager_SetOpticalZoomParam(
-            m_pos, DJI_CAMERA_ZOOM_DIRECTION_OUT,
-            optical_zoom_param.currentOpticalZoomFactor *
-                optical_zoom_spec.minFocalLength / focal_length);
-        OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-
-        code = DjiPayloadCamera_GetCameraHybridZoomFocalLengthOfPayload(
-            m_pos, &focal_length);
-        OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
-
-        OLYSEUS_VERIFY(focal_length == optical_zoom_spec.minFocalLength);
-      }
-
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      OLYSEUS_VERIFY(focal_length == optical_zoom_spec.minFocalLength);
     }
 
     code = DjiCameraManager_DeInit();
