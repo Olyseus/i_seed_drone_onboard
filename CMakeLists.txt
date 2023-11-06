@@ -98,6 +98,7 @@ if(I_SEED_DRONE_ONBOARD_DOC)
       main_positioning.cpp
       main_quaternion.cpp
       main_sdcard_clean.cpp
+      main_sdcard_list.cpp
       main_ut.h
       olyseus_verify.cpp
       olyseus_verify.h
@@ -469,6 +470,11 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   )
 
   add_executable(
+      i_seed_drone_sdcard_list
+      main_sdcard_list.cpp
+  )
+
+  add_executable(
       i_seed_drone_sdcard_clean
       main_sdcard_clean.cpp
   )
@@ -476,6 +482,13 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     set_source_files_properties(
         main_sdcard_clean.cpp
+        PROPERTIES
+        COMPILE_OPTIONS
+        "-Wno-nested-anon-types"
+    )
+
+    set_source_files_properties(
+        main_sdcard_list.cpp
         PROPERTIES
         COMPILE_OPTIONS
         "-Wno-nested-anon-types"
