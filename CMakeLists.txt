@@ -100,7 +100,6 @@ if(I_SEED_DRONE_ONBOARD_DOC)
       main_sdcard_clean.cpp
       main_sdcard_list.cpp
       main_ut.h
-      olyseus_verify.cpp
       olyseus_verify.h
       simulator.cpp
       simulator.h
@@ -180,7 +179,6 @@ add_library(
     mission_polygon.h
     mission_simple_polygon.cpp
     mission_simple_polygon.h
-    olyseus_verify.cpp
     olyseus_verify.h
     polygon_slicer.cpp
     polygon_slicer.h
