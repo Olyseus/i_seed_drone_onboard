@@ -4,6 +4,19 @@ Slack
 List is pinned to ``i-seed`` channel in Slack:
 - https://olyseusinnovations.slack.com/archives/G01JZSKBA4A/p1674701000467569
 
+Updates
+-------
+
+It's better to check updates for:
+
+- Matrice 300 RTK drone firmware
+- H20 camera firmware
+- Smart controller firmware
+- DJI Pilot App updates
+
+Make sure not to update to firmware which only support RC PLUS:
+- https://enterprise.dji.com/matrice-300/downloads
+
 Camera is ZOOM
 --------------
 
