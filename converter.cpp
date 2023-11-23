@@ -11,9 +11,9 @@ auto converter::run(const gps_coordinates& gps, const attitude& drone_attitude,
   const Eigen::Vector3d drone_ned_v{
       camera_to_drone_ned(gimbal_attitude, length)};
 
-  // FIXME (real values:
-  // https://github.com/Olyseus/i_seed_drone_onboard/issues/10)
-  const Eigen::Vector3d drone_ned_p{0.4, 0.0, 0.1};
+  // https://github.com/Olyseus/i_seed_drone_onboard/issues/39#issuecomment-1713616434
+  const Eigen::Vector3d drone_ned_mm{467.9, -339.08, 252.42};
+  const Eigen::Vector3d drone_ned_p{drone_ned_mm / 1000.0};
 
   const Eigen::Vector3d local_ned_v{
       drone_ned_to_local_ned(drone_attitude, drone_ned_v)};
