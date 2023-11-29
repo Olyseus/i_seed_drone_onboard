@@ -13,11 +13,23 @@ server::server(uint16_t channel_id) {
   OLYSEUS_VERIFY(channel_handle_ != nullptr);
 
   spdlog::info("Binding channel {}", channel_id);
+  static_assert(258 == DJI_ERROR_SYSTEM_MODULE_CODE_BUSY);
   code = DjiMopChannel_Bind(channel_handle_, channel_id);
+  OLYSEUS_VERIFY(code != DJI_ERROR_SYSTEM_MODULE_CODE_BUSY); // retrying will not help
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
-server::~server() = default;
+server::~server() {
+#if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
+  spdlog::info("Close channel");
+  T_DjiReturnCode code{DjiMopChannel_Close(channel_handle_)};
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+
+  spdlog::info("Destroy channel");
+  code = DjiMopChannel_Destroy(channel_handle_);
+  OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
+#endif
+}
 
 auto server::handle() const -> T_DjiMopChannelHandle {
 #if defined(I_SEED_DRONE_ONBOARD_INTERCONNECTION)
