@@ -99,6 +99,9 @@ camera::camera(const std::string& model_file, mission& m)
   // &media_file_list);
   spdlog::info("Downloading file list: DONE");  // FIXME (remove)
 
+  if (code != DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS) {
+    spdlog::info("code: {}", code);
+  }
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
   for (int i = 0; i < media_file_list.totalCount; ++i) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
