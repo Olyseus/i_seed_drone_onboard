@@ -248,7 +248,7 @@ void camera::shoot_photo(const gps_coordinates& gps,
 auto camera::check_sdcard(bool debug_launch) -> bool {
   {
     const std::lock_guard lock{queue_mutex_};
-    constexpr int64_t wait_ms{20L * 1000L};  // 20 sec
+    constexpr int64_t wait_ms{120L * 1000L};  // FIXME (try smaller interval)
     if (!queue_.empty() && file_waiting_timer_.elapsed_ms() > wait_ms) {
       throw std::runtime_error("Waiting for a file too long. SD Card is full?");
     }
