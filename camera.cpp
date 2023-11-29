@@ -167,6 +167,9 @@ void camera::shoot_photo(const gps_coordinates& gps,
     const E_DjiCameraManagerFocusMode expected_focus_mode{
         DJI_CAMERA_MANAGER_FOCUS_MODE_MANUAL};
 
+    // FIXME (try smaller interval and report issue in case of problem)
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
     // If failed, check camera is ZOOM and the pause is long enough:
     // - https://sdk-forum.dji.net/hc/en-us/requests/73828
     E_DjiCameraManagerFocusMode focus_mode{
