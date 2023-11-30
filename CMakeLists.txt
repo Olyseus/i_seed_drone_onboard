@@ -498,6 +498,10 @@ if(I_SEED_DRONE_ONBOARD_MANIFOLD)
   )
 
   target_link_libraries(
+      i_seed_drone_sdcard_list PRIVATE i_seed_drone_onboard_core
+  )
+
+  target_link_libraries(
       i_seed_drone_camera_test PRIVATE i_seed_drone_onboard_core
   )
 
