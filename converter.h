@@ -33,6 +33,22 @@ class converter {
                               const attitude& drone_attitude,
                               const attitude& gimbal_attitude, float length);
 
+  // \brief ECEF coordinates of object by pointing vector and length
+  /// \param[in] gps Drone's GPS coordinates
+  /// \param[in] drone_attitude Drone's roll/pitch/yaw
+  /// \param[in] pointing_vec Vector in drone's NED coordinates
+  ///     It's a vector from detector to object, i.e. if object is
+  ///     perfectly down, then the pointing_vec is (0, 0, v)
+  ///     The lenght of the vector will not be used
+  ///     Hint: Z expected to be positive (down)
+  /// \param[in] length The length of ray from camera.
+  ///     The value of laser range measurement
+  /// \return Global ECEF (X,Y,Z)
+  static Eigen::Vector3d get_ecef(const gps_coordinates& gps,
+                                  const attitude& drone_attitude,
+                                  const Eigen::Vector3d& pointing_vec,
+                                  float length);
+
  private:
   /// \cond private
   friend class converter_test;
@@ -44,6 +60,8 @@ class converter {
                                              float length);
   static Eigen::Vector3d drone_ned_to_local_ned(const attitude& drone_attitude,
                                                 const Eigen::Vector3d& v);
+
+  static Eigen::Vector3d drone_ned_p();
 };
 
 #endif  // CONVERTER_H_

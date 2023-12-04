@@ -11,14 +11,10 @@ auto converter::run(const gps_coordinates& gps, const attitude& drone_attitude,
   const Eigen::Vector3d drone_ned_v{
       camera_to_drone_ned(gimbal_attitude, length)};
 
-  // https://github.com/Olyseus/i_seed_drone_onboard/issues/39#issuecomment-1713616434
-  const Eigen::Vector3d drone_ned_mm{467.9, -339.08, 252.42};
-  const Eigen::Vector3d drone_ned_p{drone_ned_mm / 1000.0};
-
   const Eigen::Vector3d local_ned_v{
       drone_ned_to_local_ned(drone_attitude, drone_ned_v)};
   const Eigen::Vector3d local_ned_p{
-      drone_ned_to_local_ned(drone_attitude, drone_ned_p)};
+      drone_ned_to_local_ned(drone_attitude, drone_ned_p())};
   const Eigen::Vector3d local_ned_down{0.0, 0.0, 1.0};
 
   constexpr double eps{1e-3};
@@ -48,6 +44,40 @@ auto converter::run(const gps_coordinates& gps, const attitude& drone_attitude,
   spdlog::info("{} {} {} 255 255 0", p_down(0), p_down(1), p_down(2));
 
   return result;
+}
+
+auto converter::get_ecef(const gps_coordinates& gps,
+                         const attitude& drone_attitude,
+                         const Eigen::Vector3d& pointing_vec, float length)
+    -> Eigen::Vector3d {
+  const Eigen::Vector3d local_ned_v{drone_ned_to_local_ned(
+      drone_attitude, length * pointing_vec.normalized())};
+  const Eigen::Vector3d local_ned_p{drone_ned_to_local_ned(
+      drone_attitude, drone_ned_p())};  // FIXME (use detector offset here)
+  const Eigen::Vector3d local_ned_down{0.0, 0.0, 1.0};
+
+  constexpr double eps{1e-3};
+  OLYSEUS_VERIFY(local_ned_down.dot(local_ned_v.normalized()) > eps);
+
+  const GeographicLib::LocalCartesian local_cartesian(
+      gps.latitude, gps.longitude, gps.altitude);
+  const Eigen::Vector3d drone_ecef{
+      local_ned_to_ecef(local_cartesian, Eigen::Vector3d{0.0, 0.0, 0.0})};
+
+  const Eigen::Vector3d ecef_p{local_ned_to_ecef(local_cartesian, local_ned_p)};
+  const Eigen::Vector3d ecef_v{local_ned_to_ecef(local_cartesian, local_ned_v) -
+                               drone_ecef};
+  const Eigen::Vector3d ecef_d{
+      local_ned_to_ecef(local_cartesian, local_ned_down) - drone_ecef};
+
+  constexpr double sanity_dist{500.0};
+  constexpr double sanity_norm{2.0};
+  OLYSEUS_VERIFY(std::abs(ecef_d.norm() - 1.0) < eps);
+  OLYSEUS_VERIFY(ecef_v.norm() < sanity_dist);
+  OLYSEUS_VERIFY(ecef_d.dot(ecef_v.normalized()) > eps);
+  OLYSEUS_VERIFY((drone_ecef - ecef_p).norm() < sanity_norm);
+
+  return drone_ecef + ecef_v;
 }
 
 auto converter::local_ned_to_ecef(
@@ -136,4 +166,10 @@ auto converter::drone_ned_to_local_ned(const attitude& drone_attitude,
   // clang-format on
 
   return rotate_yaw * rotate_pitch * rotate_roll * v;
+}
+
+auto converter::drone_ned_p() -> Eigen::Vector3d {
+  // https://github.com/Olyseus/i_seed_drone_onboard/issues/39#issuecomment-1713616434
+  const Eigen::Vector3d drone_ned_mm{467.9, -339.08, 252.42};
+  return drone_ned_mm / 1000.0;
 }
