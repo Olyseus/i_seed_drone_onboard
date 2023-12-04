@@ -77,7 +77,7 @@ auto converter::get_ecef(const gps_coordinates& gps,
   OLYSEUS_VERIFY(ecef_d.dot(ecef_v.normalized()) > eps);
   OLYSEUS_VERIFY((drone_ecef - ecef_p).norm() < sanity_norm);
 
-  return drone_ecef + ecef_v;
+  return ecef_p + ecef_v;
 }
 
 auto converter::local_ned_to_ecef(
