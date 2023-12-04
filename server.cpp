@@ -15,7 +15,8 @@ server::server(uint16_t channel_id) {
   spdlog::info("Binding channel {}", channel_id);
   static_assert(258 == DJI_ERROR_SYSTEM_MODULE_CODE_BUSY);
   code = DjiMopChannel_Bind(channel_handle_, channel_id);
-  OLYSEUS_VERIFY(code != DJI_ERROR_SYSTEM_MODULE_CODE_BUSY); // retrying will not help
+  OLYSEUS_VERIFY(code !=
+                 DJI_ERROR_SYSTEM_MODULE_CODE_BUSY);  // retrying will not help
   OLYSEUS_VERIFY(code == DJI_ERROR_SYSTEM_MODULE_CODE_SUCCESS);
 }
 
