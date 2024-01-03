@@ -86,6 +86,10 @@ if(I_SEED_DRONE_ONBOARD_DOC)
 
   set(DOXYGEN_EXCLUDE_PATTERNS */_deps/* */_builds/* */third_party/* *_ut.cpp)
 
+  # To generate PDF enter the binary directory 'latex/' and run 'make'
+  set(DOXYGEN_GENERATE_HTML YES)
+  set(DOXYGEN_GENERATE_LATEX YES)
+
   set(
       DOXYGEN_EXCLUDE
       battery_monitor_main.cpp
