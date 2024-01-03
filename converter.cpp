@@ -39,8 +39,13 @@ auto converter::run(const gps_coordinates& gps, const attitude& drone_attitude,
 
   const Eigen::Vector3d p_down(result.p + result.d);
 
+  // RTK antenna center global coordinates (red)
   spdlog::info("{} {} {} 255 0 0", drone(0), drone(1), drone(2));
+
+  // H20 camera center global coordinates (blue)
   spdlog::info("{} {} {} 0 0 255", result.p(0), result.p(1), result.p(2));
+
+  // Down direction, point 1m below H20 camera center (yellow)
   spdlog::info("{} {} {} 255 255 0", p_down(0), p_down(1), p_down(2));
 
   return result;

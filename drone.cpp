@@ -534,6 +534,7 @@ void drone::action_job_internal() {
     OLYSEUS_VERIFY(!d.pixels.empty());
 
     for (const detected_pixel& p : d.pixels) {
+      // Rotate the gimbal to make the laser aligned with the pixel direction
       attitude pixel_gimbal_attitude{rotate_gimbal(p.x, p.y, drone_yaw_)};
       pixel_gimbal_attitude.yaw -= drone_yaw_;  // yaw relative to drone
 
@@ -556,21 +557,39 @@ void drone::action_job_internal() {
           .roll = gimbal_roll_,
           .yaw = gimbal_yaw_ - drone_yaw_};  // yaw relative to drone
 
+      // Direction (1m length vector) generated from pixel, drone coordinates
+      // and drone attitude are taken from detection results saved from
+      // the first run
       const converter_result pixel_result{
           converter::run(d.gps, d.drone_attitude, pixel_gimbal_attitude, 1.0F)};
+
+      // Direction from laser (vector length taken from laser range)
+      // Drone coordinates and drone attitude are recent. Drone coordinates
+      // and attitude should be close to what is saved in first run, but
+      // in practice there will be a slight difference
       const converter_result laser_result{converter::run(
           gps, drone_attitude, laser_gimbal_attitude, latest_laser_range())};
 
       constexpr double eps{1e-3};
       constexpr double max_dist{5.0};
 
+      // Sanity check: Camera center coordinates from first run and now
+      // should be close enough from each other
       OLYSEUS_VERIFY((pixel_result.p - laser_result.p).norm() < max_dist);
+
+      // Sanity check: The down direction practically should be the same
       OLYSEUS_VERIFY(std::abs(pixel_result.d.dot(laser_result.d) - 1.0) < eps);
 
+      // I-Seed object coordinates based on laser direction and length
       const Eigen::Vector3d p_laser_end{laser_result.p + laser_result.v};
       spdlog::info("{} {} {} 255 165 0", p_laser_end(0), p_laser_end(1),
                    p_laser_end(2));  // orange
 
+      // Find the coefficient 'k' that satisfy equation:
+      // dot product of vector 'laser_result.d' and
+      // vector 'p_pixel_end - p_laser_end' is zero (vectors are orthogonal)
+      // See:
+      // https://github.com/Olyseus/i_seed_drone_onboard/blob/9aa0044db513432faff6a2ad01681d497dbe207e/docs/i_seed_coord_calc.jpg
       const double k_num{
           laser_result.d.dot(laser_result.p - pixel_result.p + laser_result.v)};
       const double k_denom{pixel_result.v.dot(laser_result.d)};
@@ -578,9 +597,15 @@ void drone::action_job_internal() {
       const double k{k_num / k_denom};
       OLYSEUS_VERIFY(k > eps);
 
+      // I-Seed object coordinates based on pixel direction and laser length
+      // it's assumed that pixel direction is more accurate, and the laser
+      // length error is 20cm anyway, so such coordinates are our best guess
       const Eigen::Vector3d p_pixel_end{pixel_result.p + k * pixel_result.v};
       spdlog::info("{} {} {} 0 255 0", p_pixel_end(0), p_pixel_end(1),
-                   p_pixel_end(2));
+                   p_pixel_end(2));  // green
+
+      // Sanity check: Verify that I-Seed object coordinates based on pixel
+      // and based on laser are close to each other
       constexpr double sanity_dist{10.0};
       const double end_diff{(p_pixel_end - p_laser_end).norm()};
       if (end_diff > sanity_dist) {
